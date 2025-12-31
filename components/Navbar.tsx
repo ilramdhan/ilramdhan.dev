@@ -17,7 +17,12 @@ export function Navbar() {
   const { isAuthenticated } = useStore();
 
   const handleNav = (targetPath: string) => {
-    navigate(targetPath);
+    if (targetPath === '/contact') {
+        // Force navigation to /contact which App.tsx handles by scrolling
+        navigate('/contact');
+    } else {
+        navigate(targetPath);
+    }
     setIsOpen(false);
   };
 

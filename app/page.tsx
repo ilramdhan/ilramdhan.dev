@@ -26,25 +26,25 @@ export default function Page() {
   
   // Filter only featured projects for homepage
   const featuredProjects = projects.filter(p => p.is_featured).slice(0, 3);
-  // Get latest blogs
-  const latestPosts = posts.slice(0, 3);
+  // Get featured blogs
+  const featuredPosts = posts.filter(p => p.is_featured).slice(0, 3);
   
   return (
     <>
       <Navbar />
-      <main className="bg-slate-950 min-h-screen">
+      <main className="min-h-screen">
         <Hero />
         
         {/* Tech Stack Marquee */}
-        <section className="py-12 bg-slate-900 border-y border-white/5 overflow-hidden">
-            <div className="max-w-7xl mx-auto px-4 mb-6">
+        <section className="py-12 bg-slate-900/50 border-y border-white/5 overflow-hidden backdrop-blur-sm">
+            <div className="max-w-7xl mx-auto px-4 mb-8">
                 <p className="text-center text-slate-500 text-sm font-semibold uppercase tracking-wider">
                 Technologies I work with
                 </p>
             </div>
             <div className="relative flex overflow-x-hidden group">
-                <div className="animate-scroll flex gap-12 whitespace-nowrap py-4 px-6">
-                    {/* Double the list for seamless loop */}
+                {/* Increased gap from gap-12 to gap-24 for wider spacing */}
+                <div className="animate-scroll flex gap-24 whitespace-nowrap py-4 px-6">
                     {[...TECH_STACK, ...TECH_STACK].map((tech, i) => (
                         <div key={i} className="flex items-center gap-3 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300">
                              <img src={`https://cdn.simpleicons.org/${tech.icon}/white`} alt={tech.name} className="h-8 w-8" />
@@ -83,11 +83,11 @@ export default function Page() {
         </section>
 
         {/* Latest Blog Section */}
-        <section id="blog" className="py-20 bg-slate-900/30 border-y border-white/5">
+        <section id="blog" className="py-20 bg-slate-900/30 border-y border-white/5 backdrop-blur-sm">
              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
                     <div>
-                        <h2 className="text-3xl font-bold text-white mb-2">Latest Articles</h2>
+                        <h2 className="text-3xl font-bold text-white mb-2">Featured Articles</h2>
                         <p className="text-slate-400">Thoughts on development and tech</p>
                     </div>
                     <button 
@@ -99,11 +99,11 @@ export default function Page() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {latestPosts.map((post) => (
+                    {featuredPosts.map((post) => (
                         <div 
                             key={post.id} 
                             onClick={() => navigate(`/blog/${post.id}`)}
-                            className="bg-slate-950 border border-white/10 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-all cursor-pointer group"
+                            className="bg-slate-950/80 border border-white/10 rounded-xl overflow-hidden hover:border-indigo-500/50 transition-all cursor-pointer group"
                         >
                             <div className="aspect-[2/1] overflow-hidden">
                                 <img src={post.cover_image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
@@ -112,14 +112,20 @@ export default function Page() {
                                 <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">
                                     <Calendar className="h-3 w-3" />
                                     {new Date(post.published_at).toLocaleDateString()}
+                                    {post.tags && post.tags.length > 0 && (
+                                        <>
+                                         <span>•</span>
+                                         <span className="text-indigo-400">{post.tags[0]}</span>
+                                        </>
+                                    )}
                                 </div>
                                 <h3 className="text-xl font-bold text-white mb-3 group-hover:text-indigo-400 transition-colors">{post.title}</h3>
                                 <p className="text-slate-400 text-sm line-clamp-3">{post.excerpt}</p>
                             </div>
                         </div>
                     ))}
-                    {latestPosts.length === 0 && (
-                         <p className="text-slate-500 col-span-full text-center py-10">No blog posts yet.</p>
+                    {featuredPosts.length === 0 && (
+                         <p className="text-slate-500 col-span-full text-center py-10">No featured blog posts.</p>
                     )}
                 </div>
              </div>
@@ -136,14 +142,14 @@ export default function Page() {
               </p>
             </div>
             
-            <div className="bg-slate-900/50 backdrop-blur-sm border border-white/5 rounded-2xl p-8 max-w-2xl mx-auto">
+            <div className="bg-slate-900/80 backdrop-blur-sm border border-white/5 rounded-2xl p-8 max-w-2xl mx-auto">
               <ContactForm />
             </div>
           </div>
         </section>
       </main>
       
-      <footer className="bg-slate-950 border-t border-white/5 py-12">
+      <footer className="bg-slate-950/90 border-t border-white/5 py-12 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <span className="text-slate-500 text-sm">
