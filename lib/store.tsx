@@ -59,6 +59,9 @@ export interface ProfileConfig {
   address: string;
   resume_url: string;
   badge: string;
+  footer_text: string;
+  privacy_content: string;
+  terms_content: string;
   socials: {
     github: string;
     linkedin: string;
@@ -82,6 +85,23 @@ const INITIAL_PROFILE: ProfileConfig = {
   address: "Jakarta, Indonesia",
   resume_url: "#",
   badge: 'Full Stack Software Engineer',
+  footer_text: `© ${new Date().getFullYear()} DevFolio. Built with Next.js & Supabase.`,
+  privacy_content: `## Privacy Policy
+  
+Your privacy is important to us. It is our policy to respect your privacy regarding any information we may collect from you across our website.
+
+### 1. Information We Collect
+We only ask for personal information when we truly need it to provide a service to you.
+
+### 2. Log Data
+When you visit our website, our servers may automatically log the standard data provided by your web browser.`,
+  terms_content: `## Terms of Service
+
+### 1. Terms
+By accessing this website, you are agreeing to be bound by these terms of service.
+
+### 2. Use License
+Permission is granted to temporarily download one copy of the materials on this website for personal, non-commercial transitory viewing only.`,
   socials: {
     github: 'https://github.com',
     linkedin: 'https://linkedin.com',

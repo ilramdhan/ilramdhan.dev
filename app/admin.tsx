@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useStore, Experience, Education, Service } from '../lib/store';
 import { useRouter } from '../lib/router';
-import { Plus, Trash2, FolderKanban, Mail, LogOut, Settings, FileText, User, Edit, X, Save, CheckCheck, ExternalLink, Briefcase, GraduationCap, ChevronLeft, ChevronRight, Zap } from 'lucide-react';
+import { Plus, Trash2, FolderKanban, Mail, LogOut, Settings, FileText, User, Edit, X, Save, CheckCheck, ExternalLink, Briefcase, GraduationCap, ChevronLeft, ChevronRight, Zap, Scale } from 'lucide-react';
 import { toast } from 'sonner';
 
 const ADMIN_ITEMS_PER_PAGE = 5;
@@ -20,7 +20,7 @@ export default function AdminPage() {
   } = useStore();
   
   const { navigate } = useRouter();
-  const [activeTab, setActiveTab] = useState<'overview' | 'resume' | 'services' | 'projects' | 'blog' | 'messages'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'resume' | 'services' | 'legal' | 'projects' | 'blog' | 'messages'>('overview');
   
   // -- PAGINATION STATES --
   const [projectPage, setProjectPage] = useState(1);
@@ -41,7 +41,7 @@ export default function AdminPage() {
 
   // -- PROFILE STATE --
   const [profileForm, setProfileForm] = useState<typeof profile>(profile || {
-    logo_text: '', logo_url: '', name: '', avatar_url: '', title: '', description: '', detailed_bio: '', address: '', resume_url: '', badge: '',
+    logo_text: '', logo_url: '', name: '', avatar_url: '', title: '', description: '', detailed_bio: '', address: '', resume_url: '', badge: '', footer_text: '', privacy_content: '', terms_content: '',
     socials: { github: '', linkedin: '', twitter: '', instagram: '', youtube: '', whatsapp: '', mail: '', steam: '' }
   });
 
@@ -83,7 +83,7 @@ export default function AdminPage() {
   const handleUpdateProfile = (e: React.FormEvent) => {
     e.preventDefault();
     updateProfile(profileForm);
-    toast.success("Profile settings updated!");
+    toast.success("Settings updated!");
   };
 
   // --- EXPERIENCE HANDLERS ---
@@ -290,6 +290,7 @@ export default function AdminPage() {
                 {id: 'overview', icon: User, label: 'Overview'},
                 {id: 'resume', icon: Briefcase, label: 'Resume'},
                 {id: 'services', icon: Zap, label: 'Services'},
+                {id: 'legal', icon: Scale, label: 'Legal & Footer'},
                 {id: 'projects', icon: FolderKanban, label: 'Projects'},
                 {id: 'blog', icon: FileText, label: 'Blog'},
                 {id: 'messages', icon: Mail, label: 'Messages'},
@@ -408,6 +409,42 @@ export default function AdminPage() {
                         ) : (
                           <div className="text-slate-500 italic">Social links data not available.</div>
                         )}
+                    </div>
+
+                    <button type="submit" className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium flex items-center gap-2"><Save className="h-4 w-4" /> Save Changes</button>
+                </form>
+            </div>
+        )}
+
+        {activeTab === 'legal' && (
+            <div className="max-w-4xl">
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Legal Pages & Footer</h1>
+                <form onSubmit={handleUpdateProfile} className="space-y-6">
+                    {/* Footer Settings */}
+                    <div className="grid gap-6 p-6 bg-white border border-slate-200 dark:bg-slate-900 dark:border-white/10 rounded-xl shadow-sm">
+                        <h3 className="text-lg font-medium text-slate-900 dark:text-white border-b border-slate-100 dark:border-white/5 pb-2">Footer Settings</h3>
+                        <div>
+                            <label className="block text-sm text-slate-600 dark:text-slate-400 mb-1">Footer Copyright Text</label>
+                            <input value={profileForm?.footer_text || ''} onChange={e => setProfileForm({...profileForm, footer_text: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded px-3 py-2 text-slate-900 dark:text-white" />
+                        </div>
+                    </div>
+
+                    {/* Privacy Policy */}
+                    <div className="grid gap-6 p-6 bg-white border border-slate-200 dark:bg-slate-900 dark:border-white/10 rounded-xl shadow-sm">
+                        <h3 className="text-lg font-medium text-slate-900 dark:text-white border-b border-slate-100 dark:border-white/5 pb-2">Privacy Policy</h3>
+                        <div>
+                            <label className="block text-sm text-slate-600 dark:text-slate-400 mb-1">Content (Markdown Supported)</label>
+                            <textarea rows={12} value={profileForm?.privacy_content || ''} onChange={e => setProfileForm({...profileForm, privacy_content: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded px-3 py-2 text-slate-900 dark:text-white font-mono text-sm" />
+                        </div>
+                    </div>
+
+                    {/* Terms of Service */}
+                    <div className="grid gap-6 p-6 bg-white border border-slate-200 dark:bg-slate-900 dark:border-white/10 rounded-xl shadow-sm">
+                        <h3 className="text-lg font-medium text-slate-900 dark:text-white border-b border-slate-100 dark:border-white/5 pb-2">Terms of Service</h3>
+                        <div>
+                            <label className="block text-sm text-slate-600 dark:text-slate-400 mb-1">Content (Markdown Supported)</label>
+                            <textarea rows={12} value={profileForm?.terms_content || ''} onChange={e => setProfileForm({...profileForm, terms_content: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded px-3 py-2 text-slate-900 dark:text-white font-mono text-sm" />
+                        </div>
                     </div>
 
                     <button type="submit" className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium flex items-center gap-2"><Save className="h-4 w-4" /> Save Changes</button>
@@ -560,7 +597,7 @@ export default function AdminPage() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {services && services.map(srv => (
-                            <div key={srv.id} className="bg-white border border-slate-200 dark:bg-slate-900 dark:border-white/5 p-4 rounded-lg flex justify-between items-start group shadow-sm">
+                            <div key={srv.id} className="bg-white border border-slate-200 dark:bg-slate-900 dark:border-white/10 p-4 rounded-lg flex justify-between items-start group shadow-sm">
                                 <div className="flex items-start gap-3">
                                     <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded text-indigo-600 dark:text-indigo-400">
                                         <Zap className="h-5 w-5" />

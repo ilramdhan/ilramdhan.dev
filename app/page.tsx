@@ -23,7 +23,7 @@ const TECH_STACK = [
 ];
 
 export default function Page() {
-  const { projects, posts } = useStore();
+  const { projects, posts, profile } = useStore();
   const { navigate } = useRouter();
   
   // Filter only featured projects for homepage
@@ -154,7 +154,7 @@ export default function Page() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <span className="text-slate-500 text-sm">
-              © {new Date().getFullYear()} DevFolio. Built with Next.js & Supabase.
+              {profile.footer_text}
             </span>
             <div className="flex gap-6">
                <button onClick={() => navigate('/privacy')} className="text-slate-500 hover:text-slate-900 dark:hover:text-white text-sm">Privacy Policy</button>
