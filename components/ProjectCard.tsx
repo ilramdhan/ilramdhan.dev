@@ -4,8 +4,9 @@ import { ExternalLink, Github } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { useRouter } from '../lib/router';
 import type { Database } from '../types';
+import { ImageCarousel } from './ImageCarousel';
 
-type Project = Database['public']['Tables']['projects']['Row'];
+type Project = Database['public']['Tables']['projects']['Row'] & { images?: string[] };
 
 interface ProjectCardProps {
   project: Partial<Project>;
@@ -24,42 +25,37 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
       onClick={() => project.id && navigate(`/projects/${project.id}`)}
       className="group relative rounded-xl bg-slate-900 border border-white/10 overflow-hidden hover:border-indigo-500/50 transition-colors cursor-pointer"
     >
-      <div className="aspect-video w-full overflow-hidden bg-slate-800 relative">
-        {project.thumbnail_url ? (
-          <img 
-            src={project.thumbnail_url} 
-            alt={project.title} 
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-slate-600 bg-slate-900">
-             No Image
-          </div>
-        )}
-        <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-           {/* Stop propagation to allow clicking these buttons without navigating to detail */}
-            {project.demo_url && (
-                <a 
-                    href={project.demo_url} 
-                    target="_blank" 
-                    rel="noreferrer" 
-                    onClick={(e) => e.stopPropagation()}
-                    className="p-2 bg-white text-slate-900 rounded-full hover:bg-indigo-400 transition-colors"
-                >
-                    <ExternalLink className="h-5 w-5" />
-                </a>
-            )}
-            {project.repo_url && (
-                <a 
-                    href={project.repo_url} 
-                    target="_blank" 
-                    rel="noreferrer" 
-                    onClick={(e) => e.stopPropagation()}
-                    className="p-2 bg-slate-900 border border-white/20 text-white rounded-full hover:bg-indigo-600 transition-colors"
-                >
-                    <Github className="h-5 w-5" />
-                </a>
-            )}
+      <div className="aspect-video w-full bg-slate-800 relative group/image">
+         <ImageCarousel images={project.images || []} alt={project.title || 'Project'} />
+         
+        <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover/image:opacity-100 transition-opacity flex items-center justify-center gap-4 pointer-events-none">
+           {/* Actions overlay - separate from carousel interaction */}
+           <div className="flex gap-4 pointer-events-auto">
+                {project.demo_url && (
+                    <a 
+                        href={project.demo_url} 
+                        target="_blank" 
+                        rel="noreferrer" 
+                        onClick={(e) => e.stopPropagation()}
+                        className="p-2 bg-white text-slate-900 rounded-full hover:bg-indigo-400 transition-colors"
+                        title="Live Demo"
+                    >
+                        <ExternalLink className="h-5 w-5" />
+                    </a>
+                )}
+                {project.repo_url && (
+                    <a 
+                        href={project.repo_url} 
+                        target="_blank" 
+                        rel="noreferrer" 
+                        onClick={(e) => e.stopPropagation()}
+                        className="p-2 bg-slate-900 border border-white/20 text-white rounded-full hover:bg-indigo-600 transition-colors"
+                        title="GitHub Repo"
+                    >
+                        <Github className="h-5 w-5" />
+                    </a>
+                )}
+           </div>
         </div>
       </div>
       

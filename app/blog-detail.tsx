@@ -4,6 +4,7 @@ import { useRouter } from '../lib/router';
 import { Navbar } from '../components/Navbar';
 import { ArrowLeft, Calendar, User } from 'lucide-react';
 import { toast } from 'sonner';
+import { ImageCarousel } from '../components/ImageCarousel';
 
 export default function BlogDetailPage({ id }: { id: string }) {
   const { posts, addComment } = useStore();
@@ -37,11 +38,16 @@ export default function BlogDetailPage({ id }: { id: string }) {
     <div className="min-h-screen bg-slate-950 text-white">
       <Navbar />
       
-      {/* Header Image */}
-      <div className="w-full h-96 relative">
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent z-10" />
-        <img src={post.cover_image} className="w-full h-full object-cover opacity-50" />
-        <div className="absolute bottom-0 left-0 w-full z-20 pb-12">
+      {/* Header Image / Carousel */}
+      <div className="w-full h-96 relative bg-slate-900">
+         {post.images && post.images.length > 0 ? (
+             <ImageCarousel images={post.images} alt={post.title} aspectRatio="h-full" />
+         ) : (
+             <div className="w-full h-full bg-slate-900" />
+         )}
+         
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent z-10 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 w-full z-20 pb-12 pointer-events-auto">
             <div className="max-w-3xl mx-auto px-4">
                 <button onClick={() => navigate('/blog')} className="text-slate-300 hover:text-white mb-6 flex items-center gap-2 text-sm"><ArrowLeft className="h-4 w-4" /> Back to Blog</button>
                 <div className="flex items-center gap-2 text-indigo-300 text-sm mb-4">

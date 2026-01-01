@@ -88,7 +88,7 @@ export default function BlogPage() {
                 >
                     <div className="flex flex-col md:flex-row gap-6">
                         <div className="w-full md:w-48 aspect-video md:aspect-square shrink-0 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800">
-                             <img src={post.cover_image} alt={post.title} className="w-full h-full object-cover" />
+                             <img src={post.images?.[0] || ''} alt={post.title} className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1">
                             <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 mb-3">

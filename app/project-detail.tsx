@@ -3,6 +3,7 @@ import { useStore } from '../lib/store';
 import { useRouter } from '../lib/router';
 import { Navbar } from '../components/Navbar';
 import { Github, ExternalLink, Calendar, ArrowLeft } from 'lucide-react';
+import { ImageCarousel } from '../components/ImageCarousel';
 
 export default function ProjectDetailPage({ id }: { id: string }) {
   const { projects } = useStore();
@@ -26,8 +27,8 @@ export default function ProjectDetailPage({ id }: { id: string }) {
             <ArrowLeft className="h-4 w-4" /> Back to Projects
         </button>
 
-        <div className="mb-8 rounded-2xl overflow-hidden border border-white/10 aspect-video">
-            <img src={project.thumbnail_url || ''} alt={project.title} className="w-full h-full object-cover" />
+        <div className="mb-8 rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+            <ImageCarousel images={project.images || []} alt={project.title} aspectRatio="aspect-video" />
         </div>
 
         <div className="flex flex-col md:flex-row gap-8 mb-12">

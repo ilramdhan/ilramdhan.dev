@@ -27,13 +27,13 @@ export default function AdminPage() {
   // -- PROJECT STATES --
   const [isEditingProject, setIsEditingProject] = useState<string | null>(null);
   const [projectForm, setProjectForm] = useState({
-    title: '', description: '', tech_stack: '', tags: '', demo_url: '', repo_url: '', thumbnail_url: '', content: '', is_featured: false
+    title: '', description: '', tech_stack: '', tags: '', demo_url: '', repo_url: '', images: '', content: '', is_featured: false
   });
 
   // -- BLOG STATES --
   const [isEditingPost, setIsEditingPost] = useState<string | null>(null);
   const [postForm, setPostForm] = useState({
-    title: '', excerpt: '', content: '', cover_image: '', tags: '', is_featured: false
+    title: '', excerpt: '', content: '', images: '', tags: '', is_featured: false
   });
 
   // -- PROFILE STATE --
@@ -157,20 +157,21 @@ export default function AdminPage() {
               tags: project.tags?.join(', ') || '',
               demo_url: project.demo_url || '',
               repo_url: project.repo_url || '',
-              thumbnail_url: project.thumbnail_url || '',
+              images: project.images?.join('\n') || '',
               content: project.content || '',
               is_featured: !!project.is_featured
           });
       } else {
           setIsEditingProject('NEW');
           setProjectForm({
-              title: '', description: '', tech_stack: '', tags: '', demo_url: '', repo_url: '', thumbnail_url: 'https://picsum.photos/600/337', content: '', is_featured: false
+              title: '', description: '', tech_stack: '', tags: '', demo_url: '', repo_url: '', images: '', content: '', is_featured: false
           });
       }
   };
 
   const saveProject = (e: React.FormEvent) => {
       e.preventDefault();
+      const imageArray = projectForm.images.split('\n').map(s => s.trim()).filter(Boolean);
       const payload = {
           title: projectForm.title,
           slug: projectForm.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
@@ -180,7 +181,7 @@ export default function AdminPage() {
           tags: (projectForm.tags || '').split(',').map(s => s.trim()).filter(Boolean),
           demo_url: projectForm.demo_url,
           repo_url: projectForm.repo_url,
-          thumbnail_url: projectForm.thumbnail_url,
+          images: imageArray.length > 0 ? imageArray : ['https://picsum.photos/600/337'],
           is_featured: projectForm.is_featured,
       };
 
@@ -202,24 +203,25 @@ export default function AdminPage() {
               title: post.title || '',
               excerpt: post.excerpt || '',
               content: post.content || '',
-              cover_image: post.cover_image || '',
+              images: post.images?.join('\n') || '',
               tags: post.tags?.join(', ') || '',
               is_featured: !!post.is_featured
           });
       } else {
           setIsEditingPost('NEW');
-          setPostForm({ title: '', excerpt: '', content: '', cover_image: 'https://picsum.photos/800/400', tags: '', is_featured: false });
+          setPostForm({ title: '', excerpt: '', content: '', images: '', tags: '', is_featured: false });
       }
   };
 
   const savePost = (e: React.FormEvent) => {
       e.preventDefault();
+      const imageArray = postForm.images.split('\n').map(s => s.trim()).filter(Boolean);
       const payload = {
           title: postForm.title,
           slug: postForm.title.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
           excerpt: postForm.excerpt,
           content: postForm.content,
-          cover_image: postForm.cover_image,
+          images: imageArray.length > 0 ? imageArray : ['https://picsum.photos/800/400'],
           tags: (postForm.tags || '').split(',').map(s => s.trim()).filter(Boolean),
           is_featured: postForm.is_featured,
       };
@@ -380,7 +382,6 @@ export default function AdminPage() {
         {activeTab === 'resume' && (
             <div className="max-w-4xl">
                  <h1 className="text-2xl font-bold text-white mb-6">Resume / CV Management</h1>
-                 
                  {/* Experience Section */}
                  <div className="mb-12">
                     <div className="flex justify-between items-center mb-4">
@@ -481,94 +482,216 @@ export default function AdminPage() {
                  </div>
             </div>
         )}
-        
-        {/* ... Rest of tabs (projects, blog, messages) kept same but omitted for brevity in this specific update block ... */}
-        {/* We must include the rest of the component rendering to ensure it doesn't break. 
-            Since I'm replacing the whole file, I will paste the previous implementation 
-            of other tabs below to ensure functionality is preserved. */}
 
         {activeTab === 'projects' && (
           <div>
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-2xl font-bold text-white">Manage Projects</h1>
-              <button onClick={() => openProjectForm()} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+              <button 
+                onClick={() => openProjectForm()}
+                className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
                 <Plus className="h-4 w-4" /> Add Project
               </button>
             </div>
+
             {isEditingProject && (
               <div className="mb-8 p-6 bg-slate-900 border border-white/10 rounded-xl">
-                 <form onSubmit={saveProject} className="space-y-4">
-                     <div className="flex justify-between"><h3 className="text-white font-bold">Project Details</h3><button type="button" onClick={() => setIsEditingProject(null)}><X className="text-slate-400 h-5 w-5" /></button></div>
-                     <input required placeholder="Title" value={projectForm.title} onChange={e => setProjectForm({...projectForm, title: e.target.value})} className="w-full px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white" />
-                     <input placeholder="Thumbnail" value={projectForm.thumbnail_url} onChange={e => setProjectForm({...projectForm, thumbnail_url: e.target.value})} className="w-full px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white" />
-                     <textarea placeholder="Desc" value={projectForm.description} onChange={e => setProjectForm({...projectForm, description: e.target.value})} className="w-full px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white" />
-                     <input placeholder="Tech" value={projectForm.tech_stack} onChange={e => setProjectForm({...projectForm, tech_stack: e.target.value})} className="w-full px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white" />
-                     <input placeholder="Tags" value={projectForm.tags} onChange={e => setProjectForm({...projectForm, tags: e.target.value})} className="w-full px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white" />
-                     <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded">Save</button>
-                 </form>
+                <div className="flex justify-between mb-4">
+                    <h3 className="text-lg font-bold text-white">{isEditingProject === 'NEW' ? 'Create Project' : 'Edit Project'}</h3>
+                    <button onClick={() => setIsEditingProject(null)}><X className="h-5 w-5 text-slate-400 hover:text-white" /></button>
+                </div>
+                <form onSubmit={saveProject} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input required placeholder="Title" value={projectForm.title} onChange={e => setProjectForm({...projectForm, title: e.target.value})} className="px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white" />
+                    <div className="flex items-center gap-2 bg-slate-950 border border-white/10 rounded-lg px-4">
+                        <input type="checkbox" id="proj-featured" checked={projectForm.is_featured} onChange={e => setProjectForm({...projectForm, is_featured: e.target.checked})} className="w-4 h-4 rounded" />
+                        <label htmlFor="proj-featured" className="text-slate-300 text-sm cursor-pointer select-none">Featured on Homepage</label>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <textarea required placeholder="Image URLs (one per line)" value={projectForm.images} onChange={e => setProjectForm({...projectForm, images: e.target.value})} className="w-full px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white font-mono text-xs" rows={4} />
+                    <textarea required placeholder="Short Description" value={projectForm.description} onChange={e => setProjectForm({...projectForm, description: e.target.value})} className="w-full px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white" rows={4} />
+                  </div>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <input placeholder="Tech Stack (comma separated)" value={projectForm.tech_stack} onChange={e => setProjectForm({...projectForm, tech_stack: e.target.value})} className="px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white" />
+                      <input placeholder="Tags (comma separated, e.g. Fullstack, AI)" value={projectForm.tags} onChange={e => setProjectForm({...projectForm, tags: e.target.value})} className="px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white" />
+                  </div>
+                  
+                  <textarea placeholder="Content (Markdown supported)" value={projectForm.content} onChange={e => setProjectForm({...projectForm, content: e.target.value})} className="w-full px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white font-mono text-sm" rows={6} />
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                     <input placeholder="Demo URL" value={projectForm.demo_url} onChange={e => setProjectForm({...projectForm, demo_url: e.target.value})} className="w-full px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white" />
+                     <input placeholder="Repo URL" value={projectForm.repo_url} onChange={e => setProjectForm({...projectForm, repo_url: e.target.value})} className="w-full px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white" />
+                  </div>
+                  <div className="flex justify-end gap-3">
+                    <button type="button" onClick={() => setIsEditingProject(null)} className="px-4 py-2 text-slate-400 hover:text-white">Cancel</button>
+                    <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-lg flex items-center gap-2"><Save className="h-4 w-4" /> Save Project</button>
+                  </div>
+                </form>
               </div>
             )}
+
             <div className="grid gap-4 mb-8">
               {projects && paginate(projects, projectPage).map(project => (
                 <div key={project.id} className="flex items-center justify-between p-4 bg-slate-900 border border-white/5 rounded-lg group">
-                   <div className="text-white">{project.title}</div>
-                   <div className="flex gap-2">
-                        <button onClick={() => openProjectForm(project)} className="text-blue-400"><Edit className="h-4 w-4" /></button>
-                        <button onClick={() => deleteProject(project.id)} className="text-red-400"><Trash2 className="h-4 w-4" /></button>
-                   </div>
+                  <div className="flex items-center gap-4">
+                    <img src={project.images?.[0] || ''} className="w-16 h-10 object-cover rounded" />
+                    <div>
+                      <h4 className="font-medium text-white">{project.title}</h4>
+                      <div className="flex gap-2 text-xs text-slate-500 mt-1">
+                          {project.is_featured && <span className="text-indigo-400 border border-indigo-500/20 px-1 rounded">Featured</span>}
+                          <span>{project.tech_stack?.length} techs</span>
+                          <span>{project.images?.length || 0} images</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button onClick={() => openProjectForm(project)} className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors">
+                        <Edit className="h-4 w-4" />
+                    </button>
+                    <button onClick={() => deleteProject(project.id)} className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
+            
+             {/* Pagination */}
+             {getTotalPages(projects) > 1 && (
+                <div className="flex justify-center gap-2">
+                    <button onClick={() => setProjectPage(p => Math.max(1, p - 1))} disabled={projectPage === 1} className="p-2 bg-slate-900 rounded disabled:opacity-50"><ChevronLeft className="h-4 w-4 text-white" /></button>
+                    <span className="text-slate-400 text-sm py-2">Page {projectPage} of {getTotalPages(projects)}</span>
+                    <button onClick={() => setProjectPage(p => Math.min(getTotalPages(projects), p + 1))} disabled={projectPage === getTotalPages(projects)} className="p-2 bg-slate-900 rounded disabled:opacity-50"><ChevronRight className="h-4 w-4 text-white" /></button>
+                </div>
+            )}
           </div>
         )}
 
         {activeTab === 'blog' && (
-           <div>
+             <div>
              <div className="flex justify-between items-center mb-6">
                <h1 className="text-2xl font-bold text-white">Manage Articles</h1>
-               <button onClick={() => openPostForm()} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+               <button 
+                 onClick={() => openPostForm()}
+                 className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+               >
                  <Plus className="h-4 w-4" /> Write Article
                </button>
              </div>
+ 
              {isEditingPost && (
                <div className="mb-8 p-6 bg-slate-900 border border-white/10 rounded-xl">
+                 <div className="flex justify-between mb-4">
+                    <h3 className="text-lg font-bold text-white">{isEditingPost === 'NEW' ? 'Create Article' : 'Edit Article'}</h3>
+                    <button onClick={() => setIsEditingPost(null)}><X className="h-5 w-5 text-slate-400 hover:text-white" /></button>
+                 </div>
                  <form onSubmit={savePost} className="space-y-4">
-                    <div className="flex justify-between"><h3 className="text-white font-bold">Article Details</h3><button type="button" onClick={() => setIsEditingPost(null)}><X className="text-slate-400 h-5 w-5" /></button></div>
-                    <input required placeholder="Title" value={postForm.title} onChange={e => setPostForm({...postForm, title: e.target.value})} className="w-full px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white" />
-                    <button type="submit" className="bg-indigo-600 text-white px-4 py-2 rounded">Save</button>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input required placeholder="Article Title" value={postForm.title} onChange={e => setPostForm({...postForm, title: e.target.value})} className="w-full px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white" />
+                        <div className="flex items-center gap-2 bg-slate-950 border border-white/10 rounded-lg px-4">
+                            <input type="checkbox" id="blog-featured" checked={postForm.is_featured} onChange={e => setPostForm({...postForm, is_featured: e.target.checked})} className="w-4 h-4 rounded" />
+                            <label htmlFor="blog-featured" className="text-slate-300 text-sm cursor-pointer select-none">Featured on Homepage</label>
+                        </div>
+                   </div>
+                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       <textarea placeholder="Image URLs (one per line)" value={postForm.images} onChange={e => setPostForm({...postForm, images: e.target.value})} className="w-full px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white font-mono text-xs" rows={4} />
+                       <input placeholder="Tags (comma separated)" value={postForm.tags} onChange={e => setPostForm({...postForm, tags: e.target.value})} className="w-full px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white" />
+                   </div>
+                   <textarea required placeholder="Excerpt" value={postForm.excerpt} onChange={e => setPostForm({...postForm, excerpt: e.target.value})} className="w-full px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white" rows={2} />
+                   <textarea required placeholder="Full Content (Markdown supported)" value={postForm.content} onChange={e => setPostForm({...postForm, content: e.target.value})} className="w-full px-4 py-2 bg-slate-950 border border-white/10 rounded-lg text-white font-mono text-sm" rows={10} />
+                   
+                   <div className="flex justify-end gap-3">
+                     <button type="button" onClick={() => setIsEditingPost(null)} className="px-4 py-2 text-slate-400 hover:text-white">Cancel</button>
+                     <button type="submit" className="px-4 py-2 bg-indigo-600 text-white rounded-lg flex items-center gap-2"><Save className="h-4 w-4" /> Publish</button>
+                   </div>
                  </form>
                </div>
              )}
+ 
              <div className="grid gap-4 mb-8">
                {posts && paginate(posts, blogPage).map(post => (
                  <div key={post.id} className="flex items-center justify-between p-4 bg-slate-900 border border-white/5 rounded-lg">
-                    <div className="text-white">{post.title}</div>
-                    <div className="flex gap-2">
-                        <button onClick={() => openPostForm(post)} className="text-blue-400"><Edit className="h-4 w-4" /></button>
-                        <button onClick={() => deletePost(post.id)} className="text-red-400"><Trash2 className="h-4 w-4" /></button>
+                   <div className="flex items-center gap-4">
+                     <img src={post.images?.[0] || ''} className="w-16 h-10 object-cover rounded" />
+                     <div>
+                       <h4 className="font-medium text-white">{post.title}</h4>
+                       <div className="flex gap-4 text-xs text-slate-500 mt-1">
+                            {post.is_featured && <span className="text-indigo-400 border border-indigo-500/20 px-1 rounded">Featured</span>}
+                            <span>{new Date(post.published_at).toLocaleDateString()}</span>
+                            <span>{post.comments.length} comments</span>
+                            <span>{post.tags?.length || 0} tags</span>
+                       </div>
+                     </div>
+                   </div>
+                   <div className="flex items-center gap-3">
+                        <button onClick={() => openPostForm(post)} className="p-2 text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors">
+                            <Edit className="h-4 w-4" />
+                        </button>
+                        <button onClick={() => deletePost(post.id)} className="p-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors">
+                            <Trash2 className="h-4 w-4" />
+                        </button>
                    </div>
                  </div>
                ))}
              </div>
+             
+             {getTotalPages(posts) > 1 && (
+                <div className="flex justify-center gap-2">
+                    <button onClick={() => setBlogPage(p => Math.max(1, p - 1))} disabled={blogPage === 1} className="p-2 bg-slate-900 rounded disabled:opacity-50"><ChevronLeft className="h-4 w-4 text-white" /></button>
+                    <span className="text-slate-400 text-sm py-2">Page {blogPage} of {getTotalPages(posts)}</span>
+                    <button onClick={() => setBlogPage(p => Math.min(getTotalPages(posts), p + 1))} disabled={blogPage === getTotalPages(posts)} className="p-2 bg-slate-900 rounded disabled:opacity-50"><ChevronRight className="h-4 w-4 text-white" /></button>
+                </div>
+            )}
            </div>
         )}
 
         {activeTab === 'messages' && (
           <div>
-             <h1 className="text-2xl font-bold text-white mb-6">Inbox</h1>
-             {(messages?.length || 0) === 0 ? <div className="text-slate-500">No messages.</div> : (
-                <div className="space-y-4">
-                    {paginate(messages, messagePage).map((msg, idx) => (
-                        <div key={idx} className="p-4 bg-slate-900 border border-white/5 rounded text-white">
-                            <div className="flex justify-between">
-                                <span className="font-bold">{msg.name}</span>
-                                <button onClick={() => deleteMessage(msg.id)}><Trash2 className="h-4 w-4 text-red-400" /></button>
+            <div className="flex justify-between items-center mb-6">
+                 <h1 className="text-2xl font-bold text-white">Inbox ({messages?.length || 0})</h1>
+                 {unreadCount > 0 && (
+                     <button onClick={markAllMessagesRead} className="text-sm text-indigo-400 hover:text-indigo-300">Mark all as read</button>
+                 )}
+            </div>
+            
+            {(messages?.length || 0) === 0 ? (
+                <div className="text-slate-500 text-center py-12">No messages received yet.</div>
+            ) : (
+                <div className="space-y-4 mb-8">
+                {paginate(messages, messagePage).map((msg, idx) => (
+                    <div key={idx} className={`p-4 rounded-lg border transition-all ${msg.is_read ? 'bg-slate-900 border-white/5 opacity-75' : 'bg-slate-800 border-indigo-500/30'}`}>
+                    <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-center gap-2">
+                            {!msg.is_read && <div className="w-2 h-2 rounded-full bg-indigo-500" />}
+                            <div>
+                                <h4 className="font-bold text-white">{msg.name}</h4>
+                                <p className="text-xs text-indigo-400">{msg.email}</p>
                             </div>
-                            <div className="text-sm text-slate-400">{msg.message}</div>
                         </div>
-                    ))}
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs text-slate-500">{new Date(msg.created_at).toLocaleDateString()}</span>
+                            {!msg.is_read && (
+                                <button onClick={() => markMessageRead(msg.id)} title="Mark Read" className="p-1 text-slate-400 hover:text-white"><CheckCheck className="h-4 w-4" /></button>
+                            )}
+                            <button onClick={() => deleteMessage(msg.id)} title="Delete" className="p-1 text-red-400 hover:text-red-300"><Trash2 className="h-4 w-4" /></button>
+                        </div>
+                    </div>
+                    <p className="text-slate-300 text-sm bg-slate-950/30 p-3 rounded mt-2">{msg.message}</p>
+                    </div>
+                ))}
                 </div>
-             )}
+            )}
+            
+            {getTotalPages(messages) > 1 && (
+                <div className="flex justify-center gap-2">
+                    <button onClick={() => setMessagePage(p => Math.max(1, p - 1))} disabled={messagePage === 1} className="p-2 bg-slate-900 rounded disabled:opacity-50"><ChevronLeft className="h-4 w-4 text-white" /></button>
+                    <span className="text-slate-400 text-sm py-2">Page {messagePage} of {getTotalPages(messages)}</span>
+                    <button onClick={() => setMessagePage(p => Math.min(getTotalPages(messages), p + 1))} disabled={messagePage === getTotalPages(messages)} className="p-2 bg-slate-900 rounded disabled:opacity-50"><ChevronRight className="h-4 w-4 text-white" /></button>
+                </div>
+            )}
           </div>
         )}
       </main>

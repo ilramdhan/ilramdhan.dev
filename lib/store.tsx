@@ -3,6 +3,7 @@ import type { Database } from '../types';
 
 type Project = Database['public']['Tables']['projects']['Row'] & {
     tags: string[];
+    images: string[]; // Changed from thumbnail_url
 };
 type Message = Database['public']['Tables']['messages']['Row'];
 
@@ -12,7 +13,7 @@ export interface BlogPost {
   slug: string;
   excerpt: string;
   content: string;
-  cover_image: string;
+  images: string[]; // Changed from cover_image
   published_at: string;
   is_featured: boolean;
   tags: string[];
@@ -25,7 +26,7 @@ export interface Experience {
   company: string;
   period: string;
   description: string;
-  tags?: string[]; // New field
+  tags?: string[];
 }
 
 export interface Education {
@@ -33,9 +34,9 @@ export interface Education {
   degree: string;
   school: string;
   period: string;
-  gpa?: string; // New field
-  description?: string; // New field
-  tags?: string[]; // New field
+  gpa?: string;
+  description?: string;
+  tags?: string[];
 }
 
 export interface ProfileConfig {
@@ -126,10 +127,11 @@ const INITIAL_PROJECTS: Project[] = [
     tags: ['Fullstack', 'Dashboard'],
     demo_url: 'https://example.com',
     repo_url: 'https://github.com',
-    thumbnail_url: 'https://picsum.photos/seed/1/600/337',
+    images: ['https://picsum.photos/seed/1/600/337', 'https://picsum.photos/seed/1b/600/337'],
     is_featured: true,
     published_at: new Date().toISOString(),
     created_at: new Date().toISOString(),
+    thumbnail_url: null, // Legacy field support if needed
   },
   {
     id: '2',
@@ -141,10 +143,11 @@ const INITIAL_PROJECTS: Project[] = [
     tags: ['AI', 'SaaS'],
     demo_url: 'https://example.com',
     repo_url: 'https://github.com',
-    thumbnail_url: 'https://picsum.photos/seed/2/600/337',
+    images: ['https://picsum.photos/seed/2/600/337'],
     is_featured: true,
     published_at: new Date().toISOString(),
     created_at: new Date().toISOString(),
+    thumbnail_url: null,
   },
    {
     id: '3',
@@ -156,10 +159,11 @@ const INITIAL_PROJECTS: Project[] = [
     tags: ['Frontend'],
     demo_url: '#',
     repo_url: '#',
-    thumbnail_url: 'https://picsum.photos/seed/3/600/337',
+    images: ['https://picsum.photos/seed/3/600/337'],
     is_featured: false,
     published_at: new Date().toISOString(),
     created_at: new Date().toISOString(),
+    thumbnail_url: null,
   },
 ];
 
@@ -170,7 +174,7 @@ const INITIAL_BLOGS: BlogPost[] = [
     slug: 'why-nextjs-15',
     excerpt: 'Exploring the new features of Next.js 15.',
     content: 'Content...',
-    cover_image: 'https://picsum.photos/seed/blog1/800/400',
+    images: ['https://picsum.photos/seed/blog1/800/400'],
     published_at: new Date().toISOString(),
     is_featured: true,
     tags: ['Next.js'],
@@ -191,7 +195,7 @@ interface StoreContextType {
   login: () => void;
   logout: () => void;
   // Project Actions
-  addProject: (project: Omit<Project, 'id' | 'created_at'>) => void;
+  addProject: (project: Omit<Project, 'id' | 'created_at' | 'thumbnail_url'>) => void;
   updateProject: (id: string, updates: Partial<Project>) => void;
   deleteProject: (id: string) => void;
   // Blog Actions
@@ -202,9 +206,9 @@ interface StoreContextType {
   // Profile & Resume Actions
   updateProfile: (config: ProfileConfig) => void;
   setExperience: (exp: Experience[]) => void;
-  updateExperience: (id: string, updates: Partial<Experience>) => void; // New
+  updateExperience: (id: string, updates: Partial<Experience>) => void; 
   setEducation: (edu: Education[]) => void;
-  updateEducation: (id: string, updates: Partial<Education>) => void; // New
+  updateEducation: (id: string, updates: Partial<Education>) => void; 
   // Message Actions
   addMessage: (msg: Omit<Message, 'id' | 'created_at' | 'is_read'>) => void;
   markMessageRead: (id: string) => void;
@@ -240,8 +244,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [theme]);
 
   // Projects
-  const addProject = (project: Omit<Project, 'id' | 'created_at'>) => {
-    const newProject: Project = { ...project, id: Math.random().toString(36).substr(2, 9), created_at: new Date().toISOString() };
+  const addProject = (project: Omit<Project, 'id' | 'created_at' | 'thumbnail_url'>) => {
+    const newProject: Project = { 
+        ...project, 
+        id: Math.random().toString(36).substr(2, 9), 
+        created_at: new Date().toISOString(),
+        thumbnail_url: project.images[0] || null
+    };
     setProjects([newProject, ...projects]);
   };
   const updateProject = (id: string, updates: Partial<Project>) => setProjects(projects.map(p => p.id === id ? { ...p, ...updates } : p));

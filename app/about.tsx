@@ -1,7 +1,7 @@
 import React from 'react';
 import { useStore } from '../lib/store';
 import { Navbar } from '../components/Navbar';
-import { Download, MapPin, Briefcase, GraduationCap, Mail } from 'lucide-react';
+import { Download, MapPin, Briefcase, GraduationCap, Mail, Github, Linkedin, Twitter, Instagram, Youtube, Gamepad2, Phone } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function AboutPage() {
@@ -15,12 +15,12 @@ export default function AboutPage() {
         {/* Header / Bio */}
         <div className="flex flex-col md:flex-row gap-12 items-start mb-20">
             <div className="w-full md:w-1/3 shrink-0">
-                <div className="aspect-square rounded-2xl overflow-hidden border-4 border-white dark:border-slate-800 shadow-xl relative">
+                <div className="aspect-square rounded-2xl overflow-hidden border-4 border-white dark:border-slate-800 shadow-xl relative mb-6">
                      <div className="absolute inset-0 bg-indigo-500/10 mix-blend-overlay" />
                      <img src={profile.avatar_url} alt={profile.name} className="w-full h-full object-cover bg-white dark:bg-slate-900" />
                 </div>
                 
-                <div className="mt-6 flex flex-col gap-3">
+                <div className="flex flex-col gap-4">
                     <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
                         <MapPin className="h-5 w-5 text-indigo-500" />
                         <span>{profile.address}</span>
@@ -31,6 +31,25 @@ export default function AboutPage() {
                             <a href={`mailto:${profile.socials.mail}`} className="hover:text-indigo-500">{profile.socials.mail}</a>
                         </div>
                     )}
+                    
+                    {/* Social Icons */}
+                    <div className="flex flex-wrap gap-4 mt-2">
+                         {profile.socials.github && (
+                            <a href={profile.socials.github} target="_blank" rel="noreferrer" className="p-2 bg-slate-200 dark:bg-slate-900 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"><Github className="h-5 w-5" /></a>
+                        )}
+                        {profile.socials.linkedin && (
+                            <a href={profile.socials.linkedin} target="_blank" rel="noreferrer" className="p-2 bg-slate-200 dark:bg-slate-900 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"><Linkedin className="h-5 w-5" /></a>
+                        )}
+                        {profile.socials.twitter && (
+                            <a href={profile.socials.twitter} target="_blank" rel="noreferrer" className="p-2 bg-slate-200 dark:bg-slate-900 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"><Twitter className="h-5 w-5" /></a>
+                        )}
+                        {profile.socials.instagram && (
+                            <a href={profile.socials.instagram} target="_blank" rel="noreferrer" className="p-2 bg-slate-200 dark:bg-slate-900 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"><Instagram className="h-5 w-5" /></a>
+                        )}
+                         {profile.socials.youtube && (
+                            <a href={profile.socials.youtube} target="_blank" rel="noreferrer" className="p-2 bg-slate-200 dark:bg-slate-900 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"><Youtube className="h-5 w-5" /></a>
+                        )}
+                    </div>
                 </div>
 
                 <a 
@@ -52,7 +71,7 @@ export default function AboutPage() {
             </div>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-12">
+        <div className="grid md:grid-cols-2 gap-12 mb-20">
             {/* Experience */}
             <div>
                 <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
@@ -136,6 +155,26 @@ export default function AboutPage() {
                 </div>
             </div>
         </div>
+        
+        {/* GitHub Stats Section */}
+        {profile.socials.github && (
+            <div className="border-t border-slate-200 dark:border-white/10 pt-16">
+                 <h2 className="text-2xl font-bold mb-8 text-center">Coding Activity</h2>
+                 <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
+                     {/* Replace 'username' in the URL with the actual GitHub username extracted from the profile URL if possible, or just use a placeholder mechanism */}
+                     <img 
+                        src={`https://github-readme-stats.vercel.app/api?username=${profile.socials.github.split('/').pop()}&show_icons=true&theme=${'dark'}&bg_color=0f172a&title_color=fff&text_color=94a3b8&icon_color=6366f1&border_color=1e293b`} 
+                        alt="GitHub Stats"
+                        className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg max-w-full" 
+                     />
+                     <img 
+                        src={`https://github-readme-stats.vercel.app/api/top-langs/?username=${profile.socials.github.split('/').pop()}&layout=compact&theme=${'dark'}&bg_color=0f172a&title_color=fff&text_color=94a3b8&border_color=1e293b`} 
+                        alt="Top Languages"
+                        className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg max-w-full" 
+                     />
+                 </div>
+            </div>
+        )}
 
       </div>
     </div>
