@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Github, Linkedin, Twitter, Instagram, Youtube, Mail, Gamepad2, Phone } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import * as api from '../lib/api';
 import { ensureFullUrl } from '../lib/utils';
@@ -12,10 +12,24 @@ const SocialIconMap: { [key: string]: React.ElementType } = {
 
 export function Hero() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: profile, isLoading } = useQuery({
     queryKey: ['profile'],
     queryFn: api.getProfile,
   });
+
+  const handleContactClick = () => {
+      if (location.pathname === '/') {
+          const element = document.querySelector('#contact');
+          element?.scrollIntoView({ behavior: 'smooth' });
+      } else {
+          navigate('/');
+          setTimeout(() => {
+              const element = document.querySelector('#contact');
+              element?.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
+      }
+  };
 
   if (isLoading) {
     return (
@@ -61,7 +75,7 @@ export function Hero() {
                     View Projects <ArrowRight className="h-4 w-4" />
                     </button>
                     <button
-                    onClick={() => navigate('/contact')}
+                    onClick={handleContactClick}
                     className="w-full sm:w-auto px-8 py-3 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/10 dark:text-white font-semibold transition-all"
                     >
                     Contact Me

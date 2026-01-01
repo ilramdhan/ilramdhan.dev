@@ -2,19 +2,21 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FolderKanban, Mail, LogOut, FileText, User, ExternalLink, Briefcase, Zap } from 'lucide-react';
+import { FolderKanban, Mail, LogOut, FileText, User, ExternalLink, Briefcase, Zap, Award, Layers } from 'lucide-react';
 import { ProjectsTab } from './admin/ProjectsTab';
 import { ResumeTab } from './admin/ResumeTab';
 import { ServicesTab } from './admin/ServicesTab';
 import { BlogTab } from './admin/BlogTab';
 import { ProfileTab } from './admin/ProfileTab';
 import { MessagesTab } from './admin/MessagesTab';
+import { CertificatesTab } from './admin/CertificatesTab';
+import { TechStackTab } from './admin/TechStackTab';
 import { useAuth } from '../lib/auth';
 import { toast } from 'sonner';
 
 export default function AdminPage() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'overview' | 'resume' | 'services' | 'projects' | 'blog' | 'messages'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'resume' | 'services' | 'projects' | 'blog' | 'messages' | 'certificates' | 'techstack'>('overview');
   const { user, logout } = useAuth();
   
   const handleLogout = async () => {
@@ -30,6 +32,8 @@ export default function AdminPage() {
     projects: <ProjectsTab />,
     blog: <BlogTab />,
     messages: <MessagesTab />,
+    certificates: <CertificatesTab />,
+    techstack: <TechStackTab />,
   }
 
   return (
@@ -54,6 +58,8 @@ export default function AdminPage() {
                 {id: 'projects', icon: FolderKanban, label: 'Projects'},
                 {id: 'blog', icon: FileText, label: 'Blog'},
                 {id: 'messages', icon: Mail, label: 'Messages'},
+                {id: 'certificates', icon: Award, label: 'Certificates'},
+                {id: 'techstack', icon: Layers, label: 'Tech Stack'},
             ].map(t => (
                 <button 
                 key={t.id}
@@ -87,6 +93,9 @@ export default function AdminPage() {
 
         {tabs[activeTab]}
 
+        <footer className="mt-12 pt-6 border-t border-slate-200 dark:border-white/5 text-center text-slate-500 text-sm">
+            &copy; {new Date().getFullYear()} Admin Panel. All rights reserved.
+        </footer>
       </main>
     </div>
   );

@@ -1,10 +1,9 @@
 import React from 'react';
-import type { Metadata } from 'next';
-import '../global.css'; // Assuming you have global css, otherwise this line can be removed or adjusted
+import '../global.css';
 
-export const metadata: Metadata = {
-  title: 'DevPortfolio',
-  description: 'Professional Portfolio',
+export const metadata = {
+  title: 'Ilham Ramadhan | Web Portfolio',
+  description: 'Ilham Ramadhan\'s personal portfolio website showcasing projects, skills, and blog posts.',
 };
 
 export default function RootLayout({
@@ -14,6 +13,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <title>{metadata.title}</title>
+        <meta name="description" content={metadata.description} />
+        <link rel="icon" href="/logo.png" />
+      </head>
       <body>{children}</body>
     </html>
   );

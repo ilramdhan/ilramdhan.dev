@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
-import { getBlogBySlug, addComment as addCommentAPI } from '../lib/api';
-import { ArrowLeft, Calendar, Tag } from 'lucide-react';
+import { getBlogBySlug, addComment as addCommentAPI, getComments } from '../lib/api';
+import { ArrowLeft, Calendar, Tag, MessageSquare, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageCarousel } from '../components/ImageCarousel';
 import ReactMarkdown from 'react-markdown';
@@ -19,17 +19,22 @@ export default function BlogDetailPage() {
     enabled: !!slug,
   });
 
+  const { data: comments, isLoading: isLoadingComments } = useQuery({
+    queryKey: ['comments', blog?.id],
+    queryFn: () => getComments(blog!.id),
+    enabled: !!blog?.id,
+  });
+
   const { mutate: addComment, isPending: isAddingComment } = useMutation({
     mutationFn: addCommentAPI,
     onSuccess: () => {
       toast.success("Comment added!");
-      // Refetch the blog data to show the new comment
-      queryClient.invalidateQueries({ queryKey: ['blog', slug] });
+      queryClient.invalidateQueries({ queryKey: ['comments', blog?.id] });
       setCommentName('');
       setCommentText('');
     },
-    onError: () => {
-      toast.error("Failed to add comment. Please try again.");
+    onError: (error) => {
+      toast.error(`Failed to add comment: ${error.message}`);
     }
   });
 
@@ -97,8 +102,54 @@ export default function BlogDetailPage() {
 
         <hr className="border-slate-200 dark:border-white/10 mb-12" />
 
-        {/* Comments Section - Temporarily commented out as comments are not yet implemented in DB schema */}
-        
+        <div className="mb-12">
+            <h3 className="text-2xl font-bold mb-6 flex items-center gap-2"><MessageSquare className="h-6 w-6"/> Comments ({comments?.length || 0})</h3>
+            
+            <form onSubmit={handleCommentSubmit} className="mb-8 bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-white/5">
+                <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">Name</label>
+                    <input 
+                        type="text" 
+                        value={commentName}
+                        onChange={(e) => setCommentName(e.target.value)}
+                        className="w-full px-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Your Name"
+                        required
+                    />
+                </div>
+                <div className="mb-4">
+                    <label className="block text-sm font-medium mb-1">Comment</label>
+                    <textarea 
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        className="w-full px-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                        placeholder="Share your thoughts..."
+                        rows={3}
+                        required
+                    />
+                </div>
+                <button 
+                    type="submit" 
+                    disabled={isAddingComment}
+                    className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
+                >
+                    {isAddingComment ? 'Posting...' : <><Send className="h-4 w-4"/> Post Comment</>}
+                </button>
+            </form>
+
+            <div className="space-y-6">
+                {isLoadingComments ? <p>Loading comments...</p> : comments?.map(comment => (
+                    <div key={comment.id} className="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-xl border border-slate-200 dark:border-white/5">
+                        <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-bold text-slate-900 dark:text-white">{comment.name}</h4>
+                            <span className="text-xs text-slate-500">{new Date(comment.created_at).toLocaleDateString()}</span>
+                        </div>
+                        <p className="text-slate-700 dark:text-slate-300 text-sm">{comment.content}</p>
+                    </div>
+                ))}
+                {comments?.length === 0 && <p className="text-slate-500 italic">No comments yet. Be the first to share your thoughts!</p>}
+            </div>
+        </div>
       </div>
     </div>
   );

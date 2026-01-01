@@ -1,6 +1,12 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
-import { cookies } from 'next/headers';
 import { Database } from '../../types';
+
+// This file is intended for Next.js Server Components.
+// Since we are using Vite (SPA), this file is likely not needed or needs adaptation if you plan to use SSR with Vite.
+// For now, I'll comment out the Next.js specific parts to avoid build errors.
+
+/*
+// import { cookies } from 'next/headers';
 
 export const createClient = async () => {
   const cookieStore = await cookies();
@@ -35,3 +41,7 @@ export const createClient = async () => {
     }
   );
 };
+*/
+export const createClient = () => {
+    throw new Error("This function is not supported in the current Vite setup.");
+}

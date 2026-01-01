@@ -121,20 +121,20 @@ export function ResumeTab() {
                             <input placeholder="Company Name" required value={expFormState.institution || ''} onChange={e => setExpFormState(p => ({...p, institution: e.target.value}))} className="input" />
                         </div>
                         <input placeholder="Period (e.g. 2020 - Present)" required value={expFormState.period || ''} onChange={e => setExpFormState(p => ({...p, period: e.target.value}))} className="input" />
-                        <textarea placeholder="Description" value={expFormState.description || ''} onChange={e => setExpFormState(p => ({...p, description: e.target.value}))} className="input" rows={3} />
+                        <textarea placeholder="Description (Markdown)" value={expFormState.description || ''} onChange={e => setExpFormState(p => ({...p, description: e.target.value}))} className="input" rows={3} />
                         <input placeholder="Tags (comma-separated)" value={expTagsStr} onChange={e => setExpTagsStr(e.target.value)} className="input" />
                         <div className="flex justify-end gap-2"><button type="button" onClick={() => setShowExpForm(false)} className="btn-secondary">Cancel</button><button type="submit" disabled={isPending} className="btn-primary">{isPending ? <Loader2 className="h-4 w-4 animate-spin"/> : <Save className="h-4 w-4"/>}{editingExp ? 'Update' : 'Save'}</button></div>
                     </form>
                 )}
                 <div className="space-y-4">
                     {experience?.map(exp => (
-                        <div key={exp.id} className="item-card">
+                        <div key={exp.id} className="item-card group">
                             <div>
                                 <h3 className="font-bold">{exp.title}</h3>
                                 <p className="text-sm text-indigo-500">{exp.institution} • {exp.period}</p>
-                                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{exp.description}</p>
+                                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 line-clamp-2">{exp.description}</p>
                             </div>
-                            <div className="flex gap-2 opacity-0 group-hover:opacity-100"><button onClick={() => handleOpenExpForm(exp)} className="btn-icon-blue"><Edit className="h-4 w-4" /></button><button onClick={() => deleteMutation.mutate({id: exp.id, type: exp.type})} className="btn-icon-red"><Trash2 className="h-4 w-4" /></button></div>
+                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button onClick={() => handleOpenExpForm(exp)} className="btn-icon-blue"><Edit className="h-4 w-4" /></button><button onClick={() => deleteMutation.mutate({id: exp.id, type: exp.type})} className="btn-icon-red"><Trash2 className="h-4 w-4" /></button></div>
                         </div>
                     ))}
                 </div>
@@ -154,19 +154,20 @@ export function ResumeTab() {
                             <input placeholder="Period (e.g. 2015 - 2019)" value={eduFormState.period || ''} onChange={e => setEduFormState(p => ({...p, period: e.target.value}))} className="input" />
                             <input placeholder="GPA (Optional)" value={eduFormState.gpa || ''} onChange={e => setEduFormState(p => ({...p, gpa: e.target.value}))} className="input" />
                         </div>
-                        <textarea placeholder="Description" value={eduFormState.description || ''} onChange={e => setEduFormState(p => ({...p, description: e.target.value}))} className="input" rows={2} />
+                        <textarea placeholder="Description (Markdown)" value={eduFormState.description || ''} onChange={e => setEduFormState(p => ({...p, description: e.target.value}))} className="input" rows={2} />
                         <input placeholder="Tags (comma-separated)" value={eduTagsStr} onChange={e => setEduTagsStr(e.target.value)} className="input" />
                         <div className="flex justify-end gap-2"><button type="button" onClick={() => setShowEduForm(false)} className="btn-secondary">Cancel</button><button type="submit" disabled={isPending} className="btn-primary">{isPending ? <Loader2 className="h-4 w-4 animate-spin"/> : <Save className="h-4 w-4"/>}{editingEdu ? 'Update' : 'Save'}</button></div>
                     </form>
                 )}
                 <div className="space-y-4">
                     {education?.map(edu => (
-                        <div key={edu.id} className="item-card">
+                        <div key={edu.id} className="item-card group">
                              <div>
                                 <h3 className="font-bold">{edu.title}</h3>
                                 <p className="text-sm text-purple-500">{edu.institution} • {edu.period}</p>
+                                <p className="text-sm text-slate-600 dark:text-slate-400 mt-1 line-clamp-2">{edu.description}</p>
                             </div>
-                            <div className="flex gap-2 opacity-0 group-hover:opacity-100"><button onClick={() => handleOpenEduForm(edu)} className="btn-icon-blue"><Edit className="h-4 w-4" /></button><button onClick={() => deleteMutation.mutate({id: edu.id, type: edu.type})} className="btn-icon-red"><Trash2 className="h-4 w-4" /></button></div>
+                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button onClick={() => handleOpenEduForm(edu)} className="btn-icon-blue"><Edit className="h-4 w-4" /></button><button onClick={() => deleteMutation.mutate({id: edu.id, type: edu.type})} className="btn-icon-red"><Trash2 className="h-4 w-4" /></button></div>
                         </div>
                     ))}
                 </div>

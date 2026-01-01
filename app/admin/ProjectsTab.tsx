@@ -112,7 +112,8 @@ export function ProjectsTab() {
                 
                 if (error) throw new Error(`Image Upload Error: ${error.message}`);
                 
-                return supabase.storage.from('ilramdhan.dev').getPublicUrl(data.path).data.publicUrl;
+                const { data: { publicUrl } } = supabase.storage.from('ilramdhan.dev').getPublicUrl(data.path);
+                return publicUrl;
             });
             
             try {

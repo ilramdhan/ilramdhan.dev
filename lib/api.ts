@@ -14,6 +14,12 @@ type Resume = Database['public']['Tables']['resume']['Row'];
 type ResumeInsert = Database['public']['Tables']['resume']['Insert'];
 type Message = Database['public']['Tables']['messages']['Row'];
 type MessageInsert = Database['public']['Tables']['messages']['Insert'];
+type Certificate = Database['public']['Tables']['certificates']['Row'];
+type CertificateInsert = Database['public']['Tables']['certificates']['Insert'];
+type TechStack = Database['public']['Tables']['tech_stack']['Row'];
+type TechStackInsert = Database['public']['Tables']['tech_stack']['Insert'];
+type BlogComment = Database['public']['Tables']['blog_comments']['Row'];
+type BlogCommentInsert = Database['public']['Tables']['blog_comments']['Insert'];
 
 // Helper to get current user session
 const getUserId = async () => {
@@ -179,9 +185,15 @@ export const deleteBlog = async (id: number) => {
 }
 
 export const addComment = async ({ postId, name, text }: { postId: number, name: string, text: string }) => {
-    console.warn(`[Placeholder] Adding comment to post ${postId}: Name - ${name}, Comment - ${text}`);
-    // This is a placeholder. A real implementation would insert into a 'blog_comments' table.
-    return { success: true, message: "Comment added (placeholder)." };
+    const { data, error } = await supabase.from('blog_comments').insert({ blog_id: postId, name, content: text }).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+}
+
+export const getComments = async (postId: number) => {
+    const { data, error } = await supabase.from('blog_comments').select('*').eq('blog_id', postId).order('created_at', { ascending: true });
+    if (error) throw new Error(error.message);
+    return data;
 }
 
 // --- Messages ---
@@ -200,6 +212,18 @@ export const addMessage = async (message: MessageInsert) => {
 export const deleteMessage = async (id: number) => {
     const { error } = await supabase.from('messages').delete().eq('id', id);
     if (error) throw new Error(error.message);
+}
+
+export const markMessageAsRead = async (id: number) => {
+    const { data, error } = await supabase.from('messages').update({ is_read: true }).eq('id', id).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+}
+
+export const markAllMessagesAsRead = async () => {
+    const { data, error } = await supabase.from('messages').update({ is_read: true }).eq('is_read', false).select();
+    if (error) throw new Error(error.message);
+    return data;
 }
 
 // --- Featured Items ---
@@ -226,3 +250,53 @@ export const getFeaturedBlogs = async () => {
     if (error) throw new Error(error.message);
     return data;
 };
+
+// --- Certificates ---
+export const getCertificates = async () => {
+    const { data, error } = await supabase.from('certificates').select('*').order('issued_date', { ascending: false });
+    if (error) throw new Error(error.message);
+    return data;
+}
+
+export const addCertificate = async (cert: Omit<CertificateInsert, 'user_id'>) => {
+    const userId = await getUserId();
+    const { data, error } = await supabase.from('certificates').insert({ ...cert, user_id: userId }).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+}
+
+export const updateCertificate = async (updates: Partial<Certificate> & { id: number }) => {
+    const { data, error } = await supabase.from('certificates').update(updates).eq('id', updates.id).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+}
+
+export const deleteCertificate = async (id: number) => {
+    const { error } = await supabase.from('certificates').delete().eq('id', id);
+    if (error) throw new Error(error.message);
+}
+
+// --- Tech Stack ---
+export const getTechStack = async () => {
+    const { data, error } = await supabase.from('tech_stack').select('*').order('name', { ascending: true });
+    if (error) throw new Error(error.message);
+    return data;
+}
+
+export const addTechStack = async (tech: Omit<TechStackInsert, 'user_id'>) => {
+    const userId = await getUserId();
+    const { data, error } = await supabase.from('tech_stack').insert({ ...tech, user_id: userId }).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+}
+
+export const updateTechStack = async (updates: Partial<TechStack> & { id: number }) => {
+    const { data, error } = await supabase.from('tech_stack').update(updates).eq('id', updates.id).select().single();
+    if (error) throw new Error(error.message);
+    return data;
+}
+
+export const deleteTechStack = async (id: number) => {
+    const { error } = await supabase.from('tech_stack').delete().eq('id', id);
+    if (error) throw new Error(error.message);
+}
