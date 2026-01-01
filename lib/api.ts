@@ -300,3 +300,12 @@ export const deleteTechStack = async (id: number) => {
     const { error } = await supabase.from('tech_stack').delete().eq('id', id);
     if (error) throw new Error(error.message);
 }
+
+// --- Wakatime Stats ---
+export const getWakatimeStats = async () => {
+    const response = await fetch('/api/wakatime');
+    if (!response.ok) {
+        throw new Error('Failed to fetch Wakatime stats');
+    }
+    return response.json();
+}
