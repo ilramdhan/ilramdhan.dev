@@ -1,21 +1,33 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { validateContactForm, type ContactState } from '../actions/contact-actions';
-import { useStore } from '../lib/store';
+import * as api from '../lib/api';
 
 export function ContactForm() {
-  const [isPending, setIsPending] = useState(false);
+  const queryClient = useQueryClient();
   const [state, setState] = useState<ContactState>({});
-  const { addMessage } = useStore();
+
+  const addMessageMutation = useMutation({
+    mutationFn: api.addMessage,
+    onSuccess: () => {
+      toast.success("Message sent successfully!");
+      setState({ success: true, message: 'Message sent successfully!' });
+      // Invalidate messages query to refetch in admin panel if it's open
+      queryClient.invalidateQueries({ queryKey: ['messages'] });
+    },
+    onError: () => {
+      toast.error("Something went wrong. Please try again.");
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsPending(true);
-    
-    const formData = new FormData(e.currentTarget);
+    const form = e.currentTarget;
+    const formData = new FormData(form);
     const validation = await validateContactForm(formData);
 
     if (!validation.success) {
@@ -24,29 +36,16 @@ export function ContactForm() {
             message: 'Missing Fields',
             success: false
         });
-        setIsPending(false);
         return;
     }
 
-    try {
-      // Simulate network
-      await new Promise(resolve => setTimeout(resolve, 800));
-      
-      // Add to local store (so it shows up in Admin)
-      addMessage({
-          name: validation.data.name,
-          email: validation.data.email,
-          message: validation.data.message
-      });
-
-      toast.success("Message sent! Check Admin Dashboard.");
-      (e.target as HTMLFormElement).reset();
-      setState({ success: true, message: 'Message sent successfully!' });
-    } catch (err) {
-      toast.error("Something went wrong");
-    } finally {
-      setIsPending(false);
-    }
+    addMessageMutation.mutate(validation.data, {
+      onSuccess: () => {
+        toast.success("Message sent! We'll get back to you soon.");
+        form.reset();
+        setState({ success: true, message: 'Message sent successfully!' });
+      }
+    });
   };
 
   return (
@@ -61,6 +60,7 @@ export function ContactForm() {
           name="name"
           className="w-full px-4 py-3 rounded-lg bg-white border border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-white/10 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
           placeholder="John Doe"
+          disabled={addMessageMutation.isPending}
         />
         {state.errors?.name && (
           <p className="mt-1 text-sm text-red-500 dark:text-red-400">{state.errors.name[0]}</p>
@@ -77,6 +77,7 @@ export function ContactForm() {
           name="email"
           className="w-full px-4 py-3 rounded-lg bg-white border border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-white/10 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
           placeholder="john@example.com"
+          disabled={addMessageMutation.isPending}
         />
         {state.errors?.email && (
           <p className="mt-1 text-sm text-red-500 dark:text-red-400">{state.errors.email[0]}</p>
@@ -93,6 +94,7 @@ export function ContactForm() {
           rows={4}
           className="w-full px-4 py-3 rounded-lg bg-white border border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-white/10 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
           placeholder="Tell me about your project..."
+          disabled={addMessageMutation.isPending}
         />
         {state.errors?.message && (
           <p className="mt-1 text-sm text-red-500 dark:text-red-400">{state.errors.message[0]}</p>
@@ -101,10 +103,10 @@ export function ContactForm() {
 
       <button
         type="submit"
-        disabled={isPending}
+        disabled={addMessageMutation.isPending}
         className="w-full px-8 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        {isPending ? (
+        {addMessageMutation.isPending ? (
           <>
             <Loader2 className="h-4 w-4 animate-spin" /> Sending...
           </>

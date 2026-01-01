@@ -3,8 +3,11 @@
 import React, { useState } from 'react';
 import { Menu, X, Sun, Moon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from '../lib/router';
-import { useStore } from '../lib/store';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useTheme } from '../lib/ThemeContext';
+import { useAuth } from '../lib/auth';
+import { useQuery } from '@tanstack/react-query';
+import * as api from '../lib/api';
 
 const navLinks = [
   { name: 'Home', path: '/' },
@@ -16,8 +19,18 @@ const navLinks = [
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const { navigate, path } = useRouter();
-  const { isAuthenticated, profile, theme, toggleTheme } = useStore();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const path = location.pathname;
+  const { theme, toggleTheme } = useTheme();
+  const { user } = useAuth();
+  
+  const { data: profile, isLoading: isLoadingProfile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: api.getProfile,
+  });
+
+  const isAuthenticated = !!user;
 
   const handleNav = (targetPath: string) => {
     if (targetPath === '/contact') {
@@ -33,12 +46,14 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0 cursor-pointer" onClick={() => handleNav('/')}>
-            {profile.logo_url ? (
-                <img src={profile.logo_url} alt="Logo" className="h-8 w-auto object-contain" />
-            ) : (
-                <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xl">
-                    <span>{profile.logo_text}</span>
-                </div>
+            {isLoadingProfile ? <div className="h-8 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" /> : (
+              profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="Logo" className="h-8 w-auto object-contain" />
+              ) : (
+                  <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xl">
+                      <span>{profile?.full_name || 'DevFolio'}</span>
+                  </div>
+              )
             )}
           </div>
           

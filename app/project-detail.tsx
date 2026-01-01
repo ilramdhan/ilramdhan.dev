@@ -1,18 +1,32 @@
 'use client';
 
 import React from 'react';
-import { useStore } from '../lib/store';
-import { useRouter } from '../lib/router';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
+import { getProjectBySlug } from '../lib/api';
 import { Github, ExternalLink, Calendar, ArrowLeft } from 'lucide-react';
 import { ImageCarousel } from '../components/ImageCarousel';
 
-export default function ProjectDetailPage({ id }: { id: string }) {
-  const { projects } = useStore();
-  const { navigate } = useRouter();
-  const project = projects.find(p => p.id === id);
+export default function ProjectDetailPage() {
+  const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
 
-  if (!project) {
+  const { data: project, isLoading, isError } = useQuery({
+    queryKey: ['project', slug],
+    queryFn: () => getProjectBySlug(slug!),
+    enabled: !!slug,
+  });
+
+  if (isLoading) {
+    return (
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center">
+            <div className="w-16 h-16 border-4 border-t-transparent border-indigo-600 rounded-full animate-spin"></div>
+        </div>
+    );
+  }
+
+  if (isError || !project) {
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white">
             <h1 className="text-2xl font-bold mb-4">Project Not Found</h1>
@@ -37,7 +51,7 @@ export default function ProjectDetailPage({ id }: { id: string }) {
             <div className="flex-1">
                 <h1 className="text-4xl font-bold mb-4 text-slate-900 dark:text-white">{project.title}</h1>
                 <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 mb-6">
-                    <span className="flex items-center gap-1"><Calendar className="h-4 w-4" /> {new Date(project.published_at || '').toLocaleDateString()}</span>
+                    <span className="flex items-center gap-1"><Calendar className="h-4 w-4" /> {project.published_at ? new Date(project.published_at).toLocaleDateString() : ''}</span>
                     {project.is_featured && <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 rounded-full border border-indigo-200 dark:border-indigo-500/30">Featured</span>}
                 </div>
                 <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">{project.description}</p>
@@ -53,12 +67,12 @@ export default function ProjectDetailPage({ id }: { id: string }) {
                 </div>
                 <div className="flex flex-col gap-3">
                     {project.demo_url && (
-                        <a href={project.demo_url} target="_blank" className="flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors shadow-lg shadow-indigo-500/20">
+                        <a href={project.demo_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors shadow-lg shadow-indigo-500/20">
                             <ExternalLink className="h-4 w-4" /> Live Demo
                         </a>
                     )}
                     {project.repo_url && (
-                        <a href={project.repo_url} target="_blank" className="flex items-center justify-center gap-2 py-3 bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 dark:border-white/10 rounded-lg font-medium transition-colors">
+                        <a href={project.repo_url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2 py-3 bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 dark:border-white/10 rounded-lg font-medium transition-colors">
                             <Github className="h-4 w-4" /> View Source
                         </a>
                     )}

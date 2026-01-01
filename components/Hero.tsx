@@ -3,12 +3,30 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Github, Linkedin, Twitter, Instagram, Youtube, Mail, Gamepad2, Phone } from 'lucide-react';
-import { useStore } from '../lib/store';
-import { useRouter } from '../lib/router';
+import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import * as api from '../lib/api';
 
 export function Hero() {
-  const { profile } = useStore();
-  const { navigate } = useRouter();
+  const navigate = useNavigate();
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ['profile'],
+    queryFn: api.getProfile,
+  });
+
+  if (isLoading) {
+    return (
+        <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div className="w-full max-w-2xl mx-auto lg:mx-0 text-center lg:text-left">
+                    <div className="h-7 w-48 bg-slate-200 dark:bg-slate-800 rounded-full mb-6 animate-pulse mx-auto lg:mx-0"></div>
+                    <div className="h-16 sm:h-24 w-full bg-slate-200 dark:bg-slate-800 rounded-lg mb-6 animate-pulse"></div>
+                    <div className="h-8 w-3/4 bg-slate-200 dark:bg-slate-800 rounded-lg mb-8 animate-pulse mx-auto lg:mx-0"></div>
+                </div>
+            </div>
+        </section>
+    )
+  }
 
   return (
     <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
@@ -23,13 +41,13 @@ export function Hero() {
                 transition={{ duration: 0.5 }}
             >
                 <span className="inline-block px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 text-sm font-medium mb-6">
-                    {profile.badge}
+                    {/* {profile.badge} */}
                 </span>
                 <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-6">
-                    {profile.title}
+                    {profile?.full_name || 'Developer Portfolio'}
                 </h1>
                 <p className="mt-4 max-w-2xl mx-auto lg:mx-0 text-xl text-slate-600 dark:text-slate-400 mb-8">
-                    {profile.description}
+                    {/* {profile.description} */}
                 </p>
                 
                 <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
@@ -47,32 +65,11 @@ export function Hero() {
                     </button>
                 </div>
 
-                <div className="mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-6">
+                {/* <div className="mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-6">
                     {profile.socials.github && (
                         <a href={profile.socials.github} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"><Github className="h-6 w-6" /></a>
                     )}
-                    {profile.socials.linkedin && (
-                        <a href={profile.socials.linkedin} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"><Linkedin className="h-6 w-6" /></a>
-                    )}
-                    {profile.socials.twitter && (
-                        <a href={profile.socials.twitter} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"><Twitter className="h-6 w-6" /></a>
-                    )}
-                    {profile.socials.instagram && (
-                        <a href={profile.socials.instagram} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"><Instagram className="h-6 w-6" /></a>
-                    )}
-                    {profile.socials.youtube && (
-                        <a href={profile.socials.youtube} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"><Youtube className="h-6 w-6" /></a>
-                    )}
-                    {profile.socials.whatsapp && (
-                        <a href={profile.socials.whatsapp} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"><Phone className="h-6 w-6" /></a>
-                    )}
-                     {profile.socials.mail && (
-                        <a href={`mailto:${profile.socials.mail}`} className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"><Mail className="h-6 w-6" /></a>
-                    )}
-                    {profile.socials.steam && (
-                        <a href={profile.socials.steam} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"><Gamepad2 className="h-6 w-6" /></a>
-                    )}
-                </div>
+                </div> */}
             </motion.div>
 
             {/* Profile Image - PNG No Background */}
@@ -85,8 +82,8 @@ export function Hero() {
                 <div className="relative w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96">
                     <div className="absolute inset-0 bg-indigo-500/20 blur-[60px] rounded-full" />
                     <img 
-                        src={profile.avatar_url} 
-                        alt={profile.name} 
+                        src={profile?.avatar_url || ''} 
+                        alt={profile?.full_name || 'User'} 
                         className="relative z-10 w-full h-full object-contain drop-shadow-2xl" 
                     />
                 </div>

@@ -2,10 +2,22 @@
 
 import React from 'react';
 import { Navbar } from '../components/Navbar';
-import { useStore } from '../lib/store';
+import { useQuery } from '@tanstack/react-query';
+import * as api from '../lib/api';
 
 export default function TermsPage() {
-  const { profile } = useStore();
+  const { data: profile, isLoading } = useQuery({
+    queryKey: ['profile'],
+    queryFn: api.getProfile,
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
+        <p>Loading terms...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
@@ -15,7 +27,7 @@ export default function TermsPage() {
         <div className="prose prose-slate dark:prose-invert max-w-none">
           <p className="text-sm text-slate-500 mb-8">Last updated: {new Date().toLocaleDateString()}</p>
           <div className="whitespace-pre-wrap leading-relaxed text-slate-800 dark:text-slate-300">
-            {profile.terms_content}
+            {profile?.terms_content || 'No terms content available.'}
           </div>
         </div>
       </div>

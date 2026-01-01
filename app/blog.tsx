@@ -1,35 +1,35 @@
 import React, { useState } from 'react';
-import { useRouter } from '../lib/router';
-import { useStore } from '../lib/store';
+import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Navbar } from '../components/Navbar';
+import { getBlogs, getBlogTags } from '../lib/api';
+import { useDebounce } from '../lib/hooks';
 import { Calendar, Search, Tag, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 6;
 
 export default function BlogPage() {
-  const { posts } = useStore();
-  const { navigate } = useRouter();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Extract tags
-  const allTags = Array.from(new Set(posts.flatMap(p => p.tags || [])));
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
 
-  // Filter Logic
-  const filteredPosts = posts.filter(post => {
-      const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            post.excerpt.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesTag = selectedTag ? post.tags?.includes(selectedTag) : true;
-      return matchesSearch && matchesTag;
+  const { data: allBlogTags, isLoading: isLoadingTags } = useQuery({
+    queryKey: ['blogTags'],
+    queryFn: getBlogTags,
   });
 
-  // Pagination Logic
-  const totalPages = Math.ceil(filteredPosts.length / ITEMS_PER_PAGE);
-  const currentPosts = filteredPosts.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  const { data: blogData, isLoading: isLoadingBlogs, isError: isErrorBlogs } = useQuery({
+    queryKey: ['blogs', currentPage, selectedTag, debouncedSearchQuery],
+    queryFn: () => getBlogs({ page: currentPage, limit: ITEMS_PER_PAGE, query: debouncedSearchQuery }),
+    keepPreviousData: true,
+  });
+
+  const currentBlogs = blogData?.data ?? [];
+  const totalBlogs = blogData?.count ?? 0;
+  const totalPages = Math.ceil(totalBlogs / ITEMS_PER_PAGE);
 
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
@@ -40,7 +40,7 @@ export default function BlogPage() {
       setSelectedTag(tag);
       setCurrentPage(1);
   };
-
+  
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
       <Navbar />
@@ -63,7 +63,7 @@ export default function BlogPage() {
             </div>
             
             <div className="flex flex-wrap justify-center gap-2">
-                {allTags.map(tag => (
+                {isLoadingTags ? <div className="h-6 w-20 animate-pulse bg-slate-200 dark:bg-slate-800 rounded-full" /> : allBlogTags?.map(tag => (
                     <button
                         key={tag}
                         onClick={() => handleFilterChange(tag === selectedTag ? null : tag)}
@@ -80,34 +80,36 @@ export default function BlogPage() {
         </div>
 
         <div className="grid gap-8 max-w-3xl mx-auto mb-12">
-            {currentPosts.map(post => (
+            {isLoadingBlogs && Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-48 w-full animate-pulse bg-slate-200 dark:bg-slate-800/50 rounded-2xl" />)}
+            {isErrorBlogs && <div className="text-center text-red-500 py-10">Error loading articles.</div>}
+            {currentBlogs.map(blog => (
                 <article 
-                    key={post.id} 
-                    onClick={() => navigate(`/blog/${post.id}`)}
+                    key={blog.id} 
+                    onClick={() => navigate(`/blog/${blog.id}`)}
                     className="group bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/5 rounded-2xl p-6 md:p-8 hover:shadow-lg dark:hover:bg-slate-900/80 hover:border-indigo-500/30 transition-all cursor-pointer backdrop-blur-md"
                 >
                     <div className="flex flex-col md:flex-row gap-6">
                         <div className="w-full md:w-48 aspect-video md:aspect-square shrink-0 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800">
-                             <img src={post.images?.[0] || ''} alt={post.title} className="w-full h-full object-cover" />
+                             <img src={blog.image_url || ''} alt={blog.title} className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1">
                             <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 mb-3">
-                                <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {new Date(post.published_at).toLocaleDateString()}</span>
-                                {post.tags && post.tags.length > 0 && (
+                                <span className="flex items-center gap-1"><Calendar className="h-3 w-3" /> {blog.published_at ? new Date(blog.published_at).toLocaleDateString() : ''}</span>
+                                {blog.tags && blog.tags.length > 0 && (
                                     <>
                                         <span>•</span>
-                                        <span className="flex items-center gap-1 text-indigo-500 dark:text-indigo-400"><Tag className="h-3 w-3" /> {post.tags[0]}</span>
+                                        <span className="flex items-center gap-1 text-indigo-500 dark:text-indigo-400"><Tag className="h-3 w-3" /> {blog.tags[0]}</span>
                                     </>
                                 )}
                             </div>
-                            <h2 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{post.title}</h2>
-                            <p className="text-slate-600 dark:text-slate-400 mb-4">{post.excerpt}</p>
+                            <h2 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">{blog.title}</h2>
+                            <p className="text-slate-600 dark:text-slate-400 mb-4">{blog.excerpt}</p>
                             <span className="text-indigo-600 dark:text-indigo-400 text-sm font-medium hover:underline">Read more &rarr;</span>
                         </div>
                     </div>
                 </article>
             ))}
-            {currentPosts.length === 0 && (
+            {currentBlogs.length === 0 && !isLoadingBlogs && (
                 <div className="text-center text-slate-500 py-10">No articles found matching your criteria.</div>
             )}
         </div>

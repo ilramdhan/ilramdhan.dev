@@ -1,63 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>DevPortfolio Blueprint</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            colors: {
-              border: "hsl(var(--border))",
-              input: "hsl(var(--input))",
-              ring: "hsl(var(--ring))",
-              background: "hsl(var(--background))",
-              foreground: "hsl(var(--foreground))",
-            }
-          }
-        }
-      }
-    </script>
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-      body { font-family: 'Inter', sans-serif; }
-      
-      /* Animation for Tech Stack */
-      @keyframes scroll {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
-      }
-      .animate-scroll {
-        animation: scroll 30s linear infinite;
-      }
-      .animate-scroll:hover {
-        animation-play-state: paused;
-      }
-    </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@18.2.0",
-    "react/": "https://esm.sh/react@18.2.0/",
-    "react-dom": "https://esm.sh/react-dom@18.2.0",
-    "react-dom/": "https://esm.sh/react-dom@18.2.0/",
-    "clsx": "https://esm.sh/clsx@2.1.1",
-    "tailwind-merge": "https://esm.sh/tailwind-merge@2.3.0",
-    "zod": "https://esm.sh/zod@3.23.8",
-    "lucide-react": "https://esm.sh/lucide-react@0.378.0?deps=react@18.2.0",
-    "framer-motion": "https://esm.sh/framer-motion@11.1.7?deps=react@18.2.0,react-dom@18.2.0",
-    "sonner": "https://esm.sh/sonner@1.4.41?deps=react@18.2.0,react-dom@18.2.0",
-    "@supabase/ssr": "https://esm.sh/@supabase/ssr@0.3.0",
-    "next/": "https://esm.sh/next@^16.1.1/",
-    "next": "https://esm.sh/next@^16.1.1"
-  }
-}
-</script>
-</head>
+    <title>Vite + React + TS</title>
+  </head>
   <body>
     <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
   </body>
 </html>
