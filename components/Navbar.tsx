@@ -58,7 +58,11 @@ export function Navbar() {
           <div className="flex-shrink-0 cursor-pointer" onClick={() => handleNav('/')}>
             {isLoadingProfile ? <div className="h-8 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" /> : (
               profile?.logo_url ? (
-                  <img src={profile.logo_url} alt="Logo" className="h-8 w-auto object-contain" />
+                  <img 
+                    src={profile.logo_url} 
+                    alt="Logo" 
+                    className="h-8 w-auto object-contain dark:invert transition-all duration-300" 
+                  />
               ) : (
                   <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xl">
                       <span>{profile?.logo_text || 'DevFolio'}</span>
