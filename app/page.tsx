@@ -1,12 +1,13 @@
 'use client';
 
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Hero } from '../components/Hero';
 import { ProjectCard } from '../components/ProjectCard';
 import { ContactForm } from '../components/ContactForm';
 import { Navbar } from '../components/Navbar';
-import { useRouter } from '../lib/router';
-import { useStore } from '../lib/store';
+import { useNavigate } from 'react-router-dom';
+import { getProfile, getFeaturedProjects, getFeaturedBlogs } from '../lib/api';
 import { Calendar } from 'lucide-react';
 
 const TECH_STACK = [
@@ -23,14 +24,23 @@ const TECH_STACK = [
 ];
 
 export default function Page() {
-  const { projects, posts, profile } = useStore();
-  const { navigate } = useRouter();
-  
-  // Filter only featured projects for homepage
-  const featuredProjects = projects.filter(p => p.is_featured).slice(0, 3);
-  // Get featured blogs
-  const featuredPosts = posts.filter(p => p.is_featured).slice(0, 3);
-  
+  const navigate = useNavigate();
+
+  const { data: profile, isLoading: isLoadingProfile, isError: isErrorProfile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: getProfile,
+  });
+
+  const { data: featuredProjects, isLoading: isLoadingProjects, isError: isErrorProjects } = useQuery({
+    queryKey: ['featuredProjects'],
+    queryFn: getFeaturedProjects,
+  });
+
+  const { data: featuredBlogs, isLoading: isLoadingBlogs, isError: isErrorBlogs } = useQuery({
+    queryKey: ['featuredBlogs'],
+    queryFn: getFeaturedBlogs,
+  });
+
   return (
     <>
       <Navbar />
@@ -73,10 +83,12 @@ export default function Page() {
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredProjects.map((project, index) => (
+              {isLoadingProjects && <p className="text-slate-500 col-span-full text-center py-10">Loading projects...</p>}
+              {isErrorProjects && <p className="text-red-500 col-span-full text-center py-10">Error loading projects.</p>}
+              {featuredProjects?.map((project, index) => (
                 <ProjectCard key={project.id} project={project} index={index} />
               ))}
-              {featuredProjects.length === 0 && (
+              {featuredProjects?.length === 0 && !isLoadingProjects && (
                 <p className="text-slate-500 col-span-full text-center py-10">No featured projects yet.</p>
               )}
             </div>
@@ -100,19 +112,21 @@ export default function Page() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {featuredPosts.map((post) => (
+                    {isLoadingBlogs && <p className="text-slate-500 col-span-full text-center py-10">Loading posts...</p>}
+                    {isErrorBlogs && <p className="text-red-500 col-span-full text-center py-10">Error loading posts.</p>}
+                    {featuredBlogs?.map((post) => (
                         <div 
                             key={post.id} 
-                            onClick={() => navigate(`/blog/${post.id}`)}
+                            onClick={() => post.slug && navigate(`/blog/${post.slug}`)}
                             className="bg-white border border-slate-200 dark:bg-slate-950/80 dark:border-white/10 rounded-xl overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-all cursor-pointer group shadow-sm"
                         >
                             <div className="aspect-[2/1] overflow-hidden bg-slate-100 dark:bg-slate-900">
-                                <img src={post.images?.[0] || ''} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <img src={post.image_url || ''} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             </div>
                             <div className="p-6">
                                 <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">
                                     <Calendar className="h-3 w-3" />
-                                    {new Date(post.published_at).toLocaleDateString()}
+                                    {post.published_at ? new Date(post.published_at).toLocaleDateString() : ''}
                                     {post.tags && post.tags.length > 0 && (
                                         <>
                                          <span>•</span>
@@ -125,7 +139,7 @@ export default function Page() {
                             </div>
                         </div>
                     ))}
-                    {featuredPosts.length === 0 && (
+                    {featuredBlogs?.length === 0 && !isLoadingBlogs && (
                          <p className="text-slate-500 col-span-full text-center py-10">No featured blog posts.</p>
                     )}
                 </div>
@@ -154,7 +168,9 @@ export default function Page() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <span className="text-slate-500 text-sm">
-              {profile.footer_text}
+              {isLoadingProfile && 'Loading...'}
+              {isErrorProfile && 'Error loading footer.'}
+              {/* {profile?.footer_text} */}
             </span>
             <div className="flex gap-6">
                <button onClick={() => navigate('/privacy')} className="text-slate-500 hover:text-slate-900 dark:hover:text-white text-sm">Privacy Policy</button>

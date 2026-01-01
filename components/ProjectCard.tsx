@@ -3,8 +3,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ExternalLink, Github } from 'lucide-react';
-import { cn } from '../lib/utils';
-import { useRouter } from '../lib/router';
+import { useNavigate } from 'react-router-dom';
 import type { Database } from '../types';
 import { ImageCarousel } from './ImageCarousel';
 
@@ -16,7 +15,7 @@ interface ProjectCardProps {
 }
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
-  const { navigate } = useRouter();
+  const navigate = useNavigate();
 
   return (
     <motion.div

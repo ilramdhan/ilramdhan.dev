@@ -1,8 +1,17 @@
-import { createBrowserClient } from '@supabase/ssr';
-import { Database } from '../../types';
+import { createClient } from '@supabase/supabase-js';
+import type { Database } from '@/types.ts';
 
-export const createClient = () =>
-  createBrowserClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+// IMPORTANT: Create a .env.local file in the root of your project
+// and add your Supabase URL and Anon Key there.
+//
+// VITE_SUPABASE_URL=your_supabase_url
+// VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase URL or Anon Key. Make sure to set them in your .env.local file.');
+}
+
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
