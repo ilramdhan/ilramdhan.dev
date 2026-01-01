@@ -278,6 +278,117 @@ export interface Database {
           }
         ]
       }
+      certificates: {
+        Row: {
+          id: number
+          user_id: string
+          title: string
+          description: string | null
+          issued_by: string | null
+          issued_date: string | null
+          expiry_date: string | null
+          credential_url: string | null
+          file_url: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: number
+          user_id: string
+          title: string
+          description?: string | null
+          issued_by?: string | null
+          issued_date?: string | null
+          expiry_date?: string | null
+          credential_url?: string | null
+          file_url?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: number
+          user_id?: string
+          title?: string
+          description?: string | null
+          issued_by?: string | null
+          issued_date?: string | null
+          expiry_date?: string | null
+          credential_url?: string | null
+          file_url?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      tech_stack: {
+        Row: {
+          id: number
+          user_id: string
+          name: string
+          icon_url: string | null
+          category: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: number
+          user_id: string
+          name: string
+          icon_url?: string | null
+          category?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: number
+          user_id?: string
+          name?: string
+          icon_url?: string | null
+          category?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tech_stack_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      blog_comments: {
+        Row: {
+          id: number
+          blog_id: number
+          name: string
+          content: string
+          created_at: string
+        }
+        Insert: {
+          id?: number
+          blog_id: number
+          name: string
+          content: string
+          created_at?: string
+        }
+        Update: {
+          id?: number
+          blog_id?: number
+          name?: string
+          content?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_comments_blog_id_fkey"
+            columns: ["blog_id"]
+            referencedRelation: "blogs"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never

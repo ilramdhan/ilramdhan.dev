@@ -3,14 +3,10 @@ import { useTheme } from '../lib/ThemeContext';
 import { useQuery } from '@tanstack/react-query';
 import * as api from '../lib/api';
 import { Navbar } from '../components/Navbar';
-import { Download, MapPin, Briefcase, GraduationCap, Mail, Github, Linkedin, Twitter, Instagram, Youtube, Code, Smartphone, Cloud, Terminal, Layout, Database, Zap } from 'lucide-react';
+import { Download, MapPin, Briefcase, GraduationCap, Mail, Github, Linkedin, Twitter, Instagram, Youtube, Award } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { ensureFullUrl } from '../lib/utils';
-
-const IconMap: { [key: string]: React.ElementType } = {
-    code: Code, smartphone: Smartphone, cloud: Cloud, terminal: Terminal, layout: Layout, database: Database
-};
 
 const SocialIconMap: { [key: string]: React.ElementType } = {
     github: Github, linkedin: Linkedin, twitter: Twitter, instagram: Instagram, youtube: Youtube, mail: Mail,
@@ -22,9 +18,9 @@ export default function AboutPage() {
   const { data: profile, isLoading: isLoadingProfile } = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
   const { data: experience, isLoading: isLoadingExp } = useQuery({ queryKey: ['resume', 'experience'], queryFn: () => api.getResume('experience') });
   const { data: education, isLoading: isLoadingEdu } = useQuery({ queryKey: ['resume', 'education'], queryFn: () => api.getResume('education') });
-  const { data: services, isLoading: isLoadingServices } = useQuery({ queryKey: ['services'], queryFn: api.getServices });
+  const { data: certificates, isLoading: isLoadingCerts } = useQuery({ queryKey: ['certificates'], queryFn: api.getCertificates });
 
-  const isLoading = isLoadingProfile || isLoadingExp || isLoadingEdu || isLoadingServices;
+  const isLoading = isLoadingProfile || isLoadingExp || isLoadingEdu || isLoadingCerts;
   const statsTheme = theme === 'dark' ? 'dark' : 'default';
 
   const getGithubUsername = (url: string | undefined) => {
@@ -88,24 +84,6 @@ export default function AboutPage() {
             </div>
         </div>
 
-        {services && services.length > 0 && (
-            <div className="mb-20">
-                <h2 className="text-2xl font-bold mb-8 flex items-center gap-3"><div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg text-yellow-600 dark:text-yellow-400"><Zap className="h-6 w-6" /></div>What I Do</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {services.map((service, idx) => {
-                        const Icon = service.icon_name ? IconMap[service.icon_name] || Code : Code;
-                        return (
-                            <motion.div key={service.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 p-6 rounded-xl hover:border-indigo-500/30 transition-all shadow-sm dark:shadow-none group">
-                                <div className="h-12 w-12 bg-indigo-50 dark:bg-slate-800 rounded-lg flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors"><Icon className="h-6 w-6" /></div>
-                                <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">{service.title}</h3>
-                                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{service.description}</p>
-                            </motion.div>
-                        );
-                    })}
-                </div>
-            </div>
-        )}
-
         <div className="grid md:grid-cols-2 gap-12 mb-20">
             <div>
                 <h2 className="text-2xl font-bold mb-8 flex items-center gap-3"><div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400"><Briefcase className="h-6 w-6" /></div>Experience</h2>
@@ -116,7 +94,9 @@ export default function AboutPage() {
                             <h3 className="text-xl font-bold text-slate-900 dark:text-white">{exp.title}</h3>
                             <div className="text-indigo-600 dark:text-indigo-400 font-medium mb-2">{exp.institution}</div>
                             <div className="text-sm text-slate-500 mb-3">{exp.period}</div>
-                            <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-3">{exp.description}</p>
+                            <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-3 prose prose-sm dark:prose-invert">
+                                <ReactMarkdown>{exp.description || ''}</ReactMarkdown>
+                            </div>
                         </motion.div>
                     ))}
                 </div>
@@ -131,12 +111,48 @@ export default function AboutPage() {
                             <h3 className="text-xl font-bold text-slate-900 dark:text-white">{edu.title}</h3>
                             <div className="text-purple-600 dark:text-purple-400 font-medium mb-1">{edu.institution}</div>
                             <div className="text-sm text-slate-500 mb-2">{edu.period}</div>
-                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">{edu.description}</p>
+                            <div className="text-sm text-slate-600 dark:text-slate-400 mb-3 prose prose-sm dark:prose-invert">
+                                <ReactMarkdown>{edu.description || ''}</ReactMarkdown>
+                            </div>
                         </motion.div>
                     ))}
                 </div>
             </div>
         </div>
+
+        {certificates && certificates.length > 0 && (
+            <div className="mb-20">
+                <h2 className="text-2xl font-bold mb-8 flex items-center gap-3"><div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600 dark:text-green-400"><Award className="h-6 w-6" /></div>Certificates</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {certificates.map((cert, idx) => (
+                        <motion.div key={cert.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 rounded-xl overflow-hidden hover:border-indigo-500/30 transition-all shadow-sm dark:shadow-none group flex flex-col">
+                            {cert.file_url ? (
+                                <div className="h-48 bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
+                                    <img src={cert.file_url} alt={cert.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                </div>
+                            ) : (
+                                <div className="h-48 bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+                                    <Award className="h-12 w-12" />
+                                </div>
+                            )}
+                            <div className="p-6 flex-1 flex flex-col">
+                                <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">{cert.title}</h3>
+                                <p className="text-sm text-indigo-600 dark:text-indigo-400 mb-2">{cert.issued_by}</p>
+                                <p className="text-xs text-slate-500 mb-4">{cert.issued_date} {cert.expiry_date ? ` - ${cert.expiry_date}` : ''}</p>
+                                <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4 flex-1 prose prose-sm dark:prose-invert line-clamp-3">
+                                    <ReactMarkdown>{cert.description || ''}</ReactMarkdown>
+                                </div>
+                                {cert.credential_url && (
+                                    <a href={cert.credential_url} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline mt-auto">
+                                        View Credential &rarr;
+                                    </a>
+                                )}
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+        )}
         
         {username && (
             <div className="border-t border-slate-200 dark:border-white/10 pt-16">

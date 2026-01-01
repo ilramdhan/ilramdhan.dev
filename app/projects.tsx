@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Navbar } from '../components/Navbar';
 import { ProjectCard } from '../components/ProjectCard';
@@ -9,7 +8,6 @@ import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 const ITEMS_PER_PAGE = 6;
 
 export default function ProjectsPage() {
-  const navigate = useNavigate();
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -43,7 +41,6 @@ export default function ProjectsPage() {
       <Navbar />
       <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="mb-12">
-            <button onClick={() => navigate('/')} className="text-indigo-600 dark:text-indigo-400 text-sm mb-4 hover:underline">&larr; Back to Home</button>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div>
                     <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-4">All Projects</h1>

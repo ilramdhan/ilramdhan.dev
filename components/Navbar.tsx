@@ -9,14 +9,6 @@ import { useAuth } from '../lib/auth';
 import { useQuery } from '@tanstack/react-query';
 import * as api from '../lib/api';
 
-const navLinks = [
-  { name: 'Home', path: '/' },
-  { name: 'About', path: '/about' },
-  { name: 'Projects', path: '/projects' },
-  { name: 'Blog', path: '/blog' },
-  { name: 'Contact', path: '/contact' },
-];
-
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
@@ -34,14 +26,17 @@ export function Navbar() {
 
   const handleNav = (targetPath: string) => {
     if (targetPath.startsWith('/#')) {
-        navigate(targetPath.substring(1)); // Navigate to anchor on the same page or different.
-        // A better solution might involve checking if on the homepage first.
-        // For now, this will work for navigating home and scrolling.
         const selector = targetPath.substring(1);
-        setTimeout(() => {
-            const element = document.querySelector(selector);
-            element?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
+        if (location.pathname === '/') {
+             const element = document.querySelector(selector);
+             element?.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            navigate('/');
+            setTimeout(() => {
+                const element = document.querySelector(selector);
+                element?.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
     } else {
         navigate(targetPath);
     }
@@ -62,11 +57,15 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0 cursor-pointer" onClick={() => handleNav('/')}>
             {isLoadingProfile ? <div className="h-8 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" /> : (
-              profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt="Logo" className="h-8 w-auto object-contain" />
+              profile?.logo_url ? (
+                  <img 
+                    src={profile.logo_url} 
+                    alt="Logo" 
+                    className="h-8 w-auto object-contain dark:invert transition-all duration-300" 
+                  />
               ) : (
                   <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xl">
-                      <span>{profile?.display_name || 'DevFolio'}</span>
+                      <span>{profile?.logo_text || 'DevFolio'}</span>
                   </div>
               )
             )}

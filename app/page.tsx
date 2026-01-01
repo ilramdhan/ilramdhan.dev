@@ -7,21 +7,19 @@ import { ProjectCard } from '../components/ProjectCard';
 import { ContactForm } from '../components/ContactForm';
 import { Navbar } from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
-import { getProfile, getFeaturedProjects, getFeaturedBlogs } from '../lib/api';
-import { Calendar } from 'lucide-react';
+import { getProfile, getFeaturedProjects, getFeaturedBlogs, getTechStack, getServices } from '../lib/api';
+import { Calendar, Zap, Code, Smartphone, Cloud, Terminal, Layout, Database } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import { motion } from 'framer-motion';
 
-const TECH_STACK = [
-  { name: 'Next.js', icon: 'nextdotjs' },
-  { name: 'React', icon: 'react' },
-  { name: 'TypeScript', icon: 'typescript' },
-  { name: 'Tailwind', icon: 'tailwindcss' },
-  { name: 'Supabase', icon: 'supabase' },
-  { name: 'PostgreSQL', icon: 'postgresql' },
-  { name: 'Node.js', icon: 'nodedotjs' },
-  { name: 'Docker', icon: 'docker' },
-  { name: 'Git', icon: 'git' },
-  { name: 'Figma', icon: 'figma' },
-];
+const IconMap: { [key: string]: React.ElementType } = {
+    code: Code,
+    smartphone: Smartphone,
+    cloud: Cloud,
+    terminal: Terminal,
+    layout: Layout,
+    database: Database,
+};
 
 export default function Page() {
   const navigate = useNavigate();
@@ -41,12 +39,48 @@ export default function Page() {
     queryFn: getFeaturedBlogs,
   });
 
+  const { data: techStack, isLoading: isLoadingTech } = useQuery({
+    queryKey: ['techStack'],
+    queryFn: getTechStack,
+  });
+
+  const { data: services, isLoading: isLoadingServices } = useQuery({
+    queryKey: ['services'],
+    queryFn: getServices,
+  });
+
   return (
     <>
       <Navbar />
       <main className="min-h-screen">
         <Hero />
         
+        {/* Services Section */}
+        {services && services.length > 0 && (
+            <section className="py-20 bg-slate-50 dark:bg-slate-900/30 border-y border-slate-200 dark:border-white/5">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">What I Do</h2>
+                        <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">I offer a range of services to help you build your next digital product.</p>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {services.map((service, idx) => {
+                            const Icon = service.icon_name ? IconMap[service.icon_name] || Code : Code;
+                            return (
+                                <motion.div key={service.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 p-8 rounded-2xl text-center hover:border-indigo-500/30 transition-all shadow-sm dark:shadow-none group">
+                                    <div className="inline-block h-14 w-14 bg-indigo-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-colors"><Icon className="h-7 w-7" /></div>
+                                    <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-white">{service.title}</h3>
+                                    <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed prose prose-sm dark:prose-invert">
+                                        <ReactMarkdown>{service.description || ''}</ReactMarkdown>
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </section>
+        )}
+
         {/* Tech Stack Marquee */}
         <section className="py-12 bg-white border-y border-slate-200 dark:bg-slate-900/50 dark:border-white/5 overflow-hidden backdrop-blur-sm transition-colors">
             <div className="max-w-7xl mx-auto px-4 mb-8">
@@ -55,10 +89,14 @@ export default function Page() {
                 </p>
             </div>
             <div className="relative flex overflow-x-hidden group">
-                <div className="animate-scroll flex gap-24 whitespace-nowrap py-4 px-6">
-                    {[...TECH_STACK, ...TECH_STACK].map((tech, i) => (
+                <div className="animate-scroll flex gap-24 whitespace-nowrap py-4 px-6 group-hover:[animation-play-state:paused]">
+                    {techStack && [...techStack, ...techStack].map((tech, i) => (
                         <div key={i} className="flex items-center gap-3 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300">
-                             <img src={`https://cdn.simpleicons.org/${tech.icon}/default`} alt={tech.name} className="h-8 w-8 dark:invert" />
+                             {tech.icon_url ? (
+                                 <img src={tech.icon_url} alt={tech.name} className="h-8 w-8 object-contain dark:invert" />
+                             ) : (
+                                 <img src={`https://cdn.simpleicons.org/${tech.name.toLowerCase().replace(/\s+/g, '')}/default`} alt={tech.name} className="h-8 w-8 dark:invert" onError={(e) => e.currentTarget.style.display = 'none'} />
+                             )}
                              <span className="text-lg font-bold text-slate-600 dark:text-slate-300">{tech.name}</span>
                         </div>
                     ))}
@@ -121,7 +159,11 @@ export default function Page() {
                             className="bg-white border border-slate-200 dark:bg-slate-950/80 dark:border-white/10 rounded-xl overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-all cursor-pointer group shadow-sm"
                         >
                             <div className="aspect-[2/1] overflow-hidden bg-slate-100 dark:bg-slate-900">
-                                <img src={post.images && post.images.length > 0 ? post.images[0] : ''} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                {post.images && post.images.length > 0 ? (
+                                    <img src={post.images[0]} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-slate-400">No Image</div>
+                                )}
                             </div>
                             <div className="p-6">
                                 <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">
@@ -163,20 +205,6 @@ export default function Page() {
           </div>
         </section>
       </main>
-      
-      <footer className="bg-white border-t border-slate-200 dark:bg-slate-950/90 dark:border-white/5 py-12 backdrop-blur-md transition-colors">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <span className="text-slate-500 text-sm">
-              {profile?.footer_text}
-            </span>
-            <div className="flex gap-6">
-               <button onClick={() => navigate('/privacy')} className="text-slate-500 hover:text-slate-900 dark:hover:text-white text-sm">Privacy Policy</button>
-               <button onClick={() => navigate('/terms')} className="text-slate-500 hover:text-slate-900 dark:hover:text-white text-sm">Terms of Service</button>
-            </div>
-          </div>
-        </div>
-      </footer>
     </>
   );
 }

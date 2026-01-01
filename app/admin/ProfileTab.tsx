@@ -19,6 +19,8 @@ export function ProfileTab() {
 
     const [formState, setFormState] = useState<Partial<Profile>>({});
     const [avatarFile, setAvatarFile] = useState<File | null>(null);
+    const [logoFile, setLogoFile] = useState<File | null>(null);
+    const [cvFile, setCvFile] = useState<File | null>(null);
 
     useEffect(() => {
         if (profile) {
@@ -29,14 +31,16 @@ export function ProfileTab() {
     const updateMutation = useMutation({
         mutationFn: async (updatedProfile: Partial<Profile>) => {
             let avatar_url = updatedProfile.avatar_url;
+            let logo_url = updatedProfile.logo_url;
+            let resume_url = updatedProfile.resume_url;
 
             if (avatarFile) {
-                const fileName = `${Date.now()}-${avatarFile.name}`;
+                const fileName = `avatar-${Date.now()}`;
                 const { data, error } = await supabase.storage
                     .from('ilramdhan.dev')
                     .upload(`avatars/${fileName}`, avatarFile, {
                         cacheControl: '3600',
-                        upsert: false,
+                        upsert: true,
                     });
                 
                 if (error) throw new Error(`Avatar Upload Error: ${error.message}`);
@@ -46,6 +50,42 @@ export function ProfileTab() {
                     .getPublicUrl(data.path);
                 
                 avatar_url = publicUrl;
+            }
+
+            if (logoFile) {
+                const fileName = `logo-${Date.now()}`;
+                const { data, error } = await supabase.storage
+                    .from('ilramdhan.dev')
+                    .upload(`logos/${fileName}`, logoFile, {
+                        cacheControl: '3600',
+                        upsert: true,
+                    });
+                
+                if (error) throw new Error(`Logo Upload Error: ${error.message}`);
+
+                const { data: { publicUrl } } = supabase.storage
+                    .from('ilramdhan.dev')
+                    .getPublicUrl(data.path);
+                
+                logo_url = publicUrl;
+            }
+
+            if (cvFile) {
+                const fileName = `cv-${Date.now()}`;
+                const { data, error } = await supabase.storage
+                    .from('ilramdhan.dev')
+                    .upload(`cv/${fileName}`, cvFile, {
+                        cacheControl: '3600',
+                        upsert: true,
+                    });
+                
+                if (error) throw new Error(`CV Upload Error: ${error.message}`);
+
+                const { data: { publicUrl } } = supabase.storage
+                    .from('ilramdhan.dev')
+                    .getPublicUrl(data.path);
+                
+                resume_url = publicUrl;
             }
 
             const processedSocialLinks: { [key: string]: string } = {};
@@ -58,7 +98,8 @@ export function ProfileTab() {
             const profileToUpdate = {
                 ...updatedProfile,
                 avatar_url,
-                resume_url: ensureFullUrl(updatedProfile.resume_url),
+                logo_url,
+                resume_url,
                 social_links: processedSocialLinks,
             };
 
@@ -68,6 +109,8 @@ export function ProfileTab() {
             queryClient.invalidateQueries({ queryKey: ['profile'] });
             toast.success('Profile updated!');
             setAvatarFile(null);
+            setLogoFile(null);
+            setCvFile(null);
         },
         onError: (error) => {
             toast.error(error.message);
@@ -139,24 +182,27 @@ export function ProfileTab() {
                 <hr className="border-slate-200 dark:border-white/10"/>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {renderInput('logo_text', 'Logo Text')}
-                    {renderInput('logo_url', 'Logo URL (if using image)')}
-                    {renderInput('resume_url', 'Resume/CV URL')}
+                    {renderInput('logo_text', 'Logo Text (Fallback)')}
                     {renderInput('address', 'Address')}
                     {renderInput('footer_text', 'Footer Text')}
                 </div>
                 
-                <div className="flex items-end gap-4">
-                    <div className="flex-1">
-                        <label htmlFor="avatar" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Avatar Image</label>
-                        <input
-                            type="file"
-                            id="avatar"
-                            onChange={e => setAvatarFile(e.target.files ? e.target.files[0] : null)}
-                            className="input-file"
-                        />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Avatar Image</label>
+                        <input type="file" onChange={e => setAvatarFile(e.target.files ? e.target.files[0] : null)} className="input-file" />
+                        {profile?.avatar_url && <img src={profile.avatar_url} className="h-12 w-12 rounded-full object-cover mt-2"/>}
                     </div>
-                    {profile?.avatar_url && <img src={profile.avatar_url} className="h-12 w-12 rounded-full object-cover"/>}
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Logo Image</label>
+                        <input type="file" onChange={e => setLogoFile(e.target.files ? e.target.files[0] : null)} className="input-file" />
+                        {profile?.logo_url && <img src={profile.logo_url} className="h-8 w-auto object-contain mt-2"/>}
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Resume / CV (PDF)</label>
+                        <input type="file" onChange={e => setCvFile(e.target.files ? e.target.files[0] : null)} className="input-file" />
+                        {profile?.resume_url && <a href={profile.resume_url} target="_blank" rel="noreferrer" className="text-xs text-indigo-500 mt-2 block">Current CV</a>}
+                    </div>
                 </div>
                 
                 <hr className="border-slate-200 dark:border-white/10"/>

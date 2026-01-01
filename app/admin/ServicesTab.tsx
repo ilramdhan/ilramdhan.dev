@@ -14,6 +14,10 @@ const initialServiceForm: Omit<ServiceInsert, 'id' | 'user_id'> = {
     icon_name: 'code',
 };
 
+const ICON_OPTIONS = [
+    'code', 'smartphone', 'cloud', 'terminal', 'layout', 'database'
+];
+
 export function ServicesTab() {
     const queryClient = useQueryClient();
 
@@ -75,8 +79,21 @@ export function ServicesTab() {
                 <form onSubmit={handleSubmit} className="form-container mb-6">
                     <h3 className="font-medium mb-4">{editingService ? 'Edit Service' : 'New Service'}</h3>
                     <input placeholder="Service Title" required value={formState.title || ''} onChange={e => setFormState(p => ({...p, title: e.target.value}))} className="input" />
-                    <textarea placeholder="Description" required value={formState.description || ''} onChange={e => setFormState(p => ({...p, description: e.target.value}))} className="input" rows={3} />
-                    <input placeholder="Icon Name (e.g. 'code')" value={formState.icon_name || ''} onChange={e => setFormState(p => ({...p, icon_name: e.target.value}))} className="input" />
+                    <textarea placeholder="Description (Markdown)" required value={formState.description || ''} onChange={e => setFormState(p => ({...p, description: e.target.value}))} className="input" rows={3} />
+                    
+                    <div>
+                        <label className="block text-sm font-medium mb-1">Icon</label>
+                        <select 
+                            value={formState.icon_name || 'code'} 
+                            onChange={e => setFormState(p => ({...p, icon_name: e.target.value}))}
+                            className="input"
+                        >
+                            {ICON_OPTIONS.map(icon => (
+                                <option key={icon} value={icon}>{icon}</option>
+                            ))}
+                        </select>
+                    </div>
+
                     <div className="flex justify-end gap-2">
                         <button type="button" onClick={() => setIsFormOpen(false)} className="btn-secondary">Cancel</button>
                         <button type="submit" disabled={isPending} className="btn-primary">
@@ -89,17 +106,17 @@ export function ServicesTab() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {services?.map(srv => (
-                    <div key={srv.id} className="item-card">
+                    <div key={srv.id} className="item-card group">
                         <div className="flex items-start gap-3">
                              <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded text-indigo-600 dark:text-indigo-400">
                                 <Zap className="h-5 w-5" />
                             </div>
                             <div>
                                 <h3 className="font-bold text-sm">{srv.title}</h3>
-                                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed">{srv.description}</p>
+                                <p className="text-xs text-slate-600 dark:text-slate-400 mt-1 leading-relaxed line-clamp-2">{srv.description}</p>
                             </div>
                         </div>
-                        <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100">
+                        <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button onClick={() => handleOpenForm(srv)} className="btn-icon-blue"><Edit className="h-4 w-4" /></button>
                             <button onClick={() => deleteMutation.mutate(srv.id)} className="btn-icon-red"><Trash2 className="h-4 w-4" /></button>
                         </div>

@@ -73,7 +73,8 @@ export function BlogTab() {
                 const fileName = `${Date.now()}-${file.name}`;
                 const { data, error } = await supabase.storage.from('ilramdhan.dev').upload(`blogs/${fileName}`, file);
                 if (error) throw new Error(`Image Upload Error: ${error.message}`);
-                return supabase.storage.from('ilramdhan.dev').getPublicUrl(data.path).data.publicUrl;
+                const { data: { publicUrl } } = supabase.storage.from('ilramdhan.dev').getPublicUrl(data.path);
+                return publicUrl;
             });
             try {
                 newImageUrls = await Promise.all(uploadPromises);

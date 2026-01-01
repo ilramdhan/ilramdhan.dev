@@ -1,8 +1,10 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { ThemeProvider } from './lib/ThemeContext';
 import { ScrollToTop } from './components/ScrollToTop';
+import { useQuery } from '@tanstack/react-query';
+import * as api from './lib/api';
 
 // Global Background Animation
 function BackgroundBeams() {
@@ -15,12 +17,39 @@ function BackgroundBeams() {
   );
 }
 
+function Footer() {
+    const navigate = useNavigate();
+    const { data: profile } = useQuery({
+        queryKey: ['profile'],
+        queryFn: api.getProfile,
+    });
+
+    return (
+        <footer className="bg-white border-t border-slate-200 dark:bg-slate-950/90 dark:border-white/5 py-12 backdrop-blur-md transition-colors">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                    <span className="text-slate-500 text-sm">
+                        {profile?.footer_text}
+                    </span>
+                    <div className="flex gap-6">
+                        <button onClick={() => navigate('/privacy')} className="text-slate-500 hover:text-slate-900 dark:hover:text-white text-sm">Privacy Policy</button>
+                        <button onClick={() => navigate('/terms')} className="text-slate-500 hover:text-slate-900 dark:hover:text-white text-sm">Terms of Service</button>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    );
+}
+
 export default function App() {
   return (
-    <div className="min-h-screen text-slate-900 dark:text-slate-50 antialiased selection:bg-indigo-500/30">
+    <div className="min-h-screen text-slate-900 dark:text-slate-50 antialiased selection:bg-indigo-500/30 flex flex-col">
       <ThemeProvider>
           <BackgroundBeams />
-          <Outlet />
+          <div className="flex-1">
+            <Outlet />
+          </div>
+          <Footer />
           <ScrollToTop />
       </ThemeProvider>
       <Toaster position="bottom-right" theme="system" />

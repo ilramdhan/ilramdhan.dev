@@ -45,9 +45,11 @@ export default function BlogPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
       <Navbar />
       <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">Writings</h1>
-            <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">Insights, thoughts, and tutorials on web development, design, and technology.</p>
+        <div className="mb-12">
+            <div className="text-center mb-12">
+                <h1 className="text-4xl md:text-5xl font-bold mb-4">Writings</h1>
+                <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">Insights, thoughts, and tutorials on web development, design, and technology.</p>
+            </div>
         </div>
 
         <div className="max-w-4xl mx-auto mb-12 space-y-6">
@@ -90,7 +92,11 @@ export default function BlogPage() {
                 >
                     <div className="flex flex-col md:flex-row gap-6">
                         <div className="w-full md:w-48 aspect-video md:aspect-square shrink-0 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800">
-                             <img src={blog.images && blog.images.length > 0 ? blog.images[0] : ''} alt={blog.title} className="w-full h-full object-cover" />
+                             {blog.images && blog.images.length > 0 ? (
+                                 <img src={blog.images[0]} alt={blog.title} className="w-full h-full object-cover" />
+                             ) : (
+                                 <div className="w-full h-full flex items-center justify-center text-slate-400">No Image</div>
+                             )}
                         </div>
                         <div className="flex-1">
                             <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 mb-3">
