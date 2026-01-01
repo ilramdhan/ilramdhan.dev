@@ -121,7 +121,7 @@ export default function Page() {
                             className="bg-white border border-slate-200 dark:bg-slate-950/80 dark:border-white/10 rounded-xl overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-all cursor-pointer group shadow-sm"
                         >
                             <div className="aspect-[2/1] overflow-hidden bg-slate-100 dark:bg-slate-900">
-                                <img src={post.image_url || ''} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <img src={post.images && post.images.length > 0 ? post.images[0] : ''} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                             </div>
                             <div className="p-6">
                                 <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">

@@ -21,7 +21,7 @@ export default function ProjectsPage() {
   const { data: projectData, isLoading: isLoadingProjects, isError: isErrorProjects } = useQuery({
     queryKey: ['projects', currentPage, selectedTag],
     queryFn: () => getProjects({ page: currentPage, limit: ITEMS_PER_PAGE, tag: selectedTag }),
-    keepPreviousData: true,
+    placeholderData: (previousData) => previousData,
   });
 
   const currentProjects = projectData?.data ?? [];

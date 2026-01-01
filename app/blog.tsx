@@ -24,7 +24,7 @@ export default function BlogPage() {
   const { data: blogData, isLoading: isLoadingBlogs, isError: isErrorBlogs } = useQuery({
     queryKey: ['blogs', currentPage, selectedTag, debouncedSearchQuery],
     queryFn: () => getBlogs({ page: currentPage, limit: ITEMS_PER_PAGE, query: debouncedSearchQuery }),
-    keepPreviousData: true,
+    placeholderData: (previousData) => previousData,
   });
 
   const currentBlogs = blogData?.data ?? [];
@@ -85,12 +85,12 @@ export default function BlogPage() {
             {currentBlogs.map(blog => (
                 <article 
                     key={blog.id} 
-                    onClick={() => navigate(`/blog/${blog.id}`)}
+                    onClick={() => blog.slug && navigate(`/blog/${blog.slug}`)}
                     className="group bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/5 rounded-2xl p-6 md:p-8 hover:shadow-lg dark:hover:bg-slate-900/80 hover:border-indigo-500/30 transition-all cursor-pointer backdrop-blur-md"
                 >
                     <div className="flex flex-col md:flex-row gap-6">
                         <div className="w-full md:w-48 aspect-video md:aspect-square shrink-0 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800">
-                             <img src={blog.image_url || ''} alt={blog.title} className="w-full h-full object-cover" />
+                             <img src={blog.images && blog.images.length > 0 ? blog.images[0] : ''} alt={blog.title} className="w-full h-full object-cover" />
                         </div>
                         <div className="flex-1">
                             <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 mb-3">

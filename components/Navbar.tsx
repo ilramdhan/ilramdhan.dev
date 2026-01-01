@@ -66,7 +66,7 @@ export function Navbar() {
                   <img src={profile.avatar_url} alt="Logo" className="h-8 w-auto object-contain" />
               ) : (
                   <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xl">
-                      <span>{profile?.full_name || 'DevFolio'}</span>
+                      <span>{profile?.display_name || 'DevFolio'}</span>
                   </div>
               )
             )}
