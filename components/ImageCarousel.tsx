@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
@@ -13,7 +15,7 @@ export function ImageCarousel({ images, alt, aspectRatio = 'aspect-video' }: Ima
   // If no images, show placeholder
   if (!images || images.length === 0) {
     return (
-      <div className={`w-full ${aspectRatio} bg-slate-800 flex items-center justify-center text-slate-500`}>
+      <div className={`w-full ${aspectRatio} bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-500`}>
         No Image
       </div>
     );
@@ -30,7 +32,7 @@ export function ImageCarousel({ images, alt, aspectRatio = 'aspect-video' }: Ima
   };
 
   return (
-    <div className={`w-full ${aspectRatio} relative overflow-hidden group`}>
+    <div className={`w-full ${aspectRatio} relative overflow-hidden group bg-slate-100 dark:bg-slate-900`}>
       <img 
         src={images[currentIndex]} 
         alt={`${alt} - ${currentIndex + 1}`} 

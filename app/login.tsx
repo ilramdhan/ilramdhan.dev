@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { useRouter } from '../lib/router';
 import { useStore } from '../lib/store';
@@ -29,33 +31,33 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-slate-900 border border-white/10 rounded-2xl p-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center px-4 transition-colors">
+      <div className="w-full max-w-md bg-white border border-slate-200 dark:bg-slate-900 dark:border-white/10 rounded-2xl p-8 shadow-lg dark:shadow-none">
         <div className="flex justify-center mb-6">
-          <div className="p-3 bg-indigo-500/10 rounded-full">
-            <Lock className="h-8 w-8 text-indigo-500" />
+          <div className="p-3 bg-indigo-100 dark:bg-indigo-500/10 rounded-full">
+            <Lock className="h-8 w-8 text-indigo-600 dark:text-indigo-500" />
           </div>
         </div>
-        <h2 className="text-2xl font-bold text-center text-white mb-8">Admin Access</h2>
+        <h2 className="text-2xl font-bold text-center text-slate-900 dark:text-white mb-8">Admin Access</h2>
         
         <form onSubmit={handleLogin} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-slate-400 mb-2">Email</label>
+            <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Email</label>
             <input 
               type="email" 
               value={email}
               onChange={e => setEmail(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-950 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 dark:bg-slate-950 dark:border-white/10 rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
               placeholder="admin@example.com"
             />
           </div>
           <div>
-             <label className="block text-sm font-medium text-slate-400 mb-2">Password</label>
+             <label className="block text-sm font-medium text-slate-600 dark:text-slate-400 mb-2">Password</label>
             <input 
               type="password" 
               value={password}
               onChange={e => setPassword(e.target.value)}
-              className="w-full px-4 py-3 bg-slate-950 border border-white/10 rounded-lg text-white focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="w-full px-4 py-3 bg-slate-50 border border-slate-200 dark:bg-slate-950 dark:border-white/10 rounded-lg text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
               placeholder="••••••••"
             />
           </div>
@@ -69,7 +71,7 @@ export default function LoginPage() {
           </button>
         </form>
         <div className="mt-6 text-center">
-            <button onClick={() => navigate('/')} className="text-sm text-slate-500 hover:text-white">Back to Home</button>
+            <button onClick={() => navigate('/')} className="text-sm text-slate-500 hover:text-slate-900 dark:hover:text-white">Back to Home</button>
         </div>
       </div>
     </div>

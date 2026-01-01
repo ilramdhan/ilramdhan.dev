@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { Loader2, Send } from 'lucide-react';
 import { toast } from 'sonner';
@@ -50,50 +52,50 @@ export function ContactForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto">
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-2">
+        <label htmlFor="name" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
           Name
         </label>
         <input
           type="text"
           id="name"
           name="name"
-          className="w-full px-4 py-3 rounded-lg bg-slate-900 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+          className="w-full px-4 py-3 rounded-lg bg-white border border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-white/10 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
           placeholder="John Doe"
         />
         {state.errors?.name && (
-          <p className="mt-1 text-sm text-red-400">{state.errors.name[0]}</p>
+          <p className="mt-1 text-sm text-red-500 dark:text-red-400">{state.errors.name[0]}</p>
         )}
       </div>
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
+        <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
           Email
         </label>
         <input
           type="email"
           id="email"
           name="email"
-          className="w-full px-4 py-3 rounded-lg bg-slate-900 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+          className="w-full px-4 py-3 rounded-lg bg-white border border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-white/10 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
           placeholder="john@example.com"
         />
         {state.errors?.email && (
-          <p className="mt-1 text-sm text-red-400">{state.errors.email[0]}</p>
+          <p className="mt-1 text-sm text-red-500 dark:text-red-400">{state.errors.email[0]}</p>
         )}
       </div>
 
       <div>
-        <label htmlFor="message" className="block text-sm font-medium text-slate-300 mb-2">
+        <label htmlFor="message" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
           Message
         </label>
         <textarea
           id="message"
           name="message"
           rows={4}
-          className="w-full px-4 py-3 rounded-lg bg-slate-900 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
+          className="w-full px-4 py-3 rounded-lg bg-white border border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-white/10 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
           placeholder="Tell me about your project..."
         />
         {state.errors?.message && (
-          <p className="mt-1 text-sm text-red-400">{state.errors.message[0]}</p>
+          <p className="mt-1 text-sm text-red-500 dark:text-red-400">{state.errors.message[0]}</p>
         )}
       </div>
 

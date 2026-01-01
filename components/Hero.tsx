@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Github, Linkedin, Twitter, Instagram, Youtube, Mail, Gamepad2, Phone } from 'lucide-react';
@@ -20,13 +22,13 @@ export function Hero() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.5 }}
             >
-                <span className="inline-block px-3 py-1 rounded-full bg-indigo-900/30 text-indigo-300 border border-indigo-500/30 text-sm font-medium mb-6">
+                <span className="inline-block px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 text-sm font-medium mb-6">
                     {profile.badge}
                 </span>
-                <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-white mb-6">
+                <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-6">
                     {profile.title}
                 </h1>
-                <p className="mt-4 max-w-2xl mx-auto lg:mx-0 text-xl text-slate-400 mb-8">
+                <p className="mt-4 max-w-2xl mx-auto lg:mx-0 text-xl text-slate-600 dark:text-slate-400 mb-8">
                     {profile.description}
                 </p>
                 
@@ -39,7 +41,7 @@ export function Hero() {
                     </button>
                     <button
                     onClick={() => navigate('/contact')}
-                    className="w-full sm:w-auto px-8 py-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white font-semibold transition-all"
+                    className="w-full sm:w-auto px-8 py-3 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/10 dark:text-white font-semibold transition-all"
                     >
                     Contact Me
                     </button>
@@ -47,28 +49,28 @@ export function Hero() {
 
                 <div className="mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-6">
                     {profile.socials.github && (
-                        <a href={profile.socials.github} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white transition-colors"><Github className="h-6 w-6" /></a>
+                        <a href={profile.socials.github} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"><Github className="h-6 w-6" /></a>
                     )}
                     {profile.socials.linkedin && (
-                        <a href={profile.socials.linkedin} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white transition-colors"><Linkedin className="h-6 w-6" /></a>
+                        <a href={profile.socials.linkedin} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"><Linkedin className="h-6 w-6" /></a>
                     )}
                     {profile.socials.twitter && (
-                        <a href={profile.socials.twitter} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white transition-colors"><Twitter className="h-6 w-6" /></a>
+                        <a href={profile.socials.twitter} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"><Twitter className="h-6 w-6" /></a>
                     )}
                     {profile.socials.instagram && (
-                        <a href={profile.socials.instagram} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white transition-colors"><Instagram className="h-6 w-6" /></a>
+                        <a href={profile.socials.instagram} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"><Instagram className="h-6 w-6" /></a>
                     )}
                     {profile.socials.youtube && (
-                        <a href={profile.socials.youtube} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white transition-colors"><Youtube className="h-6 w-6" /></a>
+                        <a href={profile.socials.youtube} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"><Youtube className="h-6 w-6" /></a>
                     )}
                     {profile.socials.whatsapp && (
-                        <a href={profile.socials.whatsapp} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white transition-colors"><Phone className="h-6 w-6" /></a>
+                        <a href={profile.socials.whatsapp} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"><Phone className="h-6 w-6" /></a>
                     )}
                      {profile.socials.mail && (
-                        <a href={`mailto:${profile.socials.mail}`} className="text-slate-400 hover:text-white transition-colors"><Mail className="h-6 w-6" /></a>
+                        <a href={`mailto:${profile.socials.mail}`} className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"><Mail className="h-6 w-6" /></a>
                     )}
                     {profile.socials.steam && (
-                        <a href={profile.socials.steam} target="_blank" rel="noreferrer" className="text-slate-400 hover:text-white transition-colors"><Gamepad2 className="h-6 w-6" /></a>
+                        <a href={profile.socials.steam} target="_blank" rel="noreferrer" className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"><Gamepad2 className="h-6 w-6" /></a>
                     )}
                 </div>
             </motion.div>

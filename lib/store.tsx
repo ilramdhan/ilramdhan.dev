@@ -1,9 +1,11 @@
+'use client';
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import type { Database } from '../types';
 
 type Project = Database['public']['Tables']['projects']['Row'] & {
     tags: string[];
-    images: string[]; // Changed from thumbnail_url
+    images: string[];
 };
 type Message = Database['public']['Tables']['messages']['Row'];
 
@@ -13,7 +15,7 @@ export interface BlogPost {
   slug: string;
   excerpt: string;
   content: string;
-  images: string[]; // Changed from cover_image
+  images: string[];
   published_at: string;
   is_featured: boolean;
   tags: string[];
@@ -131,7 +133,7 @@ const INITIAL_PROJECTS: Project[] = [
     is_featured: true,
     published_at: new Date().toISOString(),
     created_at: new Date().toISOString(),
-    thumbnail_url: null, // Legacy field support if needed
+    thumbnail_url: null, 
   },
   {
     id: '2',
@@ -226,22 +228,40 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [experience, setExperience] = useState<Experience[]>(INITIAL_EXPERIENCE);
   const [education, setEducation] = useState<Education[]>(INITIAL_EDUCATION);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Theme State with Persistence
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  useEffect(() => {
+    // Check local storage on mount
+    const savedTheme = localStorage.getItem('theme') as 'dark' | 'light';
+    if (savedTheme) {
+        setTheme(savedTheme);
+        if (savedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    } else {
+        // Default to dark
+        document.documentElement.classList.add('dark');
+    }
+  }, []);
 
   const login = () => setIsAuthenticated(true);
   const logout = () => setIsAuthenticated(false);
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
-  };
-
-  useEffect(() => {
-    if (theme === 'dark') {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    
+    if (newTheme === 'dark') {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, [theme]);
+  };
 
   // Projects
   const addProject = (project: Omit<Project, 'id' | 'created_at' | 'thumbnail_url'>) => {

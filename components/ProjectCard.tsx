@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ExternalLink, Github } from 'lucide-react';
@@ -23,9 +25,9 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
       viewport={{ once: true }}
       transition={{ delay: index * 0.1 }}
       onClick={() => project.id && navigate(`/projects/${project.id}`)}
-      className="group relative rounded-xl bg-slate-900 border border-white/10 overflow-hidden hover:border-indigo-500/50 transition-colors cursor-pointer"
+      className="group relative rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-white/10 overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-colors cursor-pointer"
     >
-      <div className="aspect-video w-full bg-slate-800 relative group/image">
+      <div className="aspect-video w-full bg-slate-100 dark:bg-slate-800 relative group/image">
          <ImageCarousel images={project.images || []} alt={project.title || 'Project'} />
          
         <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover/image:opacity-100 transition-opacity flex items-center justify-center gap-4 pointer-events-none">
@@ -62,15 +64,15 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
       <div className="p-6">
         <div className="flex flex-wrap gap-2 mb-4">
           {project.tech_stack?.slice(0, 3).map((tech) => (
-            <span key={tech} className="px-2 py-1 text-xs font-medium rounded-md bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">
+            <span key={tech} className="px-2 py-1 text-xs font-medium rounded-md bg-indigo-50 text-indigo-600 border border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/20">
               {tech}
             </span>
           ))}
         </div>
-        <h3 className="text-xl font-bold text-white mb-2 group-hover:text-indigo-400 transition-colors">
+        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
           {project.title}
         </h3>
-        <p className="text-slate-400 text-sm line-clamp-2">
+        <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2">
           {project.description}
         </p>
       </div>
