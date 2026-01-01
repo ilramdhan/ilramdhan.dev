@@ -1,11 +1,29 @@
 import React from 'react';
 import { useStore } from '../lib/store';
 import { Navbar } from '../components/Navbar';
-import { Download, MapPin, Briefcase, GraduationCap, Mail, Github, Linkedin, Twitter, Instagram, Youtube, Gamepad2, Phone } from 'lucide-react';
+import { Download, MapPin, Briefcase, GraduationCap, Mail, Github, Linkedin, Twitter, Instagram, Youtube, Code, Smartphone, Cloud, Terminal, Layout, Database, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
 
+const IconMap = {
+    code: Code,
+    smartphone: Smartphone,
+    cloud: Cloud,
+    terminal: Terminal,
+    layout: Layout,
+    database: Database
+};
+
 export default function AboutPage() {
-  const { profile, experience, education } = useStore();
+  const { profile, experience, education, services, theme } = useStore();
+
+  const getGithubUsername = (url: string) => {
+    if (!url) return '';
+    const cleanUrl = url.replace(/\/$/, ''); // Remove trailing slash
+    return cleanUrl.split('/').pop();
+  };
+
+  const username = getGithubUsername(profile.socials.github);
+  const statsTheme = theme === 'dark' ? 'dark' : 'default';
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
@@ -70,6 +88,38 @@ export default function AboutPage() {
                 </div>
             </div>
         </div>
+
+        {/* Services Section */}
+        {services && services.length > 0 && (
+            <div className="mb-20">
+                <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
+                    <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-lg text-yellow-600 dark:text-yellow-400">
+                        <Zap className="h-6 w-6" />
+                    </div>
+                    What I Do
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {services.map((service, idx) => {
+                        const Icon = IconMap[service.icon] || Code;
+                        return (
+                            <motion.div
+                                key={service.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                transition={{ delay: idx * 0.1 }}
+                                className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 p-6 rounded-xl hover:border-indigo-500/30 transition-all shadow-sm dark:shadow-none group"
+                            >
+                                <div className="h-12 w-12 bg-indigo-50 dark:bg-slate-800 rounded-lg flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                                    <Icon className="h-6 w-6" />
+                                </div>
+                                <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">{service.title}</h3>
+                                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">{service.description}</p>
+                            </motion.div>
+                        );
+                    })}
+                </div>
+            </div>
+        )}
 
         <div className="grid md:grid-cols-2 gap-12 mb-20">
             {/* Experience */}
@@ -157,18 +207,17 @@ export default function AboutPage() {
         </div>
         
         {/* GitHub Stats Section */}
-        {profile.socials.github && (
+        {username && (
             <div className="border-t border-slate-200 dark:border-white/10 pt-16">
-                 <h2 className="text-2xl font-bold mb-8 text-center">Coding Activity</h2>
+                 <h2 className="text-2xl font-bold mb-8 text-center text-slate-900 dark:text-white">Coding Activity</h2>
                  <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
-                     {/* Replace 'username' in the URL with the actual GitHub username extracted from the profile URL if possible, or just use a placeholder mechanism */}
                      <img 
-                        src={`https://github-readme-stats.vercel.app/api?username=${profile.socials.github.split('/').pop()}&show_icons=true&theme=${'dark'}&bg_color=0f172a&title_color=fff&text_color=94a3b8&icon_color=6366f1&border_color=1e293b`} 
+                        src={`https://github-readme-stats.vercel.app/api?username=${username}&show_icons=true&theme=${statsTheme}&bg_color=${statsTheme === 'dark' ? '0f172a' : 'ffffff'}&title_color=${statsTheme === 'dark' ? 'ffffff' : '0f172a'}&text_color=${statsTheme === 'dark' ? '94a3b8' : '475569'}&icon_color=6366f1&border_color=${statsTheme === 'dark' ? '1e293b' : 'e2e8f0'}`} 
                         alt="GitHub Stats"
                         className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg max-w-full" 
                      />
                      <img 
-                        src={`https://github-readme-stats.vercel.app/api/top-langs/?username=${profile.socials.github.split('/').pop()}&layout=compact&theme=${'dark'}&bg_color=0f172a&title_color=fff&text_color=94a3b8&border_color=1e293b`} 
+                        src={`https://github-readme-stats.vercel.app/api/top-langs/?username=${username}&layout=compact&theme=${statsTheme}&bg_color=${statsTheme === 'dark' ? '0f172a' : 'ffffff'}&title_color=${statsTheme === 'dark' ? 'ffffff' : '0f172a'}&text_color=${statsTheme === 'dark' ? '94a3b8' : '475569'}&border_color=${statsTheme === 'dark' ? '1e293b' : 'e2e8f0'}`} 
                         alt="Top Languages"
                         className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg max-w-full" 
                      />

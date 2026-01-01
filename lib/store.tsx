@@ -41,6 +41,13 @@ export interface Education {
   tags?: string[];
 }
 
+export interface Service {
+    id: string;
+    title: string;
+    description: string;
+    icon: 'code' | 'smartphone' | 'cloud' | 'terminal' | 'layout' | 'database';
+}
+
 export interface ProfileConfig {
   logo_text: string;
   logo_url: string;
@@ -86,6 +93,13 @@ const INITIAL_PROFILE: ProfileConfig = {
     steam: '',
   }
 };
+
+const INITIAL_SERVICES: Service[] = [
+    { id: '1', title: 'Web Development', description: 'Building fast, responsive, and SEO-friendly web applications using Next.js and React.', icon: 'code' },
+    { id: '2', title: 'Mobile Development', description: 'Creating cross-platform mobile apps with React Native or Flutter.', icon: 'smartphone' },
+    { id: '3', title: 'DevOps & Cloud', description: 'Setting up CI/CD pipelines, Docker containers, and managing AWS/VPS infrastructure.', icon: 'terminal' },
+    { id: '4', title: 'SaaS Development', description: 'End-to-end SaaS product development from database design to payment integration.', icon: 'cloud' },
+];
 
 const INITIAL_EXPERIENCE: Experience[] = [
     { 
@@ -191,6 +205,7 @@ interface StoreContextType {
   profile: ProfileConfig;
   experience: Experience[];
   education: Education[];
+  services: Service[];
   isAuthenticated: boolean;
   theme: 'dark' | 'light';
   toggleTheme: () => void;
@@ -210,7 +225,11 @@ interface StoreContextType {
   setExperience: (exp: Experience[]) => void;
   updateExperience: (id: string, updates: Partial<Experience>) => void; 
   setEducation: (edu: Education[]) => void;
-  updateEducation: (id: string, updates: Partial<Education>) => void; 
+  updateEducation: (id: string, updates: Partial<Education>) => void;
+  // Services Actions
+  setServices: (services: Service[]) => void;
+  updateService: (id: string, updates: Partial<Service>) => void;
+  deleteService: (id: string) => void;
   // Message Actions
   addMessage: (msg: Omit<Message, 'id' | 'created_at' | 'is_read'>) => void;
   markMessageRead: (id: string) => void;
@@ -227,6 +246,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<ProfileConfig>(INITIAL_PROFILE);
   const [experience, setExperience] = useState<Experience[]>(INITIAL_EXPERIENCE);
   const [education, setEducation] = useState<Education[]>(INITIAL_EDUCATION);
+  const [services, setServicesState] = useState<Service[]>(INITIAL_SERVICES);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   
   // Theme State with Persistence
@@ -298,6 +318,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setEducation(education.map(edu => edu.id === id ? { ...edu, ...updates } : edu));
   };
 
+  // Services
+  const setServices = (srv: Service[]) => setServicesState(srv);
+  const updateService = (id: string, updates: Partial<Service>) => {
+      setServicesState(services.map(s => s.id === id ? { ...s, ...updates } : s));
+  };
+  const deleteService = (id: string) => {
+      setServicesState(services.filter(s => s.id !== id));
+  };
+
   // Messages
   const addMessage = (msg: Omit<Message, 'id' | 'created_at' | 'is_read'>) => {
     const newMessage: Message = { ...msg, id: Math.random().toString(36).substr(2, 9), is_read: false, created_at: new Date().toISOString() };
@@ -309,12 +338,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   return (
     <StoreContext.Provider value={{ 
-      projects, posts, messages, profile, experience, education,
+      projects, posts, messages, profile, experience, education, services,
       isAuthenticated, login, logout, 
       theme, toggleTheme,
       addProject, updateProject, deleteProject,
       addPost, updatePost, deletePost, addComment,
       updateProfile, setExperience, updateExperience, setEducation, updateEducation,
+      setServices, updateService, deleteService,
       addMessage, markMessageRead, markAllMessagesRead, deleteMessage
     }}>
       {children}

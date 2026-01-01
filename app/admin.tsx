@@ -1,25 +1,26 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useStore, Experience, Education } from '../lib/store';
+import { useStore, Experience, Education, Service } from '../lib/store';
 import { useRouter } from '../lib/router';
-import { Plus, Trash2, FolderKanban, Mail, LogOut, Settings, FileText, User, Edit, X, Save, CheckCheck, ExternalLink, Briefcase, GraduationCap, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Trash2, FolderKanban, Mail, LogOut, Settings, FileText, User, Edit, X, Save, CheckCheck, ExternalLink, Briefcase, GraduationCap, ChevronLeft, ChevronRight, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 
 const ADMIN_ITEMS_PER_PAGE = 5;
 
 export default function AdminPage() {
   const { 
-    projects, posts, messages, profile, experience, education,
+    projects, posts, messages, profile, experience, education, services,
     deleteProject, addProject, updateProject, 
     deletePost, addPost, updatePost, 
     updateProfile, setExperience, updateExperience, setEducation, updateEducation,
+    setServices, updateService, deleteService,
     markMessageRead, markAllMessagesRead, deleteMessage,
     logout 
   } = useStore();
   
   const { navigate } = useRouter();
-  const [activeTab, setActiveTab] = useState<'overview' | 'resume' | 'projects' | 'blog' | 'messages'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'resume' | 'services' | 'projects' | 'blog' | 'messages'>('overview');
   
   // -- PAGINATION STATES --
   const [projectPage, setProjectPage] = useState(1);
@@ -56,6 +57,11 @@ export default function AdminPage() {
   const [editingEduId, setEditingEduId] = useState<string | null>(null);
   const [showExpForm, setShowExpForm] = useState(false);
   const [showEduForm, setShowEduForm] = useState(false);
+
+  // -- SERVICES STATES --
+  const [serviceForm, setServiceForm] = useState<{title: string, description: string, icon: Service['icon']}>({ title: '', description: '', icon: 'code' });
+  const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
+  const [showServiceForm, setShowServiceForm] = useState(false);
 
   // Unread Messages Count
   const unreadCount = messages ? messages.filter(m => !m.is_read).length : 0;
@@ -147,6 +153,33 @@ export default function AdminPage() {
   };
   const handleDeleteEdu = (id: string) => setEducation(education.filter(e => e.id !== id));
 
+  // --- SERVICES HANDLERS ---
+  const handleEditService = (srv?: Service) => {
+      if (srv) {
+          setEditingServiceId(srv.id);
+          setServiceForm({
+              title: srv.title,
+              description: srv.description,
+              icon: srv.icon
+          });
+      } else {
+          setEditingServiceId(null);
+          setServiceForm({ title: '', description: '', icon: 'code' });
+      }
+      setShowServiceForm(true);
+  }
+
+  const saveService = (e: React.FormEvent) => {
+      e.preventDefault();
+      if (editingServiceId) {
+          updateService(editingServiceId, serviceForm);
+          toast.success("Service updated!");
+      } else {
+          setServices([...services, { ...serviceForm, id: Math.random().toString(36).substr(2, 9) }]);
+          toast.success("Service added!");
+      }
+      setShowServiceForm(false);
+  }
 
   // --- PROJECT HANDLERS ---
   const openProjectForm = (project?: any) => {
@@ -256,6 +289,7 @@ export default function AdminPage() {
             {[
                 {id: 'overview', icon: User, label: 'Overview'},
                 {id: 'resume', icon: Briefcase, label: 'Resume'},
+                {id: 'services', icon: Zap, label: 'Services'},
                 {id: 'projects', icon: FolderKanban, label: 'Projects'},
                 {id: 'blog', icon: FileText, label: 'Blog'},
                 {id: 'messages', icon: Mail, label: 'Messages'},
@@ -477,6 +511,69 @@ export default function AdminPage() {
                                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button onClick={() => handleEditEdu(edu)} className="text-blue-500 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 p-2 rounded"><Edit className="h-4 w-4" /></button>
                                     <button onClick={() => handleDeleteEdu(edu.id)} className="text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 p-2 rounded"><Trash2 className="h-4 w-4" /></button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                 </div>
+            </div>
+        )}
+
+        {activeTab === 'services' && (
+            <div className="max-w-4xl">
+                 <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">Services Management</h1>
+                 
+                 <div className="mb-12">
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-xl font-semibold text-slate-900 dark:text-white">Offered Services</h2>
+                        <button onClick={() => handleEditService()} className="text-sm bg-indigo-600 text-white px-3 py-1.5 rounded-lg flex items-center gap-1 hover:bg-indigo-700"><Plus className="h-4 w-4" /> Add</button>
+                    </div>
+
+                    {showServiceForm && (
+                        <form onSubmit={saveService} className="bg-white border border-slate-200 dark:bg-slate-900 p-6 rounded-xl dark:border-white/10 mb-6 space-y-4 shadow-sm">
+                            <h3 className="text-slate-900 dark:text-white font-medium mb-2">{editingServiceId ? 'Edit Service' : 'New Service'}</h3>
+                            <input placeholder="Service Title (e.g., Web Development)" required value={serviceForm.title} onChange={e => setServiceForm({...serviceForm, title: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded px-3 py-2 text-slate-900 dark:text-white" />
+                            <textarea placeholder="Description" required value={serviceForm.description} onChange={e => setServiceForm({...serviceForm, description: e.target.value})} className="w-full bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 rounded px-3 py-2 text-slate-900 dark:text-white" rows={3} />
+                            
+                            <div>
+                                <label className="block text-sm text-slate-500 dark:text-slate-400 mb-2">Icon</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {(['code', 'smartphone', 'cloud', 'terminal', 'layout', 'database'] as const).map(icon => (
+                                        <button 
+                                            key={icon}
+                                            type="button"
+                                            onClick={() => setServiceForm({...serviceForm, icon})}
+                                            className={`p-2 rounded border transition-colors capitalize text-xs ${serviceForm.icon === icon ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-white/10'}`}
+                                        >
+                                            {icon}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="flex justify-end gap-2">
+                                <button type="button" onClick={() => setShowServiceForm(false)} className="text-slate-500 dark:text-slate-400 text-sm">Cancel</button>
+                                <button type="submit" className="bg-indigo-600 text-white px-4 py-1.5 rounded-lg text-sm">{editingServiceId ? 'Update' : 'Save'}</button>
+                            </div>
+                        </form>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {services && services.map(srv => (
+                            <div key={srv.id} className="bg-white border border-slate-200 dark:bg-slate-900 dark:border-white/5 p-4 rounded-lg flex justify-between items-start group shadow-sm">
+                                <div className="flex items-start gap-3">
+                                    <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded text-indigo-600 dark:text-indigo-400">
+                                        <Zap className="h-5 w-5" />
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-slate-900 dark:text-white text-sm">{srv.title}</h3>
+                                        <p className="text-slate-600 dark:text-slate-400 text-xs mt-1 leading-relaxed">{srv.description}</p>
+                                        <div className="mt-2 inline-block px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-xs text-slate-500 dark:text-slate-400 capitalize">{srv.icon}</div>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button onClick={() => handleEditService(srv)} className="text-blue-500 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 p-1 rounded"><Edit className="h-4 w-4" /></button>
+                                    <button onClick={() => deleteService(srv.id)} className="text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 p-1 rounded"><Trash2 className="h-4 w-4" /></button>
                                 </div>
                             </div>
                         ))}

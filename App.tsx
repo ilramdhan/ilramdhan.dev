@@ -7,6 +7,8 @@ import ProjectDetailPage from './app/project-detail';
 import BlogPage from './app/blog';
 import BlogDetailPage from './app/blog-detail';
 import AboutPage from './app/about';
+import PrivacyPage from './app/privacy';
+import TermsPage from './app/terms';
 import { Toaster } from 'sonner';
 import { RouterProvider, useRouter } from './lib/router';
 import { StoreProvider, useStore } from './lib/store';
@@ -63,6 +65,8 @@ function AppContent() {
   if (path === '/projects') return <ProjectsPage />;
   if (path === '/blog') return <BlogPage />;
   if (path === '/about') return <AboutPage />;
+  if (path === '/privacy') return <PrivacyPage />;
+  if (path === '/terms') return <TermsPage />;
   
   // Dynamic Routes
   if (path.startsWith('/projects/')) {

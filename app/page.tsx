@@ -157,8 +157,8 @@ export default function Page() {
               © {new Date().getFullYear()} DevFolio. Built with Next.js & Supabase.
             </span>
             <div className="flex gap-6">
-               <button className="text-slate-500 hover:text-slate-900 dark:hover:text-white text-sm">Privacy Policy</button>
-               <button className="text-slate-500 hover:text-slate-900 dark:hover:text-white text-sm">Terms of Service</button>
+               <button onClick={() => navigate('/privacy')} className="text-slate-500 hover:text-slate-900 dark:hover:text-white text-sm">Privacy Policy</button>
+               <button onClick={() => navigate('/terms')} className="text-slate-500 hover:text-slate-900 dark:hover:text-white text-sm">Terms of Service</button>
             </div>
           </div>
         </div>
