@@ -66,8 +66,8 @@ export default function BlogDetailPage() {
       <Navbar />
       
       <div className="w-full h-96 relative bg-slate-200 dark:bg-slate-900">
-         {blog.image_url ? (
-             <ImageCarousel images={[blog.image_url]} alt={blog.title || 'Blog Post'} aspectRatio="h-full" />
+         {blog.images && blog.images.length > 0 ? (
+             <ImageCarousel images={[blog.images[0]]} alt={blog.title || 'Blog Post'} aspectRatio="h-full" />
          ) : (
              <div className="w-full h-full bg-slate-200 dark:bg-slate-900" />
          )}
@@ -90,7 +90,7 @@ export default function BlogDetailPage() {
       <div className="max-w-3xl mx-auto px-4 py-12">
         <div className="prose prose-slate dark:prose-invert prose-lg max-w-none mb-16">
              <p className="lead text-xl text-slate-600 dark:text-slate-300 mb-8 font-light">{blog.excerpt}</p>
-             <ReactMarkdown className="text-slate-800 dark:text-slate-300 leading-relaxed whitespace-pre-wrap">
+             <ReactMarkdown>
                  {blog.content || ''}
              </ReactMarkdown>
         </div>
