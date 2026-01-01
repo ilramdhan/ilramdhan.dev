@@ -19,10 +19,19 @@ export default function AboutPage() {
   const { data: experience, isLoading: isLoadingExp } = useQuery({ queryKey: ['resume', 'experience'], queryFn: () => api.getResume('experience') });
   const { data: education, isLoading: isLoadingEdu } = useQuery({ queryKey: ['resume', 'education'], queryFn: () => api.getResume('education') });
   const { data: certificates, isLoading: isLoadingCerts } = useQuery({ queryKey: ['certificates'], queryFn: api.getCertificates });
-  const { data: wakatime, isLoading: isLoadingWakatime, isError: isWakatimeError } = useQuery({ 
+  const { data: wakatime, isLoading: isLoadingWakatime, isError: isWakatimeError, error: wakatimeError } = useQuery({ 
       queryKey: ['wakatime'], 
-      queryFn: api.getWakatimeStats,
-      retry: false // Don't retry if it fails (e.g. locally without proxy)
+      queryFn: async () => {
+          try {
+              const data = await api.getWakatimeStats();
+              console.log('Wakatime Data:', data); // Debug log
+              return data;
+          } catch (err) {
+              console.error('Wakatime Error:', err); // Debug log
+              throw err;
+          }
+      },
+      retry: false 
   });
 
   const isLoading = isLoadingProfile || isLoadingExp || isLoadingEdu || isLoadingCerts;
@@ -163,31 +172,66 @@ export default function AboutPage() {
              <h2 className="text-2xl font-bold mb-8 text-center text-slate-900 dark:text-white">Coding Activity</h2>
              
              {/* Wakatime Stats */}
+             {isWakatimeError && (
+                 <div className="text-center text-red-500 mb-8">
+                     <p>Failed to load Wakatime stats.</p>
+                     <p className="text-xs text-slate-500 mt-1">Check console for details.</p>
+                 </div>
+             )}
+
              {!isWakatimeError && !isLoadingWakatime && wakatime?.data && (
-                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-4xl mx-auto">
-                     <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-white/5 text-center">
-                         <div className="flex justify-center mb-4 text-indigo-500"><Clock className="h-8 w-8" /></div>
-                         <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{wakatime.data.human_readable_total}</h3>
-                         <p className="text-sm text-slate-500">Total Coding Time (Last 7 Days)</p>
+                 <div className="space-y-8 max-w-4xl mx-auto mb-12">
+                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-white/5 text-center">
+                            <div className="flex justify-center mb-4 text-indigo-500"><Clock className="h-8 w-8" /></div>
+                            <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{wakatime.data.human_readable_total}</h3>
+                            <p className="text-sm text-slate-500">Total Coding Time (Last 7 Days)</p>
+                        </div>
+                        <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-white/5 text-center">
+                            <div className="flex justify-center mb-4 text-green-500"><Calendar className="h-8 w-8" /></div>
+                            <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{wakatime.data.human_readable_daily_average}</h3>
+                            <p className="text-sm text-slate-500">Daily Average</p>
+                        </div>
+                        <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-white/5 text-center">
+                            <div className="flex justify-center mb-4 text-purple-500"><Code2 className="h-8 w-8" /></div>
+                            <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{wakatime.data.languages?.[0]?.name || 'N/A'}</h3>
+                            <p className="text-sm text-slate-500">Top Language</p>
+                        </div>
                      </div>
-                     <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-white/5 text-center">
-                         <div className="flex justify-center mb-4 text-green-500"><Calendar className="h-8 w-8" /></div>
-                         <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{wakatime.data.human_readable_daily_average}</h3>
-                         <p className="text-sm text-slate-500">Daily Average</p>
-                     </div>
-                     <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-white/5 text-center">
-                         <div className="flex justify-center mb-4 text-purple-500"><Code2 className="h-8 w-8" /></div>
-                         <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{wakatime.data.languages?.[0]?.name || 'N/A'}</h3>
-                         <p className="text-sm text-slate-500">Top Language</p>
+
+                     {/* Custom Top Languages Visualization */}
+                     <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-white/5">
+                        <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-white">Top Languages</h3>
+                        <div className="space-y-4">
+                            {wakatime.data.languages?.slice(0, 5).map((lang: any) => (
+                                <div key={lang.name}>
+                                    <div className="flex justify-between text-sm mb-1">
+                                        <span className="text-slate-700 dark:text-slate-300 font-medium">{lang.name}</span>
+                                        <span className="text-slate-500">{lang.text} ({lang.percent}%)</span>
+                                    </div>
+                                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                                        <div 
+                                            className="bg-indigo-600 h-2.5 rounded-full transition-all duration-1000" 
+                                            style={{ width: `${lang.percent}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                      </div>
                  </div>
              )}
 
-             {/* GitHub Stats */}
+             {/* GitHub Stats - Streak Only */}
              {username && (
-                 <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
-                     <img src={`https://github-readme-stats.vercel.app/api?username=${username}&show_icons=true&theme=${statsTheme}&bg_color=${statsTheme === 'dark' ? '0f172a' : 'ffffff'}&title_color=${statsTheme === 'dark' ? 'ffffff' : '0f172a'}&text_color=${statsTheme === 'dark' ? '94a3b8' : '475569'}&icon_color=6366f1&border_color=${statsTheme === 'dark' ? '1e293b' : 'e2e8f0'}`} alt="GitHub Stats" className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg max-w-full" />
-                     <img src={`https://github-readme-stats.vercel.app/api/top-langs/?username=${username}&layout=compact&theme=${statsTheme}&bg_color=${statsTheme === 'dark' ? '0f172a' : 'ffffff'}&title_color=${statsTheme === 'dark' ? 'ffffff' : '0f172a'}&text_color=${statsTheme === 'dark' ? '94a3b8' : '475569'}&border_color=${statsTheme === 'dark' ? '1e293b' : 'e2e8f0'}`} alt="Top Languages" className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg max-w-full" />
+                 <div className="flex justify-center">
+                     <a href="https://git.io/streak-stats">
+                        <img 
+                            src={`https://streak-stats.demolab.com?user=${username}&theme=${theme}&border_radius=5&short_numbers=true&date_format=M%20j%5B%2C%20Y%5D&mode=weekly`} 
+                            alt="GitHub Streak" 
+                            className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg max-w-full"
+                        />
+                     </a>
                  </div>
              )}
         </div>
