@@ -11,43 +11,43 @@ export interface Database {
     Tables: {
       blogs: {
         Row: {
+          created_at: string
+          published_at: string | null
           id: number
           user_id: string
           title: string
           slug: string | null
           excerpt: string | null
           content: string | null
-          image_url: string | null
+          images: string[] | null
           tags: string[] | null
           is_featured: boolean | null
-          published_at: string | null
-          created_at: string
         }
         Insert: {
+          created_at?: string
+          published_at?: string | null
           id?: number
           user_id: string
           title: string
           slug?: string | null
           excerpt?: string | null
           content?: string | null
-          image_url?: string | null
+          images?: string[] | null
           tags?: string[] | null
           is_featured?: boolean | null
-          published_at?: string | null
-          created_at?: string
         }
         Update: {
+          created_at?: string
+          published_at?: string | null
           id?: number
           user_id?: string
           title?: string
           slug?: string | null
           excerpt?: string | null
           content?: string | null
-          image_url?: string | null
+          images?: string[] | null
           tags?: string[] | null
           is_featured?: boolean | null
-          published_at?: string | null
-          created_at?: string
         }
         Relationships: [
           {
@@ -61,51 +61,84 @@ export interface Database {
       messages: {
         Row: {
           id: number
+          created_at: string
           name: string
           email: string
           message: string
-          created_at: string
+          is_read: boolean | null
         }
         Insert: {
           id?: number
+          created_at?: string
           name: string
           email: string
           message: string
-          created_at?: string
+          is_read?: boolean | null
         }
         Update: {
           id?: number
+          created_at?: string
           name?: string
           email?: string
           message?: string
-          created_at?: string
+          is_read?: boolean | null
         }
         Relationships: []
       }
       profile: {
         Row: {
           id: string
-          username: string | null
-          full_name: string | null
-          avatar_url: string | null
-          website: string | null
           updated_at: string | null
+          logo_text: string | null
+          logo_url: string | null
+          display_name: string | null
+          badge_text: string | null
+          hero_title: string | null
+          short_description: string | null
+          detailed_bio: string | null
+          avatar_url: string | null
+          resume_url: string | null
+          address: string | null
+          footer_text: string | null
+          privacy_content: string | null
+          terms_content: string | null
+          social_links: Json | null
         }
         Insert: {
           id: string
-          username?: string | null
-          full_name?: string | null
-          avatar_url?: string | null
-          website?: string | null
           updated_at?: string | null
+          logo_text?: string | null
+          logo_url?: string | null
+          display_name?: string | null
+          badge_text?: string | null
+          hero_title?: string | null
+          short_description?: string | null
+          detailed_bio?: string | null
+          avatar_url?: string | null
+          resume_url?: string | null
+          address?: string | null
+          footer_text?: string | null
+          privacy_content?: string | null
+          terms_content?: string | null
+          social_links?: Json | null
         }
         Update: {
           id?: string
-          username?: string | null
-          full_name?: string | null
-          avatar_url?: string | null
-          website?: string | null
           updated_at?: string | null
+          logo_text?: string | null
+          logo_url?: string | null
+          display_name?: string | null
+          badge_text?: string | null
+          hero_title?: string | null
+          short_description?: string | null
+          detailed_bio?: string | null
+          avatar_url?: string | null
+          resume_url?: string | null
+          address?: string | null
+          footer_text?: string | null
+          privacy_content?: string | null
+          terms_content?: string | null
+          social_links?: Json | null
         }
         Relationships: [
           {
@@ -120,38 +153,47 @@ export interface Database {
         Row: {
           id: number
           user_id: string
+          created_at: string
           title: string
           slug: string | null
-          description: string | null
-          image_url: string | null
-          project_url: string | null
+          short_description: string | null
+          content: string | null
+          images: string[] | null
+          tech_stack: string[] | null
           tags: string[] | null
+          demo_url: string | null
+          repo_url: string | null
           is_featured: boolean | null
-          created_at: string
         }
         Insert: {
           id?: number
           user_id: string
+          created_at?: string
           title: string
           slug?: string | null
-          description?: string | null
-          image_url?: string | null
-          project_url?: string | null
+          short_description?: string | null
+          content?: string | null
+          images?: string[] | null
+          tech_stack?: string[] | null
           tags?: string[] | null
+          demo_url?: string | null
+          repo_url?: string | null
           is_featured?: boolean | null
-          created_at?: string
         }
         Update: {
           id?: number
           user_id?: string
+          created_at?: string
           title?: string
           slug?: string | null
-          description?: string | null
-          image_url?: string | null
-          project_url?: string | null
+          short_description?: string | null
+          content?: string | null
+          images?: string[] | null
+          tech_stack?: string[] | null
           tags?: string[] | null
+          demo_url?: string | null
+          repo_url?: string | null
           is_featured?: boolean | null
-          created_at?: string
         }
         Relationships: [
           {
@@ -169,10 +211,10 @@ export interface Database {
           type: string
           title: string
           institution: string | null
-          start_date: string | null
-          end_date: string | null
+          period: string | null
           description: string | null
-          created_at: string
+          gpa: string | null
+          tags: string[] | null
         }
         Insert: {
           id?: number
@@ -180,10 +222,10 @@ export interface Database {
           type: string
           title: string
           institution?: string | null
-          start_date?: string | null
-          end_date?: string | null
+          period?: string | null
           description?: string | null
-          created_at?: string
+          gpa?: string | null
+          tags?: string[] | null
         }
         Update: {
           id?: number
@@ -191,10 +233,10 @@ export interface Database {
           type?: string
           title?: string
           institution?: string | null
-          start_date?: string | null
-          end_date?: string | null
+          period?: string | null
           description?: string | null
-          created_at?: string
+          gpa?: string | null
+          tags?: string[] | null
         }
         Relationships: [
           {
@@ -212,7 +254,6 @@ export interface Database {
           title: string
           description: string | null
           icon_name: string | null
-          created_at: string
         }
         Insert: {
           id?: number
@@ -220,7 +261,6 @@ export interface Database {
           title: string
           description?: string | null
           icon_name?: string | null
-          created_at?: string
         }
         Update: {
           id?: number
@@ -228,7 +268,6 @@ export interface Database {
           title?: string
           description?: string | null
           icon_name?: string | null
-          created_at?: string
         }
         Relationships: [
           {

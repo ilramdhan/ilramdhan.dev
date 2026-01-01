@@ -6,6 +6,7 @@ import { ExternalLink, Github } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { Database } from '../types';
 import { ImageCarousel } from './ImageCarousel';
+import { ensureFullUrl } from '../lib/utils';
 
 type Project = Database['public']['Tables']['projects']['Row'] & { images?: string[] };
 
@@ -23,7 +24,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1 }}
-      onClick={() => project.id && navigate(`/projects/${project.id}`)}
+      onClick={() => project.slug && navigate(`/projects/${project.slug}`)}
       className="group relative rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-white/10 overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-colors cursor-pointer"
     >
       <div className="aspect-video w-full bg-slate-100 dark:bg-slate-800 relative group/image">
@@ -34,7 +35,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
            <div className="flex gap-4 pointer-events-auto">
                 {project.demo_url && (
                     <a 
-                        href={project.demo_url} 
+                        href={ensureFullUrl(project.demo_url) || '#'} 
                         target="_blank" 
                         rel="noreferrer" 
                         onClick={(e) => e.stopPropagation()}
@@ -46,7 +47,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
                 )}
                 {project.repo_url && (
                     <a 
-                        href={project.repo_url} 
+                        href={ensureFullUrl(project.repo_url) || '#'} 
                         target="_blank" 
                         rel="noreferrer" 
                         onClick={(e) => e.stopPropagation()}
@@ -72,7 +73,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
           {project.title}
         </h3>
         <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2">
-          {project.description}
+          {project.short_description}
         </p>
       </div>
     </motion.div>

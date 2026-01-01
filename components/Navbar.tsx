@@ -33,13 +33,28 @@ export function Navbar() {
   const isAuthenticated = !!user;
 
   const handleNav = (targetPath: string) => {
-    if (targetPath === '/contact') {
-        navigate('/contact');
+    if (targetPath.startsWith('/#')) {
+        navigate(targetPath.substring(1)); // Navigate to anchor on the same page or different.
+        // A better solution might involve checking if on the homepage first.
+        // For now, this will work for navigating home and scrolling.
+        const selector = targetPath.substring(1);
+        setTimeout(() => {
+            const element = document.querySelector(selector);
+            element?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
     } else {
         navigate(targetPath);
     }
     setIsOpen(false);
   };
+
+  const navLinks = [
+    { name: 'Home', path: '/' },
+    { name: 'About', path: '/about' },
+    { name: 'Projects', path: '/projects' },
+    { name: 'Blog', path: '/blog' },
+    { name: 'Contact', path: '/#contact' },
+  ];
 
   return (
     <nav className="fixed top-0 w-full z-50 border-b border-slate-200 dark:border-white/5 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md transition-colors duration-300">

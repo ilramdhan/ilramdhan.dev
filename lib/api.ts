@@ -39,7 +39,7 @@ export const updateProfile = async (profileData: Partial<Profile>) => {
 
 // --- Resume (Experience & Education) ---
 export const getResume = async (type: 'experience' | 'education') => {
-    const { data, error } = await supabase.from('resume').select('*').eq('type', type).order('start_date', { ascending: false });
+    const { data, error } = await supabase.from('resume').select('*').eq('type', type).order('id', { ascending: true });
     if (error) throw new Error(error.message);
     return data;
 }
@@ -64,7 +64,7 @@ export const deleteResumeItem = async (id: number) => {
 
 // --- Services ---
 export const getServices = async () => {
-    const { data, error } = await supabase.from('services').select('*').order('created_at');
+    const { data, error } = await supabase.from('services').select('*').order('id', { ascending: true });
     if (error) throw new Error(error.message);
     return data;
 }
