@@ -6,6 +6,7 @@ import { Navbar } from '../components/Navbar';
 import { Download, MapPin, Briefcase, GraduationCap, Mail, Github, Linkedin, Twitter, Instagram, Youtube, Award, Clock, Code2, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import WakatimeStats from '../components/WakatimeStats';
 import { ensureFullUrl } from '../lib/utils';
 
 const SocialIconMap: { [key: string]: React.ElementType } = {
@@ -19,19 +20,15 @@ export default function AboutPage() {
   const { data: experience, isLoading: isLoadingExp } = useQuery({ queryKey: ['resume', 'experience'], queryFn: () => api.getResume('experience') });
   const { data: education, isLoading: isLoadingEdu } = useQuery({ queryKey: ['resume', 'education'], queryFn: () => api.getResume('education') });
   const { data: certificates, isLoading: isLoadingCerts } = useQuery({ queryKey: ['certificates'], queryFn: api.getCertificates });
-  const { data: wakatime, isLoading: isLoadingWakatime, isError: isWakatimeError, error: wakatimeError } = useQuery({ 
+  const { data: wakatime, isLoading: isLoadingWakatime, isError: isWakatimeError } = useQuery({ 
       queryKey: ['wakatime'], 
-      queryFn: async () => {
-          try {
-              const data = await api.getWakatimeStats();
-              console.log('Wakatime Data:', data); // Debug log
-              return data;
-          } catch (err) {
-              console.error('Wakatime Error:', err); // Debug log
-              throw err;
-          }
-      },
+      queryFn: api.getWakatimeStats,
       retry: false 
+  });
+  const { data: wakatimeActivity, isLoading: isLoadingWakatimeActivity, isError: isWakatimeActivityError } = useQuery({
+      queryKey: ['wakatimeActivity'],
+      queryFn: api.getWakatimeCodingActivity,
+      retry: false
   });
 
   const isLoading = isLoadingProfile || isLoadingExp || isLoadingEdu || isLoadingCerts;
@@ -171,39 +168,14 @@ export default function AboutPage() {
         <div className="border-t border-slate-200 dark:border-white/10 pt-16">
              <h2 className="text-2xl font-bold mb-8 text-center text-slate-900 dark:text-white">Coding Activity</h2>
              
-             {/* Wakatime Stats */}
-             {isWakatimeError && (
-                 <div className="text-center text-red-500 mb-8">
-                     <p>Failed to load Wakatime stats.</p>
-                     <p className="text-xs text-slate-500 mt-1">Check console for details.</p>
-                 </div>
-             )}
-
+             {/* Wakatime Stats - Using Public JSON Data */}
              {!isWakatimeError && !isLoadingWakatime && wakatime?.data && (
                  <div className="space-y-8 max-w-4xl mx-auto mb-12">
-                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-white/5 text-center">
-                            <div className="flex justify-center mb-4 text-indigo-500"><Clock className="h-8 w-8" /></div>
-                            <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{wakatime.data.human_readable_total}</h3>
-                            <p className="text-sm text-slate-500">Total Coding Time (Last 7 Days)</p>
-                        </div>
-                        <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-white/5 text-center">
-                            <div className="flex justify-center mb-4 text-green-500"><Calendar className="h-8 w-8" /></div>
-                            <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{wakatime.data.human_readable_daily_average}</h3>
-                            <p className="text-sm text-slate-500">Daily Average</p>
-                        </div>
-                        <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-white/5 text-center">
-                            <div className="flex justify-center mb-4 text-purple-500"><Code2 className="h-8 w-8" /></div>
-                            <h3 className="text-3xl font-bold text-slate-900 dark:text-white mb-1">{wakatime.data.languages?.[0]?.name || 'N/A'}</h3>
-                            <p className="text-sm text-slate-500">Top Language</p>
-                        </div>
-                     </div>
-
                      {/* Custom Top Languages Visualization */}
                      <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-white/5">
-                        <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-white">Top Languages</h3>
+                        <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-white">Languages (Last 7 Days)</h3>
                         <div className="space-y-4">
-                            {wakatime.data.languages?.slice(0, 5).map((lang: any) => (
+                            {wakatime.data.slice(0, 5).map((lang: any) => (
                                 <div key={lang.name}>
                                     <div className="flex justify-between text-sm mb-1">
                                         <span className="text-slate-700 dark:text-slate-300 font-medium">{lang.name}</span>
@@ -219,19 +191,39 @@ export default function AboutPage() {
                             ))}
                         </div>
                      </div>
+
+                    {!isLoadingWakatimeActivity && !isWakatimeActivityError && wakatimeActivity && (
+                        <WakatimeStats data={wakatimeActivity} />
+                    )}
                  </div>
              )}
 
-             {/* GitHub Stats - Streak Only */}
+             {/* GitHub Stats */}
              {username && (
-                 <div className="flex justify-center">
-                     <a href="https://git.io/streak-stats">
+                 <div className="space-y-6">
+                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                         <a href="https://github.com/ilramdhan">
+                            <img 
+                                src={`https://github-readme-activity-graph.vercel.app/graph?username=${username}&theme=${theme === 'dark' ? 'high-contrast' : 'merko'}&hide_border=true&area=true`} 
+                                alt="GitHub Activity Graph"
+                                className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg w-full h-full"
+                            />
+                         </a>
+                         <a href="https://git.io/streak-stats">
+                            <img 
+                                src={`https://streak-stats.demolab.com?user=${username}&theme=${theme}&border_radius=5&short_numbers=true&date_format=M%20j%5B%2C%20Y%5D&mode=weekly`} 
+                                alt="GitHub Streak" 
+                                className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg w-full h-full"
+                            />
+                         </a>
+                     </div>
+                     <div className="flex justify-center">
                         <img 
-                            src={`https://streak-stats.demolab.com?user=${username}&theme=${theme}&border_radius=5&short_numbers=true&date_format=M%20j%5B%2C%20Y%5D&mode=weekly`} 
-                            alt="GitHub Streak" 
-                            className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg max-w-full"
+                            src="https://raw.githubusercontent.com/ilramdhan/Snake-in-Contribution-Grid/output/github-contribution-grid-snake.svg" 
+                            alt="GitHub Contribution Grid Snake"
+                            className="max-w-full"
                         />
-                     </a>
+                     </div>
                  </div>
              )}
         </div>
