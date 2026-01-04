@@ -61,7 +61,7 @@ export function Navbar() {
                   <img 
                     src={profile.logo_url} 
                     alt="Logo" 
-                    className="h-8 w-auto object-contain dark:invert transition-all duration-300" 
+                    className="h-8 w-auto object-contain transition-all duration-300"
                   />
               ) : (
                   <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xl">

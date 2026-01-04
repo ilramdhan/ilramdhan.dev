@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Hero } from '../components/Hero';
 import { ProjectCard } from '../components/ProjectCard';
@@ -11,6 +11,9 @@ import { getProfile, getFeaturedProjects, getFeaturedBlogs, getTechStack, getSer
 import { Calendar, Zap, Code, Smartphone, Cloud, Terminal, Layout, Database } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
+import { useTheme } from '../lib/ThemeContext';
+import * as THREE from 'three';
+import GLOBE from 'vanta/dist/vanta.globe.min.js';
 
 const IconMap: { [key: string]: React.ElementType } = {
     code: Code,
@@ -23,6 +26,9 @@ const IconMap: { [key: string]: React.ElementType } = {
 
 export default function Page() {
   const navigate = useNavigate();
+  const { theme } = useTheme();
+  const [vantaEffect, setVantaEffect] = useState<any>(null);
+  const vantaRef = useRef(null);
 
   const { data: profile, isLoading: isLoadingProfile, isError: isErrorProfile } = useQuery({
     queryKey: ['profile'],
@@ -48,6 +54,47 @@ export default function Page() {
     queryKey: ['services'],
     queryFn: getServices,
   });
+
+  const lightThemeConfig = {
+      color: 0x599bfa,
+      color2: 0x2a6daa,
+      backgroundColor: 0xf8fafc, // bg-slate-50
+      size: 1.00,
+  };
+
+  const darkThemeConfig = {
+      color: 0x599bfa,
+      color2: 0x2a6daa,
+      backgroundColor: 0x0f172a, // bg-slate-900
+      size: 1.00,
+  };
+
+  useEffect(() => {
+    if (!vantaRef.current) return;
+    const vantaInstance = GLOBE({
+      el: vantaRef.current,
+      THREE: THREE,
+      mouseControls: true,
+      touchControls: true,
+      gyroControls: false,
+      minHeight: 200.00,
+      minWidth: 200.00,
+      scale: 1.00,
+      scaleMobile: 1.00,
+      ...(theme === 'dark' ? darkThemeConfig : lightThemeConfig)
+    });
+    setVantaEffect(vantaInstance);
+    return () => {
+      if (vantaInstance) vantaInstance.destroy();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (vantaEffect) {
+      vantaEffect.setOptions(theme === 'dark' ? darkThemeConfig : lightThemeConfig);
+    }
+  }, [theme, vantaEffect]);
+
 
   return (
     <>
@@ -88,18 +135,35 @@ export default function Page() {
                 Technologies I work with
                 </p>
             </div>
-            <div className="relative flex overflow-x-hidden group">
-                <div className="animate-scroll flex gap-24 whitespace-nowrap py-4 px-6 group-hover:[animation-play-state:paused]">
-                    {techStack && [...techStack, ...techStack].map((tech, i) => (
-                        <div key={i} className="flex items-center gap-3 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300">
-                             {tech.icon_url ? (
-                                 <img src={tech.icon_url} alt={tech.name} className="h-8 w-8 object-contain dark:invert" />
-                             ) : (
-                                 <img src={`https://cdn.simpleicons.org/${tech.name.toLowerCase().replace(/\s+/g, '')}/default`} alt={tech.name} className="h-8 w-8 dark:invert" onError={(e) => e.currentTarget.style.display = 'none'} />
-                             )}
-                             <span className="text-lg font-bold text-slate-600 dark:text-slate-300">{tech.name}</span>
-                        </div>
-                    ))}
+            <div
+                className="relative flex overflow-x-hidden group"
+                style={{ maskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)' }}
+            >
+                <div className="flex whitespace-nowrap group-hover:[animation-play-state:paused]">
+                    <div className="animate-scroll flex-shrink-0 flex items-center justify-center gap-24 py-4 px-6">
+                        {techStack?.map((tech, i) => (
+                            <div key={`tech-a-${i}`} className="flex items-center gap-3 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                                 {tech.icon_url ? (
+                                     <img src={tech.icon_url} alt={tech.name} className="h-8 w-8 object-contain dark:invert" />
+                                 ) : (
+                                     <img src={`https://cdn.simpleicons.org/${tech.name.toLowerCase().replace(/\s+/g, '')}/default`} alt={tech.name} className="h-8 w-8 dark:invert" onError={(e) => e.currentTarget.style.display = 'none'} />
+                                 )}
+                                 <span className="text-lg font-bold text-slate-600 dark:text-slate-300">{tech.name}</span>
+                            </div>
+                        ))}
+                    </div>
+                    <div aria-hidden="true" className="animate-scroll flex-shrink-0 flex items-center justify-center gap-24 py-4 px-6">
+                        {techStack?.map((tech, i) => (
+                            <div key={`tech-b-${i}`} className="flex items-center gap-3 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                                 {tech.icon_url ? (
+                                     <img src={tech.icon_url} alt={tech.name} className="h-8 w-8 object-contain dark:invert" />
+                                 ) : (
+                                     <img src={`https://cdn.simpleicons.org/${tech.name.toLowerCase().replace(/\s+/g, '')}/default`} alt={tech.name} className="h-8 w-8 dark:invert" onError={(e) => e.currentTarget.style.display = 'none'} />
+                                 )}
+                                 <span className="text-lg font-bold text-slate-600 dark:text-slate-300">{tech.name}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </section>
@@ -189,18 +253,20 @@ export default function Page() {
         </section>
 
         {/* Contact Section */}
-        <section id="contact" className="py-20 relative">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-xl mx-auto text-center mb-12">
-              <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Get In Touch</h2>
-              <p className="text-slate-600 dark:text-slate-400">
-                Have a project in mind or just want to chat? Feel free to send me a message.
-                I'm currently open for new opportunities.
-              </p>
-            </div>
-            
-            <div className="bg-white/80 border border-slate-200 dark:bg-slate-900/80 dark:border-white/5 backdrop-blur-sm rounded-2xl p-8 max-w-xl mx-auto shadow-lg dark:shadow-none">
-              <ContactForm />
+        <section id="contact" className="relative" ref={vantaRef}>
+          <div className="relative z-10 py-20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="max-w-xl mx-auto text-center mb-12">
+                <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Get In Touch</h2>
+                <p className="text-slate-600 dark:text-slate-400">
+                  Have a project in mind or just want to chat? Feel free to send me a message.
+                  I'm currently open for new opportunities.
+                </p>
+              </div>
+              
+              <div className="bg-white/80 border border-slate-200 dark:bg-slate-900/80 dark:border-white/5 backdrop-blur-sm rounded-2xl p-8 max-w-xl mx-auto shadow-lg dark:shadow-none">
+                <ContactForm />
+              </div>
             </div>
           </div>
         </section>
