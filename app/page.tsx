@@ -67,8 +67,8 @@ export default function Page() {
                         {services.map((service, idx) => {
                             const Icon = service.icon_name ? IconMap[service.icon_name] || Code : Code;
                             return (
-                                <motion.div key={service.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 p-8 rounded-2xl text-center hover:border-indigo-500/30 transition-all shadow-sm dark:shadow-none group">
-                                    <div className="inline-block h-14 w-14 bg-indigo-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-colors"><Icon className="h-7 w-7" /></div>
+                                <motion.div key={service.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 p-8 rounded-2xl flex flex-col items-center text-center hover:border-indigo-500/30 transition-all shadow-sm dark:shadow-none group">
+                                    <div className="h-14 w-14 bg-indigo-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-colors"><Icon className="h-7 w-7" /></div>
                                     <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-white">{service.title}</h3>
                                     <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed prose prose-sm dark:prose-invert">
                                         <ReactMarkdown>{service.description || ''}</ReactMarkdown>
@@ -191,7 +191,7 @@ export default function Page() {
         {/* Contact Section */}
         <section id="contact" className="py-20 relative">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="max-w-2xl mx-auto text-center mb-12">
+            <div className="max-w-xl mx-auto text-center mb-12">
               <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Get In Touch</h2>
               <p className="text-slate-600 dark:text-slate-400">
                 Have a project in mind or just want to chat? Feel free to send me a message.
@@ -199,7 +199,7 @@ export default function Page() {
               </p>
             </div>
             
-            <div className="bg-white/80 border border-slate-200 dark:bg-slate-900/80 dark:border-white/5 backdrop-blur-sm rounded-2xl p-8 max-w-2xl mx-auto shadow-lg dark:shadow-none">
+            <div className="bg-white/80 border border-slate-200 dark:bg-slate-900/80 dark:border-white/5 backdrop-blur-sm rounded-2xl p-8 max-w-xl mx-auto shadow-lg dark:shadow-none">
               <ContactForm />
             </div>
           </div>

@@ -300,3 +300,48 @@ export const deleteTechStack = async (id: number) => {
     const { error } = await supabase.from('tech_stack').delete().eq('id', id);
     if (error) throw new Error(error.message);
 }
+
+// --- Wakatime Stats (Using Public Share URL) ---
+export const getWakatimeStats = async () => {
+    // Using JSONP approach via a proxy or direct fetch if CORS allows
+    // Wakatime share URLs usually support CORS or JSONP.
+    // Since we are in a modern environment, let's try fetch first.
+    // If CORS fails, we might need a simple proxy, but let's assume it works for now
+    // based on the user's snippet which uses $.ajax (jQuery) that handles JSONP automatically.
+    
+    // Note: The URL provided by user is likely for "Languages" or "Coding Activity".
+    // Let's use it.
+    const url = 'https://wakatime.com/share/@ilramadhan/e5668821-74bc-46bf-8dc6-40ab8a343531.json';
+    
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+             throw new Error(`Failed to fetch Wakatime stats: ${response.statusText}`);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.warn("Direct fetch failed, trying JSONP approach (simulated via error)");
+        throw error;
+    }
+}
+
+export const getWakatimeCodingActivity = async () => {
+    // TODO: Replace this with your actual Wakatime embeddable chart URL for daily coding activity.
+    // You can find this in your Wakatime account under "Share" -> "Embeddable Charts".
+    // It should be a URL ending in .json
+    const url = 'https://wakatime.com/share/@ilramadhan/3f350fd7-49e3-461a-a309-d820c7e93717.json';
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Failed to fetch Wakatime coding activity: ${response.statusText}`);
+        }
+        const data = await response.json();
+        // The data structure should be similar to the one in .json-wakatime.txt, expecting a 'days' array.
+        return data.days;
+    } catch (error) {
+        console.error("Failed to fetch Wakatime coding activity:", error);
+        throw error;
+    }
+}

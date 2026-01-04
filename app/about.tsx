@@ -3,9 +3,10 @@ import { useTheme } from '../lib/ThemeContext';
 import { useQuery } from '@tanstack/react-query';
 import * as api from '../lib/api';
 import { Navbar } from '../components/Navbar';
-import { Download, MapPin, Briefcase, GraduationCap, Mail, Github, Linkedin, Twitter, Instagram, Youtube, Award } from 'lucide-react';
+import { Download, MapPin, Briefcase, GraduationCap, Mail, Github, Linkedin, Twitter, Instagram, Youtube, Award, Clock, Code2, Calendar } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import WakatimeStats from '../components/WakatimeStats';
 import { ensureFullUrl } from '../lib/utils';
 
 const SocialIconMap: { [key: string]: React.ElementType } = {
@@ -19,6 +20,16 @@ export default function AboutPage() {
   const { data: experience, isLoading: isLoadingExp } = useQuery({ queryKey: ['resume', 'experience'], queryFn: () => api.getResume('experience') });
   const { data: education, isLoading: isLoadingEdu } = useQuery({ queryKey: ['resume', 'education'], queryFn: () => api.getResume('education') });
   const { data: certificates, isLoading: isLoadingCerts } = useQuery({ queryKey: ['certificates'], queryFn: api.getCertificates });
+  const { data: wakatime, isLoading: isLoadingWakatime, isError: isWakatimeError } = useQuery({ 
+      queryKey: ['wakatime'], 
+      queryFn: api.getWakatimeStats,
+      retry: false 
+  });
+  const { data: wakatimeActivity, isLoading: isLoadingWakatimeActivity, isError: isWakatimeActivityError } = useQuery({
+      queryKey: ['wakatimeActivity'],
+      queryFn: api.getWakatimeCodingActivity,
+      retry: false
+  });
 
   const isLoading = isLoadingProfile || isLoadingExp || isLoadingEdu || isLoadingCerts;
   const statsTheme = theme === 'dark' ? 'dark' : 'default';
@@ -154,15 +165,68 @@ export default function AboutPage() {
             </div>
         )}
         
-        {username && (
-            <div className="border-t border-slate-200 dark:border-white/10 pt-16">
-                 <h2 className="text-2xl font-bold mb-8 text-center text-slate-900 dark:text-white">Coding Activity</h2>
-                 <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
-                     <img src={`https://github-readme-stats.vercel.app/api?username=${username}&show_icons=true&theme=${statsTheme}&bg_color=${statsTheme === 'dark' ? '0f172a' : 'ffffff'}&title_color=${statsTheme === 'dark' ? 'ffffff' : '0f172a'}&text_color=${statsTheme === 'dark' ? '94a3b8' : '475569'}&icon_color=6366f1&border_color=${statsTheme === 'dark' ? '1e293b' : 'e2e8f0'}`} alt="GitHub Stats" className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg max-w-full" />
-                     <img src={`https://github-readme-stats.vercel.app/api/top-langs/?username=${username}&layout=compact&theme=${statsTheme}&bg_color=${statsTheme === 'dark' ? '0f172a' : 'ffffff'}&title_color=${statsTheme === 'dark' ? 'ffffff' : '0f172a'}&text_color=${statsTheme === 'dark' ? '94a3b8' : '475569'}&border_color=${statsTheme === 'dark' ? '1e293b' : 'e2e8f0'}`} alt="Top Languages" className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg max-w-full" />
+        <div className="border-t border-slate-200 dark:border-white/10 pt-16">
+             <h2 className="text-2xl font-bold mb-8 text-center text-slate-900 dark:text-white">Coding Activity</h2>
+             
+             {/* Wakatime Stats - Using Public JSON Data */}
+             {!isWakatimeError && !isLoadingWakatime && wakatime?.data && (
+                 <div className="space-y-8 max-w-4xl mx-auto mb-12">
+                     {/* Custom Top Languages Visualization */}
+                     <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-white/5">
+                        <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-white">Languages (Last 7 Days)</h3>
+                        <div className="space-y-4">
+                            {wakatime.data.slice(0, 5).map((lang: any) => (
+                                <div key={lang.name}>
+                                    <div className="flex justify-between text-sm mb-1">
+                                        <span className="text-slate-700 dark:text-slate-300 font-medium">{lang.name}</span>
+                                        <span className="text-slate-500">{lang.text} ({lang.percent}%)</span>
+                                    </div>
+                                    <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
+                                        <div 
+                                            className="bg-indigo-600 h-2.5 rounded-full transition-all duration-1000" 
+                                            style={{ width: `${lang.percent}%` }}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                     </div>
+
+                    {!isLoadingWakatimeActivity && !isWakatimeActivityError && wakatimeActivity && (
+                        <WakatimeStats data={wakatimeActivity} />
+                    )}
                  </div>
-            </div>
-        )}
+             )}
+
+             {/* GitHub Stats */}
+             {username && (
+                 <div className="space-y-6">
+                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                         <a href="https://github.com/ilramdhan">
+                            <img 
+                                src={`https://github-readme-activity-graph.vercel.app/graph?username=${username}&theme=${theme === 'dark' ? 'high-contrast' : 'merko'}&hide_border=true&area=true`} 
+                                alt="GitHub Activity Graph"
+                                className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg w-full h-full"
+                            />
+                         </a>
+                         <a href="https://git.io/streak-stats">
+                            <img 
+                                src={`https://streak-stats.demolab.com?user=${username}&theme=${theme}&border_radius=5&short_numbers=true&date_format=M%20j%5B%2C%20Y%5D&mode=weekly`} 
+                                alt="GitHub Streak" 
+                                className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg w-full h-full"
+                            />
+                         </a>
+                     </div>
+                     <div className="flex justify-center">
+                        <img 
+                            src="https://raw.githubusercontent.com/ilramdhan/Snake-in-Contribution-Grid/output/github-contribution-grid-snake.svg" 
+                            alt="GitHub Contribution Grid Snake"
+                            className="max-w-full"
+                        />
+                     </div>
+                 </div>
+             )}
+        </div>
 
       </div>
     </div>
