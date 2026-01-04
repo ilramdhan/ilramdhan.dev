@@ -1,16 +1,7 @@
 {
-  "installCommand": "npm install",
-  "builds": [
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "options": {
-        "distDir": "dist"
-      }
-    }
-  ],
+  "framework": "vite",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/" },
+    { "source": "/api/(.*)", "destination": "/api/$1" },
     { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
