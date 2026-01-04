@@ -58,7 +58,6 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
 
   // Load GLTF and Textures
   const { nodes, materials } = useGLTF("/assets/3d/card.glb");
-  // Use tag_texture for the band
   const texture = useTexture("/assets/images/tag_texture.png");
   const { width, height } = useThree((state) => state.size);
 
@@ -76,9 +75,11 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j2, j3, [[0, 0, 0], [0, 0, 0], 1]);
 
+  // Anchor point disesuaikan agar ujung tali 'tenggelam' di dalam klip
+  // Y dinaikkan dari 1.45 ke 1.55 agar ujung tali naik sedikit dan tidak tembus ke bawah
   useSphericalJoint(j3, card, [
     [0, 0, 0],
-    [0, 1.45, 0],
+    [0, 1.55, 0.05], // Z sedikit dikurangi agar lebih pas di tengah lubang
   ]);
 
   useEffect(() => {
@@ -140,7 +141,7 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
       rot.copy(card.current.rotation());
       card.current.setAngvel(
         { x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z },
-        false
+        true
       );
     }
   });
@@ -152,6 +153,17 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
   const isMobile = width < 10;
   const xOffset = isMobile ? 0 : 2.5;
   const yOffset = 4;
+
+  const handlePointerOver = () => {
+    hover(true);
+    if (card.current && !dragged) {
+        // Berikan "senggolan" atau impuls kecil dengan arah acak
+        const impulseX = (Math.random() - 0.5) * 0.1;
+        const impulseZ = (Math.random() - 0.5) * 0.1;
+        card.current.applyImpulse({ x: impulseX, y: 0, z: impulseZ }, true);
+        card.current.applyTorqueImpulse({ x: 0, y: (Math.random() - 0.5) * 0.02, z: 0 }, true);
+    }
+  };
 
   return (
     <>
@@ -175,9 +187,9 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
         >
           <CuboidCollider args={[0.8, 1.125, 0.01]} />
           <group
-            scale={2.25}
+            scale={2.4} // Ukuran diperbesar sedikit
             position={[0, -1.25, -0.05]}
-            onPointerOver={() => hover(true)}
+            onPointerOver={handlePointerOver}
             onPointerOut={() => hover(false)}
             onPointerUp={(e) => {
               // @ts-ignore
@@ -219,7 +231,7 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
         <meshLineGeometry />
         <meshLineMaterial
           color="white"
-          depthTest={false}
+          depthTest={true} // Aktifkan depthTest agar tali bisa tertutup klip
           resolution={new THREE.Vector2(width, height)}
           useMap={1}
           map={texture}
