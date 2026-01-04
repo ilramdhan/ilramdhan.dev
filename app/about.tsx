@@ -201,18 +201,11 @@ export default function AboutPage() {
              {/* GitHub Stats */}
              {username && (
                  <div className="space-y-6">
-                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                     <div className="grid grid-cols-1 gap-6">
                          <a href="https://github.com/ilramdhan">
                             <img 
                                 src={`https://github-readme-activity-graph.vercel.app/graph?username=${username}&theme=${theme === 'dark' ? 'high-contrast' : 'merko'}&hide_border=true&area=true`} 
                                 alt="GitHub Activity Graph"
-                                className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg w-full h-full"
-                            />
-                         </a>
-                         <a href="https://git.io/streak-stats">
-                            <img 
-                                src={`https://streak-stats.demolab.com?user=${username}&theme=${theme}&border_radius=5&short_numbers=true&date_format=M%20j%5B%2C%20Y%5D&mode=weekly`} 
-                                alt="GitHub Streak" 
                                 className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg w-full h-full"
                             />
                          </a>

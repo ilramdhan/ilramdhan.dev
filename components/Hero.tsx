@@ -104,7 +104,7 @@ export function Hero() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
             >
-                <div className="relative w-64 h-64 md:w-80 md:h-80 lg:w-96 lg:h-96">
+                <div className="relative w-100 h-100 md:w-100 md:h-100 lg:w-100 lg:h-100">
                     <div className="absolute inset-0 bg-indigo-500/20 blur-[60px] rounded-full" />
                     <img 
                         src={profile?.avatar_url || ''} 

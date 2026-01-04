@@ -88,18 +88,35 @@ export default function Page() {
                 Technologies I work with
                 </p>
             </div>
-            <div className="relative flex overflow-x-hidden group">
-                <div className="animate-scroll flex gap-24 whitespace-nowrap py-4 px-6 group-hover:[animation-play-state:paused]">
-                    {techStack && [...techStack, ...techStack].map((tech, i) => (
-                        <div key={i} className="flex items-center gap-3 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300">
-                             {tech.icon_url ? (
-                                 <img src={tech.icon_url} alt={tech.name} className="h-8 w-8 object-contain dark:invert" />
-                             ) : (
-                                 <img src={`https://cdn.simpleicons.org/${tech.name.toLowerCase().replace(/\s+/g, '')}/default`} alt={tech.name} className="h-8 w-8 dark:invert" onError={(e) => e.currentTarget.style.display = 'none'} />
-                             )}
-                             <span className="text-lg font-bold text-slate-600 dark:text-slate-300">{tech.name}</span>
-                        </div>
-                    ))}
+            <div
+                className="relative flex overflow-x-hidden group"
+                style={{ maskImage: 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)' }}
+            >
+                <div className="flex whitespace-nowrap group-hover:[animation-play-state:paused]">
+                    <div className="animate-scroll flex-shrink-0 flex items-center justify-center gap-24 py-4 px-6">
+                        {techStack?.map((tech, i) => (
+                            <div key={`tech-a-${i}`} className="flex items-center gap-3 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                                 {tech.icon_url ? (
+                                     <img src={tech.icon_url} alt={tech.name} className="h-8 w-8 object-contain dark:invert" />
+                                 ) : (
+                                     <img src={`https://cdn.simpleicons.org/${tech.name.toLowerCase().replace(/\s+/g, '')}/default`} alt={tech.name} className="h-8 w-8 dark:invert" onError={(e) => e.currentTarget.style.display = 'none'} />
+                                 )}
+                                 <span className="text-lg font-bold text-slate-600 dark:text-slate-300">{tech.name}</span>
+                            </div>
+                        ))}
+                    </div>
+                    <div aria-hidden="true" className="animate-scroll flex-shrink-0 flex items-center justify-center gap-24 py-4 px-6">
+                        {techStack?.map((tech, i) => (
+                            <div key={`tech-b-${i}`} className="flex items-center gap-3 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+                                 {tech.icon_url ? (
+                                     <img src={tech.icon_url} alt={tech.name} className="h-8 w-8 object-contain dark:invert" />
+                                 ) : (
+                                     <img src={`https://cdn.simpleicons.org/${tech.name.toLowerCase().replace(/\s+/g, '')}/default`} alt={tech.name} className="h-8 w-8 dark:invert" onError={(e) => e.currentTarget.style.display = 'none'} />
+                                 )}
+                                 <span className="text-lg font-bold text-slate-600 dark:text-slate-300">{tech.name}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </section>
