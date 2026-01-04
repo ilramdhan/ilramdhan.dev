@@ -5,6 +5,8 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import * as api from '../lib/api';
 import { ensureFullUrl } from '../lib/utils';
+import { useTypewriter } from 'react-simple-typewriter';
+
 
 const SocialIconMap: { [key: string]: React.ElementType } = {
     github: Github, linkedin: Linkedin, twitter: Twitter, instagram: Instagram, youtube: Youtube, mail: Mail, whatsapp: Phone, steam: Gamepad2
@@ -13,9 +15,20 @@ const SocialIconMap: { [key: string]: React.ElementType } = {
 export function Hero() {
   const navigate = useNavigate();
   const location = useLocation();
+
   const { data: profile, isLoading } = useQuery({
     queryKey: ['profile'],
     queryFn: api.getProfile,
+  });
+
+  const words = profile?.hero_title ? profile.hero_title.split(',').map(s => s.trim()) : [''];
+
+  const [text] = useTypewriter({
+    words: words,
+    loop: 0, // 0 means infinite
+    delaySpeed: 2000,
+    typeSpeed: 100,
+    deleteSpeed: 50,
   });
 
   const handleContactClick = () => {
@@ -56,12 +69,16 @@ export function Hero() {
                 transition={{ duration: 0.5 }}
             >
                 {profile?.badge_text && (
-                    <span className="inline-block px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 text-sm font-medium mb-6">
+                    <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 text-sm font-medium mb-6">
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                        </span>
                         {profile.badge_text}
                     </span>
                 )}
                 <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-6">
-                    {profile?.hero_title}
+                    <span>{text || '\u00A0'}</span>
                 </h1>
                 <p className="mt-4 max-w-2xl mx-auto lg:mx-0 text-xl text-slate-600 dark:text-slate-400 mb-8">
                     {profile?.short_description}

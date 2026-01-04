@@ -22,9 +22,12 @@
     "react-dom": "^18.3.0",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^6.22.3",
+    "react-simple-typewriter": "^5.0.1",
     "recharts": "^3.6.0",
     "sonner": "^1.2.4",
     "tailwind-merge": "^2.0.0",
+    "three": "^0.182.0",
+    "vanta": "^0.5.24",
     "zod": "^3.22.4"
   },
   "devDependencies": {
