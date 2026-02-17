@@ -8,6 +8,7 @@ import { ContactForm } from '../components/ContactForm';
 import { Navbar } from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
 import { getProfile, getFeaturedProjects, getFeaturedBlogs, getTechStack, getServices } from '../lib/api';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
 import { Calendar, Zap, Code, Smartphone, Cloud, Terminal, Layout, Database } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
@@ -29,6 +30,11 @@ export default function Page() {
   const { theme } = useTheme();
   const [vantaEffect, setVantaEffect] = useState<any>(null);
   const vantaRef = useRef(null);
+
+  useDocumentMeta({
+    title: undefined, // Uses default: "Ilham Ramadhan | Web Developer & Portfolio"
+    description: "Ilham Ramadhan's personal portfolio — showcasing projects, skills, certifications, and blog posts.",
+  });
 
   const { data: profile, isLoading: isLoadingProfile, isError: isErrorProfile } = useQuery({
     queryKey: ['profile'],

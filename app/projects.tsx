@@ -2,14 +2,21 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Navbar } from '../components/Navbar';
 import { ProjectCard } from '../components/ProjectCard';
+import { CollapsibleTagFilter } from '../components/CollapsibleTagFilter';
 import { getProjects, getProjectTags } from '../lib/api';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 6;
 
 export default function ProjectsPage() {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+
+  useDocumentMeta({
+    title: 'Projects',
+    description: 'A collection of applications, tools, and experiments by Ilham Ramadhan.',
+  });
 
   const { data: allTags, isLoading: isLoadingTags } = useQuery({
     queryKey: ['projectTags'],
@@ -33,7 +40,7 @@ export default function ProjectsPage() {
 
   const handleTagClick = (tag: string | null) => {
       setSelectedTag(tag);
-      setCurrentPage(1); // Reset to page 1 on filter
+      setCurrentPage(1);
   }
 
   return (
@@ -41,41 +48,19 @@ export default function ProjectsPage() {
       <Navbar />
       <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="mb-12">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div>
-                    <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-4">All Projects</h1>
-                    <p className="text-slate-600 dark:text-slate-400 max-w-2xl">A collection of applications, tools, and experiments.</p>
-                </div>
-                
-                {/* Tag Filter */}
-                <div className="flex flex-wrap gap-2">
-                    {isLoadingTags ? (<div className="h-8 w-24 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse" />) : (
-                    <>
-                        {selectedTag && (
-                            <button 
-                                onClick={() => handleTagClick(null)}
-                                className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors"
-                            >
-                                <X className="h-3 w-3" /> Clear
-                            </button>
-                        )}
-                        {allTags?.map(tag => (
-                            <button
-                                key={tag}
-                                onClick={() => handleTagClick(tag === selectedTag ? null : tag)}
-                                className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
-                                    tag === selectedTag 
-                                    ? 'bg-white text-slate-900 border-slate-200 dark:border-white' 
-                                    : 'bg-white/50 dark:bg-slate-900/50 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10 hover:border-indigo-500 hover:text-indigo-500'
-                                }`}
-                            >
-                                {tag}
-                            </button>
-                        ))}
-                    </>
-                    )}
-                </div>
+            <div className="mb-6">
+                <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-4">All Projects</h1>
+                <p className="text-slate-600 dark:text-slate-400 max-w-2xl">A collection of applications, tools, and experiments.</p>
             </div>
+
+            {/* Tag Filter — separate row, collapsible */}
+            <CollapsibleTagFilter
+              tags={allTags ?? []}
+              selectedTag={selectedTag}
+              onTagClick={handleTagClick}
+              maxVisible={6}
+              isLoading={isLoadingTags}
+            />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">

@@ -12,6 +12,7 @@ import ProjectDetailPage from './app/project-detail';
 import BlogPage from './app/blog';
 import BlogDetailPage from './app/blog-detail';
 import AboutPage from './app/about';
+import CertificatesPage from './app/certificates';
 import PrivacyPage from './app/privacy';
 import TermsPage from './app/terms';
 import './global.css';
@@ -40,6 +41,7 @@ function AppRoutes() {
         <Route path="/" element={<App />}>
           <Route index element={<Page />} />
           <Route path="about" element={<AboutPage />} />
+          <Route path="certificates" element={<CertificatesPage />} />
           <Route path="projects" element={<ProjectsPage />} />
           <Route path="projects/:slug" element={<ProjectDetailPage />} />
           <Route path="blog" element={<BlogPage />} />
