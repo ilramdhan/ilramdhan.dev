@@ -1,13 +1,15 @@
 import React from 'react';
 import { useTheme } from '../lib/ThemeContext';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import * as api from '../lib/api';
 import { Navbar } from '../components/Navbar';
-import { Download, MapPin, Briefcase, GraduationCap, Mail, Github, Linkedin, Twitter, Instagram, Youtube, Award, Clock, Code2, Calendar } from 'lucide-react';
+import { Download, MapPin, Briefcase, GraduationCap, Mail, Github, Linkedin, Twitter, Instagram, Youtube, Award, Clock, Code2, Calendar, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import WakatimeStats from '../components/WakatimeStats';
 import { ensureFullUrl } from '../lib/utils';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
 
 const SocialIconMap: { [key: string]: React.ElementType } = {
     github: Github, linkedin: Linkedin, twitter: Twitter, instagram: Instagram, youtube: Youtube, mail: Mail,
@@ -15,6 +17,12 @@ const SocialIconMap: { [key: string]: React.ElementType } = {
 
 export default function AboutPage() {
   const { theme } = useTheme();
+  const navigate = useNavigate();
+
+  useDocumentMeta({
+    title: 'About',
+    description: 'Learn more about Ilham Ramadhan — experience, education, certifications, and coding activity.',
+  });
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery({ queryKey: ['profile'], queryFn: api.getProfile });
   const { data: experience, isLoading: isLoadingExp } = useQuery({ queryKey: ['resume', 'experience'], queryFn: () => api.getResume('experience') });
@@ -133,9 +141,19 @@ export default function AboutPage() {
 
         {certificates && certificates.length > 0 && (
             <div className="mb-20">
-                <h2 className="text-2xl font-bold mb-8 flex items-center gap-3"><div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600 dark:text-green-400"><Award className="h-6 w-6" /></div>Certificates</h2>
+                <div className="flex items-center justify-between mb-8">
+                    <h2 className="text-2xl font-bold flex items-center gap-3"><div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600 dark:text-green-400"><Award className="h-6 w-6" /></div>Certificates</h2>
+                    {certificates.length > 3 && (
+                        <button
+                            onClick={() => navigate('/certificates')}
+                            className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium text-sm flex items-center gap-1"
+                        >
+                            View All Certificates <ArrowRight className="h-4 w-4" />
+                        </button>
+                    )}
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {certificates.map((cert, idx) => (
+                    {certificates.slice(0, 3).map((cert, idx) => (
                         <motion.div key={cert.id} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.1 }} className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 rounded-xl overflow-hidden hover:border-indigo-500/30 transition-all shadow-sm dark:shadow-none group flex flex-col">
                             {cert.file_url ? (
                                 <div className="h-48 bg-slate-100 dark:bg-slate-800 overflow-hidden relative">

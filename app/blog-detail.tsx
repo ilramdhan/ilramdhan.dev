@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 import { getBlogBySlug, addComment as addCommentAPI, getComments } from '../lib/api';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
 import { ArrowLeft, Calendar, Tag, MessageSquare, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageCarousel } from '../components/ImageCarousel';
 import ReactMarkdown from 'react-markdown';
+
+const COMMENT_COOLDOWN = 30;
 
 export default function BlogDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -17,6 +20,12 @@ export default function BlogDetailPage() {
     queryKey: ['blog', slug],
     queryFn: () => getBlogBySlug(slug!),
     enabled: !!slug,
+  });
+
+  useDocumentMeta({
+    title: blog?.title,
+    description: blog?.excerpt || undefined,
+    ogImage: blog?.images?.[0] || undefined,
   });
 
   const { data: comments, isLoading: isLoadingComments } = useQuery({
@@ -32,15 +41,33 @@ export default function BlogDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['comments', blog?.id] });
       setCommentName('');
       setCommentText('');
+      startCooldown();
     },
     onError: (error) => {
       toast.error(`Failed to add comment: ${error.message}`);
     }
   });
 
-  // Comment State
+  // Comment State + Rate Limiting
   const [commentName, setCommentName] = useState('');
   const [commentText, setCommentText] = useState('');
+  const [commentHoneypot, setCommentHoneypot] = useState('');
+  const [cooldown, setCooldown] = useState(0);
+  const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => { if (cooldownRef.current) clearInterval(cooldownRef.current); };
+  }, []);
+
+  const startCooldown = useCallback(() => {
+    setCooldown(COMMENT_COOLDOWN);
+    cooldownRef.current = setInterval(() => {
+      setCooldown(prev => {
+        if (prev <= 1) { clearInterval(cooldownRef.current!); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+  }, []);
 
   if (isLoading) {
     return (
@@ -61,6 +88,9 @@ export default function BlogDetailPage() {
 
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Honeypot
+    if (commentHoneypot) return;
+    if (cooldown > 0) { toast.error(`Please wait ${cooldown}s before posting again.`); return; }
     if (!commentName.trim() || !commentText.trim() || !blog.id) return;
     
     addComment({ postId: blog.id, name: commentName, text: commentText });
@@ -106,6 +136,10 @@ export default function BlogDetailPage() {
             <h3 className="text-2xl font-bold mb-6 flex items-center gap-2"><MessageSquare className="h-6 w-6"/> Comments ({comments?.length || 0})</h3>
             
             <form onSubmit={handleCommentSubmit} className="mb-8 bg-white dark:bg-slate-900 p-6 rounded-xl border border-slate-200 dark:border-white/5">
+                {/* Honeypot */}
+                <div className="absolute opacity-0 pointer-events-none" aria-hidden="true" tabIndex={-1}>
+                    <input type="text" value={commentHoneypot} onChange={(e) => setCommentHoneypot(e.target.value)} tabIndex={-1} autoComplete="off" />
+                </div>
                 <div className="mb-4">
                     <label className="block text-sm font-medium mb-1">Name</label>
                     <input 
@@ -114,6 +148,7 @@ export default function BlogDetailPage() {
                         onChange={(e) => setCommentName(e.target.value)}
                         className="w-full px-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         placeholder="Your Name"
+                        maxLength={100}
                         required
                     />
                 </div>
@@ -125,15 +160,16 @@ export default function BlogDetailPage() {
                         className="w-full px-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         placeholder="Share your thoughts..."
                         rows={3}
+                        maxLength={2000}
                         required
                     />
                 </div>
                 <button 
                     type="submit" 
-                    disabled={isAddingComment}
+                    disabled={isAddingComment || cooldown > 0}
                     className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors flex items-center gap-2 disabled:opacity-50"
                 >
-                    {isAddingComment ? 'Posting...' : <><Send className="h-4 w-4"/> Post Comment</>}
+                    {isAddingComment ? 'Posting...' : cooldown > 0 ? `Wait ${cooldown}s` : <><Send className="h-4 w-4"/> Post Comment</>}
                 </button>
             </form>
 

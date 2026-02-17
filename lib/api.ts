@@ -245,7 +245,7 @@ export const getFeaturedBlogs = async () => {
         .select('*')
         .eq('is_featured', true)
         .order('published_at', { ascending: false })
-        .limit(3);
+        .limit(2);
 
     if (error) throw new Error(error.message);
     return data;
@@ -256,6 +256,25 @@ export const getCertificates = async () => {
     const { data, error } = await supabase.from('certificates').select('*').order('issued_date', { ascending: false });
     if (error) throw new Error(error.message);
     return data;
+}
+
+export const getCertificatesPaginated = async ({ page = 1, limit = 9, query: searchQuery, issuer }: { page?: number, limit?: number, query?: string, issuer?: string | null }) => {
+    let q = supabase.from('certificates').select('*', { count: 'exact' }).order('issued_date', { ascending: false });
+    if (searchQuery) q = q.or(`title.ilike.%${searchQuery}%,issued_by.ilike.%${searchQuery}%`);
+    if (issuer) q = q.eq('issued_by', issuer);
+    const from = (page - 1) * limit;
+    const to = from + limit - 1;
+    q = q.range(from, to);
+    const { data, error, count } = await q;
+    if (error) throw new Error(error.message);
+    return { data, count: count ?? 0 };
+}
+
+export const getCertificateIssuers = async () => {
+    const { data, error } = await supabase.from('certificates').select('issued_by');
+    if (error) throw new Error(error.message);
+    const issuers = Array.from(new Set(data.map(c => c.issued_by).filter(Boolean)));
+    return issuers as string[];
 }
 
 export const addCertificate = async (cert: Omit<CertificateInsert, 'user_id'>) => {

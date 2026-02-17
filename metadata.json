@@ -1,5 +1,5 @@
 {
   "name": "DevPortfolio",
-  "description": "A production-ready portfolio blueprint using Next.js 15, Supabase, and Tailwind CSS.",
+  "description": "A production-ready portfolio blueprint using Vite, React, TypeScript, Supabase, and Tailwind CSS.",
   "requestFramePermissions": []
 }

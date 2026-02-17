@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Navbar } from '../components/Navbar';
+import { CollapsibleTagFilter } from '../components/CollapsibleTagFilter';
 import { getBlogs, getBlogTags } from '../lib/api';
 import { useDebounce } from '../lib/hooks';
+import { useDocumentMeta } from '../lib/useDocumentMeta';
 import { Calendar, Search, Tag, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 6;
@@ -15,6 +17,11 @@ export default function BlogPage() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
+  useDocumentMeta({
+    title: 'Blog',
+    description: 'Insights, thoughts, and tutorials on web development, design, and technology.',
+  });
 
   const { data: allBlogTags, isLoading: isLoadingTags } = useQuery({
     queryKey: ['blogTags'],
@@ -64,20 +71,15 @@ export default function BlogPage() {
                 />
             </div>
             
-            <div className="flex flex-wrap justify-center gap-2">
-                {isLoadingTags ? <div className="h-6 w-20 animate-pulse bg-slate-200 dark:bg-slate-800 rounded-full" /> : allBlogTags?.map(tag => (
-                    <button
-                        key={tag}
-                        onClick={() => handleFilterChange(tag === selectedTag ? null : tag)}
-                        className={`px-3 py-1 rounded-full text-xs font-medium border transition-colors ${
-                            tag === selectedTag 
-                            ? 'bg-indigo-600 text-white border-indigo-600' 
-                            : 'bg-white dark:bg-slate-900/50 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10 hover:border-indigo-500 hover:text-indigo-500'
-                        }`}
-                    >
-                        #{tag}
-                    </button>
-                ))}
+            <div className="flex justify-center">
+                <CollapsibleTagFilter
+                  tags={allBlogTags ?? []}
+                  selectedTag={selectedTag}
+                  onTagClick={handleFilterChange}
+                  maxVisible={6}
+                  isLoading={isLoadingTags}
+                  prefix="#"
+                />
             </div>
         </div>
 
