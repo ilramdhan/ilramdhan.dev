@@ -185,9 +185,9 @@ export const deleteBlog = async (id: number) => {
 }
 
 export const addComment = async ({ postId, name, text }: { postId: number, name: string, text: string }) => {
-    const { data, error } = await supabase.from('blog_comments').insert({ blog_id: postId, name, content: text }).select().single();
+    const { error } = await supabase.from('blog_comments').insert({ blog_id: postId, name, content: text });
     if (error) throw new Error(error.message);
-    return data;
+    return { success: true };
 }
 
 export const getComments = async (postId: number) => {
@@ -204,9 +204,9 @@ export const getMessages = async () => {
 }
 
 export const addMessage = async (message: MessageInsert) => {
-    const { data, error } = await supabase.from('messages').insert(message).select().single();
+    const { error } = await supabase.from('messages').insert(message);
     if (error) throw new Error(error.message);
-    return data;
+    return { success: true };
 }
 
 export const deleteMessage = async (id: number) => {
