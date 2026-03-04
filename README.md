@@ -104,6 +104,9 @@ The project uses the following tables in Supabase:
     VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
     ```
 
+    - [ ] Never expose non-`VITE_` secrets to frontend bundle
+
+
 4.  **Run the development server**
     ```bash
     npm run dev
