@@ -36,7 +36,7 @@ A modern, responsive portfolio website built with React, Vite, Tailwind CSS, and
 
 ```
 /
-├── actions/            # Server actions (if using Next.js features, though this is a Vite app)
+├── actions/            # Client-triggered action handlers used by the SPA
 ├── api/                # API related files
 ├── app/                # Main application pages and layouts
 │   ├── admin/          # Admin dashboard components
@@ -57,6 +57,7 @@ A modern, responsive portfolio website built with React, Vite, Tailwind CSS, and
 │   ├── api.ts          # API service functions for data fetching
 │   ├── database.types.ts # TypeScript definitions for Supabase tables
 │   └── ...
+├── experimental/       # Archived or optional modules not used in current production runtime
 ├── public/             # Static assets
 └── ...
 ```
