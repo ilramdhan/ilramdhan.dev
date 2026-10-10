@@ -1,10 +1,12 @@
 import path from 'path';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
+import { appVersionDefine } from './vite.config';
 
 // Unit/component tests (jsdom). End-to-end tests live in `e2e/` and run with Playwright.
 export default defineConfig({
   plugins: [react()],
+  define: appVersionDefine(),
   resolve: {
     alias: {
       '@': path.resolve(__dirname, '.'),

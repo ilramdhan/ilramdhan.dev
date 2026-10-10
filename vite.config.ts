@@ -1,7 +1,24 @@
+import { readFileSync } from 'fs';
 import path from 'path';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 import { absoluteUrl, siteConfig } from './config/site';
+
+/**
+ * Build-time constants (`__APP_VERSION__`, `__APP_COMMIT__`, typed in `lib/globals.d.ts`).
+ * The version comes from `package.json` (bumped by release-please); the commit
+ * from Vercel's `VERCEL_GIT_COMMIT_SHA` when available.
+ */
+export function appVersionDefine() {
+  const pkg = JSON.parse(readFileSync(path.resolve(__dirname, 'package.json'), 'utf8')) as {
+    version: string;
+  };
+  const commit = (process.env.VERCEL_GIT_COMMIT_SHA ?? '').slice(0, 7);
+  return {
+    __APP_VERSION__: JSON.stringify(pkg.version),
+    __APP_COMMIT__: JSON.stringify(commit),
+  };
+}
 
 const escapeHtml = (value: string) =>
   value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -61,6 +78,7 @@ export default defineConfig(() => {
       host: '0.0.0.0',
     },
     plugins: [react(), siteConfigHtml()],
+    define: appVersionDefine(),
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),

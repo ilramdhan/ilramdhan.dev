@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ThemeProvider } from './lib/ThemeContext';
 import { ScrollToTop } from './components/ScrollToTop';
 import * as api from './lib/api';
+import { releaseUrl, versionAriaLabel, versionLabel } from './lib/version';
 
 // Global Background Animation
 function BackgroundBeams() {
@@ -35,7 +36,7 @@ function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <span className="text-slate-500 text-sm">{profile?.footer_text}</span>
-          <div className="flex gap-6">
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
             <button
               onClick={() => navigate('/privacy')}
               className="text-slate-500 hover:text-slate-900 dark:hover:text-white text-sm"
@@ -48,6 +49,16 @@ function Footer() {
             >
               Terms of Service
             </button>
+            <a
+              href={releaseUrl()}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={versionAriaLabel()}
+              data-testid="app-version"
+              className="font-mono text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+            >
+              {versionLabel()}
+            </a>
           </div>
         </div>
       </div>

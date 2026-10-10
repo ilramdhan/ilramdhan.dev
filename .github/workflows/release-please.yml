@@ -1,0 +1,29 @@
+name: Release Please
+
+# Maintains a release PR from the Conventional Commits on `main`
+# (bumps package.json + CHANGELOG.md). Merging that PR tags vX.Y.Z and
+# publishes a GitHub Release. Needs only the default GITHUB_TOKEN plus the
+# repo setting "Allow GitHub Actions to create and approve pull requests".
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

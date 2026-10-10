@@ -22,7 +22,7 @@ function knownHScrollIssue(path: string, width: number) {
 }
 
 for (const route of PUBLIC_ROUTES) {
-  test(`${route.name} (${route.path}) renders its H1, no console errors, no horizontal scroll`, async ({
+  test(`${route.name} (${route.path}) renders its H1 and footer version, no console errors, no horizontal scroll`, async ({
     page,
     consoleErrors,
   }, testInfo) => {
@@ -37,6 +37,10 @@ for (const route of PUBLIC_ROUTES) {
     }
     await page.waitForLoadState('networkidle');
     expect(consoleErrors, 'console errors').toEqual([]);
+    // Footer shows the deployed version, linking to its GitHub Release (T-57).
+    const version = page.getByTestId('app-version');
+    await expect(version).toHaveText(/^v\d+\.\d+\.\d+/);
+    await expect(version).toHaveAttribute('href', /\/releases\/tag\/v\d+\.\d+\.\d+/);
     // Freeze timers/animation frames: the home page's WebGL loops otherwise make
     // every following page.evaluate crawl under software rendering.
     await page.clock.pauseAt(Date.now() + 60_000);

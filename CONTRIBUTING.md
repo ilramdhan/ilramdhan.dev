@@ -96,6 +96,17 @@ GitHub Actions runs on every pull request and on pushes to `main`:
 
 **Dependabot** (`.github/dependabot.yml`): one grouped npm PR per week for minor/patch updates (majors come as separate PRs), and a monthly grouped PR for GitHub Actions. `@playwright/test` is pinned on purpose and excluded; bump it manually together with the browsers.
 
+### Releases (release-please)
+
+Versions follow [SemVer](https://semver.org/) and are cut automatically by [release-please](https://github.com/googleapis/release-please) (`.github/workflows/release-please.yml`, config in `release-please-config.json`, current version in `.release-please-manifest.json`):
+
+1. Every push to `main` creates or updates a **release PR** (`chore(main): release X.Y.Z`) that bumps `package.json` / `package-lock.json` and prepends the generated notes to `CHANGELOG.md`. You don't edit the changelog by hand any more — the Conventional Commit subjects _are_ the notes, so write them for humans.
+2. Bump rules (pre-1.0): `feat:` → minor (`0.1.0` → `0.2.0`); `fix:` / `perf:` / `security:` / `refactor:` / `docs:` → patch; a breaking change (`feat!:` or a `BREAKING CHANGE:` footer) → minor while the version is `0.x` (`bump-minor-pre-major`), major from `1.0.0` on. `chore`, `test`, `ci`, `build`, `style` are hidden from the notes.
+3. **To release, merge the release PR.** release-please then tags `vX.Y.Z` and publishes a GitHub Release with the same notes. Vercel deploys the merge, and the footer shows the new version (`__APP_VERSION__` from `package.json`, plus the short commit SHA from `VERCEL_GIT_COMMIT_SHA` in the link's accessible label), linking to that release.
+4. Only the default `GITHUB_TOKEN` is used. The repo setting _Settings → Actions → General → "Allow GitHub Actions to create and approve pull requests"_ must stay enabled.
+5. PRs opened with `GITHUB_TOKEN` don't trigger other workflows, so CI does not run on the release PR by itself. If required status checks block it, close and reopen the PR (or push an empty commit to its branch) to trigger CI. The release PR only touches the version and changelog.
+6. To force a specific version, add a commit to `main` with a `Release-As: X.Y.Z` footer.
+
 ### Branch protection (recommended for the owner)
 
 In _Settings → Branches → Add branch ruleset_ (or _Branch protection rules_) for `main`:
@@ -107,7 +118,7 @@ In _Settings → Branches → Add branch ruleset_ (or _Branch protection rules_)
    - Leave `Lighthouse (preview, warn-only)` and the Vercel check optional for now.
 3. **Block force pushes** and **restrict deletions**.
 4. Optional: **Require linear history** if you prefer squash/rebase merges.
-5. Keep using Conventional Commits and add user-visible changes to `CHANGELOG.md`.
+5. Keep using Conventional Commits: release-please builds `CHANGELOG.md` and the version from them.
 
 ## Coding guidelines
 
