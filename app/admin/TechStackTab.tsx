@@ -29,8 +29,7 @@ export function TechStackTab() {
   const mutationOptions = {
     onError: (error: Error) => toast.error(error.message),
     onSuccess: () => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
-      queryClient.invalidateQueries({ queryKey: ['techStack'] });
+      void queryClient.invalidateQueries({ queryKey: ['techStack'] });
       setIsFormOpen(false);
     },
   };
@@ -73,15 +72,7 @@ export function TechStackTab() {
   // Update preview URL when name changes
   useEffect(() => {
     if (formState.name) {
-      // Simple slugify: lowercase, remove special chars, remove spaces
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO(#18)
-      const slug = formState.name.toLowerCase().replace(/[^a-z0-9]/g, '');
-      // Special cases mapping if needed, though most follow the rule above
-      // e.g. 'c++' -> 'cplusplus', 'c#' -> 'csharp' - Simple Icons handles some, but basic slug is usually enough
-      // For Oracle, it seems 'oracle' is the slug. 'Oracle DB' -> 'oracledb' might not exist.
-      // Let's try to be smart or allow manual override if needed (but user asked for auto)
-
-      // Better slugify for Simple Icons:
+      // Slugify for Simple Icons:
       // 1. Lowercase
       // 2. Replace '+' with 'plus'
       // 3. Replace '.' with 'dot'
@@ -102,14 +93,13 @@ export function TechStackTab() {
     setIsFormOpen(true);
   };
 
-  // eslint-disable-next-line @typescript-eslint/require-await -- TODO(#18)
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const payload = { ...formState, icon_url: previewUrl };
 
     if (editingTech) {
-      updateMutation.mutate({ ...payload, id: editingTech.id } as TechStack);
+      updateMutation.mutate({ ...payload, id: editingTech.id });
     } else {
       addMutation.mutate(payload as Omit<TechStackInsert, 'user_id'>);
     }
@@ -129,7 +119,6 @@ export function TechStackTab() {
       </div>
 
       {isFormOpen && (
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises -- TODO(#18)
         <form onSubmit={handleSubmit} className="form-container mb-6">
           <h3 className="font-medium mb-4">{editingTech ? 'Edit Tech' : 'New Tech'}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

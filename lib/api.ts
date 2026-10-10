@@ -453,7 +453,24 @@ export const deleteTechStack = async (id: number) => {
 };
 
 // --- Wakatime Stats (Using Public Share URL) ---
-export const getWakatimeStats = async () => {
+// Shapes of the public share JSON files (only the fields the UI reads).
+export interface WakatimeLanguage {
+  name: string;
+  text: string;
+  percent: number;
+}
+
+export interface WakatimeLanguagesResponse {
+  data: WakatimeLanguage[];
+}
+
+export interface WakatimeDay {
+  date: string;
+  total: number;
+  categories: { name: string; total: number }[];
+}
+
+export const getWakatimeStats = async (): Promise<WakatimeLanguagesResponse> => {
   // Using JSONP approach via a proxy or direct fetch if CORS allows
   // Wakatime share URLs usually support CORS or JSONP.
   // Since we are in a modern environment, let's try fetch first.
@@ -469,9 +486,7 @@ export const getWakatimeStats = async () => {
     if (!response.ok) {
       throw new Error(`Failed to fetch Wakatime stats: ${response.statusText}`);
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO(#18)
-    const data = await response.json();
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- TODO(#18)
+    const data = (await response.json()) as WakatimeLanguagesResponse;
     return data;
   } catch (error) {
     console.warn('Direct fetch failed, trying JSONP approach (simulated via error)');
@@ -479,7 +494,7 @@ export const getWakatimeStats = async () => {
   }
 };
 
-export const getWakatimeCodingActivity = async () => {
+export const getWakatimeCodingActivity = async (): Promise<WakatimeDay[]> => {
   // TODO: Replace this with your actual Wakatime embeddable chart URL for daily coding activity.
   // You can find this in your Wakatime account under "Share" -> "Embeddable Charts".
   // It should be a URL ending in .json
@@ -490,10 +505,8 @@ export const getWakatimeCodingActivity = async () => {
     if (!response.ok) {
       throw new Error(`Failed to fetch Wakatime coding activity: ${response.statusText}`);
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO(#18)
-    const data = await response.json();
+    const data = (await response.json()) as { days: WakatimeDay[] };
     // The data structure should be similar to the one in .json-wakatime.txt, expecting a 'days' array.
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return -- TODO(#18)
     return data.days;
   } catch (error) {
     console.error('Failed to fetch Wakatime coding activity:', error);

@@ -31,8 +31,7 @@ export function ServicesTab() {
   const mutationOptions = {
     onError: (error: Error) => toast.error(error.message),
     onSuccess: () => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
-      queryClient.invalidateQueries({ queryKey: ['services'] });
+      void queryClient.invalidateQueries({ queryKey: ['services'] });
       setIsFormOpen(false);
     },
   };
@@ -78,7 +77,7 @@ export function ServicesTab() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editingService) {
-      updateMutation.mutate({ ...formState, id: editingService.id } as Service);
+      updateMutation.mutate({ ...formState, id: editingService.id });
     } else {
       addMutation.mutate(formState as Omit<ServiceInsert, 'user_id'>);
     }

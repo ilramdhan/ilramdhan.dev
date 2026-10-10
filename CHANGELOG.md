@@ -18,6 +18,8 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Changed
 
+- TypeScript `strict` mode (+ `noUncheckedIndexedAccess`, `noImplicitOverride`, `noFallthroughCasesInSwitch`); template leftovers removed from `tsconfig.json`. `lib/database.types.ts` is now generated from the migrations (`npm run db:types`) with `Tables<>`/`TablesInsert<>` helpers; `any`, `@ts-ignore`/`@ts-expect-error` and the `TODO(#18)` lint suppressions removed, `no-unnecessary-type-assertion` re-enabled (T-03).
+
 - `supabase/schema.sql` and `supabase/supabase-fix.sql` moved to `supabase/legacy/` (reference only; superseded by migrations) (T-04).
 
 - README rewritten: accurate stack, setup, project structure, docs links.

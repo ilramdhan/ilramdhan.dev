@@ -5,7 +5,7 @@ import { Calendar, Code, Smartphone, Cloud, Terminal, Layout, Database } from 'l
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
 import * as THREE from 'three';
-import GLOBE from 'vanta/dist/vanta.globe.min.js';
+import GLOBE, { type VantaEffect } from 'vanta/dist/vanta.globe.min.js';
 import { Hero } from '../components/Hero';
 import { ProjectCard } from '../components/ProjectCard';
 import { ContactForm } from '../components/ContactForm';
@@ -29,12 +29,25 @@ const IconMap: { [key: string]: React.ElementType } = {
   database: Database,
 };
 
+const lightThemeConfig = {
+  color: 0x599bfa,
+  color2: 0x2a6daa,
+  backgroundColor: 0xf8fafc, // bg-slate-50
+  size: 1.0,
+};
+
+const darkThemeConfig = {
+  color: 0x599bfa,
+  color2: 0x2a6daa,
+  backgroundColor: 0x0f172a, // bg-slate-900
+  size: 1.0,
+};
+
 export default function Page() {
   const navigate = useNavigate();
   const { theme } = useTheme();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment -- TODO(#18)
-  const [vantaEffect, setVantaEffect] = useState<any>(null);
-  const vantaRef = useRef(null);
+  const [vantaEffect, setVantaEffect] = useState<VantaEffect | null>(null);
+  const vantaRef = useRef<HTMLElement>(null);
 
   useDocumentMeta({
     title: undefined, // Uses default: "Ilham Ramadhan | Web Developer & Portfolio"
@@ -42,14 +55,8 @@ export default function Page() {
       "Ilham Ramadhan's personal portfolio — showcasing projects, skills, certifications, and blog posts.",
   });
 
-  const {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO(#18)
-    data: profile,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO(#18)
-    isLoading: isLoadingProfile,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO(#18)
-    isError: isErrorProfile,
-  } = useQuery({
+  // Not read here, but keeps the shared ['profile'] query subscribed on the home page.
+  useQuery({
     queryKey: ['profile'],
     queryFn: getProfile,
   });
@@ -72,37 +79,19 @@ export default function Page() {
     queryFn: getFeaturedBlogs,
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO(#18)
-  const { data: techStack, isLoading: isLoadingTech } = useQuery({
+  const { data: techStack } = useQuery({
     queryKey: ['techStack'],
     queryFn: getTechStack,
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO(#18)
-  const { data: services, isLoading: isLoadingServices } = useQuery({
+  const { data: services } = useQuery({
     queryKey: ['services'],
     queryFn: getServices,
   });
 
-  const lightThemeConfig = {
-    color: 0x599bfa,
-    color2: 0x2a6daa,
-    backgroundColor: 0xf8fafc, // bg-slate-50
-    size: 1.0,
-  };
-
-  const darkThemeConfig = {
-    color: 0x599bfa,
-    color2: 0x2a6daa,
-    backgroundColor: 0x0f172a, // bg-slate-900
-    size: 1.0,
-  };
-
   useEffect(() => {
     if (!vantaRef.current) return;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call -- TODO(#18)
     const vantaInstance = GLOBE({
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO(#18)
       el: vantaRef.current,
       THREE: THREE,
       mouseControls: true,
@@ -116,18 +105,16 @@ export default function Page() {
     });
     setVantaEffect(vantaInstance);
     return () => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- TODO(#18)
       if (vantaInstance) vantaInstance.destroy();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- TODO(#18)
+    // Mount-only: theme changes are applied by the effect below via setOptions.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     if (vantaEffect) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- TODO(#18)
       vantaEffect.setOptions(theme === 'dark' ? darkThemeConfig : lightThemeConfig);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- TODO(#18)
   }, [theme, vantaEffect]);
 
   return (

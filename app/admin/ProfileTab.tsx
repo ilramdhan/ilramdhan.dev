@@ -106,8 +106,7 @@ export function ProfileTab() {
       return api.updateProfile(profileToUpdate);
     },
     onSuccess: () => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      void queryClient.invalidateQueries({ queryKey: ['profile'] });
       toast.success('Profile updated!');
       setAvatarFile(null);
       setLogoFile(null);
@@ -170,13 +169,14 @@ export function ProfileTab() {
       </label>
       <input
         id={`social-${platform}`}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access -- TODO(#18)
-        value={(formState.social_links as any)?.[platform] || ''}
+        value={(formState.social_links as Record<string, string> | null)?.[platform] || ''}
         onChange={(e) =>
           setFormState((prev) => ({
             ...prev,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment -- TODO(#18)
-            social_links: { ...(prev.social_links as any), [platform]: e.target.value },
+            social_links: {
+              ...(prev.social_links as Record<string, string> | null),
+              [platform]: e.target.value,
+            },
           }))
         }
         className="input"
@@ -214,7 +214,7 @@ export function ProfileTab() {
             </label>
             <input
               type="file"
-              onChange={(e) => setAvatarFile(e.target.files ? e.target.files[0] : null)}
+              onChange={(e) => setAvatarFile(e.target.files?.[0] ?? null)}
               className="input-file"
             />
             {profile?.avatar_url && (
@@ -229,7 +229,7 @@ export function ProfileTab() {
             </label>
             <input
               type="file"
-              onChange={(e) => setLogoFile(e.target.files ? e.target.files[0] : null)}
+              onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
               className="input-file"
             />
             {profile?.logo_url && (
@@ -244,7 +244,7 @@ export function ProfileTab() {
             </label>
             <input
               type="file"
-              onChange={(e) => setCvFile(e.target.files ? e.target.files[0] : null)}
+              onChange={(e) => setCvFile(e.target.files?.[0] ?? null)}
               className="input-file"
             />
             {profile?.resume_url && (

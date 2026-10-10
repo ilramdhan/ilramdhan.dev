@@ -2,11 +2,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ExternalLink, Github } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import type { Database } from '../types';
+import type { Tables } from '../types';
 import { ensureFullUrl } from '../lib/utils';
 import { ImageCarousel } from './ImageCarousel';
 
-type Project = Database['public']['Tables']['projects']['Row'] & { images?: string[] };
+type Project = Tables<'projects'>;
 
 interface ProjectCardProps {
   project: Partial<Project>;

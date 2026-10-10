@@ -27,8 +27,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
-    getInitialSession();
+    void getInitialSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);

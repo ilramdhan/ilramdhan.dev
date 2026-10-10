@@ -60,8 +60,7 @@ export function ResumeTab() {
     ...mutationOptions,
     mutationFn: api.addResumeItem,
     onSuccess: (data) => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
-      queryClient.invalidateQueries({ queryKey: ['resume', data.type] });
+      void queryClient.invalidateQueries({ queryKey: ['resume', data.type] });
       toast.success(`Item added!`);
     },
   });
@@ -69,8 +68,7 @@ export function ResumeTab() {
     ...mutationOptions,
     mutationFn: api.updateResumeItem,
     onSuccess: (data) => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
-      queryClient.invalidateQueries({ queryKey: ['resume', data.type] });
+      void queryClient.invalidateQueries({ queryKey: ['resume', data.type] });
       toast.success(`Item updated!`);
     },
   });
@@ -79,8 +77,7 @@ export function ResumeTab() {
     mutationFn: (item: { id: number; type: string }) =>
       api.deleteResumeItem(item.id).then(() => item),
     onSuccess: (item) => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
-      queryClient.invalidateQueries({ queryKey: ['resume', item.type] });
+      void queryClient.invalidateQueries({ queryKey: ['resume', item.type] });
       toast.info(`Item removed.`);
     },
   });
@@ -125,7 +122,7 @@ export function ResumeTab() {
         .filter(Boolean),
     };
     if (editingExp) {
-      updateMutation.mutate({ ...payload, id: editingExp.id } as Resume);
+      updateMutation.mutate({ ...payload, id: editingExp.id });
     } else {
       addMutation.mutate(payload as Omit<ResumeInsert, 'user_id'>);
     }
@@ -142,7 +139,7 @@ export function ResumeTab() {
         .filter(Boolean),
     };
     if (editingEdu) {
-      updateMutation.mutate({ ...payload, id: editingEdu.id } as Resume);
+      updateMutation.mutate({ ...payload, id: editingEdu.id });
     } else {
       addMutation.mutate(payload as Omit<ResumeInsert, 'user_id'>);
     }

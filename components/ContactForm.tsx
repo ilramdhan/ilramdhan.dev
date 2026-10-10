@@ -38,15 +38,14 @@ export function ContactForm() {
       // The success toast/state are handled by the call-level `onSuccess` in
       // `handleSubmit` (it also resets the form and starts the cooldown).
       // Invalidate messages query to refetch in admin panel if it's open
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
-      queryClient.invalidateQueries({ queryKey: ['messages'] });
+      void queryClient.invalidateQueries({ queryKey: ['messages'] });
     },
     onError: () => {
       toast.error('Something went wrong. Please try again.');
     },
   });
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -59,11 +58,10 @@ export function ContactForm() {
       return;
     }
 
-    const validation = await validateContactForm(formData);
+    const validation = validateContactForm(formData);
 
     if (!validation.success) {
       setState({
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO(#18)
         errors: validation.error,
         message: 'Missing Fields',
         success: false,
@@ -71,7 +69,6 @@ export function ContactForm() {
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument -- TODO(#18)
     addMessageMutation.mutate(validation.data, {
       onSuccess: () => {
         toast.success("Message sent! We'll get back to you soon.");
@@ -83,7 +80,6 @@ export function ContactForm() {
   };
 
   return (
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises -- TODO(#18)
     <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto">
       {/* Honeypot — invisible to users, catches bots */}
       <div className="absolute opacity-0 pointer-events-none" aria-hidden="true" tabIndex={-1}>

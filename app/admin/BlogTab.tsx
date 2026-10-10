@@ -42,8 +42,7 @@ export function BlogTab() {
 
   const mutationOptions = {
     onSuccess: () => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
-      queryClient.invalidateQueries({ queryKey: ['blogs'] });
+      void queryClient.invalidateQueries({ queryKey: ['blogs'] });
       setIsFormOpen(false);
     },
     onError: (error: Error) => toast.error(error.message),
@@ -109,10 +108,8 @@ export function BlogTab() {
       });
       try {
         newImageUrls = await Promise.all(uploadPromises);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- TODO(#18)
-      } catch (error: any) {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access -- TODO(#18)
-        toast.error(error.message);
+      } catch (error) {
+        toast.error((error as Error).message);
         return;
       }
     }
@@ -129,7 +126,7 @@ export function BlogTab() {
     };
 
     if (editingBlog) {
-      updateMutation.mutate({ ...finalPayload, id: editingBlog.id } as Blog);
+      updateMutation.mutate({ ...finalPayload, id: editingBlog.id });
     } else {
       addMutation.mutate(finalPayload as Omit<BlogInsert, 'user_id'>);
     }
@@ -150,8 +147,7 @@ export function BlogTab() {
 
       {isFormOpen && (
         <div className="mb-8 p-6 bg-white dark:bg-slate-900 border rounded-xl">
-          {/* eslint-disable-next-line @typescript-eslint/no-misused-promises -- TODO(#18) */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={(e) => void handleSubmit(e)} className="space-y-4">
             <h3 className="text-lg font-bold">{editingBlog ? 'Edit Article' : 'Create Article'}</h3>
             <input
               required

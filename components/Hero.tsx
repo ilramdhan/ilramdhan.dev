@@ -60,6 +60,12 @@ const segmentProps = {
   linearDamping: 2,
 } as const;
 
+// Shape of /assets/3d/card.glb (the nodes/materials this component uses).
+type CardGLTF = {
+  nodes: { card: THREE.Mesh; clip: THREE.Mesh; clamp: THREE.Mesh };
+  materials: { base: THREE.MeshStandardMaterial; metal: THREE.Material };
+};
+
 function Band({ maxSpeed = 50, minSpeed = 10 }) {
   const band = useRef<THREE.Mesh<MeshLineGeometry, MeshLineMaterial>>(null);
   const fixed = useRef<RapierRigidBody>(null);
@@ -76,7 +82,7 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
   const [hovered, hover] = useState(false);
 
   // Load GLTF and Textures
-  const { nodes, materials } = useGLTF('/assets/3d/card.glb');
+  const { nodes, materials } = useGLTF('/assets/3d/card.glb') as unknown as CardGLTF;
   const texture = useTexture('/assets/images/tag_texture.png');
   const { width, height } = useThree((state) => state.size);
 
@@ -133,8 +139,6 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
     }
 
     if (fixed.current) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- TODO(#18)
-      // @ts-ignore
       const [j1Lerped, j2Lerped] = [j1, j2].map((ref) => {
         if (ref.current) {
           const lerped = new THREE.Vector3().copy(ref.current.translation());
@@ -151,10 +155,10 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
         }
       });
 
-      curve.points[0].copy(j3.current.translation());
-      curve.points[1].copy(j2Lerped ?? j2.current.translation());
-      curve.points[2].copy(j1Lerped ?? j1.current.translation());
-      curve.points[3].copy(fixed.current.translation());
+      curve.points[0]!.copy(j3.current.translation());
+      curve.points[1]!.copy(j2Lerped ?? j2.current.translation());
+      curve.points[2]!.copy(j1Lerped ?? j1.current.translation());
+      curve.points[3]!.copy(fixed.current.translation());
       band.current.geometry.setPoints(curve.getPoints(32));
 
       ang.copy(card.current.angvel());
@@ -209,31 +213,19 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
             onPointerOver={handlePointerOver}
             onPointerOut={() => hover(false)}
             onPointerUp={(e) => {
-              /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unsafe-call -- TODO(#18) */
-              // @ts-ignore
-              e.target.releasePointerCapture(e.pointerId);
-              /* eslint-enable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unsafe-call */
+              (e.target as Element).releasePointerCapture(e.pointerId);
               drag(false);
             }}
             onPointerDown={(e) => {
-              /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unsafe-call -- TODO(#18) */
-              // @ts-ignore
-              e.target.setPointerCapture(e.pointerId);
-              /* eslint-enable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unsafe-call */
+              (e.target as Element).setPointerCapture(e.pointerId);
               if (card.current) {
                 drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())));
               }
             }}
           >
-            {/* eslint-disable @typescript-eslint/no-unsafe-assignment -- TODO(#18) */}
-            {/* @ts-expect-error geometry/map are not declared? */}
             <mesh geometry={nodes.card.geometry}>
-              {/* eslint-enable @typescript-eslint/no-unsafe-assignment */}
               <meshPhysicalMaterial
-                /* eslint-disable @typescript-eslint/no-unsafe-assignment -- TODO(#18) */
-                // @ts-expect-error geometry/map are not declared?
                 map={materials.base.map}
-                /* eslint-enable @typescript-eslint/no-unsafe-assignment */
                 map-anisotropy={16}
                 clearcoat={1}
                 clearcoatRoughness={0.15}
@@ -242,17 +234,11 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
               />
             </mesh>
             <mesh
-              /* eslint-disable @typescript-eslint/no-unsafe-assignment -- TODO(#18) */
-              // @ts-expect-error geometry/map are not declared?
               geometry={nodes.clip.geometry}
-              /* eslint-enable @typescript-eslint/no-unsafe-assignment */
               material={materials.metal}
               material-roughness={0.3}
             />
-            {/* eslint-disable @typescript-eslint/no-unsafe-assignment -- TODO(#18) */}
-            {/* @ts-expect-error geometry/map are not declared? */}
             <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
-            {/* eslint-enable @typescript-eslint/no-unsafe-assignment */}
           </group>
         </RigidBody>
       </group>
@@ -412,9 +398,9 @@ export function Hero() {
                   if (!value) return null;
                   const Icon = SocialIconMap[key];
                   if (!Icon) return null;
-                  const href =
-                    // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions -- TODO(#18)
-                    key === 'mail' ? `mailto:${value}` : ensureFullUrl(value as string) || '#';
+                  // social_links values are URLs / addresses stored as strings.
+                  const link = value as string;
+                  const href = key === 'mail' ? `mailto:${link}` : ensureFullUrl(link) || '#';
                   return (
                     <a
                       key={key}
@@ -423,8 +409,6 @@ export function Hero() {
                       rel="noreferrer"
                       className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"
                     >
-                      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment -- TODO(#18) */}
-                      {/* @ts-ignore */}
                       <Icon className="h-6 w-6" />
                     </a>
                   );

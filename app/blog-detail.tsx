@@ -42,8 +42,7 @@ export default function BlogDetailPage() {
     mutationFn: addCommentAPI,
     onSuccess: () => {
       toast.success('Comment added!');
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
-      queryClient.invalidateQueries({ queryKey: ['comments', blog?.id] });
+      void queryClient.invalidateQueries({ queryKey: ['comments', blog?.id] });
       setCommentName('');
       setCommentText('');
       startCooldown();
@@ -121,7 +120,7 @@ export default function BlogDetailPage() {
       <div className="w-full h-96 relative bg-slate-200 dark:bg-slate-900">
         {blog.images && blog.images.length > 0 ? (
           <ImageCarousel
-            images={[blog.images[0]]}
+            images={blog.images.slice(0, 1)}
             alt={blog.title || 'Blog Post'}
             aspectRatio="h-full"
           />
