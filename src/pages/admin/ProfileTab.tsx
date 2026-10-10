@@ -1,261 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Save, Loader2 } from 'lucide-react';
 import * as api from '@/features/profile/api';
-import type { Profile } from '@/features/profile/api';
 import { profileKeys, profileQueries } from '@/features/profile/queries';
+import { ResourceForm } from '@/features/admin';
+import { changedFields } from '@/features/admin/diff';
+import { resolveUploads } from '@/features/admin/uploads';
 import {
-  acceptAttribute,
-  IMAGE_MIME_TYPES,
-  PDF_MIME_TYPES,
-  uploadFile,
-  validateUpload,
-} from '@/lib/upload';
-import { ensureFullUrl } from '@/lib/utils';
+  profileSchema,
+  profileSections,
+  profileToPayload,
+  profileToValues,
+  type ProfileValues,
+} from '@/features/admin/resources/profile';
 
 export function ProfileTab() {
   const queryClient = useQueryClient();
-
   const { data: profile, isLoading } = useQuery(profileQueries.detail());
 
-  const [formState, setFormState] = useState<Partial<Profile>>({});
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [cvFile, setCvFile] = useState<File | null>(null);
-
-  useEffect(() => {
-    if (profile) {
-      setFormState(profile);
-    }
-  }, [profile]);
-
-  const updateMutation = useMutation({
-    mutationFn: async (updatedProfile: Partial<Profile>) => {
-      let avatar_url = updatedProfile.avatar_url;
-      let logo_url = updatedProfile.logo_url;
-      let resume_url = updatedProfile.resume_url;
-
-      // Validate everything first so a bad file doesn't leave the others uploaded.
-      if (avatarFile) validateUpload(avatarFile, IMAGE_MIME_TYPES);
-      if (logoFile) validateUpload(logoFile, IMAGE_MIME_TYPES);
-      if (cvFile) validateUpload(cvFile, PDF_MIME_TYPES);
-
-      if (avatarFile) {
-        avatar_url = (await uploadFile(avatarFile, 'avatars', IMAGE_MIME_TYPES)).publicUrl;
-      }
-      if (logoFile) {
-        logo_url = (await uploadFile(logoFile, 'logos', IMAGE_MIME_TYPES)).publicUrl;
-      }
-      if (cvFile) {
-        resume_url = (await uploadFile(cvFile, 'cv', PDF_MIME_TYPES)).publicUrl;
-      }
-
-      const processedSocialLinks: { [key: string]: string } = {};
-      if (updatedProfile.social_links && typeof updatedProfile.social_links === 'object') {
-        for (const [key, value] of Object.entries(updatedProfile.social_links)) {
-          processedSocialLinks[key] = ensureFullUrl(value as string) || '';
-        }
-      }
-
-      const profileToUpdate = {
-        ...updatedProfile,
-        avatar_url,
-        logo_url,
-        resume_url,
-        social_links: processedSocialLinks,
-      };
-
-      return api.updateProfile(profileToUpdate);
+  const save = useMutation({
+    mutationFn: async (values: ProfileValues) => {
+      if (!profile) return;
+      const uploaded = await resolveUploads(profileSections, values);
+      const patch = changedFields(profileToPayload(uploaded, profile), profile);
+      if (Object.keys(patch).length > 0) await api.updateProfile(patch);
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: profileKeys.all });
       toast.success('Profile updated!');
-      setAvatarFile(null);
-      setLogoFile(null);
-      setCvFile(null);
     },
-    onError: (error) => {
-      toast.error(error.message);
-    },
+    onError: (error) => toast.error(error.message),
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    updateMutation.mutate(formState);
-  };
-
   if (isLoading) return <div>Loading...</div>;
-
-  const renderInput = (id: keyof Profile, label: string) => (
-    <div>
-      <label
-        htmlFor={id}
-        className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
-      >
-        {label}
-      </label>
-      <input
-        id={id}
-        value={(formState[id] as string) || ''}
-        onChange={(e) => setFormState((prev) => ({ ...prev, [id]: e.target.value }))}
-        className="input"
-      />
-    </div>
-  );
-
-  const renderTextarea = (id: keyof Profile, label: string, rows: number = 5) => (
-    <div>
-      <label
-        htmlFor={id}
-        className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
-      >
-        {label}
-      </label>
-      <textarea
-        id={id}
-        rows={rows}
-        value={(formState[id] as string) || ''}
-        onChange={(e) => setFormState((prev) => ({ ...prev, [id]: e.target.value }))}
-        className="input"
-      />
-    </div>
-  );
-
-  const renderSocialInput = (platform: string, label: string) => (
-    <div>
-      <label
-        htmlFor={`social-${platform}`}
-        className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
-      >
-        {label}
-      </label>
-      <input
-        id={`social-${platform}`}
-        value={(formState.social_links as Record<string, string> | null)?.[platform] || ''}
-        onChange={(e) =>
-          setFormState((prev) => ({
-            ...prev,
-            social_links: {
-              ...(prev.social_links as Record<string, string> | null),
-              [platform]: e.target.value,
-            },
-          }))
-        }
-        className="input"
-        placeholder={`https://${platform}.com/yourusername`}
-      />
-    </div>
-  );
 
   return (
     <div className="max-w-4xl space-y-8">
       <h1 className="text-2xl font-bold">General Settings</h1>
-      <form onSubmit={handleSubmit} className="form-container">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {renderInput('display_name', 'Display Name')}
-          {renderInput('badge_text', 'Badge Text')}
-        </div>
-
-        {renderInput('hero_title', 'Hero Title')}
-        {renderTextarea('short_description', 'Short Description', 2)}
-        {renderTextarea('detailed_bio', 'Detailed Bio (Markdown)', 8)}
-
-        <hr className="border-slate-200 dark:border-white/10" />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {renderInput('logo_text', 'Logo Text (Fallback)')}
-          {renderInput('address', 'Address')}
-          {renderInput('footer_text', 'Footer Text')}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div>
-            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- TODO(#57) */}
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Avatar Image
-            </label>
-            <input
-              type="file"
-              accept={acceptAttribute(IMAGE_MIME_TYPES)}
-              onChange={(e) => setAvatarFile(e.target.files?.[0] ?? null)}
-              className="input-file"
-            />
-            {profile?.avatar_url && (
-              // eslint-disable-next-line jsx-a11y/alt-text -- TODO(#57)
-              <img src={profile.avatar_url} className="h-12 w-12 rounded-full object-cover mt-2" />
-            )}
-          </div>
-          <div>
-            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- TODO(#57) */}
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Logo Image
-            </label>
-            <input
-              type="file"
-              accept={acceptAttribute(IMAGE_MIME_TYPES)}
-              onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
-              className="input-file"
-            />
-            {profile?.logo_url && (
-              // eslint-disable-next-line jsx-a11y/alt-text -- TODO(#57)
-              <img src={profile.logo_url} className="h-8 w-auto object-contain mt-2" />
-            )}
-          </div>
-          <div>
-            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- TODO(#57) */}
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Resume / CV (PDF)
-            </label>
-            <input
-              type="file"
-              accept={acceptAttribute(PDF_MIME_TYPES)}
-              onChange={(e) => setCvFile(e.target.files?.[0] ?? null)}
-              className="input-file"
-            />
-            {profile?.resume_url && (
-              <a
-                href={profile.resume_url}
-                target="_blank"
-                rel="noreferrer"
-                className="text-xs text-indigo-500 mt-2 block"
-              >
-                Current CV
-              </a>
-            )}
-          </div>
-        </div>
-
-        <hr className="border-slate-200 dark:border-white/10" />
-
-        <h2 className="text-xl font-bold mb-4">Social Links</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {renderSocialInput('github', 'GitHub URL')}
-          {renderSocialInput('linkedin', 'LinkedIn URL')}
-          {renderSocialInput('twitter', 'Twitter URL')}
-          {renderSocialInput('instagram', 'Instagram URL')}
-          {renderSocialInput('youtube', 'YouTube URL')}
-          {renderSocialInput('whatsapp', 'WhatsApp URL')}
-          {renderSocialInput('mail', 'Email Address')}
-          {renderSocialInput('steam', 'Steam URL')}
-        </div>
-
-        <hr className="border-slate-200 dark:border-white/10" />
-
-        {renderTextarea('privacy_content', 'Privacy Policy (Markdown)')}
-        {renderTextarea('terms_content', 'Terms of Service (Markdown)')}
-
-        <div className="flex justify-end">
-          <button type="submit" disabled={updateMutation.isPending} className="btn-primary">
-            {updateMutation.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="h-4 w-4" />
-            )}
-            Save Changes
-          </button>
-        </div>
-      </form>
+      {profile && (
+        <ResourceForm<ProfileValues>
+          // Re-mount with fresh values (and cleared file inputs) after each save.
+          key={JSON.stringify(profile)}
+          className="form-container"
+          sections={profileSections}
+          schema={profileSchema}
+          defaultValues={profileToValues(profile)}
+          isPending={save.isPending}
+          submitLabel="Save Changes"
+          onSubmit={(values) => save.mutate(values)}
+        />
+      )}
     </div>
   );
 }

@@ -2,7 +2,14 @@ import type { Tables, TablesInsert, TablesUpdate } from '@/types';
 import { supabase } from '@/lib/supabase/client';
 import { columns } from '@/lib/supabase/columns';
 import { distinctSorted, fetchDistinct } from '@/lib/supabase/distinct';
-import { assertOk, currentUserId, pageRange, unwrap, unwrapPage } from '@/lib/supabase/result';
+import {
+  assertOk,
+  currentUserId,
+  pageRange,
+  unwrap,
+  withoutId,
+  unwrapPage,
+} from '@/lib/supabase/result';
 
 type Row = Tables<'projects'>;
 
@@ -128,7 +135,7 @@ export async function updateProject(
   return unwrap(
     await supabase
       .from('projects')
-      .update(updates)
+      .update(withoutId(updates))
       .eq('id', updates.id)
       .select(PROJECT_ADMIN_COLUMNS)
       .single(),

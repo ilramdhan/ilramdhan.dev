@@ -1,7 +1,7 @@
 import type { Tables, TablesInsert, TablesUpdate } from '@/types';
 import { supabase } from '@/lib/supabase/client';
 import { columns } from '@/lib/supabase/columns';
-import { assertOk, currentUserId, unwrap } from '@/lib/supabase/result';
+import { assertOk, currentUserId, unwrap, withoutId } from '@/lib/supabase/result';
 
 export type ResumeType = 'experience' | 'education';
 
@@ -51,7 +51,7 @@ export async function updateResumeItem(
   return unwrap(
     await supabase
       .from('resume')
-      .update(updates)
+      .update(withoutId(updates))
       .eq('id', updates.id)
       .select(RESUME_COLUMNS)
       .single(),

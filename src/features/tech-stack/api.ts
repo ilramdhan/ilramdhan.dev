@@ -1,7 +1,7 @@
 import type { Tables, TablesInsert, TablesUpdate } from '@/types';
 import { supabase } from '@/lib/supabase/client';
 import { columns } from '@/lib/supabase/columns';
-import { assertOk, currentUserId, unwrap } from '@/lib/supabase/result';
+import { assertOk, currentUserId, unwrap, withoutId } from '@/lib/supabase/result';
 
 export const TECH_STACK_COLUMNS = columns('tech_stack', 'id', 'name', 'category', 'icon_url');
 
@@ -31,7 +31,7 @@ export async function updateTechStack(
   return unwrap(
     await supabase
       .from('tech_stack')
-      .update(updates)
+      .update(withoutId(updates))
       .eq('id', updates.id)
       .select(TECH_STACK_COLUMNS)
       .single(),

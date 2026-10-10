@@ -106,3 +106,21 @@ export async function uploadFile(
   } = bucket.getPublicUrl(data.path);
   return { path: data.path, publicUrl };
 }
+
+export interface UploadJob {
+  file: File;
+  folder: UploadFolder;
+  allowed?: readonly AllowedMimeType[];
+}
+
+/**
+ * Uploads several files, validating all of them first so one bad file doesn't leave
+ * the others orphaned in Storage. Returns the public URLs in job order.
+ */
+export async function uploadAll(jobs: readonly UploadJob[]): Promise<string[]> {
+  jobs.forEach(({ file, allowed }) => validateUpload(file, allowed));
+  const results = await Promise.all(
+    jobs.map(({ file, folder, allowed }) => uploadFile(file, folder, allowed)),
+  );
+  return results.map((r) => r.publicUrl);
+}

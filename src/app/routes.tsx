@@ -1,8 +1,8 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AdminRoute } from '@/app/AdminRoute';
 import PublicLayout from '@/app/layouts/PublicLayout';
 import Page from '@/pages/home';
-import AdminPage from '@/pages/admin';
 import LoginPage from '@/pages/login';
 import ProjectsPage from '@/pages/projects';
 import ProjectDetailPage from '@/pages/project-detail';
@@ -12,6 +12,9 @@ import AboutPage from '@/pages/about';
 import CertificatesPage from '@/pages/certificates';
 import PrivacyPage from '@/pages/privacy';
 import TermsPage from '@/pages/terms';
+
+// Admin-only code (dashboard, CRUD forms, react-hook-form) stays out of the public bundle.
+const AdminPage = lazy(() => import('@/pages/admin'));
 
 export function AppRoutes() {
   return (
@@ -32,7 +35,9 @@ export function AppRoutes() {
             path="admin"
             element={
               <AdminRoute>
-                <AdminPage />
+                <Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
+                  <AdminPage />
+                </Suspense>
               </AdminRoute>
             }
           />

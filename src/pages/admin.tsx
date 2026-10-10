@@ -76,6 +76,8 @@ export default function AdminPage() {
       <div className="md:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={isMobileMenuOpen}
           className="p-2 bg-white dark:bg-slate-900 rounded-lg shadow-md border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300"
         >
           {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}

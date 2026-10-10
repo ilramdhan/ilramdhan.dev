@@ -2,7 +2,14 @@ import type { Tables, TablesInsert, TablesUpdate } from '@/types';
 import { supabase } from '@/lib/supabase/client';
 import { columns } from '@/lib/supabase/columns';
 import { distinctSorted, fetchDistinct } from '@/lib/supabase/distinct';
-import { assertOk, currentUserId, pageRange, unwrap, unwrapPage } from '@/lib/supabase/result';
+import {
+  assertOk,
+  currentUserId,
+  pageRange,
+  unwrap,
+  withoutId,
+  unwrapPage,
+} from '@/lib/supabase/result';
 import { ilikeContains } from '@/lib/search';
 
 type Row = Tables<'blogs'>;
@@ -122,7 +129,7 @@ export async function updateBlog(updates: TablesUpdate<'blogs'> & { id: number }
   return unwrap(
     await supabase
       .from('blogs')
-      .update(updates)
+      .update(withoutId(updates))
       .eq('id', updates.id)
       .select(BLOG_ADMIN_COLUMNS)
       .single(),

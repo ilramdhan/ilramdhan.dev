@@ -44,3 +44,10 @@ export async function currentUserId(): Promise<string> {
   if (!session?.user?.id) throw new AuthError('User not authenticated.');
   return session.user.id;
 }
+
+/** An update body without the `id` (used only in the filter), so the primary key is never rewritten. */
+export function withoutId<T extends { id: number }>(updates: T): Omit<T, 'id'> {
+  const rest: Partial<T> = { ...updates };
+  delete rest.id;
+  return rest as Omit<T, 'id'>;
+}

@@ -14,6 +14,7 @@ const {
   UploadValidationError,
   acceptAttribute,
   buildUploadPath,
+  uploadAll,
   uploadFile,
   validateUpload,
 } = await import('./upload');
@@ -121,5 +122,39 @@ describe('uploadFile', () => {
     await expect(uploadFile(fakeFile('a.webp', 'image/webp'), 'blogs')).rejects.toThrow(
       /Upload failed for "a.webp": new row violates/,
     );
+  });
+});
+
+describe('uploadAll', () => {
+  it('uploads every file and returns the public URLs in order', async () => {
+    upload.mockImplementation((path) => Promise.resolve({ data: { path }, error: null }));
+    getPublicUrl.mockImplementation((path) => ({
+      data: { publicUrl: `https://cdn.test/${path}` },
+    }));
+    const urls = await uploadAll([
+      { file: fakeFile('a.png', 'image/png'), folder: 'projects', allowed: IMAGE_MIME_TYPES },
+      { file: fakeFile('cv.pdf', 'application/pdf'), folder: 'cv', allowed: PDF_MIME_TYPES },
+    ]);
+    expect(urls).toHaveLength(2);
+    expect(urls[0]).toMatch(/^https:\/\/cdn\.test\/projects\/.+\.png$/);
+    expect(urls[1]).toMatch(/^https:\/\/cdn\.test\/cv\/.+\.pdf$/);
+  });
+
+  it('uploads nothing when any file is invalid', async () => {
+    await expect(
+      uploadAll([
+        { file: fakeFile('a.png', 'image/png'), folder: 'projects', allowed: IMAGE_MIME_TYPES },
+        {
+          file: fakeFile('b.pdf', 'application/pdf'),
+          folder: 'projects',
+          allowed: IMAGE_MIME_TYPES,
+        },
+      ]),
+    ).rejects.toThrow(UploadValidationError);
+    expect(upload).not.toHaveBeenCalled();
+  });
+
+  it('resolves to an empty list for no jobs', async () => {
+    await expect(uploadAll([])).resolves.toEqual([]);
   });
 });
