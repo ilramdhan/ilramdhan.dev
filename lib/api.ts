@@ -1,6 +1,7 @@
 import { siteConfig } from '../config/site';
 import { Database } from '../types';
 import { supabase } from './supabase/client';
+import { ilikeContains, orIlikeFilter } from './search';
 
 // Extracting Row and Insert types for easier use
 type Profile = Database['public']['Tables']['profile']['Row'];
@@ -203,7 +204,8 @@ export const getBlogs = async ({
     .from('blogs')
     .select('*', { count: 'exact' })
     .order('published_at', { ascending: false });
-  if (searchQuery) query = query.ilike('title', `%${searchQuery}%`);
+  const titlePattern = ilikeContains(searchQuery);
+  if (titlePattern) query = query.ilike('title', titlePattern);
   if (tag) query = query.contains('tags', [tag]);
   const from = (page - 1) * limit;
   const to = from + limit - 1;
@@ -371,7 +373,8 @@ export const getCertificatesPaginated = async ({
     .from('certificates')
     .select('*', { count: 'exact' })
     .order('issued_date', { ascending: false });
-  if (searchQuery) q = q.or(`title.ilike.%${searchQuery}%,issued_by.ilike.%${searchQuery}%`);
+  const searchFilter = orIlikeFilter(['title', 'issued_by'], searchQuery);
+  if (searchFilter) q = q.or(searchFilter);
   if (issuer) q = q.eq('issued_by', issuer);
   const from = (page - 1) * limit;
   const to = from + limit - 1;
