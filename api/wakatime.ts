@@ -27,6 +27,8 @@ async function fetchWithRetry(url, options) {
       clearTimeout(timeout);
 
       if (!response.ok && shouldRetry(response.status) && attempt < MAX_RETRIES) {
+        // Release the unread body so the connection can be reused before retrying.
+        await response.body?.cancel().catch(() => {});
         const backoffMs = INITIAL_BACKOFF_MS * (2 ** attempt);
         await sleep(backoffMs);
         continue;
@@ -71,6 +73,8 @@ export default async function handler(req, res) {
     });
 
     if (!response.ok) {
+      const details = await response.text().catch(() => '');
+      console.error('Wakatime upstream error:', response.status, details.slice(0, 500));
       return res.status(response.status).json({ error: 'Failed to fetch from Wakatime' });
     }
 
