@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "lint:fix": "eslint . --fix",
@@ -18,7 +19,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "build:e2e": "vite build --outDir dist-e2e --emptyOutDir"
+    "build:e2e": "vite build --outDir dist-e2e --emptyOutDir",
+    "size": "node scripts/check-bundle-size.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^9.102.0",

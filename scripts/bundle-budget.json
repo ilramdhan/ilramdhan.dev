@@ -1,0 +1,33 @@
+{
+  "$comment": "Bundle-size budgets checked by scripts/check-bundle-size.mjs after `npm run build`. Sizes in KiB. Current values = today's sizes + ~3% headroom so CI blocks growth; tighten towards PLAN §3.6 as the bundle is split (#39).",
+  "budgets": [
+    {
+      "name": "JS total (gzip)",
+      "pattern": "\\.js$",
+      "metric": "gzip",
+      "aggregate": "sum",
+      "maxKiB": 1400
+    },
+    {
+      "name": "Largest JS chunk (gzip)",
+      "pattern": "\\.js$",
+      "metric": "gzip",
+      "aggregate": "max",
+      "maxKiB": 1400
+    },
+    {
+      "name": "CSS total (gzip)",
+      "pattern": "\\.css$",
+      "metric": "gzip",
+      "aggregate": "sum",
+      "maxKiB": 10.5
+    },
+    {
+      "name": "3D models (raw)",
+      "pattern": "\\.(glb|gltf)$",
+      "metric": "raw",
+      "aggregate": "sum",
+      "maxKiB": 3950
+    }
+  ]
+}

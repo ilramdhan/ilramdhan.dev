@@ -37,13 +37,14 @@ Database changes:
 3. Commit using [Conventional Commits](https://www.conventionalcommits.org/): `fix(blog): pass selected tag to getBlogs`.
 4. Before pushing, run:
    ```bash
-   npx tsc --noEmit
+   npm run typecheck
    npm run lint
    npm run format:check   # or `npm run format` to fix
-   npm run build
    npm test
+   npm run build && npm run size
    npm run test:e2e
    ```
+   CI runs the same commands on every PR (see [CI](#continuous-integration)).
 5. Open a PR using the template, link the issue (`Closes #123`), include screenshots for UI changes (mobile 375 px + desktop, light + dark).
 
 ## Tests
@@ -79,6 +80,33 @@ npx playwright show-report                  # HTML report of the last run
 - **Helpers:** `e2e/helpers/layout.ts` (`horizontalOverflow`, `overflowingElements`, `runningAnimations`, `observeCls`) and `e2e/helpers/a11y.ts` (`expectNoA11yViolations` — axe, **report-only**: violations are attached to the report; set `E2E_A11Y_ENFORCE=1` to make them fail).
 - **Home page is slow in tests:** its two WebGL loops (3D card + Vanta) starve the main thread under software rendering. Specs that interact with it install fake timers (`page.clock.install()` … `page.clock.pauseAt(...)`, then `clock.fastForward(ms)`) — see `e2e/contact.spec.ts`. Don't do this before axe runs (axe needs real timers).
 - **Known bugs:** mark a test `test.fixme(condition, 'description — #<issue>')` instead of letting it fail or deleting it (e.g. horizontal scroll from long words in detail-page titles at 320 px → #37, missing 404 page → #34). Remove the `fixme` in the PR that fixes the issue.
+
+## Continuous integration
+
+GitHub Actions runs on every pull request and on pushes to `main`:
+
+| Workflow                           | Job                                                    | What it does                                                                                                                                                                                                                                                                                                               |
+| ---------------------------------- | ------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `.github/workflows/ci.yml`         | **Typecheck, lint, unit tests, build & bundle budget** | `npm run typecheck`, `lint`, `format:check`, `npm test`, `npm run build`, `npm run size`                                                                                                                                                                                                                                   |
+| `.github/workflows/ci.yml`         | **E2E (Playwright)**                                   | `npx playwright install --with-deps chromium` + `npm run test:e2e`; on failure the HTML report, traces and screenshots are uploaded as the `playwright-report` artifact                                                                                                                                                    |
+| `.github/workflows/lighthouse.yml` | **Lighthouse (preview, warn-only)**                    | Runs on Vercel preview `deployment_status` events: Lighthouse CI on `/`, `/blog`, `/projects`; posts/updates a PR comment with scores and uploads the reports. Never fails the PR; skips when there is no preview URL or the preview is protected (non-200). Manual run: _Actions → Lighthouse → Run workflow_ with a URL. |
+
+**Bundle budget:** `npm run size` (`scripts/check-bundle-size.mjs`) checks `dist/assets` against `scripts/bundle-budget.json` (gzip sizes for JS/CSS, raw size for 3D models). Budgets are currently today's sizes plus a little headroom, so they block growth; they will be tightened towards [PLAN §3.6](docs/PLAN.md#36-performance-budget) as the bundle is split (#39). If a PR legitimately needs more, raise the budget in the same PR and explain why.
+
+**Dependabot** (`.github/dependabot.yml`): one grouped npm PR per week for minor/patch updates (majors come as separate PRs), and a monthly grouped PR for GitHub Actions. `@playwright/test` is pinned on purpose and excluded; bump it manually together with the browsers.
+
+### Branch protection (recommended for the owner)
+
+In _Settings → Branches → Add branch ruleset_ (or _Branch protection rules_) for `main`:
+
+1. **Require a pull request before merging** (approvals: 0 is fine for a solo repo; enable "Dismiss stale approvals" if you add reviewers).
+2. **Require status checks to pass** and **require branches to be up to date**. Select these checks (they appear after the first CI run):
+   - `Typecheck, lint, unit tests, build & bundle budget`
+   - `E2E (Playwright)`
+   - Leave `Lighthouse (preview, warn-only)` and the Vercel check optional for now.
+3. **Block force pushes** and **restrict deletions**.
+4. Optional: **Require linear history** if you prefer squash/rebase merges.
+5. Keep using Conventional Commits and add user-visible changes to `CHANGELOG.md`.
 
 ## Coding guidelines
 

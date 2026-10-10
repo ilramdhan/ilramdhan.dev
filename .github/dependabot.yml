@@ -1,0 +1,29 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: chore(deps)
+      prefix-development: chore(deps-dev)
+    groups:
+      # One PR per week for all non-breaking updates.
+      minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      # Pinned to match the Playwright browser build; bump deliberately (see CONTRIBUTING).
+      - dependency-name: '@playwright/test'
+      - dependency-name: playwright-core
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    commit-message:
+      prefix: ci
+    groups:
+      github-actions:
+        patterns: ['*']

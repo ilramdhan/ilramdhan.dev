@@ -1,0 +1,144 @@
+name: Lighthouse
+
+# Runs Lighthouse CI against Vercel preview deployments. Warn-only for now
+# (budgets from docs/PLAN.md §3.6); it never fails the PR. Needs no secrets:
+# reports go to Lighthouse's temporary public storage and the workflow artifact.
+on:
+  deployment_status:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: Base URL to audit (e.g. a Vercel preview URL)
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: lighthouse-${{ github.event.deployment.sha || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lighthouse:
+    name: Lighthouse (preview, warn-only)
+    # Only successful non-production deployments (Vercel previews), or manual runs.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       !contains(github.event.deployment.environment, 'Production'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve preview URL
+        id: url
+        env:
+          INPUT_URL: ${{ github.event.inputs.url }}
+          TARGET_URL: ${{ github.event.deployment_status.environment_url || github.event.deployment_status.target_url }}
+        run: |
+          url="${INPUT_URL:-$TARGET_URL}"
+          url="${url%/}"
+          if [ -z "$url" ]; then
+            echo "::warning::No preview URL in this event; skipping Lighthouse."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          code=$(curl -s -o /dev/null -w '%{http_code}' -L "$url/" || echo 000)
+          if [ "$code" != "200" ]; then
+            echo "::warning::$url/ answered HTTP $code (protected or unavailable preview?); skipping Lighthouse."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        if: steps.url.outputs.skip != 'true'
+        with:
+          node-version: 22
+
+      - name: Run Lighthouse CI
+        id: lhci
+        if: steps.url.outputs.skip != 'true'
+        continue-on-error: true
+        env:
+          BASE: ${{ steps.url.outputs.url }}
+        run: |
+          npx --yes @lhci/cli@0.15.1 autorun \
+            --collect.url="$BASE/" \
+            --collect.url="$BASE/blog" \
+            --collect.url="$BASE/projects" \
+            2>&1 | tee lhci.log
+
+      - name: Summarize
+        if: steps.url.outputs.skip != 'true'
+        continue-on-error: true
+        env:
+          BASE: ${{ steps.url.outputs.url }}
+        run: |
+          {
+            echo "### Lighthouse (warn-only) — $BASE"
+            echo
+            echo "| URL | Perf | A11y | Best practices | SEO |"
+            echo "| --- | ---: | ---: | ---: | ---: |"
+            for f in .lighthouseci/lhr-*.json; do
+              [ -e "$f" ] || continue
+              jq -r '"| \(.finalDisplayedUrl // .finalUrl) | \(((.categories.performance.score // 0)*100|floor)) | \(((.categories.accessibility.score // 0)*100|floor)) | \(((.categories["best-practices"].score // 0)*100|floor)) | \(((.categories.seo.score // 0)*100|floor)) |"' "$f"
+            done
+            echo
+            grep -Eo 'https://storage.googleapis.com/[^ ]+' lhci.log | sed 's/^/- Report: /' || true
+          } > lighthouse-summary.md
+          cat lighthouse-summary.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Lighthouse reports
+        if: steps.url.outputs.skip != 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-report
+          path: |
+            .lighthouseci/
+            lighthouse-summary.md
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: Comment on the pull request
+        if: steps.url.outputs.skip != 'true' && github.event_name == 'deployment_status'
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const sha = context.payload.deployment.sha;
+            const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: sha,
+            });
+            const pr = prs.find((p) => p.state === 'open');
+            if (!pr) return core.info(`No open PR for ${sha}`);
+            const marker = '<!-- lighthouse-ci -->';
+            const body = `${marker}\n${fs.readFileSync('lighthouse-summary.md', 'utf8')}\n_Commit ${sha.slice(0, 7)} · warn-only, budgets in docs/PLAN.md §3.6_`;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              per_page: 100,
+            });
+            const existing = comments.find((c) => c.body?.includes(marker));
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pr.number,
+                body,
+              });
+            }
