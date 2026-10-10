@@ -13,6 +13,11 @@ All notable changes to this project are documented here. The format follows [Kee
 
 ### Changed
 - README rewritten: accurate stack, setup, project structure, docs links.
+- `react-router-dom` bumped to 6.30.6; `@vercel/node` moved to devDependencies; non-breaking `npm audit fix` (T-02).
+
+### Removed
+- Dead code and assets: `components/band.tsx`, `app/layout.tsx`, `experimental/`, `metadata.json`, `public/next.svg`, `public/vercel.svg`, `public/assets/images/{front,back}.png`, `delay()`, `submitContactForm()` (T-02).
+- Unused dependencies: `next-themes`, `class-variance-authority`, `@supabase/ssr`, `@types/recharts` (T-02).
 
 ## [0.1.0] - 2026
 
