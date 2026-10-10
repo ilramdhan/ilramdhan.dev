@@ -14,7 +14,7 @@ import { projectQueries } from '@/features/projects/queries';
 import { blogQueries } from '@/features/blog/queries';
 import { techStackQueries } from '@/features/tech-stack/queries';
 import { serviceQueries } from '@/features/services/queries';
-import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { Seo } from '@/components/seo/Seo';
 import { useInView } from '@/lib/hooks';
 import { formatDate } from '@/lib/date';
 import { Img } from '@/components/ui/Img';
@@ -33,12 +33,6 @@ export default function Page() {
 
   const marqueeRef = useRef<HTMLDivElement>(null);
   const marqueeInView = useInView(marqueeRef);
-
-  useDocumentMeta({
-    title: undefined, // Uses default: "Ilham Ramadhan | Web Developer & Portfolio"
-    description:
-      "Ilham Ramadhan's personal portfolio — showcasing projects, skills, certifications, and blog posts.",
-  });
 
   // Not read here, but keeps the shared ['profile'] query subscribed on the home page.
   useQuery(profileQueries.detail());
@@ -61,6 +55,7 @@ export default function Page() {
 
   return (
     <MotionScope>
+      <Seo description="Ilham Ramadhan's personal portfolio — showcasing projects, skills, certifications, and blog posts." />
       <Navbar />
       <main className="min-h-screen">
         <Hero />

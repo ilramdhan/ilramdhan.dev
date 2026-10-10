@@ -6,6 +6,7 @@ import { ArrowLeft } from 'lucide-react';
 import { profileQueries } from '@/features/profile/queries';
 import { Navbar } from '@/app/layouts/Navbar';
 import { formatDate } from '@/lib/date';
+import { Seo } from '@/components/seo/Seo';
 
 export default function PrivacyPage() {
   const navigate = useNavigate();
@@ -21,6 +22,7 @@ export default function PrivacyPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
+      <Seo title="Privacy Policy" description="Privacy Policy for ilramdhan.dev." />
       <Navbar />
       <div className="pt-32 pb-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <button
@@ -32,7 +34,7 @@ export default function PrivacyPage() {
         <h1 className="text-4xl font-bold mb-8">Privacy Policy</h1>
         <div className="prose prose-slate dark:prose-invert max-w-none">
           <p className="text-sm text-slate-500 mb-8">Last updated: {formatDate(new Date())}</p>
-          <ReactMarkdown>
+          <ReactMarkdown components={{ h1: 'h2' }}>
             {profile?.privacy_content || 'No privacy policy content available.'}
           </ReactMarkdown>
         </div>

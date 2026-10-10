@@ -6,17 +6,12 @@ import { ProjectCard } from '@/features/projects/ProjectCard';
 import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
 import { projectQueries } from '@/features/projects/queries';
 import { useListParams } from '@/lib/useListParams';
-import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { Seo } from '@/components/seo/Seo';
 
 const ITEMS_PER_PAGE = 6;
 
 export default function ProjectsPage() {
   const { filter: selectedTag, page: currentPage, setFilter, setPage } = useListParams('tag');
-
-  useDocumentMeta({
-    title: 'Projects',
-    description: 'A collection of applications, tools, and experiments by Ilham Ramadhan.',
-  });
 
   const { data: allTags, isLoading: isLoadingTags } = useQuery(projectQueries.tags());
 
@@ -41,6 +36,10 @@ export default function ProjectsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+      <Seo
+        title="Projects"
+        description="A collection of applications, tools, and experiments by Ilham Ramadhan."
+      />
       <Navbar />
       <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="mb-12">

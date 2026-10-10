@@ -7,7 +7,7 @@ import { Navbar } from '@/app/layouts/Navbar';
 import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
 import { certificateQueries } from '@/features/certificates/queries';
 import { useListParams } from '@/lib/useListParams';
-import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { Seo } from '@/components/seo/Seo';
 
 const ITEMS_PER_PAGE = 9;
 
@@ -21,11 +21,6 @@ export default function CertificatesPage() {
     setFilter: handleIssuerFilter,
     setPage,
   } = useListParams('issuer');
-
-  useDocumentMeta({
-    title: 'Certificates',
-    description: 'Browse all professional certifications and achievements.',
-  });
 
   const { data: allIssuers, isLoading: isLoadingIssuers } = useQuery(certificateQueries.issuers());
 
@@ -53,6 +48,10 @@ export default function CertificatesPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
+      <Seo
+        title="Certificates"
+        description="Browse all professional certifications and achievements."
+      />
       <Navbar />
       <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}

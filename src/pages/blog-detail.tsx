@@ -9,7 +9,7 @@ import { Navbar } from '@/app/layouts/Navbar';
 import { addComment as addCommentAPI } from '@/features/blog/api';
 import { blogKeys, blogQueries } from '@/features/blog/queries';
 import { isNotFoundError } from '@/lib/errors';
-import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { Seo } from '@/components/seo/Seo';
 import { ImageCarousel } from '@/features/projects/ImageCarousel';
 import { formatDate } from '@/lib/date';
 
@@ -27,12 +27,6 @@ export default function BlogDetailPage() {
     error,
     refetch,
   } = useQuery(blogQueries.detail(slug ?? ''));
-
-  useDocumentMeta({
-    title: blog?.title,
-    description: blog?.excerpt || undefined,
-    ogImage: blog?.images?.[0] || undefined,
-  });
 
   const { data: comments, isLoading: isLoadingComments } = useQuery(blogQueries.comments(blog?.id));
 
@@ -126,6 +120,12 @@ export default function BlogDetailPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors">
+      <Seo
+        title={blog.title}
+        description={blog.excerpt || undefined}
+        image={blog.images?.[0] || undefined}
+        type="article"
+      />
       <Navbar />
 
       <div className="w-full h-96 relative bg-slate-200 dark:bg-slate-900">
@@ -172,7 +172,7 @@ export default function BlogDetailPage() {
           <p className="lead text-xl text-slate-600 dark:text-slate-300 mb-8 font-light">
             {blog.excerpt}
           </p>
-          <ReactMarkdown>{blog.content || ''}</ReactMarkdown>
+          <ReactMarkdown components={{ h1: 'h2' }}>{blog.content || ''}</ReactMarkdown>
         </div>
 
         <hr className="border-slate-200 dark:border-white/10 mb-12" />

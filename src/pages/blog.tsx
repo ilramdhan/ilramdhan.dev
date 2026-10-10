@@ -8,7 +8,7 @@ import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
 import { blogQueries } from '@/features/blog/queries';
 import { formatDate } from '@/lib/date';
 import { useListParams } from '@/lib/useListParams';
-import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { Seo } from '@/components/seo/Seo';
 import { Img } from '@/components/ui/Img';
 
 const ITEMS_PER_PAGE = 6;
@@ -24,11 +24,6 @@ export default function BlogPage() {
     setFilter,
     setPage,
   } = useListParams('tag');
-
-  useDocumentMeta({
-    title: 'Blog',
-    description: 'Insights, thoughts, and tutorials on web development, design, and technology.',
-  });
 
   const { data: allBlogTags, isLoading: isLoadingTags } = useQuery(blogQueries.tags());
 
@@ -60,6 +55,10 @@ export default function BlogPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
+      <Seo
+        title="Blog"
+        description="Insights, thoughts, and tutorials on web development, design, and technology."
+      />
       <Navbar />
       <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="mb-12">

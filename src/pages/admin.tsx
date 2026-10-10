@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Seo } from '@/components/seo/Seo';
 import { MotionScope } from '@/components/motion';
 import { useAuth } from '@/app/auth';
 import { ProjectsTab } from '@/pages/admin/ProjectsTab';
@@ -74,6 +75,7 @@ export default function AdminPage() {
   return (
     <MotionScope>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex transition-colors relative">
+        <Seo title="Admin" noindex />
         {/* Mobile Menu Button */}
         <div className="md:hidden fixed top-4 left-4 z-50">
           <button
