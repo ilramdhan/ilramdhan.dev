@@ -36,9 +36,10 @@ function siteConfigHtml(): Plugin {
       order: 'pre',
       handler(html) {
         return {
-          html: html.replace(/%(SITE_[A-Z_]+)%/g, (match, key: string) =>
-            key in replacements ? escapeHtml(replacements[key]) : match,
-          ),
+          html: html.replace(/%(SITE_[A-Z_]+)%/g, (match, key: string) => {
+            const value = replacements[key];
+            return value === undefined ? match : escapeHtml(value);
+          }),
           tags: [
             {
               tag: 'script',

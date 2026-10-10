@@ -61,7 +61,6 @@ export default function AboutPage() {
     queryFn: api.getCertificates,
   });
   const {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO(#18)
     data: wakatime,
     isLoading: isLoadingWakatime,
     isError: isWakatimeError,
@@ -71,7 +70,6 @@ export default function AboutPage() {
     retry: false,
   });
   const {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO(#18)
     data: wakatimeActivity,
     isLoading: isLoadingWakatimeActivity,
     isError: isWakatimeActivityError,
@@ -82,8 +80,6 @@ export default function AboutPage() {
   });
 
   const isLoading = isLoadingProfile || isLoadingExp || isLoadingEdu || isLoadingCerts;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO(#18)
-  const statsTheme = theme === 'dark' ? 'dark' : 'default';
 
   const getGithubUsername = (url: string | undefined) => {
     if (!url) return '';
@@ -95,8 +91,9 @@ export default function AboutPage() {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access -- TODO(#18)
-  const username = getGithubUsername(ensureFullUrl((profile?.social_links as any)?.github));
+  const username = getGithubUsername(
+    ensureFullUrl((profile?.social_links as Record<string, string> | null)?.github),
+  );
   const resumeUrl = ensureFullUrl(profile?.resume_url);
 
   if (isLoading) {
@@ -137,9 +134,9 @@ export default function AboutPage() {
                     if (!value) return null;
                     const Icon = SocialIconMap[key];
                     if (!Icon) return null;
-                    const href =
-                      // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions -- TODO(#18)
-                      key === 'mail' ? `mailto:${value}` : ensureFullUrl(value as string) || '#';
+                    // social_links values are URLs / addresses stored as strings.
+                    const link = value as string;
+                    const href = key === 'mail' ? `mailto:${link}` : ensureFullUrl(link) || '#';
                     return (
                       <a
                         key={key}
@@ -313,7 +310,6 @@ export default function AboutPage() {
           </h2>
 
           {/* Wakatime Stats - Using Public JSON Data */}
-          {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- TODO(#18) */}
           {!isWakatimeError && !isLoadingWakatime && wakatime?.data && (
             <div className="space-y-8 max-w-4xl mx-auto mb-12">
               {/* Custom Top Languages Visualization */}
@@ -322,24 +318,19 @@ export default function AboutPage() {
                   Languages (Last 7 Days)
                 </h3>
                 <div className="space-y-4">
-                  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- TODO(#18) */}
-                  {wakatime.data.slice(0, 5).map((lang: any) => (
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access -- TODO(#18)
+                  {wakatime.data.slice(0, 5).map((lang) => (
                     <div key={lang.name}>
                       <div className="flex justify-between text-sm mb-1">
                         <span className="text-slate-700 dark:text-slate-300 font-medium">
-                          {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- TODO(#18) */}
                           {lang.name}
                         </span>
                         <span className="text-slate-500">
-                          {/* eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- TODO(#18) */}
                           {lang.text} ({lang.percent}%)
                         </span>
                       </div>
                       <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
                         <div
                           className="bg-indigo-600 h-2.5 rounded-full transition-all duration-1000"
-                          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access -- TODO(#18)
                           style={{ width: `${lang.percent}%` }}
                         />
                       </div>
@@ -349,7 +340,6 @@ export default function AboutPage() {
               </div>
 
               {!isLoadingWakatimeActivity && !isWakatimeActivityError && wakatimeActivity && (
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO(#18)
                 <WakatimeStats data={wakatimeActivity} />
               )}
             </div>

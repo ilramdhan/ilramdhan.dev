@@ -26,21 +26,21 @@ import { MessagesTab } from './admin/MessagesTab';
 import { CertificatesTab } from './admin/CertificatesTab';
 import { TechStackTab } from './admin/TechStackTab';
 
+type AdminTab =
+  | 'overview'
+  | 'resume'
+  | 'services'
+  | 'projects'
+  | 'blog'
+  | 'messages'
+  | 'certificates'
+  | 'techstack';
+
 export default function AdminPage() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<
-    | 'overview'
-    | 'resume'
-    | 'services'
-    | 'projects'
-    | 'blog'
-    | 'messages'
-    | 'certificates'
-    | 'techstack'
-  >('overview');
+  const [activeTab, setActiveTab] = useState<AdminTab>('overview');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO(#18)
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
 
   const handleLogout = async () => {
     await logout();
@@ -59,7 +59,7 @@ export default function AdminPage() {
     techstack: <TechStackTab />,
   };
 
-  const menuItems = [
+  const menuItems: { id: AdminTab; icon: React.ElementType; label: string }[] = [
     { id: 'overview', icon: User, label: 'Overview' },
     { id: 'resume', icon: Briefcase, label: 'Resume' },
     { id: 'services', icon: Zap, label: 'Services' },
@@ -103,8 +103,7 @@ export default function AdminPage() {
             {menuItems.map((t) => (
               <button
                 key={t.id}
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument -- TODO(#18)
-                onClick={() => setActiveTab(t.id as any)}
+                onClick={() => setActiveTab(t.id)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === t.id ? 'bg-indigo-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'}`}
               >
                 <t.icon className="h-4 w-4" />
@@ -113,8 +112,7 @@ export default function AdminPage() {
             ))}
 
             <button
-              // eslint-disable-next-line @typescript-eslint/no-misused-promises -- TODO(#18)
-              onClick={handleLogout}
+              onClick={() => void handleLogout()}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 mt-8"
             >
               <LogOut className="h-4 w-4" /> Logout
@@ -166,8 +164,7 @@ export default function AdminPage() {
                     <button
                       key={t.id}
                       onClick={() => {
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument -- TODO(#18)
-                        setActiveTab(t.id as any);
+                        setActiveTab(t.id);
                         setIsMobileMenuOpen(false);
                       }}
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === t.id ? 'bg-indigo-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'}`}
@@ -178,8 +175,7 @@ export default function AdminPage() {
                   ))}
 
                   <button
-                    // eslint-disable-next-line @typescript-eslint/no-misused-promises -- TODO(#18)
-                    onClick={handleLogout}
+                    onClick={() => void handleLogout()}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 mt-8"
                   >
                     <LogOut className="h-4 w-4" /> Logout

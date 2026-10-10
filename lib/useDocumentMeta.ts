@@ -16,7 +16,7 @@ const DEFAULT_OG_IMAGE = siteConfig.ogDefaultImage;
 
 function setMetaTag(property: string, content: string, isName = false) {
   const selector = isName ? `meta[name="${property}"]` : `meta[property="${property}"]`;
-  let element = document.querySelector(selector) as HTMLMetaElement | null;
+  let element = document.querySelector<HTMLMetaElement>(selector);
 
   if (!element) {
     element = document.createElement('meta');

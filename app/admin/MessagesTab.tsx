@@ -19,8 +19,7 @@ export function MessagesTab() {
   const deleteMutation = useMutation({
     mutationFn: (id: number) => api.deleteMessage(id),
     onSuccess: () => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
-      queryClient.invalidateQueries({ queryKey: ['messages'] });
+      void queryClient.invalidateQueries({ queryKey: ['messages'] });
       toast.info('Message deleted.');
     },
   });
@@ -28,16 +27,14 @@ export function MessagesTab() {
   const markReadMutation = useMutation({
     mutationFn: (id: number) => api.markMessageAsRead(id),
     onSuccess: () => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
-      queryClient.invalidateQueries({ queryKey: ['messages'] });
+      void queryClient.invalidateQueries({ queryKey: ['messages'] });
     },
   });
 
   const markAllReadMutation = useMutation({
     mutationFn: api.markAllMessagesAsRead,
     onSuccess: () => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
-      queryClient.invalidateQueries({ queryKey: ['messages'] });
+      void queryClient.invalidateQueries({ queryKey: ['messages'] });
       toast.success('All messages marked as read.');
     },
   });
@@ -57,8 +54,7 @@ export function MessagesTab() {
     for (const id of selectedMessages) {
       await api.deleteMessage(id);
     }
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
-    queryClient.invalidateQueries({ queryKey: ['messages'] });
+    void queryClient.invalidateQueries({ queryKey: ['messages'] });
     setSelectedMessages([]);
     toast.success('Messages deleted.');
   };
@@ -74,8 +70,7 @@ export function MessagesTab() {
         <div className="flex gap-2">
           {selectedMessages.length > 0 && (
             <button
-              // eslint-disable-next-line @typescript-eslint/no-misused-promises -- TODO(#18)
-              onClick={handleBulkDelete}
+              onClick={() => void handleBulkDelete()}
               className="btn-secondary text-red-500 border-red-200 hover:bg-red-50"
             >
               Delete Selected ({selectedMessages.length})

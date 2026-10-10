@@ -16,13 +16,14 @@ export type ContactState = {
   success?: boolean;
 };
 
-// We will inject the Store context method in the component for this demo
-// This is a helper validation function now
-// eslint-disable-next-line @typescript-eslint/require-await -- TODO(#18)
-export async function validateContactForm(
-  formData: FormData,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- TODO(#18)
-): Promise<{ success: boolean; data?: any; error?: any }> {
+export type ContactFields = z.infer<typeof ContactSchema>;
+
+export type ContactValidation =
+  | { success: true; data: ContactFields }
+  | { success: false; error: NonNullable<ContactState['errors']> };
+
+// Client-side validation of the contact form.
+export function validateContactForm(formData: FormData): ContactValidation {
   const validatedFields = ContactSchema.safeParse({
     name: formData.get('name'),
     email: formData.get('email'),

@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@/types.ts';
+import type { Database } from '@/types';
 import { env, envErrors } from '../env';
 
 // Env vars are validated in `lib/env.ts` (see `.env.example`). When they are

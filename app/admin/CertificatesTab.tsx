@@ -35,8 +35,7 @@ export function CertificatesTab() {
   const mutationOptions = {
     onError: (error: Error) => toast.error(error.message),
     onSuccess: () => {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
-      queryClient.invalidateQueries({ queryKey: ['certificates'] });
+      void queryClient.invalidateQueries({ queryKey: ['certificates'] });
       setIsFormOpen(false);
     },
   };
@@ -106,7 +105,7 @@ export function CertificatesTab() {
     };
 
     if (editingCert) {
-      updateMutation.mutate({ ...payload, id: editingCert.id } as Certificate);
+      updateMutation.mutate({ ...payload, id: editingCert.id });
     } else {
       addMutation.mutate(payload as Omit<CertificateInsert, 'user_id'>);
     }
@@ -126,8 +125,7 @@ export function CertificatesTab() {
       </div>
 
       {isFormOpen && (
-        // eslint-disable-next-line @typescript-eslint/no-misused-promises -- TODO(#18)
-        <form onSubmit={handleSubmit} className="form-container mb-6">
+        <form onSubmit={(e) => void handleSubmit(e)} className="form-container mb-6">
           <h3 className="font-medium mb-4">
             {editingCert ? 'Edit Certificate' : 'New Certificate'}
           </h3>
@@ -179,7 +177,7 @@ export function CertificatesTab() {
             <label className="block text-sm font-medium mb-1">Certificate File (PDF/Image)</label>
             <input
               type="file"
-              onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               className="input-file"
             />
             {formState.file_url && (
