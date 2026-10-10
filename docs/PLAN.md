@@ -296,7 +296,8 @@ Legend: **Deps** = must be merged first · ⚡ = quick win, can be done any time
 - **AC:** securityheaders.com grade ≥ A on the preview; no CSP violations in e2e console.
 
 #### T-13 Decide & fix the Wakatime proxy — `SEC-06` ⚡
-- **Steps:** Either delete `api/wakatime.ts` + `@vercel/node`, or make it the only client of Wakatime (key in `Authorization` header, generic errors, `s-maxage=3600, stale-while-revalidate=86400`, GET only) and have the client call `/api/wakatime`. Recommended: keep public share JSON on the client (no secret), delete the function.
+- **Context:** PR #13 already hardened the handler (header auth, GET only, timeout/retry, generic errors). What's left is deciding whether it's used at all.
+- **Steps:** Either delete `api/wakatime.ts` + `@vercel/node` (keep the public share JSON on the client, no secret involved), or make it the only client of Wakatime (add `stale-while-revalidate=86400`, types) and switch the client to `/api/wakatime` to get private stats. Ask the owner which one.
 - **AC:** no unused function deployed; no secret in URLs.
 
 ### Phase 2 — Structure & DRY
