@@ -12,6 +12,8 @@ All notable changes to this project are documented here. The format follows [Kee
 - GitHub issue forms (bug, feature, improvement), issue template config and pull request template.
 - `.env.example`.
 - ESLint 9 flat config (typescript-eslint type-aware, react-hooks, react-refresh, jsx-a11y, import), Prettier, `.editorconfig`, and `lint:fix` / `format` / `format:check` scripts (T-01).
+- `lib/env.ts`: zod validation of `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`; missing or invalid values show a readable configuration error screen instead of a blank page (T-07).
+- `config/site.ts`: central site config; `index.html` meta tags and JSON-LD are injected from it at build time (T-07).
 
 ### Changed
 

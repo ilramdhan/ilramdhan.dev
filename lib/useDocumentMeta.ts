@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { siteConfig } from '../config/site';
 
 interface MetaOptions {
   title?: string;
@@ -8,10 +9,10 @@ interface MetaOptions {
   ogType?: string;
 }
 
-const SITE_NAME = 'Ilham Ramadhan';
-const DEFAULT_DESCRIPTION =
-  "Ilham Ramadhan's personal portfolio website showcasing projects, skills, and blog posts.";
-const DEFAULT_OG_IMAGE = '/logo.png';
+const SITE_NAME = siteConfig.name;
+const DEFAULT_TITLE = siteConfig.title;
+const DEFAULT_DESCRIPTION = siteConfig.metaDescription;
+const DEFAULT_OG_IMAGE = siteConfig.ogDefaultImage;
 
 function setMetaTag(property: string, content: string, isName = false) {
   const selector = isName ? `meta[name="${property}"]` : `meta[property="${property}"]`;
@@ -37,9 +38,7 @@ export function useDocumentMeta({
   ogType = 'website',
 }: MetaOptions = {}) {
   useEffect(() => {
-    const fullTitle = title
-      ? `${title} | ${SITE_NAME}`
-      : `${SITE_NAME} | Web Developer & Portfolio`;
+    const fullTitle = title ? `${title} | ${SITE_NAME}` : DEFAULT_TITLE;
     const metaDescription = description || DEFAULT_DESCRIPTION;
     const metaImage = ogImage || DEFAULT_OG_IMAGE;
     const metaUrl = ogUrl || window.location.href;
@@ -66,7 +65,7 @@ export function useDocumentMeta({
 
     return () => {
       // Reset to defaults when component unmounts
-      document.title = `${SITE_NAME} | Web Developer & Portfolio`;
+      document.title = DEFAULT_TITLE;
     };
   }, [title, description, ogImage, ogUrl, ogType]);
 }

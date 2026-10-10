@@ -5,40 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <!-- Primary Meta Tags -->
-    <title>Ilham Ramadhan | Web Developer & Portfolio</title>
-    <meta name="title" content="Ilham Ramadhan | Web Developer & Portfolio" />
-    <meta
-      name="description"
-      content="Ilham Ramadhan's personal portfolio — showcasing projects, skills, certifications, and blog posts on web development, design, and technology."
-    />
-    <meta name="author" content="Ilham Ramadhan" />
+    <title>%SITE_TITLE%</title>
+    <meta name="title" content="%SITE_TITLE%" />
+    <meta name="description" content="%SITE_DESCRIPTION%" />
+    <meta name="author" content="%SITE_NAME%" />
     <meta name="robots" content="index, follow" />
-    <link rel="canonical" href="https://ilramdhan.dev/" />
+    <link rel="canonical" href="%SITE_URL%" />
 
     <!-- Theme Color -->
     <meta name="theme-color" content="#4f46e5" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://ilramdhan.dev/" />
-    <meta property="og:title" content="Ilham Ramadhan | Web Developer & Portfolio" />
-    <meta
-      property="og:description"
-      content="Showcasing projects, skills, certifications, and blog posts on web development, design, and technology."
-    />
-    <meta property="og:image" content="https://ilramdhan.dev/logo.png" />
-    <meta property="og:site_name" content="Ilham Ramadhan" />
+    <meta property="og:url" content="%SITE_URL%" />
+    <meta property="og:title" content="%SITE_TITLE%" />
+    <meta property="og:description" content="%SITE_OG_DESCRIPTION%" />
+    <meta property="og:image" content="%SITE_OG_IMAGE%" />
+    <meta property="og:site_name" content="%SITE_NAME%" />
     <meta property="og:locale" content="en_US" />
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://ilramdhan.dev/" />
-    <meta name="twitter:title" content="Ilham Ramadhan | Web Developer & Portfolio" />
-    <meta
-      name="twitter:description"
-      content="Showcasing projects, skills, certifications, and blog posts on web development, design, and technology."
-    />
-    <meta name="twitter:image" content="https://ilramdhan.dev/logo.png" />
+    <meta name="twitter:url" content="%SITE_URL%" />
+    <meta name="twitter:title" content="%SITE_TITLE%" />
+    <meta name="twitter:description" content="%SITE_OG_DESCRIPTION%" />
+    <meta name="twitter:image" content="%SITE_OG_IMAGE%" />
 
     <!-- Preconnect Hints -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -58,19 +49,7 @@
       media="(prefers-color-scheme: dark)"
     />
 
-    <!-- Structured Data (JSON-LD) -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Person",
-        "name": "Ilham Ramadhan",
-        "url": "https://ilramdhan.dev",
-        "jobTitle": "Web Developer",
-        "sameAs": ["https://github.com/ilramadhan", "https://linkedin.com/in/ilramadhan"],
-        "image": "https://ilramdhan.dev/logo.png",
-        "description": "Web developer specializing in modern web technologies. Portfolio showcasing projects, skills, and blog posts."
-      }
-    </script>
+    <!-- Structured Data (JSON-LD) is injected from config/site.ts by vite.config.ts -->
   </head>
   <body>
     <div id="root"></div>

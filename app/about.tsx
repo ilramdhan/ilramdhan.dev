@@ -18,6 +18,7 @@ import {
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { Navbar } from '../components/Navbar';
+import { githubProfileUrl, siteConfig } from '../config/site';
 import * as api from '../lib/api';
 import { useTheme } from '../lib/ThemeContext';
 import WakatimeStats from '../components/WakatimeStats';
@@ -355,7 +356,7 @@ export default function AboutPage() {
           {username && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 gap-6">
-                <a href="https://github.com/ilramdhan">
+                <a href={githubProfileUrl}>
                   <img
                     src={`https://github-readme-activity-graph.vercel.app/graph?username=${username}&theme=${theme === 'dark' ? 'high-contrast' : 'merko'}&hide_border=true&area=true`}
                     alt="GitHub Activity Graph"
@@ -365,7 +366,7 @@ export default function AboutPage() {
               </div>
               <div className="flex justify-center">
                 <img
-                  src="https://raw.githubusercontent.com/ilramdhan/Snake-in-Contribution-Grid/output/github-contribution-grid-snake.svg"
+                  src={`https://raw.githubusercontent.com/${siteConfig.githubUsername}/Snake-in-Contribution-Grid/output/github-contribution-grid-snake.svg`}
                   alt="GitHub Contribution Grid Snake"
                   className="max-w-full"
                 />

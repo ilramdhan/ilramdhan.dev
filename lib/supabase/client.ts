@@ -1,21 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '@/types.ts';
+import { env, envErrors } from '../env';
 
-// IMPORTANT: Create a .env.local file in the root of your project
-// and add your Supabase URL and Anon Key there.
-//
-// VITE_SUPABASE_URL=your_supabase_url
-// VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO(#18)
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO(#18)
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  // throw new Error('Missing Supabase URL or Anon Key. Make sure to set them in your .env.local file.');
-  console.warn('Missing Supabase URL or Anon Key. Make sure to set them in your .env.local file.');
+// Env vars are validated in `lib/env.ts` (see `.env.example`). When they are
+// missing, a placeholder keeps `createClient` from throwing at import time;
+// `index.tsx` renders a configuration error screen instead of the app, so the
+// placeholder client is never used for real requests.
+if (envErrors.length > 0) {
+  console.error(`Invalid environment configuration:\n- ${envErrors.join('\n- ')}`);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-argument -- TODO(#18)
-export const supabase = createClient<Database>(supabaseUrl || '', supabaseAnonKey || '');
+export const supabase = createClient<Database>(
+  env?.VITE_SUPABASE_URL ?? 'http://localhost.invalid',
+  env?.VITE_SUPABASE_ANON_KEY ?? 'missing-anon-key',
+);
