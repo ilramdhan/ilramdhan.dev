@@ -2,12 +2,12 @@
 export interface PublicRoute {
   name: string;
   path: string;
-  /** Expected H1 text; `null` = any non-empty H1 (e.g. the typewriter hero). */
+  /** Expected H1 text; `null` = any non-empty H1 . */
   h1: string | RegExp | null;
 }
 
 export const PUBLIC_ROUTES: PublicRoute[] = [
-  { name: 'home', path: '/', h1: null },
+  { name: 'home', path: '/', h1: 'Dummy Dev' },
   { name: 'about', path: '/about', h1: 'Dummy Dev' },
   { name: 'projects', path: '/projects', h1: 'All Projects' },
   { name: 'project detail', path: '/projects/project-1', h1: 'Project 1' },
