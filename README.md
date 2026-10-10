@@ -1,4 +1,4 @@
-# Portfolio Website
+# Portfolio Website Ilramdhan.dev
 
 A modern, responsive portfolio website built with React, Vite, Tailwind CSS, and Supabase. This project showcases a developer's profile, projects, blog posts, and technical skills with a clean and interactive UI.
 
@@ -103,6 +103,9 @@ The project uses the following tables in Supabase:
     VITE_SUPABASE_URL=your_supabase_project_url
     VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
     ```
+
+    - [ ] Never expose non-`VITE_` secrets to frontend bundle
+
 
 4.  **Run the development server**
     ```bash
