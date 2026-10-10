@@ -1,5 +1,11 @@
 import { expect, test } from './fixtures/test';
-import { horizontalOverflow, overflowingElements, runningAnimations } from './helpers/layout';
+import {
+  cumulativeLayoutShift,
+  horizontalOverflow,
+  observeLayoutShift,
+  overflowingElements,
+  runningAnimations,
+} from './helpers/layout';
 import { PUBLIC_ROUTES } from './routes';
 
 for (const route of PUBLIC_ROUTES) {
@@ -52,6 +58,26 @@ for (const route of PUBLIC_ROUTES) {
   });
 }
 
+// T-26 (#41): CLS < 0.1 on home and every list/detail page at every matrix width. Data
+// arrives 600 ms late (like a cold Supabase request) so skeleton -> content swaps count.
+const CLS_ROUTES = PUBLIC_ROUTES.filter((r) => !['login', 'privacy', 'terms'].includes(r.name));
+for (const route of CLS_ROUTES) {
+  test(`${route.name} (${route.path}) layout shift stays under 0.1`, async ({ page }) => {
+    await observeLayoutShift(page);
+    await page.route('https://mock.supabase.co/**', async (r) => {
+      await new Promise((resolve) => setTimeout(resolve, 600));
+      await r.fallback();
+    });
+    await page.goto(route.path);
+    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+    await page.waitForLoadState('networkidle');
+    // Let late images/fonts settle; CLS is read after everything has rendered.
+    await page.waitForTimeout(500);
+    const cls = await cumulativeLayoutShift(page);
+    expect(cls.value, `CLS (moved: ${[...new Set(cls.sources)].join(', ')})`).toBeLessThan(0.1);
+  });
+}
+
 for (const path of ['/this-page-does-not-exist', '/blog/unknown-slug', '/projects/unknown-slug']) {
   test(`unknown URL ${path} shows the 404 page with navbar and footer`, async ({ page }) => {
     await page.goto(path);
@@ -64,7 +90,7 @@ for (const path of ['/this-page-does-not-exist', '/blog/unknown-slug', '/project
 
 test('hero: copy and CTA never overlap the 3D card, which only renders from lg', async ({
   page,
-}) => {
+}, testInfo) => {
   await page.clock.install();
   await page.goto('/');
   const h1 = page.getByRole('heading', { level: 1 }).first();
@@ -75,7 +101,13 @@ test('hero: copy and CTA never overlap the 3D card, which only renders from lg',
     await expect(canvas).toHaveCount(0);
     return;
   }
-  await expect(canvas.first()).toBeAttached();
+  if (testInfo.project.name === 'reduced-motion') {
+    // T-25: no WebGL under reduced motion; a static poster fills the card's box instead.
+    await expect(page.getByTestId('hero-card-poster')).toBeVisible();
+    await expect(canvas).toHaveCount(0);
+  } else {
+    await expect(canvas.first()).toBeAttached();
+  }
   const cta = page.getByRole('button', { name: /view projects/i });
   const box = async (l: import('@playwright/test').Locator) => (await l.boundingBox())!;
   const [h, c] = [await box(h1), await box(cta)];

@@ -5,7 +5,7 @@ import { Calendar, Code, Smartphone, Cloud, Terminal, Layout, Database } from 'l
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
 import { Hero } from '@/features/hero-3d/Hero';
-import { ProjectCard } from '@/features/projects/ProjectCard';
+import { ProjectCard, ProjectCardSkeleton } from '@/features/projects/ProjectCard';
 import { ContactForm } from '@/features/messages/ContactForm';
 import { TechBadge } from '@/components/ui/TechBadge';
 import { Navbar } from '@/app/layouts/Navbar';
@@ -57,7 +57,7 @@ export default function Page() {
 
   const { data: techStack } = useQuery(techStackQueries.list());
 
-  const { data: services } = useQuery(serviceQueries.list());
+  const { data: services, isPending: isPendingServices } = useQuery(serviceQueries.list());
 
   return (
     <>
@@ -66,7 +66,9 @@ export default function Page() {
         <Hero />
 
         {/* Services Section */}
-        {services && services.length > 0 && (
+        {/* Sections render their shell straight away with skeletons of the final size,
+            so content arriving later never pushes the page down (T-26). */}
+        {(isPendingServices || (services && services.length > 0)) && (
           <section className="py-20 bg-slate-50 dark:bg-slate-900/30 border-y border-slate-200 dark:border-white/5">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-12">
@@ -78,7 +80,19 @@ export default function Page() {
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {services.map((service, idx) => {
+                {isPendingServices &&
+                  [0, 1, 2].map((i) => (
+                    <div
+                      key={i}
+                      aria-hidden="true"
+                      className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 p-8 rounded-2xl flex flex-col items-center"
+                    >
+                      <div className="h-14 w-14 rounded-full bg-indigo-50 dark:bg-slate-800 mb-6" />
+                      <div className="h-7 w-1/2 mb-3 rounded bg-slate-200 dark:bg-slate-800" />
+                      <div className="h-[46px] w-full rounded bg-slate-100 dark:bg-slate-800/60" />
+                    </div>
+                  ))}
+                {services?.map((service, idx) => {
                   const Icon = service.icon_name ? IconMap[service.icon_name] || Code : Code;
                   return (
                     <motion.div
@@ -121,7 +135,7 @@ export default function Page() {
                 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)',
             }}
           >
-            <div className="marquee-track flex whitespace-nowrap">
+            <div className="marquee-track flex whitespace-nowrap min-h-[4.25rem]">
               <div className="flex-shrink-0 flex items-center justify-center gap-24 py-4 px-6">
                 {techStack?.map((tech, i) => (
                   <TechBadge key={`tech-a-${i}`} name={tech.name} iconUrl={tech.icon_url} />
@@ -159,9 +173,14 @@ export default function Page() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {isLoadingProjects && (
-                <p className="text-slate-500 col-span-full text-center py-10">
-                  Loading projects...
-                </p>
+                <>
+                  <span className="sr-only" role="status">
+                    Loading projects...
+                  </span>
+                  {[0, 1, 2].map((i) => (
+                    <ProjectCardSkeleton key={i} />
+                  ))}
+                </>
               )}
               {isErrorProjects && (
                 <p className="text-red-500 col-span-full text-center py-10">
@@ -205,7 +224,25 @@ export default function Page() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {isLoadingBlogs && (
-                <p className="text-slate-500 col-span-full text-center py-10">Loading posts...</p>
+                <>
+                  <span className="sr-only" role="status">
+                    Loading posts...
+                  </span>
+                  {[0, 1].map((i) => (
+                    <div
+                      key={i}
+                      aria-hidden="true"
+                      className="bg-white border border-slate-200 dark:bg-slate-950/80 dark:border-white/10 rounded-xl overflow-hidden shadow-sm"
+                    >
+                      <div className="aspect-[2/1] bg-slate-100 dark:bg-slate-900 animate-pulse" />
+                      <div className="p-6">
+                        <div className="h-4 w-32 mb-3 rounded bg-slate-100 dark:bg-slate-800" />
+                        <div className="h-7 w-2/3 mb-3 rounded bg-slate-200 dark:bg-slate-800" />
+                        <div className="h-[60px] w-full rounded bg-slate-100 dark:bg-slate-800/60" />
+                      </div>
+                    </div>
+                  ))}
+                </>
               )}
               {isErrorBlogs && (
                 <p className="text-red-500 col-span-full text-center py-10">Error loading posts.</p>

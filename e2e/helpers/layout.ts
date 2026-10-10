@@ -71,3 +71,37 @@ export async function observeCls(page: Page): Promise<() => Promise<number>> {
   });
   return () => page.evaluate(() => (window as unknown as { __cls: number }).__cls);
 }
+
+interface ShiftEntry extends PerformanceEntry {
+  value: number;
+  hadRecentInput: boolean;
+  sources?: { node?: Node | null }[];
+}
+
+/**
+ * Starts collecting Cumulative Layout Shift before the page boots (call before `goto`).
+ * Read it with `cumulativeLayoutShift`.
+ */
+export async function observeLayoutShift(page: Page): Promise<void> {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __cls: { value: number; sources: string[] } };
+    w.__cls = { value: 0, sources: [] };
+    new PerformanceObserver((list) => {
+      for (const entry of list.getEntries() as ShiftEntry[]) {
+        if (entry.hadRecentInput) continue;
+        w.__cls.value += entry.value;
+        for (const s of entry.sources ?? []) {
+          const el = s.node instanceof Element ? s.node : s.node?.parentElement;
+          if (el) w.__cls.sources.push(`${el.tagName.toLowerCase()}.${el.className}`.slice(0, 80));
+        }
+      }
+    }).observe({ type: 'layout-shift', buffered: true });
+  });
+}
+
+/** CLS so far and the elements that moved (for assertion messages). */
+export function cumulativeLayoutShift(page: Page): Promise<{ value: number; sources: string[] }> {
+  return page.evaluate(
+    () => (window as unknown as { __cls: { value: number; sources: string[] } }).__cls,
+  );
+}

@@ -77,18 +77,6 @@ export function Hero() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 mb-8">
-          <div className="h-7 w-48 bg-slate-200 dark:bg-slate-800 rounded-full mb-6 animate-pulse mx-auto lg:mx-0"></div>
-          <div className="h-16 sm:h-24 w-full bg-slate-200 dark:bg-slate-800 rounded-lg mb-6 animate-pulse"></div>
-          <div className="h-8 w-3/4 bg-slate-200 dark:bg-slate-800 rounded-lg mb-8 animate-pulse mx-auto lg:mx-0"></div>
-        </div>
-      </section>
-    );
-  }
-
   return (
     <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
       {/* 3D card layer: desktop only. It sits under the content layer, whose
@@ -104,13 +92,19 @@ export function Hero() {
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
           {/* Text Content - Enable Pointer Events */}
           <motion.div
-            className="flex-1 text-center lg:text-left pointer-events-auto"
+            className="flex-1 w-full text-center lg:text-left pointer-events-auto"
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
+            {isLoading && (
+              <span
+                aria-hidden="true"
+                className="block mx-auto lg:mx-0 h-[30px] w-40 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse mb-6"
+              />
+            )}
             {profile?.badge_text && (
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 text-sm font-medium mb-6">
+              <span className="inline-flex align-top items-center gap-2 px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 text-sm font-medium mb-6">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
@@ -118,11 +112,29 @@ export function Hero() {
                 {profile.badge_text}
               </span>
             )}
-            <h1 className="font-extrabold tracking-tight text-slate-900 dark:text-white mb-6 break-words text-[clamp(2.25rem,1.2rem+4.5vw,4.5rem)] leading-[1.1]">
-              <span>{text || '\u00A0'}</span>
+            {/* Every rotating word is laid out invisibly in the same grid cell, so the
+                H1 is always as tall as its longest word and typing never moves the
+                content below it (T-26). Two lines are reserved before data arrives. */}
+            <h1 className="grid min-h-[2.2em] font-extrabold tracking-tight text-slate-900 dark:text-white mb-6 break-words text-[clamp(2.25rem,1.2rem+4.5vw,4.5rem)] leading-[1.1]">
+              <span className="sr-only">{words.filter(Boolean).join(', ')}</span>
+              {words.map((word) => (
+                <span key={word} aria-hidden="true" className="invisible col-start-1 row-start-1">
+                  {word || '\u00A0'}
+                </span>
+              ))}
+              <span aria-hidden="true" className="col-start-1 row-start-1">
+                {text || '\u00A0'}
+              </span>
             </h1>
-            <p className="mt-4 max-w-2xl mx-auto lg:mx-0 text-xl text-slate-600 dark:text-slate-400 mb-8">
-              {profile?.short_description}
+            <p className="mt-4 max-w-2xl mx-auto lg:mx-0 text-xl text-slate-600 dark:text-slate-400 mb-8 min-h-7">
+              {isLoading ? (
+                <span
+                  aria-hidden="true"
+                  className="inline-block h-6 w-3/4 align-middle rounded bg-slate-200 dark:bg-slate-800 animate-pulse"
+                />
+              ) : (
+                profile?.short_description
+              )}
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
@@ -142,7 +154,7 @@ export function Hero() {
 
             <SocialLinks
               links={profile?.social_links}
-              containerClassName="mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-6"
+              containerClassName="mt-10 min-h-6 flex flex-wrap items-center justify-center lg:justify-start gap-6"
               linkClassName="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"
               iconClassName="h-6 w-6"
             />
