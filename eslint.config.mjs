@@ -1,0 +1,69 @@
+// @ts-check
+import js from '@eslint/js';
+import prettier from 'eslint-config-prettier';
+import importPlugin from 'eslint-plugin-import';
+import jsxA11y from 'eslint-plugin-jsx-a11y';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+import globals from 'globals';
+import tseslint from 'typescript-eslint';
+
+export default tseslint.config(
+  {
+    ignores: ['dist', 'node_modules', 'docs/audit/harness', 'supabase', 'public'],
+  },
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      js.configs.recommended,
+      ...tseslint.configs.recommendedTypeChecked,
+      jsxA11y.flatConfigs.recommended,
+      importPlugin.flatConfigs.recommended,
+      importPlugin.flatConfigs.typescript,
+    ],
+    languageOptions: {
+      ecmaVersion: 2022,
+      globals: { ...globals.browser, ...globals.node },
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    settings: {
+      'import/ignore': ['node_modules'],
+      'import/external-module-folders': ['node_modules'],
+      'import/resolver': {
+        typescript: { project: './tsconfig.json' },
+        node: true,
+      },
+    },
+    plugins: {
+      'react-hooks': reactHooks,
+      'react-refresh': reactRefresh,
+    },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      'import/order': [
+        'warn',
+        {
+          groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+          pathGroups: [{ pattern: '@/**', group: 'internal' }],
+          'newlines-between': 'never',
+        },
+      ],
+      'import/no-cycle': ['error', { ignoreExternal: true }],
+      // Resolved by TypeScript itself; the import resolver is slow and noisy here.
+      'import/no-unresolved': 'off',
+      'import/named': 'off',
+    },
+  },
+  {
+    files: ['**/*.{js,mjs,cjs}'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      globals: { ...globals.node },
+    },
+  },
+  prettier,
+);
