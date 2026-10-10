@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, X, Sun, Moon } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTheme } from '@/app/ThemeContext';
 import { useIsAdmin } from '@/lib/useIsAdmin';
@@ -18,22 +18,11 @@ export function Navbar() {
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery(profileQueries.detail());
 
+  // Real links: `/#contact` is handled by ScrollManager (no timeouts, lands below the navbar).
+  const isActive = (linkPath: string) => (linkPath.includes('#') ? false : path === linkPath);
+
   const handleNav = (targetPath: string) => {
-    if (targetPath.startsWith('/#')) {
-      const selector = targetPath.substring(1);
-      if (location.pathname === '/') {
-        const element = document.querySelector(selector);
-        element?.scrollIntoView({ behavior: 'smooth' });
-      } else {
-        navigate('/');
-        setTimeout(() => {
-          const element = document.querySelector(selector);
-          element?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
-      }
-    } else {
-      navigate(targetPath);
-    }
+    navigate(targetPath);
     setIsOpen(false);
   };
 
@@ -73,19 +62,19 @@ export function Navbar() {
           <div className="hidden lg:flex items-center gap-6">
             <div className="flex items-baseline space-x-4">
               {navLinks.map((link) => (
-                <button
+                <Link
                   key={link.name}
-                  onClick={() => handleNav(link.path)}
+                  to={link.path}
                   onMouseEnter={() => prefetchRoute(link.path)}
                   onFocus={() => prefetchRoute(link.path)}
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    path === link.path
+                    isActive(link.path)
                       ? 'text-indigo-600 dark:text-white bg-indigo-50 dark:bg-white/10'
                       : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-indigo-50 dark:hover:bg-white/10'
                   }`}
                 >
                   {link.name}
-                </button>
+                </Link>
               ))}
             </div>
 
@@ -133,15 +122,16 @@ export function Navbar() {
         <div className="motion-safe:animate-menu-in lg:hidden border-b border-slate-200 dark:border-white/5 bg-white dark:bg-slate-950">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
             {navLinks.map((link) => (
-              <button
+              <Link
                 key={link.name}
-                onClick={() => handleNav(link.path)}
+                to={link.path}
+                onClick={() => setIsOpen(false)}
                 onTouchStart={() => prefetchRoute(link.path)}
                 onFocus={() => prefetchRoute(link.path)}
                 className="text-left text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium"
               >
                 {link.name}
-              </button>
+              </Link>
             ))}
             {isAdmin && (
               <button

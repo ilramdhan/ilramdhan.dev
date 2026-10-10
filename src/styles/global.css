@@ -3,6 +3,15 @@
 @tailwind utilities;
 
 @layer base {
+  /* Anchor targets clear the fixed 64px navbar (T-30). */
+  [id] {
+    scroll-margin-top: 5rem;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
   body {
     @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 transition-colors duration-300;
   }

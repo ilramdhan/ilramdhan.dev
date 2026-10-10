@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTypewriter } from 'react-simple-typewriter';
 import { useMediaQuery } from '@/lib/hooks';
@@ -48,7 +48,6 @@ function useHeroCard(): { enabled: boolean; ready: boolean } {
 
 export function Hero() {
   const navigate = useNavigate();
-  const location = useLocation();
   const desktop = useMediaQuery('(min-width: 1024px)');
   const card = useHeroCard();
 
@@ -63,19 +62,6 @@ export function Hero() {
     typeSpeed: 100,
     deleteSpeed: 50,
   });
-
-  const handleContactClick = () => {
-    if (location.pathname === '/') {
-      const element = document.querySelector('#contact');
-      element?.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      navigate('/');
-      setTimeout(() => {
-        const element = document.querySelector('#contact');
-        element?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    }
-  };
 
   return (
     <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
@@ -144,12 +130,12 @@ export function Hero() {
               >
                 View Projects <ArrowRight className="h-4 w-4" />
               </button>
-              <button
-                onClick={handleContactClick}
-                className="w-full sm:w-auto px-8 py-3 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/10 dark:text-white font-semibold transition-all"
+              <Link
+                to="/#contact"
+                className="w-full sm:w-auto px-8 py-3 text-center rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/10 dark:text-white font-semibold transition-all"
               >
                 Contact Me
-              </button>
+              </Link>
             </div>
 
             <SocialLinks
