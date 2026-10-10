@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as api from '../../lib/api';
 import { toast } from 'sonner';
 import { Save, Loader2 } from 'lucide-react';
+import * as api from '../../lib/api';
 import { Database } from '../../types';
 import { supabase } from '../../lib/supabase/client';
 import { ensureFullUrl } from '../../lib/utils';
@@ -106,6 +106,7 @@ export function ProfileTab() {
       return api.updateProfile(profileToUpdate);
     },
     onSuccess: () => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
       queryClient.invalidateQueries({ queryKey: ['profile'] });
       toast.success('Profile updated!');
       setAvatarFile(null);
@@ -169,10 +170,12 @@ export function ProfileTab() {
       </label>
       <input
         id={`social-${platform}`}
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access -- TODO(#18)
         value={(formState.social_links as any)?.[platform] || ''}
         onChange={(e) =>
           setFormState((prev) => ({
             ...prev,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment -- TODO(#18)
             social_links: { ...(prev.social_links as any), [platform]: e.target.value },
           }))
         }
@@ -205,6 +208,7 @@ export function ProfileTab() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- TODO(#57) */}
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Avatar Image
             </label>
@@ -214,10 +218,12 @@ export function ProfileTab() {
               className="input-file"
             />
             {profile?.avatar_url && (
+              // eslint-disable-next-line jsx-a11y/alt-text -- TODO(#57)
               <img src={profile.avatar_url} className="h-12 w-12 rounded-full object-cover mt-2" />
             )}
           </div>
           <div>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- TODO(#57) */}
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Logo Image
             </label>
@@ -227,10 +233,12 @@ export function ProfileTab() {
               className="input-file"
             />
             {profile?.logo_url && (
+              // eslint-disable-next-line jsx-a11y/alt-text -- TODO(#57)
               <img src={profile.logo_url} className="h-8 w-auto object-contain mt-2" />
             )}
           </div>
           <div>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- TODO(#57) */}
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
               Resume / CV (PDF)
             </label>

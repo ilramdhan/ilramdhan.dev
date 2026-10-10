@@ -14,6 +14,9 @@ import {
   Menu,
   X,
 } from 'lucide-react';
+import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '../lib/auth';
 import { ProjectsTab } from './admin/ProjectsTab';
 import { ResumeTab } from './admin/ResumeTab';
 import { ServicesTab } from './admin/ServicesTab';
@@ -22,9 +25,6 @@ import { ProfileTab } from './admin/ProfileTab';
 import { MessagesTab } from './admin/MessagesTab';
 import { CertificatesTab } from './admin/CertificatesTab';
 import { TechStackTab } from './admin/TechStackTab';
-import { useAuth } from '../lib/auth';
-import { toast } from 'sonner';
-import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AdminPage() {
   const navigate = useNavigate();
@@ -39,6 +39,7 @@ export default function AdminPage() {
     | 'techstack'
   >('overview');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO(#18)
   const { user, logout } = useAuth();
 
   const handleLogout = async () => {
@@ -102,6 +103,7 @@ export default function AdminPage() {
             {menuItems.map((t) => (
               <button
                 key={t.id}
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument -- TODO(#18)
                 onClick={() => setActiveTab(t.id as any)}
                 className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === t.id ? 'bg-indigo-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'}`}
               >
@@ -111,6 +113,7 @@ export default function AdminPage() {
             ))}
 
             <button
+              // eslint-disable-next-line @typescript-eslint/no-misused-promises -- TODO(#18)
               onClick={handleLogout}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 mt-8"
             >
@@ -163,6 +166,7 @@ export default function AdminPage() {
                     <button
                       key={t.id}
                       onClick={() => {
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument -- TODO(#18)
                         setActiveTab(t.id as any);
                         setIsMobileMenuOpen(false);
                       }}
@@ -174,6 +178,7 @@ export default function AdminPage() {
                   ))}
 
                   <button
+                    // eslint-disable-next-line @typescript-eslint/no-misused-promises -- TODO(#18)
                     onClick={handleLogout}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 mt-8"
                   >

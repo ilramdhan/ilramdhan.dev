@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeft, Calendar, Tag, MessageSquare, Send } from 'lucide-react';
+import { toast } from 'sonner';
+import ReactMarkdown from 'react-markdown';
 import { Navbar } from '../components/Navbar';
 import { getBlogBySlug, addComment as addCommentAPI, getComments } from '../lib/api';
 import { useDocumentMeta } from '../lib/useDocumentMeta';
-import { ArrowLeft, Calendar, Tag, MessageSquare, Send } from 'lucide-react';
-import { toast } from 'sonner';
 import { ImageCarousel } from '../components/ImageCarousel';
-import ReactMarkdown from 'react-markdown';
 
 const COMMENT_COOLDOWN = 30;
 
@@ -42,6 +42,7 @@ export default function BlogDetailPage() {
     mutationFn: addCommentAPI,
     onSuccess: () => {
       toast.success('Comment added!');
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
       queryClient.invalidateQueries({ queryKey: ['comments', blog?.id] });
       setCommentName('');
       setCommentText('');
@@ -189,6 +190,7 @@ export default function BlogDetailPage() {
               />
             </div>
             <div className="mb-4">
+              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- TODO(#57) */}
               <label className="block text-sm font-medium mb-1">Name</label>
               <input
                 type="text"
@@ -201,6 +203,7 @@ export default function BlogDetailPage() {
               />
             </div>
             <div className="mb-4">
+              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- TODO(#57) */}
               <label className="block text-sm font-medium mb-1">Comment</label>
               <textarea
                 value={commentText}

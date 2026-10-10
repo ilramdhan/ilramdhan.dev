@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Calendar, Search, Tag, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
 import { CollapsibleTagFilter } from '../components/CollapsibleTagFilter';
 import { getBlogs, getBlogTags } from '../lib/api';
 import { useDebounce } from '../lib/hooks';
 import { useDocumentMeta } from '../lib/useDocumentMeta';
-import { Calendar, Search, Tag, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -105,6 +105,7 @@ export default function BlogPage() {
             <div className="text-center text-red-500 py-10">Error loading articles.</div>
           )}
           {currentBlogs.map((blog) => (
+            // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions -- TODO(#57)
             <article
               key={blog.id}
               onClick={() => blog.slug && navigate(`/blog/${blog.slug}`)}

@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { Menu, X, Sun, Moon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useTheme } from '../lib/ThemeContext';
 import { useAuth } from '../lib/auth';
-import { useQuery } from '@tanstack/react-query';
 import * as api from '../lib/api';
 
 export function Navbar() {
@@ -54,6 +54,7 @@ export function Navbar() {
     <nav className="fixed top-0 w-full z-50 border-b border-slate-200 dark:border-white/5 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- TODO(#57) */}
           <div className="flex-shrink-0 cursor-pointer" onClick={() => handleNav('/')}>
             {isLoadingProfile ? (
               <div className="h-8 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />

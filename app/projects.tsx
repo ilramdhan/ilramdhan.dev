@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Navbar } from '../components/Navbar';
 import { ProjectCard } from '../components/ProjectCard';
 import { CollapsibleTagFilter } from '../components/CollapsibleTagFilter';
 import { getProjects, getProjectTags } from '../lib/api';
 import { useDocumentMeta } from '../lib/useDocumentMeta';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const ITEMS_PER_PAGE = 6;
 

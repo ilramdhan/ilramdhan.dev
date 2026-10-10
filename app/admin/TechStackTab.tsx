@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as api from '../../lib/api';
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Save, Loader2, Layers } from 'lucide-react';
+import * as api from '../../lib/api';
 import { Database } from '../../types';
 
 type TechStack = Database['public']['Tables']['tech_stack']['Row'];
@@ -29,6 +29,7 @@ export function TechStackTab() {
   const mutationOptions = {
     onError: (error: Error) => toast.error(error.message),
     onSuccess: () => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
       queryClient.invalidateQueries({ queryKey: ['techStack'] });
       setIsFormOpen(false);
     },
@@ -73,6 +74,7 @@ export function TechStackTab() {
   useEffect(() => {
     if (formState.name) {
       // Simple slugify: lowercase, remove special chars, remove spaces
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO(#18)
       const slug = formState.name.toLowerCase().replace(/[^a-z0-9]/g, '');
       // Special cases mapping if needed, though most follow the rule above
       // e.g. 'c++' -> 'cplusplus', 'c#' -> 'csharp' - Simple Icons handles some, but basic slug is usually enough
@@ -100,6 +102,7 @@ export function TechStackTab() {
     setIsFormOpen(true);
   };
 
+  // eslint-disable-next-line @typescript-eslint/require-await -- TODO(#18)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -126,10 +129,12 @@ export function TechStackTab() {
       </div>
 
       {isFormOpen && (
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises -- TODO(#18)
         <form onSubmit={handleSubmit} className="form-container mb-6">
           <h3 className="font-medium mb-4">{editingTech ? 'Edit Tech' : 'New Tech'}</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
+              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- TODO(#57) */}
               <label className="block text-sm font-medium mb-1">Name</label>
               <input
                 placeholder="Name (e.g. Next.js, Oracle)"
@@ -144,6 +149,7 @@ export function TechStackTab() {
               </p>
             </div>
             <div>
+              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- TODO(#57) */}
               <label className="block text-sm font-medium mb-1">Category</label>
               <input
                 placeholder="Category (e.g. Frontend)"

@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as api from '../../lib/api';
 import { toast } from 'sonner';
 import { Trash2, ChevronLeft, ChevronRight, CheckCircle, MailOpen } from 'lucide-react';
-import { Database } from '../../types';
-
-type Message = Database['public']['Tables']['messages']['Row'];
+import * as api from '../../lib/api';
 
 const ADMIN_ITEMS_PER_PAGE = 10;
 
@@ -22,6 +19,7 @@ export function MessagesTab() {
   const deleteMutation = useMutation({
     mutationFn: (id: number) => api.deleteMessage(id),
     onSuccess: () => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
       queryClient.invalidateQueries({ queryKey: ['messages'] });
       toast.info('Message deleted.');
     },
@@ -30,6 +28,7 @@ export function MessagesTab() {
   const markReadMutation = useMutation({
     mutationFn: (id: number) => api.markMessageAsRead(id),
     onSuccess: () => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
       queryClient.invalidateQueries({ queryKey: ['messages'] });
     },
   });
@@ -37,6 +36,7 @@ export function MessagesTab() {
   const markAllReadMutation = useMutation({
     mutationFn: api.markAllMessagesAsRead,
     onSuccess: () => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
       queryClient.invalidateQueries({ queryKey: ['messages'] });
       toast.success('All messages marked as read.');
     },
@@ -57,6 +57,7 @@ export function MessagesTab() {
     for (const id of selectedMessages) {
       await api.deleteMessage(id);
     }
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
     queryClient.invalidateQueries({ queryKey: ['messages'] });
     setSelectedMessages([]);
     toast.success('Messages deleted.');
@@ -73,6 +74,7 @@ export function MessagesTab() {
         <div className="flex gap-2">
           {selectedMessages.length > 0 && (
             <button
+              // eslint-disable-next-line @typescript-eslint/no-misused-promises -- TODO(#18)
               onClick={handleBulkDelete}
               className="btn-secondary text-red-500 border-red-200 hover:bg-red-50"
             >

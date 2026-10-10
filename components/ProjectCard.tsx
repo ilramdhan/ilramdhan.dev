@@ -3,8 +3,8 @@ import { motion } from 'framer-motion';
 import { ExternalLink, Github } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { Database } from '../types';
-import { ImageCarousel } from './ImageCarousel';
 import { ensureFullUrl } from '../lib/utils';
+import { ImageCarousel } from './ImageCarousel';
 
 type Project = Database['public']['Tables']['projects']['Row'] & { images?: string[] };
 

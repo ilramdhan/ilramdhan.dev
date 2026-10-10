@@ -13,8 +13,6 @@ import {
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import * as api from '../lib/api';
-import { ensureFullUrl } from '../lib/utils';
 import { useTypewriter } from 'react-simple-typewriter';
 import * as THREE from 'three';
 import { Canvas, extend, useThree, useFrame, ReactThreeFiber } from '@react-three/fiber';
@@ -29,6 +27,8 @@ import {
 } from '@react-three/rapier';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import { useTexture, Environment, Lightformer, useGLTF } from '@react-three/drei';
+import { ensureFullUrl } from '../lib/utils';
+import * as api from '../lib/api';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
@@ -133,6 +133,7 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
     }
 
     if (fixed.current) {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- TODO(#18)
       // @ts-ignore
       const [j1Lerped, j2Lerped] = [j1, j2].map((ref) => {
         if (ref.current) {
@@ -208,23 +209,31 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
             onPointerOver={handlePointerOver}
             onPointerOut={() => hover(false)}
             onPointerUp={(e) => {
+              /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unsafe-call -- TODO(#18) */
               // @ts-ignore
               e.target.releasePointerCapture(e.pointerId);
+              /* eslint-enable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unsafe-call */
               drag(false);
             }}
             onPointerDown={(e) => {
+              /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unsafe-call -- TODO(#18) */
               // @ts-ignore
               e.target.setPointerCapture(e.pointerId);
+              /* eslint-enable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unsafe-call */
               if (card.current) {
                 drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation())));
               }
             }}
           >
+            {/* eslint-disable @typescript-eslint/no-unsafe-assignment -- TODO(#18) */}
             {/* @ts-expect-error geometry/map are not declared? */}
             <mesh geometry={nodes.card.geometry}>
+              {/* eslint-enable @typescript-eslint/no-unsafe-assignment */}
               <meshPhysicalMaterial
+                /* eslint-disable @typescript-eslint/no-unsafe-assignment -- TODO(#18) */
                 // @ts-expect-error geometry/map are not declared?
                 map={materials.base.map}
+                /* eslint-enable @typescript-eslint/no-unsafe-assignment */
                 map-anisotropy={16}
                 clearcoat={1}
                 clearcoatRoughness={0.15}
@@ -233,13 +242,17 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
               />
             </mesh>
             <mesh
+              /* eslint-disable @typescript-eslint/no-unsafe-assignment -- TODO(#18) */
               // @ts-expect-error geometry/map are not declared?
               geometry={nodes.clip.geometry}
+              /* eslint-enable @typescript-eslint/no-unsafe-assignment */
               material={materials.metal}
               material-roughness={0.3}
             />
+            {/* eslint-disable @typescript-eslint/no-unsafe-assignment -- TODO(#18) */}
             {/* @ts-expect-error geometry/map are not declared? */}
             <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
+            {/* eslint-enable @typescript-eslint/no-unsafe-assignment */}
           </group>
         </RigidBody>
       </group>
@@ -400,6 +413,7 @@ export function Hero() {
                   const Icon = SocialIconMap[key];
                   if (!Icon) return null;
                   const href =
+                    // eslint-disable-next-line @typescript-eslint/no-base-to-string, @typescript-eslint/restrict-template-expressions -- TODO(#18)
                     key === 'mail' ? `mailto:${value}` : ensureFullUrl(value as string) || '#';
                   return (
                     <a
@@ -409,6 +423,7 @@ export function Hero() {
                       rel="noreferrer"
                       className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"
                     >
+                      {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment -- TODO(#18) */}
                       {/* @ts-ignore */}
                       <Icon className="h-6 w-6" />
                     </a>

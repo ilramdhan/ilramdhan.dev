@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as api from '../../lib/api';
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Zap, Save, Loader2 } from 'lucide-react';
+import * as api from '../../lib/api';
 import { Database } from '../../types';
 
 type Service = Database['public']['Tables']['services']['Row'];
@@ -31,6 +31,7 @@ export function ServicesTab() {
   const mutationOptions = {
     onError: (error: Error) => toast.error(error.message),
     onSuccess: () => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
       queryClient.invalidateQueries({ queryKey: ['services'] });
       setIsFormOpen(false);
     },
@@ -116,6 +117,7 @@ export function ServicesTab() {
           />
 
           <div>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- TODO(#57) */}
             <label className="block text-sm font-medium mb-1">Icon</label>
             <select
               value={formState.icon_name || 'code'}

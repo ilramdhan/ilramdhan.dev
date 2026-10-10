@@ -1,8 +1,8 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../lib/auth';
 import { Github, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useAuth } from '../lib/auth';
 
 export default function LoginPage() {
   const { login, user, isLoading } = useAuth();
@@ -38,6 +38,7 @@ export default function LoginPage() {
         </p>
 
         <button
+          // eslint-disable-next-line @typescript-eslint/no-misused-promises -- TODO(#18)
           onClick={handleLogin}
           disabled={isLoading}
           className="w-full py-3 bg-slate-800 hover:bg-slate-950 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 rounded-lg font-semibold flex justify-center items-center gap-2 transition-colors"

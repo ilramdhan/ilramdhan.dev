@@ -32,7 +32,8 @@ A local Supabase (via the Supabase CLI, migrations and seed data) is planned in 
 4. Before pushing, run:
    ```bash
    npx tsc --noEmit
-   npm run lint        # fixed in T-01
+   npm run lint
+   npm run format:check   # or `npm run format` to fix
    npm run build
    ```
    plus `npm test` / `npm run test:e2e` once they exist (T-05).

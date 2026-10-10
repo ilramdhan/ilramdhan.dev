@@ -11,6 +11,7 @@ All notable changes to this project are documented here. The format follows [Kee
 - Community health files: `LICENSE` (MIT), `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `SECURITY.md`, `ACCESSIBILITY.md`, `SUPPORT.md`, `CODEOWNERS`.
 - GitHub issue forms (bug, feature, improvement), issue template config and pull request template.
 - `.env.example`.
+- ESLint 9 flat config (typescript-eslint type-aware, react-hooks, react-refresh, jsx-a11y, import), Prettier, `.editorconfig`, and `lint:fix` / `format` / `format:check` scripts (T-01).
 
 ### Changed
 

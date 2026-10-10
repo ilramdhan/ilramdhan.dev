@@ -1,12 +1,12 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
+import { Github, ExternalLink, Calendar, ArrowLeft } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { Navbar } from '../components/Navbar';
 import { getProjectBySlug } from '../lib/api';
 import { useDocumentMeta } from '../lib/useDocumentMeta';
-import { Github, ExternalLink, Calendar, ArrowLeft } from 'lucide-react';
 import { ImageCarousel } from '../components/ImageCarousel';
-import ReactMarkdown from 'react-markdown';
 
 export default function ProjectDetailPage() {
   const { slug } = useParams<{ slug: string }>();

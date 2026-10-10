@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { Award, Search, ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
 import { Navbar } from '../components/Navbar';
 import { CollapsibleTagFilter } from '../components/CollapsibleTagFilter';
 import { getCertificatesPaginated, getCertificateIssuers } from '../lib/api';
 import { useDebounce } from '../lib/hooks';
 import { useDocumentMeta } from '../lib/useDocumentMeta';
-import { Award, Search, ChevronLeft, ChevronRight } from 'lucide-react';
-import { motion } from 'framer-motion';
-import ReactMarkdown from 'react-markdown';
 
 const ITEMS_PER_PAGE = 9;
 

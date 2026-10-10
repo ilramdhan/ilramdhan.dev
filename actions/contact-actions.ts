@@ -18,8 +18,10 @@ export type ContactState = {
 
 // We will inject the Store context method in the component for this demo
 // This is a helper validation function now
+// eslint-disable-next-line @typescript-eslint/require-await -- TODO(#18)
 export async function validateContactForm(
   formData: FormData,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- TODO(#18)
 ): Promise<{ success: boolean; data?: any; error?: any }> {
   const validatedFields = ContactSchema.safeParse({
     name: formData.get('name'),

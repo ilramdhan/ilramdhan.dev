@@ -1,9 +1,9 @@
 import React from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
 import { ThemeProvider } from './lib/ThemeContext';
 import { ScrollToTop } from './components/ScrollToTop';
-import { useQuery } from '@tanstack/react-query';
 import * as api from './lib/api';
 
 // Global Background Animation

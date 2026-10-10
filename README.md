@@ -65,12 +65,15 @@ Only `VITE_*` variables reach the browser. Never put service-role keys or other 
 
 ### Scripts
 
-| Command           | What it does                               |
-| ----------------- | ------------------------------------------ |
-| `npm run dev`     | Dev server on <http://localhost:3000>      |
-| `npm run build`   | Type-check and production build to `dist/` |
-| `npm run preview` | Serve the production build                 |
-| `npm run lint`    | ESLint (config being added in T-01)        |
+| Command                | What it does                                |
+| ---------------------- | ------------------------------------------- |
+| `npm run dev`          | Dev server on <http://localhost:3000>       |
+| `npm run build`        | Type-check and production build to `dist/`  |
+| `npm run preview`      | Serve the production build                  |
+| `npm run lint`         | ESLint (flat config, zero warnings allowed) |
+| `npm run lint:fix`     | ESLint with autofix                         |
+| `npm run format`       | Format the repo with Prettier               |
+| `npm run format:check` | Check formatting (CI)                       |
 
 ## Project structure
 

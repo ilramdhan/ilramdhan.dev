@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as api from '../../lib/api';
 import { toast } from 'sonner';
-import { Plus, Edit, Trash2, X, Save, Loader2, Image, Trash } from 'lucide-react';
+import { Plus, Edit, Trash2, Save, Loader2, Image, Trash } from 'lucide-react';
+import * as api from '../../lib/api';
 import { Database } from '../../types';
 import { supabase } from '../../lib/supabase/client';
 
@@ -42,6 +42,7 @@ export function BlogTab() {
 
   const mutationOptions = {
     onSuccess: () => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
       queryClient.invalidateQueries({ queryKey: ['blogs'] });
       setIsFormOpen(false);
     },
@@ -108,7 +109,9 @@ export function BlogTab() {
       });
       try {
         newImageUrls = await Promise.all(uploadPromises);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- TODO(#18)
       } catch (error: any) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access -- TODO(#18)
         toast.error(error.message);
         return;
       }
@@ -147,6 +150,7 @@ export function BlogTab() {
 
       {isFormOpen && (
         <div className="mb-8 p-6 bg-white dark:bg-slate-900 border rounded-xl">
+          {/* eslint-disable-next-line @typescript-eslint/no-misused-promises -- TODO(#18) */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <h3 className="text-lg font-bold">{editingBlog ? 'Edit Article' : 'Create Article'}</h3>
             <input
@@ -186,10 +190,12 @@ export function BlogTab() {
             </div>
 
             <div>
+              {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- TODO(#57) */}
               <label className="block text-sm font-medium mb-1">Images</label>
               <div className="flex flex-wrap gap-2 mb-2">
                 {formState.images?.map((imgUrl, i) => (
                   <div key={i} className="relative">
+                    {/* eslint-disable-next-line jsx-a11y/alt-text -- TODO(#57) */}
                     <img src={imgUrl} className="h-16 w-16 object-cover rounded" />
                     <button
                       type="button"
@@ -239,6 +245,7 @@ export function BlogTab() {
           >
             <div className="flex items-center gap-4">
               {blog.images && blog.images.length > 0 ? (
+                // eslint-disable-next-line jsx-a11y/alt-text -- TODO(#57)
                 <img src={blog.images[0]} className="h-10 w-16 object-cover rounded" />
               ) : (
                 <div className="h-10 w-16 bg-slate-100 dark:bg-slate-800 rounded flex items-center justify-center text-slate-400">

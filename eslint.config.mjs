@@ -56,7 +56,17 @@ export default tseslint.config(
       // Resolved by TypeScript itself; the import resolver is slow and noisy here.
       'import/no-unresolved': 'off',
       'import/named': 'off',
+      // strictNullChecks is off until T-03, so every `!`/`as` looks "unnecessary"
+      // here; auto-removing them would only have to be undone later. TODO(#18)
+      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
+      // Allow `declare global { namespace JSX { ... } }` augmentations (react-three-fiber).
+      '@typescript-eslint/no-namespace': ['error', { allowDeclarations: true }],
     },
+  },
+  {
+    // App entry point: renders the root and exports nothing, so Fast Refresh does not apply.
+    files: ['index.tsx'],
+    rules: { 'react-refresh/only-export-components': 'off' },
   },
   {
     files: ['**/*.{js,mjs,cjs}'],

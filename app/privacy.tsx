@@ -1,10 +1,10 @@
 import React from 'react';
-import { Navbar } from '../components/Navbar';
 import { useQuery } from '@tanstack/react-query';
-import * as api from '../lib/api';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import * as api from '../lib/api';
+import { Navbar } from '../components/Navbar';
 
 export default function PrivacyPage() {
   const navigate = useNavigate();

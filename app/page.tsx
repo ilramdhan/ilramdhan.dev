@@ -1,10 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { Calendar, Code, Smartphone, Cloud, Terminal, Layout, Database } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import { motion } from 'framer-motion';
+import * as THREE from 'three';
+import GLOBE from 'vanta/dist/vanta.globe.min.js';
 import { Hero } from '../components/Hero';
 import { ProjectCard } from '../components/ProjectCard';
 import { ContactForm } from '../components/ContactForm';
 import { Navbar } from '../components/Navbar';
-import { useNavigate } from 'react-router-dom';
 import {
   getProfile,
   getFeaturedProjects,
@@ -13,12 +18,7 @@ import {
   getServices,
 } from '../lib/api';
 import { useDocumentMeta } from '../lib/useDocumentMeta';
-import { Calendar, Zap, Code, Smartphone, Cloud, Terminal, Layout, Database } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import { motion } from 'framer-motion';
 import { useTheme } from '../lib/ThemeContext';
-import * as THREE from 'three';
-import GLOBE from 'vanta/dist/vanta.globe.min.js';
 
 const IconMap: { [key: string]: React.ElementType } = {
   code: Code,
@@ -32,6 +32,7 @@ const IconMap: { [key: string]: React.ElementType } = {
 export default function Page() {
   const navigate = useNavigate();
   const { theme } = useTheme();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment -- TODO(#18)
   const [vantaEffect, setVantaEffect] = useState<any>(null);
   const vantaRef = useRef(null);
 
@@ -42,8 +43,11 @@ export default function Page() {
   });
 
   const {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO(#18)
     data: profile,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO(#18)
     isLoading: isLoadingProfile,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO(#18)
     isError: isErrorProfile,
   } = useQuery({
     queryKey: ['profile'],
@@ -68,11 +72,13 @@ export default function Page() {
     queryFn: getFeaturedBlogs,
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO(#18)
   const { data: techStack, isLoading: isLoadingTech } = useQuery({
     queryKey: ['techStack'],
     queryFn: getTechStack,
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- TODO(#18)
   const { data: services, isLoading: isLoadingServices } = useQuery({
     queryKey: ['services'],
     queryFn: getServices,
@@ -94,7 +100,9 @@ export default function Page() {
 
   useEffect(() => {
     if (!vantaRef.current) return;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call -- TODO(#18)
     const vantaInstance = GLOBE({
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO(#18)
       el: vantaRef.current,
       THREE: THREE,
       mouseControls: true,
@@ -108,14 +116,18 @@ export default function Page() {
     });
     setVantaEffect(vantaInstance);
     return () => {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- TODO(#18)
       if (vantaInstance) vantaInstance.destroy();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- TODO(#18)
   }, []);
 
   useEffect(() => {
     if (vantaEffect) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access -- TODO(#18)
       vantaEffect.setOptions(theme === 'dark' ? darkThemeConfig : lightThemeConfig);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- TODO(#18)
   }, [theme, vantaEffect]);
 
   return (
@@ -310,6 +322,7 @@ export default function Page() {
                 <p className="text-red-500 col-span-full text-center py-10">Error loading posts.</p>
               )}
               {featuredBlogs?.map((post) => (
+                // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- TODO(#57)
                 <div
                   key={post.id}
                   onClick={() => post.slug && navigate(`/blog/${post.slug}`)}

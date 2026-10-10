@@ -1,9 +1,8 @@
-import { supabase } from './supabase/client';
 import { Database } from '../types';
+import { supabase } from './supabase/client';
 
 // Extracting Row and Insert types for easier use
 type Profile = Database['public']['Tables']['profile']['Row'];
-type ProfileInsert = Database['public']['Tables']['profile']['Insert'];
 type Project = Database['public']['Tables']['projects']['Row'];
 type ProjectInsert = Database['public']['Tables']['projects']['Insert'];
 type Blog = Database['public']['Tables']['blogs']['Row'];
@@ -12,14 +11,11 @@ type Service = Database['public']['Tables']['services']['Row'];
 type ServiceInsert = Database['public']['Tables']['services']['Insert'];
 type Resume = Database['public']['Tables']['resume']['Row'];
 type ResumeInsert = Database['public']['Tables']['resume']['Insert'];
-type Message = Database['public']['Tables']['messages']['Row'];
 type MessageInsert = Database['public']['Tables']['messages']['Insert'];
 type Certificate = Database['public']['Tables']['certificates']['Row'];
 type CertificateInsert = Database['public']['Tables']['certificates']['Insert'];
 type TechStack = Database['public']['Tables']['tech_stack']['Row'];
 type TechStackInsert = Database['public']['Tables']['tech_stack']['Insert'];
-type BlogComment = Database['public']['Tables']['blog_comments']['Row'];
-type BlogCommentInsert = Database['public']['Tables']['blog_comments']['Insert'];
 
 // Helper to get current user session
 const getUserId = async () => {
@@ -469,7 +465,9 @@ export const getWakatimeStats = async () => {
     if (!response.ok) {
       throw new Error(`Failed to fetch Wakatime stats: ${response.statusText}`);
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO(#18)
     const data = await response.json();
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return -- TODO(#18)
     return data;
   } catch (error) {
     console.warn('Direct fetch failed, trying JSONP approach (simulated via error)');
@@ -488,8 +486,10 @@ export const getWakatimeCodingActivity = async () => {
     if (!response.ok) {
       throw new Error(`Failed to fetch Wakatime coding activity: ${response.statusText}`);
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO(#18)
     const data = await response.json();
     // The data structure should be similar to the one in .json-wakatime.txt, expecting a 'days' array.
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return -- TODO(#18)
     return data.days;
   } catch (error) {
     console.error('Failed to fetch Wakatime coding activity:', error);

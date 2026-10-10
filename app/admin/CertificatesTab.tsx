@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as api from '../../lib/api';
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Save, Loader2, FileText } from 'lucide-react';
+import * as api from '../../lib/api';
 import { Database } from '../../types';
 import { supabase } from '../../lib/supabase/client';
 import { ensureFullUrl } from '../../lib/utils';
@@ -35,6 +35,7 @@ export function CertificatesTab() {
   const mutationOptions = {
     onError: (error: Error) => toast.error(error.message),
     onSuccess: () => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
       queryClient.invalidateQueries({ queryKey: ['certificates'] });
       setIsFormOpen(false);
     },
@@ -125,6 +126,7 @@ export function CertificatesTab() {
       </div>
 
       {isFormOpen && (
+        // eslint-disable-next-line @typescript-eslint/no-misused-promises -- TODO(#18)
         <form onSubmit={handleSubmit} className="form-container mb-6">
           <h3 className="font-medium mb-4">
             {editingCert ? 'Edit Certificate' : 'New Certificate'}
@@ -173,6 +175,7 @@ export function CertificatesTab() {
           />
 
           <div>
+            {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- TODO(#57) */}
             <label className="block text-sm font-medium mb-1">Certificate File (PDF/Image)</label>
             <input
               type="file"

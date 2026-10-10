@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import * as api from '../../lib/api';
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Loader2, Save } from 'lucide-react';
+import * as api from '../../lib/api';
 import { Database } from '../../types';
 
 type Resume = Database['public']['Tables']['resume']['Row'];
@@ -60,6 +60,7 @@ export function ResumeTab() {
     ...mutationOptions,
     mutationFn: api.addResumeItem,
     onSuccess: (data) => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
       queryClient.invalidateQueries({ queryKey: ['resume', data.type] });
       toast.success(`Item added!`);
     },
@@ -68,6 +69,7 @@ export function ResumeTab() {
     ...mutationOptions,
     mutationFn: api.updateResumeItem,
     onSuccess: (data) => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
       queryClient.invalidateQueries({ queryKey: ['resume', data.type] });
       toast.success(`Item updated!`);
     },
@@ -77,6 +79,7 @@ export function ResumeTab() {
     mutationFn: (item: { id: number; type: string }) =>
       api.deleteResumeItem(item.id).then(() => item),
     onSuccess: (item) => {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
       queryClient.invalidateQueries({ queryKey: ['resume', item.type] });
       toast.info(`Item removed.`);
     },

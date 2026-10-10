@@ -38,6 +38,7 @@ export function ContactForm() {
       toast.success('Message sent successfully!');
       setState({ success: true, message: 'Message sent successfully!' });
       // Invalidate messages query to refetch in admin panel if it's open
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
       queryClient.invalidateQueries({ queryKey: ['messages'] });
     },
     onError: () => {
@@ -62,6 +63,7 @@ export function ContactForm() {
 
     if (!validation.success) {
       setState({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO(#18)
         errors: validation.error,
         message: 'Missing Fields',
         success: false,
@@ -69,6 +71,7 @@ export function ContactForm() {
       return;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument -- TODO(#18)
     addMessageMutation.mutate(validation.data, {
       onSuccess: () => {
         toast.success("Message sent! We'll get back to you soon.");
@@ -80,6 +83,7 @@ export function ContactForm() {
   };
 
   return (
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises -- TODO(#18)
     <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto">
       {/* Honeypot — invisible to users, catches bots */}
       <div className="absolute opacity-0 pointer-events-none" aria-hidden="true" tabIndex={-1}>
