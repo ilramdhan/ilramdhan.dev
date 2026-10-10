@@ -1,28 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/app/auth';
+import { isMissingFunctionError } from '@/lib/errors';
 import { supabase } from '@/lib/supabase/client';
 
-interface RpcError {
-  code?: string;
-  message?: string;
-}
-
-/**
- * True when the database doesn't have `public.is_admin()` yet, i.e. the frontend
- * was deployed before migration `20261010100000_admin_allowlist.sql` was applied.
- * PGRST202 = function not in PostgREST's schema cache (HTTP 404), 42883 = undefined
- * function. Older PostgREST versions answer 404 without a code, so the status and the
- * message are checked too. A 404 from any other cause (e.g. wrong URL) is equally "no
- * function to ask".
- */
-export function isMissingFunctionError(
-  error: RpcError | null | undefined,
-  status?: number,
-): boolean {
-  if (!error) return false;
-  if (error.code === 'PGRST202' || error.code === '42883' || status === 404) return true;
-  return /could not find the function|function .* does not exist/i.test(error.message ?? '');
-}
+// Re-exported: the RPC fallback below and its tests use the shared helper.
+export { isMissingFunctionError };
 
 /**
  * Asks the database whether the signed-in user is in `public.admin_users` (T-08).

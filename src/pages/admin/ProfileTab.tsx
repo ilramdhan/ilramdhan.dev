@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Save, Loader2 } from 'lucide-react';
-import * as api from '@/lib/api';
-import { Database } from '@/types';
+import * as api from '@/features/profile/api';
+import type { Profile } from '@/features/profile/api';
+import { profileKeys, profileQueries } from '@/features/profile/queries';
 import {
   acceptAttribute,
   IMAGE_MIME_TYPES,
@@ -13,15 +14,10 @@ import {
 } from '@/lib/upload';
 import { ensureFullUrl } from '@/lib/utils';
 
-type Profile = Database['public']['Tables']['profile']['Row'];
-
 export function ProfileTab() {
   const queryClient = useQueryClient();
 
-  const { data: profile, isLoading } = useQuery({
-    queryKey: ['profile'],
-    queryFn: api.getProfile,
-  });
+  const { data: profile, isLoading } = useQuery(profileQueries.detail());
 
   const [formState, setFormState] = useState<Partial<Profile>>({});
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -73,7 +69,7 @@ export function ProfileTab() {
       return api.updateProfile(profileToUpdate);
     },
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['profile'] });
+      void queryClient.invalidateQueries({ queryKey: profileKeys.all });
       toast.success('Profile updated!');
       setAvatarFile(null);
       setLogoFile(null);

@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Save, Loader2, Layers } from 'lucide-react';
-import * as api from '@/lib/api';
-import { Database } from '@/types';
-
-type TechStack = Database['public']['Tables']['tech_stack']['Row'];
-type TechStackInsert = Database['public']['Tables']['tech_stack']['Insert'];
+import * as api from '@/features/tech-stack/api';
+import type { TechStack, TechStackInsert } from '@/features/tech-stack/api';
+import { techStackKeys, techStackQueries } from '@/features/tech-stack/queries';
 
 const initialTechForm: Omit<TechStackInsert, 'id' | 'user_id' | 'created_at'> = {
   name: '',
@@ -21,15 +19,12 @@ export function TechStackTab() {
   const [formState, setFormState] = useState<Partial<TechStackInsert>>(initialTechForm);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const { data: techStack, isLoading } = useQuery({
-    queryKey: ['techStack'],
-    queryFn: api.getTechStack,
-  });
+  const { data: techStack, isLoading } = useQuery(techStackQueries.list());
 
   const mutationOptions = {
     onError: (error: Error) => toast.error(error.message),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['techStack'] });
+      void queryClient.invalidateQueries({ queryKey: techStackKeys.all });
       setIsFormOpen(false);
     },
   };

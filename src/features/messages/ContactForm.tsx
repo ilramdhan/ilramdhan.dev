@@ -2,7 +2,8 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Send } from 'lucide-react';
 import { toast } from 'sonner';
-import * as api from '@/lib/api';
+import { addMessage } from './api';
+import { messageKeys } from './queries';
 import { validateContactForm, type ContactState } from './contact-validation';
 
 const COOLDOWN_SECONDS = 60;
@@ -33,12 +34,12 @@ export function ContactForm() {
   }, []);
 
   const addMessageMutation = useMutation({
-    mutationFn: api.addMessage,
+    mutationFn: addMessage,
     onSuccess: () => {
       // The success toast/state are handled by the call-level `onSuccess` in
       // `handleSubmit` (it also resets the form and starts the cooldown).
       // Invalidate messages query to refetch in admin panel if it's open
-      void queryClient.invalidateQueries({ queryKey: ['messages'] });
+      void queryClient.invalidateQueries({ queryKey: messageKeys.all });
     },
     onError: () => {
       toast.error('Something went wrong. Please try again.');

@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Loader2, Save } from 'lucide-react';
-import * as api from '@/lib/api';
-import { Database } from '@/types';
-
-type Resume = Database['public']['Tables']['resume']['Row'];
-type ResumeInsert = Database['public']['Tables']['resume']['Insert'];
+import * as api from '@/features/resume/api';
+import type { ResumeItem as Resume, ResumeInsert } from '@/features/resume/api';
+import { resumeKeys, resumeQueries } from '@/features/resume/queries';
 
 const initialExpForm: Omit<ResumeInsert, 'id' | 'user_id' | 'created_at' | 'type'> = {
   title: '',
@@ -39,14 +37,8 @@ export function ResumeTab() {
   const [expTagsStr, setExpTagsStr] = useState('');
   const [eduTagsStr, setEduTagsStr] = useState('');
 
-  const { data: experience, isLoading: isLoadingExp } = useQuery({
-    queryKey: ['resume', 'experience'],
-    queryFn: () => api.getResume('experience'),
-  });
-  const { data: education, isLoading: isLoadingEdu } = useQuery({
-    queryKey: ['resume', 'education'],
-    queryFn: () => api.getResume('education'),
-  });
+  const { data: experience, isLoading: isLoadingExp } = useQuery(resumeQueries.list('experience'));
+  const { data: education, isLoading: isLoadingEdu } = useQuery(resumeQueries.list('education'));
 
   const mutationOptions = {
     onError: (error: Error) => toast.error(error.message),
@@ -60,7 +52,7 @@ export function ResumeTab() {
     ...mutationOptions,
     mutationFn: api.addResumeItem,
     onSuccess: (data) => {
-      void queryClient.invalidateQueries({ queryKey: ['resume', data.type] });
+      void queryClient.invalidateQueries({ queryKey: resumeKeys.list(data.type) });
       toast.success(`Item added!`);
     },
   });
@@ -68,7 +60,7 @@ export function ResumeTab() {
     ...mutationOptions,
     mutationFn: api.updateResumeItem,
     onSuccess: (data) => {
-      void queryClient.invalidateQueries({ queryKey: ['resume', data.type] });
+      void queryClient.invalidateQueries({ queryKey: resumeKeys.list(data.type) });
       toast.success(`Item updated!`);
     },
   });
@@ -77,7 +69,7 @@ export function ResumeTab() {
     mutationFn: (item: { id: number; type: string }) =>
       api.deleteResumeItem(item.id).then(() => item),
     onSuccess: (item) => {
-      void queryClient.invalidateQueries({ queryKey: ['resume', item.type] });
+      void queryClient.invalidateQueries({ queryKey: resumeKeys.list(item.type) });
       toast.info(`Item removed.`);
     },
   });

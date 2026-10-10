@@ -3,7 +3,7 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { ThemeProvider } from '@/app/ThemeContext';
-import * as api from '@/lib/api';
+import { profileQueries } from '@/features/profile/queries';
 import { releaseUrl, versionAriaLabel, versionLabel } from '@/lib/version';
 import { ScrollToTop } from './ScrollToTop';
 
@@ -26,10 +26,7 @@ function BackgroundBeams() {
 
 function Footer() {
   const navigate = useNavigate();
-  const { data: profile } = useQuery({
-    queryKey: ['profile'],
-    queryFn: api.getProfile,
-  });
+  const { data: profile } = useQuery(profileQueries.detail());
 
   return (
     <footer className="bg-white border-t border-slate-200 dark:bg-slate-950/90 dark:border-white/5 py-12 backdrop-blur-md transition-colors">

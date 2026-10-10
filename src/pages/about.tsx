@@ -19,7 +19,10 @@ import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { Navbar } from '@/app/layouts/Navbar';
 import { siteConfig } from '@/config/site';
-import * as api from '@/lib/api';
+import { profileQueries } from '@/features/profile/queries';
+import { resumeQueries } from '@/features/resume/queries';
+import { certificateQueries } from '@/features/certificates/queries';
+import { wakatimeQueries } from '@/features/wakatime/queries';
 import { useTheme } from '@/app/ThemeContext';
 import WakatimeStats from '@/features/wakatime/WakatimeStats';
 import { ensureFullUrl } from '@/lib/utils';
@@ -44,40 +47,20 @@ export default function AboutPage() {
       'Learn more about Ilham Ramadhan — experience, education, certifications, and coding activity.',
   });
 
-  const { data: profile, isLoading: isLoadingProfile } = useQuery({
-    queryKey: ['profile'],
-    queryFn: api.getProfile,
-  });
-  const { data: experience, isLoading: isLoadingExp } = useQuery({
-    queryKey: ['resume', 'experience'],
-    queryFn: () => api.getResume('experience'),
-  });
-  const { data: education, isLoading: isLoadingEdu } = useQuery({
-    queryKey: ['resume', 'education'],
-    queryFn: () => api.getResume('education'),
-  });
-  const { data: certificates, isLoading: isLoadingCerts } = useQuery({
-    queryKey: ['certificates'],
-    queryFn: api.getCertificates,
-  });
+  const { data: profile, isLoading: isLoadingProfile } = useQuery(profileQueries.detail());
+  const { data: experience, isLoading: isLoadingExp } = useQuery(resumeQueries.list('experience'));
+  const { data: education, isLoading: isLoadingEdu } = useQuery(resumeQueries.list('education'));
+  const { data: certificates, isLoading: isLoadingCerts } = useQuery(certificateQueries.all());
   const {
     data: wakatime,
     isLoading: isLoadingWakatime,
     isError: isWakatimeError,
-  } = useQuery({
-    queryKey: ['wakatime'],
-    queryFn: api.getWakatimeStats,
-    retry: false,
-  });
+  } = useQuery(wakatimeQueries.languages());
   const {
     data: wakatimeActivity,
     isLoading: isLoadingWakatimeActivity,
     isError: isWakatimeActivityError,
-  } = useQuery({
-    queryKey: ['wakatimeActivity'],
-    queryFn: api.getWakatimeCodingActivity,
-    retry: false,
-  });
+  } = useQuery(wakatimeQueries.activity());
 
   const isLoading = isLoadingProfile || isLoadingExp || isLoadingEdu || isLoadingCerts;
 

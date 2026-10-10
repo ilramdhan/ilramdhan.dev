@@ -5,7 +5,9 @@ import { ArrowLeft, Calendar, Tag, MessageSquare, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import { Navbar } from '@/app/layouts/Navbar';
-import { getBlogBySlug, addComment as addCommentAPI, getComments } from '@/lib/api';
+import { addComment as addCommentAPI } from '@/features/blog/api';
+import { blogKeys, blogQueries } from '@/features/blog/queries';
+import { isNotFoundError } from '@/lib/errors';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { ImageCarousel } from '@/features/projects/ImageCarousel';
 
@@ -20,11 +22,9 @@ export default function BlogDetailPage() {
     data: blog,
     isLoading,
     isError,
-  } = useQuery({
-    queryKey: ['blog', slug],
-    queryFn: () => getBlogBySlug(slug!),
-    enabled: !!slug,
-  });
+    error,
+    refetch,
+  } = useQuery(blogQueries.detail(slug ?? ''));
 
   useDocumentMeta({
     title: blog?.title,
@@ -32,17 +32,13 @@ export default function BlogDetailPage() {
     ogImage: blog?.images?.[0] || undefined,
   });
 
-  const { data: comments, isLoading: isLoadingComments } = useQuery({
-    queryKey: ['comments', blog?.id],
-    queryFn: () => getComments(blog!.id),
-    enabled: !!blog?.id,
-  });
+  const { data: comments, isLoading: isLoadingComments } = useQuery(blogQueries.comments(blog?.id));
 
   const { mutate: addComment, isPending: isAddingComment } = useMutation({
     mutationFn: addCommentAPI,
     onSuccess: () => {
       toast.success('Comment added!');
-      void queryClient.invalidateQueries({ queryKey: ['comments', blog?.id] });
+      void queryClient.invalidateQueries({ queryKey: blogKeys.comments(blog?.id) });
       setCommentName('');
       setCommentText('');
       startCooldown();
@@ -86,7 +82,32 @@ export default function BlogDetailPage() {
     );
   }
 
-  if (isError || !blog) {
+  if (isError && !isNotFoundError(error)) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white px-4 text-center">
+        <h1 className="text-2xl font-bold mb-2">Couldn&apos;t load this article</h1>
+        <p className="text-slate-500 dark:text-slate-400 mb-6">
+          Check your connection and try again.
+        </p>
+        <div className="flex items-center gap-6">
+          <button
+            onClick={() => void refetch()}
+            className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+          >
+            Try again
+          </button>
+          <button
+            onClick={() => navigate('/blog')}
+            className="text-indigo-600 dark:text-indigo-400 hover:underline"
+          >
+            Back to Blog
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!blog) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white">
         <h1 className="text-2xl font-bold mb-4">Article Not Found</h1>

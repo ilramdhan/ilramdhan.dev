@@ -109,9 +109,9 @@ After changing the schema, add a migration (`npx supabase@2.120.0 migration new 
 │   ├── main.tsx           # entry: providers + routes
 │   ├── app/               # routes.tsx, providers.tsx, layouts/, error/, auth & theme contexts
 │   ├── pages/             # route components (+ admin/ tabs)
-│   ├── features/          # hero-3d, wakatime, messages, projects
+│   ├── features/          # per domain: api.ts + queries.ts (profile, projects, blog, ...), hero-3d
 │   ├── components/ui/     # shared UI primitives
-│   ├── lib/               # Supabase client, env validation, data access (api.ts), hooks, utils
+│   ├── lib/               # Supabase client + helpers, typed errors, env validation, hooks, utils
 │   ├── config/site.ts     # site name, URL, usernames, WakaTime share URLs (single source)
 │   ├── styles/            # global.css
 │   ├── types/             # database.ts (generated), globals, shared types

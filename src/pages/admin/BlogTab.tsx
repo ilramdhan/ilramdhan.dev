@@ -2,12 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Save, Loader2, Image, Trash } from 'lucide-react';
-import * as api from '@/lib/api';
-import { Database } from '@/types';
+import * as api from '@/features/blog/api';
+import type { Blog, BlogInsert } from '@/features/blog/api';
+import { blogKeys, blogQueries } from '@/features/blog/queries';
 import { acceptAttribute, IMAGE_MIME_TYPES, uploadFile, validateUpload } from '@/lib/upload';
-
-type Blog = Database['public']['Tables']['blogs']['Row'];
-type BlogInsert = Database['public']['Tables']['blogs']['Insert'];
 
 const initialBlogForm: Omit<BlogInsert, 'user_id' | 'id' | 'created_at' | 'slug' | 'published_at'> =
   {
@@ -34,15 +32,12 @@ export function BlogTab() {
   const [tagsStr, setTagsStr] = useState('');
   const [files, setFiles] = useState<File[]>([]);
 
-  const { data: blogsData, isLoading } = useQuery({
-    queryKey: ['blogs'],
-    queryFn: () => api.getBlogs({ page: 1, limit: 100 }),
-  });
-  const blogs = blogsData?.data || [];
+  const { data: blogsData, isLoading } = useQuery(blogQueries.admin());
+  const blogs = blogsData ?? [];
 
   const mutationOptions = {
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['blogs'] });
+      void queryClient.invalidateQueries({ queryKey: blogKeys.all });
       setIsFormOpen(false);
     },
     onError: (error: Error) => toast.error(error.message),

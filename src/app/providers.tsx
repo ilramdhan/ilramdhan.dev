@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/app/auth';
+import { createQueryClient } from '@/app/query-client';
 
-const queryClient = new QueryClient();
+const queryClient = createQueryClient();
 
 export function Providers({ children }: { children: ReactNode }) {
   return (

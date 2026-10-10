@@ -2,13 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Save, Loader2, FileText } from 'lucide-react';
-import * as api from '@/lib/api';
-import { Database } from '@/types';
+import * as api from '@/features/certificates/api';
+import type { Certificate, CertificateInsert } from '@/features/certificates/api';
+import { certificateKeys, certificateQueries } from '@/features/certificates/queries';
 import { acceptAttribute, uploadFile } from '@/lib/upload';
 import { ensureFullUrl } from '@/lib/utils';
-
-type Certificate = Database['public']['Tables']['certificates']['Row'];
-type CertificateInsert = Database['public']['Tables']['certificates']['Insert'];
 
 const initialCertForm: Omit<CertificateInsert, 'id' | 'user_id' | 'created_at'> = {
   title: '',
@@ -27,15 +25,12 @@ export function CertificatesTab() {
   const [formState, setFormState] = useState<Partial<CertificateInsert>>(initialCertForm);
   const [file, setFile] = useState<File | null>(null);
 
-  const { data: certificates, isLoading } = useQuery({
-    queryKey: ['certificates'],
-    queryFn: api.getCertificates,
-  });
+  const { data: certificates, isLoading } = useQuery(certificateQueries.all());
 
   const mutationOptions = {
     onError: (error: Error) => toast.error(error.message),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['certificates'] });
+      void queryClient.invalidateQueries({ queryKey: certificateKeys.all });
       setIsFormOpen(false);
     },
   };

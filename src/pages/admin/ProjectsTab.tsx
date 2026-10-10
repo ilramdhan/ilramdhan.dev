@@ -2,13 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Save, Loader2, Image, Trash } from 'lucide-react';
-import * as api from '@/lib/api';
-import { Database } from '@/types';
+import * as api from '@/features/projects/api';
+import type { Project, ProjectInsert } from '@/features/projects/api';
+import { projectKeys, projectQueries } from '@/features/projects/queries';
 import { acceptAttribute, IMAGE_MIME_TYPES, uploadFile, validateUpload } from '@/lib/upload';
 import { ensureFullUrl } from '@/lib/utils';
-
-type Project = Database['public']['Tables']['projects']['Row'];
-type ProjectInsert = Database['public']['Tables']['projects']['Insert'];
 
 const initialProjectForm: Omit<ProjectInsert, 'user_id' | 'id' | 'created_at' | 'slug'> = {
   title: '',
@@ -40,15 +38,12 @@ export function ProjectsTab() {
   const [techStackStr, setTechStackStr] = useState('');
   const [files, setFiles] = useState<File[]>([]);
 
-  const { data: projectsData, isLoading } = useQuery({
-    queryKey: ['projects'],
-    queryFn: () => api.getProjects({ page: 1, limit: 100 }),
-  });
-  const projects = projectsData?.data || [];
+  const { data: projectsData, isLoading } = useQuery(projectQueries.admin());
+  const projects = projectsData ?? [];
 
   const mutationOptions = {
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['projects'] });
+      void queryClient.invalidateQueries({ queryKey: projectKeys.all });
       setIsFormOpen(false);
     },
     onError: (error: Error) => {

@@ -10,13 +10,11 @@ import { Hero } from '@/features/hero-3d/Hero';
 import { ProjectCard } from '@/features/projects/ProjectCard';
 import { ContactForm } from '@/features/messages/ContactForm';
 import { Navbar } from '@/app/layouts/Navbar';
-import {
-  getProfile,
-  getFeaturedProjects,
-  getFeaturedBlogs,
-  getTechStack,
-  getServices,
-} from '@/lib/api';
+import { profileQueries } from '@/features/profile/queries';
+import { projectQueries } from '@/features/projects/queries';
+import { blogQueries } from '@/features/blog/queries';
+import { techStackQueries } from '@/features/tech-stack/queries';
+import { serviceQueries } from '@/features/services/queries';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { useTheme } from '@/app/ThemeContext';
 
@@ -56,38 +54,23 @@ export default function Page() {
   });
 
   // Not read here, but keeps the shared ['profile'] query subscribed on the home page.
-  useQuery({
-    queryKey: ['profile'],
-    queryFn: getProfile,
-  });
+  useQuery(profileQueries.detail());
 
   const {
     data: featuredProjects,
     isLoading: isLoadingProjects,
     isError: isErrorProjects,
-  } = useQuery({
-    queryKey: ['featuredProjects'],
-    queryFn: getFeaturedProjects,
-  });
+  } = useQuery(projectQueries.featured());
 
   const {
     data: featuredBlogs,
     isLoading: isLoadingBlogs,
     isError: isErrorBlogs,
-  } = useQuery({
-    queryKey: ['featuredBlogs'],
-    queryFn: getFeaturedBlogs,
-  });
+  } = useQuery(blogQueries.featured());
 
-  const { data: techStack } = useQuery({
-    queryKey: ['techStack'],
-    queryFn: getTechStack,
-  });
+  const { data: techStack } = useQuery(techStackQueries.list());
 
-  const { data: services } = useQuery({
-    queryKey: ['services'],
-    queryFn: getServices,
-  });
+  const { data: services } = useQuery(serviceQueries.list());
 
   useEffect(() => {
     if (!vantaRef.current) return;

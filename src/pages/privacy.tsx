@@ -3,15 +3,12 @@ import { useQuery } from '@tanstack/react-query';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
-import * as api from '@/lib/api';
+import { profileQueries } from '@/features/profile/queries';
 import { Navbar } from '@/app/layouts/Navbar';
 
 export default function PrivacyPage() {
   const navigate = useNavigate();
-  const { data: profile, isLoading } = useQuery({
-    queryKey: ['profile'],
-    queryFn: api.getProfile,
-  });
+  const { data: profile, isLoading } = useQuery(profileQueries.detail());
 
   if (isLoading) {
     return (

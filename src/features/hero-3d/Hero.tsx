@@ -28,7 +28,7 @@ import {
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import { useTexture, Environment, Lightformer, useGLTF } from '@react-three/drei';
 import { ensureFullUrl } from '@/lib/utils';
-import * as api from '@/lib/api';
+import { profileQueries } from '@/features/profile/queries';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
 
@@ -266,10 +266,7 @@ export function Hero() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const { data: profile, isLoading } = useQuery({
-    queryKey: ['profile'],
-    queryFn: api.getProfile,
-  });
+  const { data: profile, isLoading } = useQuery(profileQueries.detail());
 
   const words = profile?.hero_title ? profile.hero_title.split(',').map((s) => s.trim()) : [''];
 

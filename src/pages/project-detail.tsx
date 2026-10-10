@@ -4,7 +4,8 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Github, ExternalLink, Calendar, ArrowLeft } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { Navbar } from '@/app/layouts/Navbar';
-import { getProjectBySlug } from '@/lib/api';
+import { projectQueries } from '@/features/projects/queries';
+import { isNotFoundError } from '@/lib/errors';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { ImageCarousel } from '@/features/projects/ImageCarousel';
 
@@ -16,11 +17,9 @@ export default function ProjectDetailPage() {
     data: project,
     isLoading,
     isError,
-  } = useQuery({
-    queryKey: ['project', slug],
-    queryFn: () => getProjectBySlug(slug!),
-    enabled: !!slug,
-  });
+    error,
+    refetch,
+  } = useQuery(projectQueries.detail(slug ?? ''));
 
   useDocumentMeta({
     title: project?.title,
@@ -36,7 +35,32 @@ export default function ProjectDetailPage() {
     );
   }
 
-  if (isError || !project) {
+  if (isError && !isNotFoundError(error)) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white px-4 text-center">
+        <h1 className="text-2xl font-bold mb-2">Couldn&apos;t load this project</h1>
+        <p className="text-slate-500 dark:text-slate-400 mb-6">
+          Check your connection and try again.
+        </p>
+        <div className="flex items-center gap-6">
+          <button
+            onClick={() => void refetch()}
+            className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+          >
+            Try again
+          </button>
+          <button
+            onClick={() => navigate('/projects')}
+            className="text-indigo-600 dark:text-indigo-400 hover:underline"
+          >
+            Back to Projects
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!project) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white">
         <h1 className="text-2xl font-bold mb-4">Project Not Found</h1>

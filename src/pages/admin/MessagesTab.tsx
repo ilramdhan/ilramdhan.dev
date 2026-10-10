@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Trash2, ChevronLeft, ChevronRight, CheckCircle, MailOpen } from 'lucide-react';
-import * as api from '@/lib/api';
+import * as api from '@/features/messages/api';
+import { messageKeys, messageQueries } from '@/features/messages/queries';
 
 const ADMIN_ITEMS_PER_PAGE = 10;
 
@@ -11,15 +12,12 @@ export function MessagesTab() {
   const [page, setPage] = useState(1);
   const [selectedMessages, setSelectedMessages] = useState<number[]>([]);
 
-  const { data: messages, isLoading } = useQuery({
-    queryKey: ['messages'],
-    queryFn: api.getMessages,
-  });
+  const { data: messages, isLoading } = useQuery(messageQueries.list());
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => api.deleteMessage(id),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['messages'] });
+      void queryClient.invalidateQueries({ queryKey: messageKeys.all });
       toast.info('Message deleted.');
     },
   });
@@ -27,14 +25,14 @@ export function MessagesTab() {
   const markReadMutation = useMutation({
     mutationFn: (id: number) => api.markMessageAsRead(id),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['messages'] });
+      void queryClient.invalidateQueries({ queryKey: messageKeys.all });
     },
   });
 
   const markAllReadMutation = useMutation({
     mutationFn: api.markAllMessagesAsRead,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['messages'] });
+      void queryClient.invalidateQueries({ queryKey: messageKeys.all });
       toast.success('All messages marked as read.');
     },
   });
@@ -54,7 +52,7 @@ export function MessagesTab() {
     for (const id of selectedMessages) {
       await api.deleteMessage(id);
     }
-    void queryClient.invalidateQueries({ queryKey: ['messages'] });
+    void queryClient.invalidateQueries({ queryKey: messageKeys.all });
     setSelectedMessages([]);
     toast.success('Messages deleted.');
   };

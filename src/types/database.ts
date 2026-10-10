@@ -383,7 +383,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      blog_tags: { Args: never; Returns: string[] };
+      certificate_issuers: { Args: never; Returns: string[] };
       is_admin: { Args: never; Returns: boolean };
+      project_tags: { Args: never; Returns: string[] };
     };
     Enums: {
       [_ in never]: never;

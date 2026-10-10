@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Calendar, Search, Tag, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Navbar } from '@/app/layouts/Navbar';
 import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
-import { getBlogs, getBlogTags } from '@/lib/api';
+import { blogQueries } from '@/features/blog/queries';
 import { useDebounce } from '@/lib/hooks';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 
@@ -23,26 +23,20 @@ export default function BlogPage() {
     description: 'Insights, thoughts, and tutorials on web development, design, and technology.',
   });
 
-  const { data: allBlogTags, isLoading: isLoadingTags } = useQuery({
-    queryKey: ['blogTags'],
-    queryFn: getBlogTags,
-  });
+  const { data: allBlogTags, isLoading: isLoadingTags } = useQuery(blogQueries.tags());
 
   const {
     data: blogData,
     isLoading: isLoadingBlogs,
     isError: isErrorBlogs,
-  } = useQuery({
-    queryKey: ['blogs', currentPage, selectedTag, debouncedSearchQuery],
-    queryFn: () =>
-      getBlogs({
-        page: currentPage,
-        limit: ITEMS_PER_PAGE,
-        query: debouncedSearchQuery,
-        tag: selectedTag,
-      }),
-    placeholderData: (previousData) => previousData,
-  });
+  } = useQuery(
+    blogQueries.list({
+      page: currentPage,
+      limit: ITEMS_PER_PAGE,
+      query: debouncedSearchQuery,
+      tag: selectedTag,
+    }),
+  );
 
   const currentBlogs = blogData?.data ?? [];
   const totalBlogs = blogData?.count ?? 0;

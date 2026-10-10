@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Zap, Save, Loader2 } from 'lucide-react';
-import * as api from '@/lib/api';
-import { Database } from '@/types';
-
-type Service = Database['public']['Tables']['services']['Row'];
-type ServiceInsert = Database['public']['Tables']['services']['Insert'];
+import * as api from '@/features/services/api';
+import type { Service, ServiceInsert } from '@/features/services/api';
+import { serviceKeys, serviceQueries } from '@/features/services/queries';
 
 const initialServiceForm: Omit<ServiceInsert, 'id' | 'user_id'> = {
   title: '',
@@ -23,15 +21,12 @@ export function ServicesTab() {
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [formState, setFormState] = useState<Partial<ServiceInsert>>(initialServiceForm);
 
-  const { data: services, isLoading } = useQuery({
-    queryKey: ['services'],
-    queryFn: api.getServices,
-  });
+  const { data: services, isLoading } = useQuery(serviceQueries.list());
 
   const mutationOptions = {
     onError: (error: Error) => toast.error(error.message),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['services'] });
+      void queryClient.invalidateQueries({ queryKey: serviceKeys.all });
       setIsFormOpen(false);
     },
   };

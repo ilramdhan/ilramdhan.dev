@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { Navbar } from '@/app/layouts/Navbar';
 import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
-import { getCertificatesPaginated, getCertificateIssuers } from '@/lib/api';
+import { certificateQueries } from '@/features/certificates/queries';
 import { useDebounce } from '@/lib/hooks';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 
@@ -23,26 +23,20 @@ export default function CertificatesPage() {
     description: 'Browse all professional certifications and achievements.',
   });
 
-  const { data: allIssuers, isLoading: isLoadingIssuers } = useQuery({
-    queryKey: ['certificateIssuers'],
-    queryFn: getCertificateIssuers,
-  });
+  const { data: allIssuers, isLoading: isLoadingIssuers } = useQuery(certificateQueries.issuers());
 
   const {
     data: certData,
     isLoading: isLoadingCerts,
     isError,
-  } = useQuery({
-    queryKey: ['certificatesPaginated', currentPage, selectedIssuer, debouncedSearchQuery],
-    queryFn: () =>
-      getCertificatesPaginated({
-        page: currentPage,
-        limit: ITEMS_PER_PAGE,
-        query: debouncedSearchQuery,
-        issuer: selectedIssuer,
-      }),
-    placeholderData: (previousData) => previousData,
-  });
+  } = useQuery(
+    certificateQueries.list({
+      page: currentPage,
+      limit: ITEMS_PER_PAGE,
+      query: debouncedSearchQuery,
+      issuer: selectedIssuer,
+    }),
+  );
 
   const certificates = certData?.data ?? [];
   const totalCerts = certData?.count ?? 0;

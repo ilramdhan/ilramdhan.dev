@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Navbar } from '@/app/layouts/Navbar';
 import { ProjectCard } from '@/features/projects/ProjectCard';
 import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
-import { getProjects, getProjectTags } from '@/lib/api';
+import { projectQueries } from '@/features/projects/queries';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 
 const ITEMS_PER_PAGE = 6;
@@ -18,20 +18,13 @@ export default function ProjectsPage() {
     description: 'A collection of applications, tools, and experiments by Ilham Ramadhan.',
   });
 
-  const { data: allTags, isLoading: isLoadingTags } = useQuery({
-    queryKey: ['projectTags'],
-    queryFn: getProjectTags,
-  });
+  const { data: allTags, isLoading: isLoadingTags } = useQuery(projectQueries.tags());
 
   const {
     data: projectData,
     isLoading: isLoadingProjects,
     isError: isErrorProjects,
-  } = useQuery({
-    queryKey: ['projects', currentPage, selectedTag],
-    queryFn: () => getProjects({ page: currentPage, limit: ITEMS_PER_PAGE, tag: selectedTag }),
-    placeholderData: (previousData) => previousData,
-  });
+  } = useQuery(projectQueries.list({ page: currentPage, limit: ITEMS_PER_PAGE, tag: selectedTag }));
 
   const currentProjects = projectData?.data ?? [];
   const totalProjects = projectData?.count ?? 0;

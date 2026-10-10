@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTheme } from '@/app/ThemeContext';
 import { useIsAdmin } from '@/lib/useIsAdmin';
-import * as api from '@/lib/api';
+import { profileQueries } from '@/features/profile/queries';
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,10 +15,7 @@ export function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const { isAdmin } = useIsAdmin();
 
-  const { data: profile, isLoading: isLoadingProfile } = useQuery({
-    queryKey: ['profile'],
-    queryFn: api.getProfile,
-  });
+  const { data: profile, isLoading: isLoadingProfile } = useQuery(profileQueries.detail());
 
   const handleNav = (targetPath: string) => {
     if (targetPath.startsWith('/#')) {
