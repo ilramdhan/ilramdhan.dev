@@ -4,3 +4,7 @@ package-lock.json
 docs/audit/harness
 supabase
 public
+dist-e2e
+test-results
+playwright-report
+blob-report
