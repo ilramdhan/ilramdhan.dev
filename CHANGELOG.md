@@ -20,6 +20,10 @@ All notable changes to this project are documented here. The format follows [Kee
 - README rewritten: accurate stack, setup, project structure, docs links.
 - `react-router-dom` bumped to 6.30.6; `@vercel/node` moved to devDependencies; non-breaking `npm audit fix` (T-02).
 
+### Fixed
+
+- Blog tag filter: selecting a tag now filters posts (`getBlogs` gained a `tag` parameter using `tags=cs.{tag}`) (T-18).
+
 ### Removed
 
 - Dead code and assets: `components/band.tsx`, `app/layout.tsx`, `experimental/`, `metadata.json`, `public/next.svg`, `public/vercel.svg`, `public/assets/images/{front,back}.png`, `delay()`, `submitContactForm()` (T-02).
