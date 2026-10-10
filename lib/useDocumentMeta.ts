@@ -9,13 +9,12 @@ interface MetaOptions {
 }
 
 const SITE_NAME = 'Ilham Ramadhan';
-const DEFAULT_DESCRIPTION = "Ilham Ramadhan's personal portfolio website showcasing projects, skills, and blog posts.";
+const DEFAULT_DESCRIPTION =
+  "Ilham Ramadhan's personal portfolio website showcasing projects, skills, and blog posts.";
 const DEFAULT_OG_IMAGE = '/logo.png';
 
 function setMetaTag(property: string, content: string, isName = false) {
-  const selector = isName
-    ? `meta[name="${property}"]`
-    : `meta[property="${property}"]`;
+  const selector = isName ? `meta[name="${property}"]` : `meta[property="${property}"]`;
   let element = document.querySelector(selector) as HTMLMetaElement | null;
 
   if (!element) {
@@ -38,7 +37,9 @@ export function useDocumentMeta({
   ogType = 'website',
 }: MetaOptions = {}) {
   useEffect(() => {
-    const fullTitle = title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} | Web Developer & Portfolio`;
+    const fullTitle = title
+      ? `${title} | ${SITE_NAME}`
+      : `${SITE_NAME} | Web Developer & Portfolio`;
     const metaDescription = description || DEFAULT_DESCRIPTION;
     const metaImage = ogImage || DEFAULT_OG_IMAGE;
     const metaUrl = ogUrl || window.location.href;

@@ -18,14 +18,14 @@ Personal portfolio of **Ilham Ramadhan**: projects, blog, certificates, résumé
 
 ## Tech stack
 
-| Layer | Tools |
-| --- | --- |
-| UI | React 18, TypeScript, Vite 5, Tailwind CSS 3 (+ typography), Framer Motion, Lucide icons |
-| Routing & data | React Router 6, TanStack Query 5, Supabase JS 2, Zod |
-| 3D | three.js, @react-three/fiber, drei, rapier, meshline |
-| Content | react-markdown, Recharts |
-| Backend | Supabase (Postgres + Row Level Security, Auth with GitHub OAuth, Storage) |
-| Hosting | Vercel (static SPA + optional serverless functions) |
+| Layer          | Tools                                                                                    |
+| -------------- | ---------------------------------------------------------------------------------------- |
+| UI             | React 18, TypeScript, Vite 5, Tailwind CSS 3 (+ typography), Framer Motion, Lucide icons |
+| Routing & data | React Router 6, TanStack Query 5, Supabase JS 2, Zod                                     |
+| 3D             | three.js, @react-three/fiber, drei, rapier, meshline                                     |
+| Content        | react-markdown, Recharts                                                                 |
+| Backend        | Supabase (Postgres + Row Level Security, Auth with GitHub OAuth, Storage)                |
+| Hosting        | Vercel (static SPA + optional serverless functions)                                      |
 
 Architecture notes: [`docs/architecture.md`](docs/architecture.md).
 
@@ -65,12 +65,12 @@ Only `VITE_*` variables reach the browser. Never put service-role keys or other 
 
 ### Scripts
 
-| Command | What it does |
-| --- | --- |
-| `npm run dev` | Dev server on <http://localhost:3000> |
-| `npm run build` | Type-check and production build to `dist/` |
-| `npm run preview` | Serve the production build |
-| `npm run lint` | ESLint (config being added in T-01) |
+| Command           | What it does                               |
+| ----------------- | ------------------------------------------ |
+| `npm run dev`     | Dev server on <http://localhost:3000>      |
+| `npm run build`   | Type-check and production build to `dist/` |
+| `npm run preview` | Serve the production build                 |
+| `npm run lint`    | ESLint (config being added in T-01)        |
 
 ## Project structure
 

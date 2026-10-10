@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Send } from 'lucide-react';
@@ -15,14 +14,19 @@ export function ContactForm() {
   const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    return () => { if (cooldownRef.current) clearInterval(cooldownRef.current); };
+    return () => {
+      if (cooldownRef.current) clearInterval(cooldownRef.current);
+    };
   }, []);
 
   const startCooldown = useCallback(() => {
     setCooldown(COOLDOWN_SECONDS);
     cooldownRef.current = setInterval(() => {
-      setCooldown(prev => {
-        if (prev <= 1) { clearInterval(cooldownRef.current!); return 0; }
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(cooldownRef.current!);
+          return 0;
+        }
         return prev - 1;
       });
     }, 1000);
@@ -31,13 +35,13 @@ export function ContactForm() {
   const addMessageMutation = useMutation({
     mutationFn: api.addMessage,
     onSuccess: () => {
-      toast.success("Message sent successfully!");
+      toast.success('Message sent successfully!');
       setState({ success: true, message: 'Message sent successfully!' });
       // Invalidate messages query to refetch in admin panel if it's open
       queryClient.invalidateQueries({ queryKey: ['messages'] });
     },
     onError: () => {
-      toast.error("Something went wrong. Please try again.");
+      toast.error('Something went wrong. Please try again.');
     },
   });
 
@@ -57,12 +61,12 @@ export function ContactForm() {
     const validation = await validateContactForm(formData);
 
     if (!validation.success) {
-        setState({
-            errors: validation.error,
-            message: 'Missing Fields',
-            success: false
-        });
-        return;
+      setState({
+        errors: validation.error,
+        message: 'Missing Fields',
+        success: false,
+      });
+      return;
     }
 
     addMessageMutation.mutate(validation.data, {
@@ -71,7 +75,7 @@ export function ContactForm() {
         form.reset();
         setState({ success: true, message: 'Message sent successfully!' });
         startCooldown();
-      }
+      },
     });
   };
 
@@ -82,7 +86,10 @@ export function ContactForm() {
         <input type="text" name="website" tabIndex={-1} autoComplete="off" />
       </div>
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+        <label
+          htmlFor="name"
+          className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+        >
           Name
         </label>
         <input
@@ -100,7 +107,10 @@ export function ContactForm() {
       </div>
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+        >
           Email
         </label>
         <input
@@ -118,7 +128,10 @@ export function ContactForm() {
       </div>
 
       <div>
-        <label htmlFor="message" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+        <label
+          htmlFor="message"
+          className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+        >
           Message
         </label>
         <textarea

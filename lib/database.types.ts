@@ -1,406 +1,400 @@
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export interface Database {
   public: {
     Tables: {
       blogs: {
         Row: {
-          created_at: string
-          published_at: string | null
-          id: number
-          user_id: string
-          title: string
-          slug: string | null
-          excerpt: string | null
-          content: string | null
-          images: string[] | null
-          tags: string[] | null
-          is_featured: boolean | null
-        }
+          created_at: string;
+          published_at: string | null;
+          id: number;
+          user_id: string;
+          title: string;
+          slug: string | null;
+          excerpt: string | null;
+          content: string | null;
+          images: string[] | null;
+          tags: string[] | null;
+          is_featured: boolean | null;
+        };
         Insert: {
-          created_at?: string
-          published_at?: string | null
-          id?: number
-          user_id: string
-          title: string
-          slug?: string | null
-          excerpt?: string | null
-          content?: string | null
-          images?: string[] | null
-          tags?: string[] | null
-          is_featured?: boolean | null
-        }
+          created_at?: string;
+          published_at?: string | null;
+          id?: number;
+          user_id: string;
+          title: string;
+          slug?: string | null;
+          excerpt?: string | null;
+          content?: string | null;
+          images?: string[] | null;
+          tags?: string[] | null;
+          is_featured?: boolean | null;
+        };
         Update: {
-          created_at?: string
-          published_at?: string | null
-          id?: number
-          user_id?: string
-          title?: string
-          slug?: string | null
-          excerpt?: string | null
-          content?: string | null
-          images?: string[] | null
-          tags?: string[] | null
-          is_featured?: boolean | null
-        }
+          created_at?: string;
+          published_at?: string | null;
+          id?: number;
+          user_id?: string;
+          title?: string;
+          slug?: string | null;
+          excerpt?: string | null;
+          content?: string | null;
+          images?: string[] | null;
+          tags?: string[] | null;
+          is_featured?: boolean | null;
+        };
         Relationships: [
           {
-            foreignKeyName: "blogs_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
+            foreignKeyName: 'blogs_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       messages: {
         Row: {
-          id: number
-          created_at: string
-          name: string
-          email: string
-          message: string
-          is_read: boolean | null
-        }
+          id: number;
+          created_at: string;
+          name: string;
+          email: string;
+          message: string;
+          is_read: boolean | null;
+        };
         Insert: {
-          id?: number
-          created_at?: string
-          name: string
-          email: string
-          message: string
-          is_read?: boolean | null
-        }
+          id?: number;
+          created_at?: string;
+          name: string;
+          email: string;
+          message: string;
+          is_read?: boolean | null;
+        };
         Update: {
-          id?: number
-          created_at?: string
-          name?: string
-          email?: string
-          message?: string
-          is_read?: boolean | null
-        }
-        Relationships: []
-      }
+          id?: number;
+          created_at?: string;
+          name?: string;
+          email?: string;
+          message?: string;
+          is_read?: boolean | null;
+        };
+        Relationships: [];
+      };
       profile: {
         Row: {
-          id: string
-          updated_at: string | null
-          logo_text: string | null
-          logo_url: string | null
-          display_name: string | null
-          badge_text: string | null
-          hero_title: string | null
-          short_description: string | null
-          detailed_bio: string | null
-          avatar_url: string | null
-          resume_url: string | null
-          address: string | null
-          footer_text: string | null
-          privacy_content: string | null
-          terms_content: string | null
-          social_links: Json | null
-        }
+          id: string;
+          updated_at: string | null;
+          logo_text: string | null;
+          logo_url: string | null;
+          display_name: string | null;
+          badge_text: string | null;
+          hero_title: string | null;
+          short_description: string | null;
+          detailed_bio: string | null;
+          avatar_url: string | null;
+          resume_url: string | null;
+          address: string | null;
+          footer_text: string | null;
+          privacy_content: string | null;
+          terms_content: string | null;
+          social_links: Json | null;
+        };
         Insert: {
-          id: string
-          updated_at?: string | null
-          logo_text?: string | null
-          logo_url?: string | null
-          display_name?: string | null
-          badge_text?: string | null
-          hero_title?: string | null
-          short_description?: string | null
-          detailed_bio?: string | null
-          avatar_url?: string | null
-          resume_url?: string | null
-          address?: string | null
-          footer_text?: string | null
-          privacy_content?: string | null
-          terms_content?: string | null
-          social_links?: Json | null
-        }
+          id: string;
+          updated_at?: string | null;
+          logo_text?: string | null;
+          logo_url?: string | null;
+          display_name?: string | null;
+          badge_text?: string | null;
+          hero_title?: string | null;
+          short_description?: string | null;
+          detailed_bio?: string | null;
+          avatar_url?: string | null;
+          resume_url?: string | null;
+          address?: string | null;
+          footer_text?: string | null;
+          privacy_content?: string | null;
+          terms_content?: string | null;
+          social_links?: Json | null;
+        };
         Update: {
-          id?: string
-          updated_at?: string | null
-          logo_text?: string | null
-          logo_url?: string | null
-          display_name?: string | null
-          badge_text?: string | null
-          hero_title?: string | null
-          short_description?: string | null
-          detailed_bio?: string | null
-          avatar_url?: string | null
-          resume_url?: string | null
-          address?: string | null
-          footer_text?: string | null
-          privacy_content?: string | null
-          terms_content?: string | null
-          social_links?: Json | null
-        }
+          id?: string;
+          updated_at?: string | null;
+          logo_text?: string | null;
+          logo_url?: string | null;
+          display_name?: string | null;
+          badge_text?: string | null;
+          hero_title?: string | null;
+          short_description?: string | null;
+          detailed_bio?: string | null;
+          avatar_url?: string | null;
+          resume_url?: string | null;
+          address?: string | null;
+          footer_text?: string | null;
+          privacy_content?: string | null;
+          terms_content?: string | null;
+          social_links?: Json | null;
+        };
         Relationships: [
           {
-            foreignKeyName: "profile_id_fkey"
-            columns: ["id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
+            foreignKeyName: 'profile_id_fkey';
+            columns: ['id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       projects: {
         Row: {
-          id: number
-          user_id: string
-          created_at: string
-          title: string
-          slug: string | null
-          short_description: string | null
-          content: string | null
-          images: string[] | null
-          tech_stack: string[] | null
-          tags: string[] | null
-          demo_url: string | null
-          repo_url: string | null
-          is_featured: boolean | null
-        }
+          id: number;
+          user_id: string;
+          created_at: string;
+          title: string;
+          slug: string | null;
+          short_description: string | null;
+          content: string | null;
+          images: string[] | null;
+          tech_stack: string[] | null;
+          tags: string[] | null;
+          demo_url: string | null;
+          repo_url: string | null;
+          is_featured: boolean | null;
+        };
         Insert: {
-          id?: number
-          user_id: string
-          created_at?: string
-          title: string
-          slug?: string | null
-          short_description?: string | null
-          content?: string | null
-          images?: string[] | null
-          tech_stack?: string[] | null
-          tags?: string[] | null
-          demo_url?: string | null
-          repo_url?: string | null
-          is_featured?: boolean | null
-        }
+          id?: number;
+          user_id: string;
+          created_at?: string;
+          title: string;
+          slug?: string | null;
+          short_description?: string | null;
+          content?: string | null;
+          images?: string[] | null;
+          tech_stack?: string[] | null;
+          tags?: string[] | null;
+          demo_url?: string | null;
+          repo_url?: string | null;
+          is_featured?: boolean | null;
+        };
         Update: {
-          id?: number
-          user_id?: string
-          created_at?: string
-          title?: string
-          slug?: string | null
-          short_description?: string | null
-          content?: string | null
-          images?: string[] | null
-          tech_stack?: string[] | null
-          tags?: string[] | null
-          demo_url?: string | null
-          repo_url?: string | null
-          is_featured?: boolean | null
-        }
+          id?: number;
+          user_id?: string;
+          created_at?: string;
+          title?: string;
+          slug?: string | null;
+          short_description?: string | null;
+          content?: string | null;
+          images?: string[] | null;
+          tech_stack?: string[] | null;
+          tags?: string[] | null;
+          demo_url?: string | null;
+          repo_url?: string | null;
+          is_featured?: boolean | null;
+        };
         Relationships: [
           {
-            foreignKeyName: "projects_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
+            foreignKeyName: 'projects_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       resume: {
         Row: {
-          id: number
-          user_id: string
-          type: string
-          title: string
-          institution: string | null
-          period: string | null
-          description: string | null
-          gpa: string | null
-          tags: string[] | null
-        }
+          id: number;
+          user_id: string;
+          type: string;
+          title: string;
+          institution: string | null;
+          period: string | null;
+          description: string | null;
+          gpa: string | null;
+          tags: string[] | null;
+        };
         Insert: {
-          id?: number
-          user_id: string
-          type: string
-          title: string
-          institution?: string | null
-          period?: string | null
-          description?: string | null
-          gpa?: string | null
-          tags?: string[] | null
-        }
+          id?: number;
+          user_id: string;
+          type: string;
+          title: string;
+          institution?: string | null;
+          period?: string | null;
+          description?: string | null;
+          gpa?: string | null;
+          tags?: string[] | null;
+        };
         Update: {
-          id?: number
-          user_id?: string
-          type?: string
-          title?: string
-          institution?: string | null
-          period?: string | null
-          description?: string | null
-          gpa?: string | null
-          tags?: string[] | null
-        }
+          id?: number;
+          user_id?: string;
+          type?: string;
+          title?: string;
+          institution?: string | null;
+          period?: string | null;
+          description?: string | null;
+          gpa?: string | null;
+          tags?: string[] | null;
+        };
         Relationships: [
           {
-            foreignKeyName: "resume_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
+            foreignKeyName: 'resume_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       services: {
         Row: {
-          id: number
-          user_id: string
-          title: string
-          description: string | null
-          icon_name: string | null
-        }
+          id: number;
+          user_id: string;
+          title: string;
+          description: string | null;
+          icon_name: string | null;
+        };
         Insert: {
-          id?: number
-          user_id: string
-          title: string
-          description?: string | null
-          icon_name?: string | null
-        }
+          id?: number;
+          user_id: string;
+          title: string;
+          description?: string | null;
+          icon_name?: string | null;
+        };
         Update: {
-          id?: number
-          user_id?: string
-          title?: string
-          description?: string | null
-          icon_name?: string | null
-        }
+          id?: number;
+          user_id?: string;
+          title?: string;
+          description?: string | null;
+          icon_name?: string | null;
+        };
         Relationships: [
           {
-            foreignKeyName: "services_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
+            foreignKeyName: 'services_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       certificates: {
         Row: {
-          id: number
-          user_id: string
-          title: string
-          description: string | null
-          issued_by: string | null
-          issued_date: string | null
-          expiry_date: string | null
-          credential_url: string | null
-          file_url: string | null
-          created_at: string
-        }
+          id: number;
+          user_id: string;
+          title: string;
+          description: string | null;
+          issued_by: string | null;
+          issued_date: string | null;
+          expiry_date: string | null;
+          credential_url: string | null;
+          file_url: string | null;
+          created_at: string;
+        };
         Insert: {
-          id?: number
-          user_id: string
-          title: string
-          description?: string | null
-          issued_by?: string | null
-          issued_date?: string | null
-          expiry_date?: string | null
-          credential_url?: string | null
-          file_url?: string | null
-          created_at?: string
-        }
+          id?: number;
+          user_id: string;
+          title: string;
+          description?: string | null;
+          issued_by?: string | null;
+          issued_date?: string | null;
+          expiry_date?: string | null;
+          credential_url?: string | null;
+          file_url?: string | null;
+          created_at?: string;
+        };
         Update: {
-          id?: number
-          user_id?: string
-          title?: string
-          description?: string | null
-          issued_by?: string | null
-          issued_date?: string | null
-          expiry_date?: string | null
-          credential_url?: string | null
-          file_url?: string | null
-          created_at?: string
-        }
+          id?: number;
+          user_id?: string;
+          title?: string;
+          description?: string | null;
+          issued_by?: string | null;
+          issued_date?: string | null;
+          expiry_date?: string | null;
+          credential_url?: string | null;
+          file_url?: string | null;
+          created_at?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "certificates_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
+            foreignKeyName: 'certificates_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       tech_stack: {
         Row: {
-          id: number
-          user_id: string
-          name: string
-          icon_url: string | null
-          category: string | null
-          created_at: string
-        }
+          id: number;
+          user_id: string;
+          name: string;
+          icon_url: string | null;
+          category: string | null;
+          created_at: string;
+        };
         Insert: {
-          id?: number
-          user_id: string
-          name: string
-          icon_url?: string | null
-          category?: string | null
-          created_at?: string
-        }
+          id?: number;
+          user_id: string;
+          name: string;
+          icon_url?: string | null;
+          category?: string | null;
+          created_at?: string;
+        };
         Update: {
-          id?: number
-          user_id?: string
-          name?: string
-          icon_url?: string | null
-          category?: string | null
-          created_at?: string
-        }
+          id?: number;
+          user_id?: string;
+          name?: string;
+          icon_url?: string | null;
+          category?: string | null;
+          created_at?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "tech_stack_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "users"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
+            foreignKeyName: 'tech_stack_user_id_fkey';
+            columns: ['user_id'];
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       blog_comments: {
         Row: {
-          id: number
-          blog_id: number
-          name: string
-          content: string
-          created_at: string
-        }
+          id: number;
+          blog_id: number;
+          name: string;
+          content: string;
+          created_at: string;
+        };
         Insert: {
-          id?: number
-          blog_id: number
-          name: string
-          content: string
-          created_at?: string
-        }
+          id?: number;
+          blog_id: number;
+          name: string;
+          content: string;
+          created_at?: string;
+        };
         Update: {
-          id?: number
-          blog_id?: number
-          name?: string
-          content?: string
-          created_at?: string
-        }
+          id?: number;
+          blog_id?: number;
+          name?: string;
+          content?: string;
+          created_at?: string;
+        };
         Relationships: [
           {
-            foreignKeyName: "blog_comments_blog_id_fkey"
-            columns: ["blog_id"]
-            referencedRelation: "blogs"
-            referencedColumns: ["id"]
-          }
-        ]
-      }
-    }
+            foreignKeyName: 'blog_comments_blog_id_fkey';
+            columns: ['blog_id'];
+            referencedRelation: 'blogs';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+    };
     Views: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     Functions: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     Enums: {
-      [_ in never]: never
-    }
+      [_ in never]: never;
+    };
     CompositeTypes: {
-      [_ in never]: never
-    }
-  }
+      [_ in never]: never;
+    };
+  };
 }

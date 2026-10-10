@@ -29,7 +29,7 @@ async function fetchWithRetry(url, options) {
       if (!response.ok && shouldRetry(response.status) && attempt < MAX_RETRIES) {
         // Release the unread body so the connection can be reused before retrying.
         await response.body?.cancel().catch(() => {});
-        const backoffMs = INITIAL_BACKOFF_MS * (2 ** attempt);
+        const backoffMs = INITIAL_BACKOFF_MS * 2 ** attempt;
         await sleep(backoffMs);
         continue;
       }
@@ -43,7 +43,7 @@ async function fetchWithRetry(url, options) {
         throw error;
       }
 
-      const backoffMs = INITIAL_BACKOFF_MS * (2 ** attempt);
+      const backoffMs = INITIAL_BACKOFF_MS * 2 ** attempt;
       await sleep(backoffMs);
     }
   }

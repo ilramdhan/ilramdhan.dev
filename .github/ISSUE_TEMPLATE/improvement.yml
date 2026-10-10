@@ -1,7 +1,7 @@
 name: 🛠️ Improvement / tech debt
 description: Refactor, performance, security hardening, SEO, accessibility, animation or tooling work (used for docs/PLAN.md tasks)
-title: "[T-xx] "
-labels: ["type: improvement", "status: triage"]
+title: '[T-xx] '
+labels: ['type: improvement', 'status: triage']
 body:
   - type: markdown
     attributes:
@@ -43,10 +43,10 @@ body:
     attributes:
       label: Priority
       options:
-        - "Critical"
-        - "High"
-        - "Medium"
-        - "Low"
+        - 'Critical'
+        - 'High'
+        - 'Medium'
+        - 'Low'
     validations:
       required: true
   - type: textarea
@@ -77,4 +77,4 @@ body:
     id: deps
     attributes:
       label: Depends on
-      placeholder: "#12, #15"
+      placeholder: '#12, #15'
