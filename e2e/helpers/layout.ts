@@ -7,14 +7,41 @@ export function horizontalOverflow(page: Page): Promise<number> {
   );
 }
 
-/** Elements that stick out past the right edge of the viewport (for debugging overflow). */
+/**
+ * Innermost elements whose box or content sticks out past the right edge of the
+ * viewport and isn't clipped by a scrolling/hidden ancestor (for debugging overflow).
+ */
 export function overflowingElements(page: Page, limit = 5): Promise<string[]> {
   return page.evaluate((max) => {
     const vw = document.documentElement.clientWidth;
-    return [...document.querySelectorAll<HTMLElement>('body *')]
-      .filter((el) => el.getBoundingClientRect().right > vw + 1)
+    // Clipped = inside a scroll/hidden container that itself fits in the viewport.
+    const clipped = (el: Element) => {
+      for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
+        if (
+          getComputedStyle(p).overflowX !== 'visible' &&
+          p.getBoundingClientRect().right <= vw + 1
+        ) {
+          return true;
+        }
+      }
+      return false;
+    };
+    const sticksOut = (el: Element) => {
+      const rect = el.getBoundingClientRect();
+      const visible = getComputedStyle(el).overflowX === 'visible';
+      return rect.left + (visible ? Math.max(rect.width, el.scrollWidth) : rect.width) > vw + 1;
+    };
+    const candidates = [...document.querySelectorAll<HTMLElement>('body *')].filter(
+      (el) => sticksOut(el) && !clipped(el),
+    );
+    return candidates
+      .filter((el) => !candidates.some((other) => other !== el && el.contains(other)))
       .slice(0, max)
-      .map((el) => `${el.tagName.toLowerCase()}.${[...el.classList].slice(0, 4).join('.')}`);
+      .map((el) => {
+        const classes = [...el.classList].slice(0, 4).join('.');
+        const text = (el.textContent ?? '').trim().slice(0, 30);
+        return `${el.tagName.toLowerCase()}${classes ? '.' + classes : ''}${text ? ` "${text}"` : ''}`;
+      });
   }, limit);
 }
 

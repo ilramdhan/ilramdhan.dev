@@ -8,10 +8,11 @@ test('contact form shows exactly one success toast', async ({ page, supabase }) 
   // expensive WebGL frames don't pile up).
   test.slow();
   await page.clock.install();
+  // Paused before the app boots: no animation frame ever renders the WebGL scenes.
+  await page.clock.pauseAt(Date.now() + 1_000);
   await page.goto('/');
   const form = page.locator('#contact form');
   await expect(form).toBeVisible();
-  await page.clock.pauseAt(Date.now() + 60_000);
   await form.scrollIntoViewIfNeeded();
   await form.getByLabel('Name').fill('E2E Visitor');
   await form.getByLabel('Email').fill('visitor@example.com');
