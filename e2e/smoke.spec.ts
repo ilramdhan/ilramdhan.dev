@@ -34,7 +34,6 @@ for (const route of PUBLIC_ROUTES) {
       });
     }
 
-    const width = page.viewportSize()?.width ?? 0;
     const overflow = await horizontalOverflow(page);
     const culprits = overflow > 0 ? (await overflowingElements(page)).join(', ') : '';
     expect(overflow, `px of horizontal overflow (elements past the right edge: ${culprits})`).toBe(
