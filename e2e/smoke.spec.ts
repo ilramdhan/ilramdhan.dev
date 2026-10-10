@@ -66,8 +66,12 @@ for (const route of PUBLIC_ROUTES) {
   });
 }
 
-test('unknown route shows a 404 page', async ({ page }) => {
-  test.fixme(true, 'No 404 route yet — tracked in #34');
-  await page.goto('/this-page-does-not-exist');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText(/not found|404/i);
-});
+for (const path of ['/this-page-does-not-exist', '/blog/unknown-slug', '/projects/unknown-slug']) {
+  test(`unknown URL ${path} shows the 404 page with navbar and footer`, async ({ page }) => {
+    await page.goto(path);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText(/page not found/i);
+    await expect(page.getByRole('navigation')).toBeVisible();
+    await expect(page.getByTestId('app-version')).toBeVisible();
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
+  });
+}

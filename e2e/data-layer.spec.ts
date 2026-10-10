@@ -78,9 +78,9 @@ test('the profile is fetched once per page load', async ({ page, supabase }) => 
   expect(restGets(supabase.requests, 'profile')).toHaveLength(1);
 });
 
-test('an unknown slug shows "Not Found" without retrying', async ({ page, supabase }) => {
+test('an unknown slug shows the 404 page without retrying', async ({ page, supabase }) => {
   await page.goto('/projects/does-not-exist');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Project Not Found');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Page not found');
   expect(
     restGets(supabase.requests, 'projects').filter((r) =>
       r.path.includes('slug=eq.does-not-exist'),

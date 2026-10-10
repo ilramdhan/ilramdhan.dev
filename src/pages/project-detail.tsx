@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Github, ExternalLink, Calendar, ArrowLeft } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import NotFoundPage from '@/pages/not-found';
 import { Navbar } from '@/app/layouts/Navbar';
 import { projectQueries } from '@/features/projects/queries';
 import { isNotFoundError } from '@/lib/errors';
@@ -60,19 +61,7 @@ export default function ProjectDetailPage() {
     );
   }
 
-  if (!project) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white">
-        <h1 className="text-2xl font-bold mb-4">Project Not Found</h1>
-        <button
-          onClick={() => navigate('/projects')}
-          className="text-indigo-600 dark:text-indigo-400 hover:underline"
-        >
-          Back to Projects
-        </button>
-      </div>
-    );
-  }
+  if (!project) return <NotFoundPage />;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors">

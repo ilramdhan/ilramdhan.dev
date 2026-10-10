@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { ArrowLeft, Calendar, Tag, MessageSquare, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
+import NotFoundPage from '@/pages/not-found';
 import { Navbar } from '@/app/layouts/Navbar';
 import { addComment as addCommentAPI } from '@/features/blog/api';
 import { blogKeys, blogQueries } from '@/features/blog/queries';
@@ -107,19 +108,7 @@ export default function BlogDetailPage() {
     );
   }
 
-  if (!blog) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white">
-        <h1 className="text-2xl font-bold mb-4">Article Not Found</h1>
-        <button
-          onClick={() => navigate('/blog')}
-          className="text-indigo-600 dark:text-indigo-400 hover:underline"
-        >
-          Back to Blog
-        </button>
-      </div>
-    );
-  }
+  if (!blog) return <NotFoundPage />;
 
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
