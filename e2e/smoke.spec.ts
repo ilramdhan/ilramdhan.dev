@@ -8,9 +8,10 @@ import { PUBLIC_ROUTES } from './routes';
  * of failing the suite. Remove the entry in the PR that fixes the issue.
  */
 const KNOWN_HSCROLL: { paths: string[]; maxWidth: number; issue: string }[] = [
-  // Long words in detail-page titles overflow at 320 px (the dummy title overflows by ~38 px;
-  // real titles reach 360 px per the audit).
-  { paths: ['/projects/long-content', '/blog/long-content'], maxWidth: 320, issue: '#37' },
+  // Long words in detail-page titles overflow on phones. How far depends on the
+  // system font (the site has no web font): ~320 px locally, up to 414 px on the
+  // Ubuntu CI runner.
+  { paths: ['/projects/long-content', '/blog/long-content'], maxWidth: 414, issue: '#37' },
 ];
 
 function knownHScrollIssue(path: string, width: number) {
@@ -51,13 +52,10 @@ for (const route of PUBLIC_ROUTES) {
     test.fixme(!!issue, `Horizontal scroll at ${width}px — known bug ${issue}`);
 
     const overflow = await horizontalOverflow(page);
-    if (overflow > 0) {
-      await testInfo.attach('overflowing-elements', {
-        body: (await overflowingElements(page)).join('\n'),
-        contentType: 'text/plain',
-      });
-    }
-    expect(overflow, 'px of horizontal overflow').toBe(0);
+    const culprits = overflow > 0 ? (await overflowingElements(page)).join(', ') : '';
+    expect(overflow, `px of horizontal overflow (elements past the right edge: ${culprits})`).toBe(
+      0,
+    );
   });
 }
 
