@@ -11,6 +11,7 @@ import { blogKeys, blogQueries } from '@/features/blog/queries';
 import { isNotFoundError } from '@/lib/errors';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { ImageCarousel } from '@/features/projects/ImageCarousel';
+import { formatDate } from '@/lib/date';
 
 const COMMENT_COOLDOWN = 30;
 
@@ -149,8 +150,7 @@ export default function BlogDetailPage() {
             </button>
             <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 mb-4">
               <span className="flex items-center gap-2">
-                <Calendar className="h-4 w-4" />{' '}
-                {blog.published_at ? new Date(blog.published_at).toLocaleDateString() : ''}
+                <Calendar className="h-4 w-4" /> {formatDate(blog.published_at)}
               </span>
               {blog.tags && blog.tags.length > 0 && (
                 <span className="flex items-center gap-2 text-indigo-500 dark:text-indigo-400">
@@ -252,9 +252,7 @@ export default function BlogDetailPage() {
                 >
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-bold text-slate-900 dark:text-white">{comment.name}</h4>
-                    <span className="text-xs text-slate-500">
-                      {new Date(comment.created_at).toLocaleDateString()}
-                    </span>
+                    <span className="text-xs text-slate-500">{formatDate(comment.created_at)}</span>
                   </div>
                   <p className="text-slate-700 dark:text-slate-300 text-sm">{comment.content}</p>
                 </div>

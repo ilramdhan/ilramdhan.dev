@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Calendar, Search, Tag } from 'lucide-react';
@@ -6,18 +6,23 @@ import { Pagination } from '@/components/ui/Pagination';
 import { Navbar } from '@/app/layouts/Navbar';
 import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
 import { blogQueries } from '@/features/blog/queries';
-import { useDebounce } from '@/lib/hooks';
+import { formatDate } from '@/lib/date';
+import { useListParams } from '@/lib/useListParams';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 
 const ITEMS_PER_PAGE = 6;
 
 export default function BlogPage() {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const {
+    input: searchInput,
+    setInput: setSearchInput,
+    query: searchQuery,
+    filter: selectedTag,
+    page: currentPage,
+    setFilter,
+    setPage,
+  } = useListParams('tag');
 
   useDocumentMeta({
     title: 'Blog',
@@ -34,7 +39,7 @@ export default function BlogPage() {
     blogQueries.list({
       page: currentPage,
       limit: ITEMS_PER_PAGE,
-      query: debouncedSearchQuery,
+      query: searchQuery,
       tag: selectedTag,
     }),
   );
@@ -44,13 +49,12 @@ export default function BlogPage() {
   const totalPages = Math.ceil(totalBlogs / ITEMS_PER_PAGE);
 
   const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
+    setPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleFilterChange = (tag: string | null) => {
-    setSelectedTag(tag);
-    setCurrentPage(1);
+    setFilter(tag);
   };
 
   return (
@@ -72,11 +76,8 @@ export default function BlogPage() {
             <input
               type="text"
               placeholder="Search articles..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(1);
-              }}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="w-full bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 rounded-full py-3 pl-12 pr-6 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none backdrop-blur-sm shadow-sm"
             />
           </div>
@@ -128,8 +129,7 @@ export default function BlogPage() {
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-3 text-sm text-slate-500 mb-3">
                     <span className="flex items-center gap-1">
-                      <Calendar className="h-3 w-3" />{' '}
-                      {blog.published_at ? new Date(blog.published_at).toLocaleDateString() : ''}
+                      <Calendar className="h-3 w-3" /> {formatDate(blog.published_at)}
                     </span>
                     {blog.tags && blog.tags.length > 0 && (
                       <>

@@ -2,6 +2,7 @@ import { Award } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import type { Certificate } from '@/features/certificates/api';
+import { formatDate } from '@/lib/date';
 
 interface CertificateCardProps {
   cert: Certificate;
@@ -34,7 +35,8 @@ export function CertificateCard({ cert, delay }: CertificateCardProps) {
         <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">{cert.title}</h3>
         <p className="text-sm text-indigo-600 dark:text-indigo-400 mb-2">{cert.issued_by}</p>
         <p className="text-xs text-slate-500 mb-4">
-          {cert.issued_date} {cert.expiry_date ? ` - ${cert.expiry_date}` : ''}
+          {formatDate(cert.issued_date)}
+          {cert.expiry_date ? ` - ${formatDate(cert.expiry_date)}` : ''}
         </p>
         <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4 flex-1 prose prose-sm dark:prose-invert line-clamp-3">
           <ReactMarkdown>{cert.description || ''}</ReactMarkdown>

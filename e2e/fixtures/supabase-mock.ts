@@ -27,7 +27,17 @@ export const RPC_NOT_FOUND = {
 };
 
 const json = (route: Route, status: number, body: unknown, headers: Record<string, string> = {}) =>
-  route.fulfill({ status, contentType: 'application/json', headers, body: JSON.stringify(body) });
+  route.fulfill({
+    status,
+    contentType: 'application/json',
+    // Cross-origin: JS can only read content-range (the total count) if it is exposed.
+    headers: {
+      'access-control-allow-origin': '*',
+      'access-control-expose-headers': 'content-range',
+      ...headers,
+    },
+    body: JSON.stringify(body),
+  });
 
 /** Parses a PostgREST array literal such as `{react,"go lang"}`. */
 function parseArrayLiteral(value: string): string[] {

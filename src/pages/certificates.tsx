@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import { CertificateCard } from '@/components/ui/CertificateCard';
@@ -6,17 +6,21 @@ import { Pagination } from '@/components/ui/Pagination';
 import { Navbar } from '@/app/layouts/Navbar';
 import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
 import { certificateQueries } from '@/features/certificates/queries';
-import { useDebounce } from '@/lib/hooks';
+import { useListParams } from '@/lib/useListParams';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 
 const ITEMS_PER_PAGE = 9;
 
 export default function CertificatesPage() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedIssuer, setSelectedIssuer] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-
-  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+  const {
+    input: searchInput,
+    setInput: setSearchInput,
+    query: searchQuery,
+    filter: selectedIssuer,
+    page: currentPage,
+    setFilter: handleIssuerFilter,
+    setPage,
+  } = useListParams('issuer');
 
   useDocumentMeta({
     title: 'Certificates',
@@ -33,7 +37,7 @@ export default function CertificatesPage() {
     certificateQueries.list({
       page: currentPage,
       limit: ITEMS_PER_PAGE,
-      query: debouncedSearchQuery,
+      query: searchQuery,
       issuer: selectedIssuer,
     }),
   );
@@ -43,13 +47,8 @@ export default function CertificatesPage() {
   const totalPages = Math.ceil(totalCerts / ITEMS_PER_PAGE);
 
   const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
+    setPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleIssuerFilter = (issuer: string | null) => {
-    setSelectedIssuer(issuer);
-    setCurrentPage(1);
   };
 
   return (
@@ -71,11 +70,8 @@ export default function CertificatesPage() {
             <input
               type="text"
               placeholder="Search certificates..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setCurrentPage(1);
-              }}
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
               className="w-full bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 rounded-full py-3 pl-12 pr-6 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none backdrop-blur-sm shadow-sm"
             />
           </div>

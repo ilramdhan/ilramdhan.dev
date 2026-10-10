@@ -9,6 +9,7 @@ import { projectQueries } from '@/features/projects/queries';
 import { isNotFoundError } from '@/lib/errors';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { ImageCarousel } from '@/features/projects/ImageCarousel';
+import { formatDate } from '@/lib/date';
 
 export default function ProjectDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -86,8 +87,7 @@ export default function ProjectDetailPage() {
         <h1 className="text-4xl font-bold mb-4 text-slate-900 dark:text-white">{project.title}</h1>
         <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 mb-6">
           <span className="flex items-center gap-1">
-            <Calendar className="h-4 w-4" />{' '}
-            {project.created_at ? new Date(project.created_at).toLocaleDateString() : ''}
+            <Calendar className="h-4 w-4" /> {formatDate(project.created_at)}
           </span>
           {project.is_featured && (
             <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 rounded-full border border-indigo-200 dark:border-indigo-500/30">

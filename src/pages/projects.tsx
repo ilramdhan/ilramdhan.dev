@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Pagination } from '@/components/ui/Pagination';
 import { Navbar } from '@/app/layouts/Navbar';
 import { ProjectCard } from '@/features/projects/ProjectCard';
 import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
 import { projectQueries } from '@/features/projects/queries';
+import { useListParams } from '@/lib/useListParams';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 
 const ITEMS_PER_PAGE = 6;
 
 export default function ProjectsPage() {
-  const [selectedTag, setSelectedTag] = useState<string | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
+  const { filter: selectedTag, page: currentPage, setFilter, setPage } = useListParams('tag');
 
   useDocumentMeta({
     title: 'Projects',
@@ -31,13 +31,12 @@ export default function ProjectsPage() {
   const totalPages = Math.ceil(totalProjects / ITEMS_PER_PAGE);
 
   const handlePageChange = (newPage: number) => {
-    setCurrentPage(newPage);
+    setPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleTagClick = (tag: string | null) => {
-    setSelectedTag(tag);
-    setCurrentPage(1);
+    setFilter(tag);
   };
 
   return (

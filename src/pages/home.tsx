@@ -18,6 +18,7 @@ import { techStackQueries } from '@/features/tech-stack/queries';
 import { serviceQueries } from '@/features/services/queries';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { useTheme } from '@/app/ThemeContext';
+import { formatDate } from '@/lib/date';
 
 const IconMap: { [key: string]: React.ElementType } = {
   code: Code,
@@ -273,7 +274,7 @@ export default function Page() {
                   <div className="p-6">
                     <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">
                       <Calendar className="h-3 w-3" />
-                      {post.published_at ? new Date(post.published_at).toLocaleDateString() : ''}
+                      {formatDate(post.published_at)}
                       {post.tags && post.tags.length > 0 && (
                         <>
                           <span>•</span>
