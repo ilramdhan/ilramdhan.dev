@@ -1,19 +1,18 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Github, ExternalLink, Calendar, ArrowLeft } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import NotFoundPage from '@/pages/not-found';
 import { Navbar } from '@/app/layouts/Navbar';
 import { projectQueries } from '@/features/projects/queries';
 import { isNotFoundError } from '@/lib/errors';
-import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { Seo } from '@/components/seo/Seo';
 import { ImageCarousel } from '@/features/projects/ImageCarousel';
 import { formatDate } from '@/lib/date';
 
 export default function ProjectDetailPage() {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
 
   const {
     data: project,
@@ -22,12 +21,6 @@ export default function ProjectDetailPage() {
     error,
     refetch,
   } = useQuery(projectQueries.detail(slug ?? ''));
-
-  useDocumentMeta({
-    title: project?.title,
-    description: project?.short_description || undefined,
-    ogImage: project?.images?.[0] || undefined,
-  });
 
   if (isLoading) {
     return (
@@ -51,12 +44,9 @@ export default function ProjectDetailPage() {
           >
             Try again
           </button>
-          <button
-            onClick={() => navigate('/projects')}
-            className="text-indigo-600 dark:text-indigo-400 hover:underline"
-          >
+          <Link to="/projects" className="text-indigo-600 dark:text-indigo-400 hover:underline">
             Back to Projects
-          </button>
+          </Link>
         </div>
       </div>
     );
@@ -66,14 +56,19 @@ export default function ProjectDetailPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors">
+      <Seo
+        title={project.title}
+        description={project.short_description || undefined}
+        image={project.images?.[0] || undefined}
+      />
       <Navbar />
       <div className="pt-24 pb-20 max-w-5xl mx-auto px-4">
-        <button
-          onClick={() => navigate('/projects')}
+        <Link
+          to="/projects"
           className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white mb-8 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" /> Back to Projects
-        </button>
+        </Link>
 
         <div className="mb-8 rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-2xl">
           <ImageCarousel
@@ -115,7 +110,7 @@ export default function ProjectDetailPage() {
                 About this project
               </h2>
               <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-white/5 text-slate-600 dark:text-slate-300 shadow-sm dark:shadow-none">
-                <ReactMarkdown>
+                <ReactMarkdown components={{ h1: 'h2' }}>
                   {project.content || 'No detailed content available for this project.'}
                 </ReactMarkdown>
               </div>

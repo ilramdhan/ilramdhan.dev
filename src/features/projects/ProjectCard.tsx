@@ -1,6 +1,6 @@
 import React from 'react';
 import { ExternalLink, Github } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Reveal } from '@/components/motion';
 import type { Tables } from '@/types';
 import { ensureFullUrl } from '@/lib/utils';
@@ -14,13 +14,10 @@ interface ProjectCardProps {
 }
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
-  const navigate = useNavigate();
-
   return (
     <Reveal
       index={index}
-      onClick={() => project.slug && navigate(`/projects/${project.slug}`)}
-      className="group relative rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-white/10 overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-[transform,box-shadow,border-color] motion-safe:hover:-translate-y-0.5 hover:shadow-lg cursor-pointer"
+      className="group relative rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-white/10 overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-[transform,box-shadow,border-color] motion-safe:hover:-translate-y-0.5 hover:shadow-lg"
     >
       <div className="aspect-video w-full bg-slate-100 dark:bg-slate-800 relative group/image">
         <ImageCarousel
@@ -29,7 +26,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
           sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
         />
 
-        <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover/image:opacity-100 transition-opacity flex items-center justify-center gap-4 pointer-events-none">
+        <div className="absolute inset-0 z-10 bg-slate-950/60 opacity-0 group-hover/image:opacity-100 transition-opacity flex items-center justify-center gap-4 pointer-events-none">
           {/* Actions overlay - separate from carousel interaction */}
           <div className="flex gap-4 pointer-events-auto">
             {project.demo_url && (
@@ -37,7 +34,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
                 href={ensureFullUrl(project.demo_url) || '#'}
                 target="_blank"
                 rel="noreferrer"
-                onClick={(e) => e.stopPropagation()}
                 className="p-2 bg-white text-slate-900 rounded-full hover:bg-indigo-400 transition-colors"
                 title="Live Demo"
               >
@@ -49,7 +45,6 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
                 href={ensureFullUrl(project.repo_url) || '#'}
                 target="_blank"
                 rel="noreferrer"
-                onClick={(e) => e.stopPropagation()}
                 className="p-2 bg-slate-900 border border-white/20 text-white rounded-full hover:bg-indigo-600 transition-colors"
                 title="GitHub Repo"
               >
@@ -72,7 +67,16 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
           ))}
         </div>
         <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-          {project.title}
+          {project.slug ? (
+            <Link
+              to={`/projects/${project.slug}`}
+              className="after:absolute after:inset-0 after:content-['']"
+            >
+              {project.title}
+            </Link>
+          ) : (
+            project.title
+          )}
         </h3>
         <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2">
           {project.short_description}

@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useMediaQuery } from '@/lib/hooks';
 import { SocialLinks } from '@/components/ui/SocialLinks';
@@ -88,7 +88,6 @@ function RotatingRole({ roles }: { roles: string[] }) {
 }
 
 export function Hero() {
-  const navigate = useNavigate();
   const desktop = useMediaQuery('(min-width: 1024px)');
   const card = useHeroCard();
 
@@ -159,12 +158,12 @@ export function Hero() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-              <button
-                onClick={() => navigate('/projects')}
+              <Link
+                to="/projects"
                 className="w-full sm:w-auto px-8 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-all active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 View Projects <ArrowRight className="h-4 w-4" />
-              </button>
+              </Link>
               <Link
                 to="/#contact"
                 className="w-full sm:w-auto px-8 py-3 text-center rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/10 dark:text-white font-semibold transition-all active:scale-[0.98]"

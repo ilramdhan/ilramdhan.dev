@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { profileQueries } from '@/features/profile/queries';
@@ -22,7 +22,6 @@ function BackgroundGlow() {
 }
 
 function Footer() {
-  const navigate = useNavigate();
   const { data: profile } = useQuery(profileQueries.detail());
 
   return (
@@ -31,18 +30,18 @@ function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <span className="text-slate-500 text-sm">{profile?.footer_text}</span>
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-            <button
-              onClick={() => navigate('/privacy')}
+            <Link
+              to="/privacy"
               className="text-slate-500 hover:text-slate-900 dark:hover:text-white text-sm"
             >
               Privacy Policy
-            </button>
-            <button
-              onClick={() => navigate('/terms')}
+            </Link>
+            <Link
+              to="/terms"
               className="text-slate-500 hover:text-slate-900 dark:hover:text-white text-sm"
             >
               Terms of Service
-            </button>
+            </Link>
             <a
               href={releaseUrl()}
               target="_blank"

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Calendar, Tag, MessageSquare, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
@@ -9,7 +9,7 @@ import { Navbar } from '@/app/layouts/Navbar';
 import { addComment as addCommentAPI } from '@/features/blog/api';
 import { blogKeys, blogQueries } from '@/features/blog/queries';
 import { isNotFoundError } from '@/lib/errors';
-import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { Seo } from '@/components/seo/Seo';
 import { ImageCarousel } from '@/features/projects/ImageCarousel';
 import { formatDate } from '@/lib/date';
 
@@ -17,7 +17,6 @@ const COMMENT_COOLDOWN = 30;
 
 export default function BlogDetailPage() {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const {
@@ -27,12 +26,6 @@ export default function BlogDetailPage() {
     error,
     refetch,
   } = useQuery(blogQueries.detail(slug ?? ''));
-
-  useDocumentMeta({
-    title: blog?.title,
-    description: blog?.excerpt || undefined,
-    ogImage: blog?.images?.[0] || undefined,
-  });
 
   const { data: comments, isLoading: isLoadingComments } = useQuery(blogQueries.comments(blog?.id));
 
@@ -98,12 +91,9 @@ export default function BlogDetailPage() {
           >
             Try again
           </button>
-          <button
-            onClick={() => navigate('/blog')}
-            className="text-indigo-600 dark:text-indigo-400 hover:underline"
-          >
+          <Link to="/blog" className="text-indigo-600 dark:text-indigo-400 hover:underline">
             Back to Blog
-          </button>
+          </Link>
         </div>
       </div>
     );
@@ -126,6 +116,12 @@ export default function BlogDetailPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors">
+      <Seo
+        title={blog.title}
+        description={blog.excerpt || undefined}
+        image={blog.images?.[0] || undefined}
+        type="article"
+      />
       <Navbar />
 
       <div className="w-full h-96 relative bg-slate-200 dark:bg-slate-900">
@@ -144,12 +140,12 @@ export default function BlogDetailPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-slate-50 dark:from-slate-950 to-transparent z-10 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-full z-20 pb-12 pointer-events-auto">
           <div className="max-w-3xl mx-auto px-4">
-            <button
-              onClick={() => navigate('/blog')}
+            <Link
+              to="/blog"
               className="text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white mb-6 flex items-center gap-2 text-sm"
             >
               <ArrowLeft className="h-4 w-4" /> Back to Blog
-            </button>
+            </Link>
             <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 mb-4">
               <span className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" /> {formatDate(blog.published_at)}
@@ -172,7 +168,7 @@ export default function BlogDetailPage() {
           <p className="lead text-xl text-slate-600 dark:text-slate-300 mb-8 font-light">
             {blog.excerpt}
           </p>
-          <ReactMarkdown>{blog.content || ''}</ReactMarkdown>
+          <ReactMarkdown components={{ h1: 'h2' }}>{blog.content || ''}</ReactMarkdown>
         </div>
 
         <hr className="border-slate-200 dark:border-white/10 mb-12" />

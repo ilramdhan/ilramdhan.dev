@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Calendar, Code, Smartphone, Cloud, Terminal, Layout, Database } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { MotionScope, Reveal } from '@/components/motion';
@@ -14,7 +14,7 @@ import { projectQueries } from '@/features/projects/queries';
 import { blogQueries } from '@/features/blog/queries';
 import { techStackQueries } from '@/features/tech-stack/queries';
 import { serviceQueries } from '@/features/services/queries';
-import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { Seo } from '@/components/seo/Seo';
 import { useInView } from '@/lib/hooks';
 import { formatDate } from '@/lib/date';
 import { Img } from '@/components/ui/Img';
@@ -29,16 +29,8 @@ const IconMap: { [key: string]: React.ElementType } = {
 };
 
 export default function Page() {
-  const navigate = useNavigate();
-
   const marqueeRef = useRef<HTMLDivElement>(null);
   const marqueeInView = useInView(marqueeRef);
-
-  useDocumentMeta({
-    title: undefined, // Uses default: "Ilham Ramadhan | Web Developer & Portfolio"
-    description:
-      "Ilham Ramadhan's personal portfolio — showcasing projects, skills, certifications, and blog posts.",
-  });
 
   // Not read here, but keeps the shared ['profile'] query subscribed on the home page.
   useQuery(profileQueries.detail());
@@ -61,6 +53,7 @@ export default function Page() {
 
   return (
     <MotionScope>
+      <Seo description="Ilham Ramadhan's personal portfolio — showcasing projects, skills, certifications, and blog posts." />
       <Navbar />
       <main className="min-h-screen">
         <Hero />
@@ -161,12 +154,12 @@ export default function Page() {
                 </h2>
                 <p className="text-slate-600 dark:text-slate-400">Some of my recent work</p>
               </div>
-              <button
-                onClick={() => navigate('/projects')}
+              <Link
+                to="/projects"
                 className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium text-sm flex items-center gap-1"
               >
                 View All Projects &rarr;
-              </button>
+              </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -212,12 +205,12 @@ export default function Page() {
                   Thoughts on development and tech
                 </p>
               </div>
-              <button
-                onClick={() => navigate('/blog')}
+              <Link
+                to="/blog"
                 className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium text-sm flex items-center gap-1"
               >
                 Read Blog &rarr;
-              </button>
+              </Link>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -246,11 +239,9 @@ export default function Page() {
                 <p className="text-red-500 col-span-full text-center py-10">Error loading posts.</p>
               )}
               {featuredBlogs?.map((post) => (
-                // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- TODO(#57)
                 <div
                   key={post.id}
-                  onClick={() => post.slug && navigate(`/blog/${post.slug}`)}
-                  className="bg-white border border-slate-200 dark:bg-slate-950/80 dark:border-white/10 rounded-xl overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-all cursor-pointer group shadow-sm"
+                  className="relative bg-white border border-slate-200 dark:bg-slate-950/80 dark:border-white/10 rounded-xl overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-all group shadow-sm"
                 >
                   <div className="aspect-[2/1] overflow-hidden bg-slate-100 dark:bg-slate-900">
                     {post.images && post.images.length > 0 ? (
@@ -282,7 +273,16 @@ export default function Page() {
                       )}
                     </div>
                     <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                      {post.title}
+                      {post.slug ? (
+                        <Link
+                          to={`/blog/${post.slug}`}
+                          className="after:absolute after:inset-0 after:content-['']"
+                        >
+                          {post.title}
+                        </Link>
+                      ) : (
+                        post.title
+                      )}
                     </h3>
                     <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3">
                       {post.excerpt}

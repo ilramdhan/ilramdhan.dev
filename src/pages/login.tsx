@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Github, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/app/auth';
+import { Seo } from '@/components/seo/Seo';
 
 export default function LoginPage() {
   const { login, user, isLoading } = useAuth();
@@ -26,6 +27,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center px-4 transition-colors">
+      <Seo title="Admin login" noindex />
       <div className="w-full max-w-sm bg-white border border-slate-200 dark:bg-slate-900 dark:border-white/10 rounded-2xl p-8 shadow-lg dark:shadow-none">
         <h1 className="text-3xl font-bold text-center text-slate-900 dark:text-white mb-4">
           Admin login
@@ -49,12 +51,12 @@ export default function LoginPage() {
         </button>
 
         <div className="mt-8 text-center">
-          <button
-            onClick={() => navigate('/')}
+          <Link
+            to="/"
             className="text-sm text-slate-500 hover:text-slate-900 dark:hover:text-white"
           >
             Back to Home
-          </button>
+          </Link>
         </div>
       </div>
     </div>

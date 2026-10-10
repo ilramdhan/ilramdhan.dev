@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   FolderKanban,
   Mail,
@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Seo } from '@/components/seo/Seo';
 import { MotionScope } from '@/components/motion';
 import { useAuth } from '@/app/auth';
 import { ProjectsTab } from '@/pages/admin/ProjectsTab';
@@ -74,6 +75,7 @@ export default function AdminPage() {
   return (
     <MotionScope>
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex transition-colors relative">
+        <Seo title="Admin" noindex />
         {/* Mobile Menu Button */}
         <div className="md:hidden fixed top-4 left-4 z-50">
           <button
@@ -97,12 +99,12 @@ export default function AdminPage() {
             </div>
 
             <div className="space-y-1">
-              <button
-                onClick={() => navigate('/')}
+              <Link
+                to="/"
                 className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-colors mb-4 border border-slate-200 dark:border-white/5 bg-white dark:bg-transparent"
               >
                 <ExternalLink className="h-4 w-4" /> Back to Website
-              </button>
+              </Link>
 
               {menuItems.map((t) => (
                 <button
@@ -157,12 +159,12 @@ export default function AdminPage() {
                   </div>
 
                   <div className="space-y-1">
-                    <button
-                      onClick={() => navigate('/')}
+                    <Link
+                      to="/"
                       className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-colors mb-4 border border-slate-200 dark:border-white/5 bg-white dark:bg-transparent"
                     >
                       <ExternalLink className="h-4 w-4" /> Back to Website
-                    </button>
+                    </Link>
 
                     {menuItems.map((t) => (
                       <button

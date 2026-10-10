@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Download, MapPin, Briefcase, GraduationCap, ArrowRight, Award } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { CountUp, GrowBar, Reveal } from '@/components/motion';
@@ -14,7 +14,7 @@ import { certificateQueries } from '@/features/certificates/queries';
 import { wakatimeQueries } from '@/features/wakatime/queries';
 import { useTheme } from '@/app/ThemeContext';
 import { ensureFullUrl } from '@/lib/utils';
-import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { Seo } from '@/components/seo/Seo';
 import { Img } from '@/components/ui/Img';
 
 // recharts (~100 KB gzip) is only needed for this one chart (T-24).
@@ -22,13 +22,6 @@ const WakatimeStats = lazy(() => import('@/features/wakatime/WakatimeStats'));
 
 export default function AboutPage() {
   const { theme } = useTheme();
-  const navigate = useNavigate();
-
-  useDocumentMeta({
-    title: 'About',
-    description:
-      'Learn more about Ilham Ramadhan — experience, education, certifications, and coding activity.',
-  });
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery(profileQueries.detail());
   const { data: experience, isLoading: isLoadingExp } = useQuery(resumeQueries.list('experience'));
@@ -72,6 +65,10 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
+      <Seo
+        title="About"
+        description="Learn more about Ilham Ramadhan — experience, education, certifications, and coding activity."
+      />
       <Navbar />
       <div className="pt-32 pb-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row gap-12 items-start mb-20">
@@ -120,7 +117,7 @@ export default function AboutPage() {
           <div className="flex-1">
             <h1 className="text-4xl font-bold mb-6">{profile?.display_name || 'About Me'}</h1>
             <div className="prose prose-lg prose-slate dark:prose-invert">
-              <ReactMarkdown>{profile?.detailed_bio || ''}</ReactMarkdown>
+              <ReactMarkdown components={{ h1: 'h2' }}>{profile?.detailed_bio || ''}</ReactMarkdown>
             </div>
           </div>
         </div>
@@ -143,7 +140,7 @@ export default function AboutPage() {
                   </div>
                   <div className="text-sm text-slate-500 mb-3">{exp.period}</div>
                   <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-3 prose prose-sm dark:prose-invert">
-                    <ReactMarkdown>{exp.description || ''}</ReactMarkdown>
+                    <ReactMarkdown components={{ h1: 'h2' }}>{exp.description || ''}</ReactMarkdown>
                   </div>
                 </Reveal>
               ))}
@@ -167,7 +164,7 @@ export default function AboutPage() {
                   </div>
                   <div className="text-sm text-slate-500 mb-2">{edu.period}</div>
                   <div className="text-sm text-slate-600 dark:text-slate-400 mb-3 prose prose-sm dark:prose-invert">
-                    <ReactMarkdown>{edu.description || ''}</ReactMarkdown>
+                    <ReactMarkdown components={{ h1: 'h2' }}>{edu.description || ''}</ReactMarkdown>
                   </div>
                 </Reveal>
               ))}
@@ -185,12 +182,12 @@ export default function AboutPage() {
                 Certificates
               </h2>
               {certificates.length > 3 && (
-                <button
-                  onClick={() => navigate('/certificates')}
+                <Link
+                  to="/certificates"
                   className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium text-sm flex items-center gap-1"
                 >
                   View All Certificates <ArrowRight className="h-4 w-4" />
-                </button>
+                </Link>
               )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

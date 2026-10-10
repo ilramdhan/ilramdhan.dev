@@ -95,7 +95,7 @@ export function ImageCarousel({
       {count > 1 && (
         <>
           {/* Visible on touch/coarse pointers and keyboard focus; hover-only elsewhere. */}
-          <div className="absolute inset-0 flex items-center justify-between p-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity pointer-events-none">
+          <div className="absolute inset-0 z-10 flex items-center justify-between p-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity pointer-events-none">
             <button
               type="button"
               onClick={prev}
