@@ -32,7 +32,7 @@ export function pageRange(page: number, limit: number): [from: number, to: numbe
 }
 
 /**
- * Id of the signed-in user, used to fill `user_id` on inserts. `getSession()` reads the
+ * Id of the signed-in user, used to address the signed-in user's own profile row. Inserts no longer send `user_id`; the database defaults it to `auth.uid()`. `getSession()` reads the
  * locally stored session (no request unless it must be refreshed).
  */
 export async function currentUserId(): Promise<string> {

@@ -2,14 +2,7 @@ import type { Tables, TablesInsert, TablesUpdate } from '@/types';
 import { supabase } from '@/lib/supabase/client';
 import { columns } from '@/lib/supabase/columns';
 import { distinctSorted, fetchDistinct } from '@/lib/supabase/distinct';
-import {
-  assertOk,
-  currentUserId,
-  pageRange,
-  unwrap,
-  withoutId,
-  unwrapPage,
-} from '@/lib/supabase/result';
+import { assertOk, pageRange, unwrap, withoutId, unwrapPage } from '@/lib/supabase/result';
 import { ilikeContains } from '@/lib/search';
 
 type Row = Tables<'blogs'>;
@@ -114,15 +107,8 @@ export async function getAdminBlogs(): Promise<Blog[]> {
   );
 }
 
-export async function addBlog(blog: Omit<BlogInsert, 'user_id'>): Promise<Blog> {
-  const userId = await currentUserId();
-  return unwrap(
-    await supabase
-      .from('blogs')
-      .insert({ ...blog, user_id: userId })
-      .select(BLOG_ADMIN_COLUMNS)
-      .single(),
-  );
+export async function addBlog(blog: BlogInsert): Promise<Blog> {
+  return unwrap(await supabase.from('blogs').insert(blog).select(BLOG_ADMIN_COLUMNS).single());
 }
 
 export async function updateBlog(updates: TablesUpdate<'blogs'> & { id: number }): Promise<Blog> {

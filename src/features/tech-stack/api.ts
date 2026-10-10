@@ -1,7 +1,7 @@
 import type { Tables, TablesInsert, TablesUpdate } from '@/types';
 import { supabase } from '@/lib/supabase/client';
 import { columns } from '@/lib/supabase/columns';
-import { assertOk, currentUserId, unwrap, withoutId } from '@/lib/supabase/result';
+import { assertOk, unwrap, withoutId } from '@/lib/supabase/result';
 
 export const TECH_STACK_COLUMNS = columns('tech_stack', 'id', 'name', 'category', 'icon_url');
 
@@ -14,15 +14,8 @@ export async function getTechStack(): Promise<TechStack[]> {
   );
 }
 
-export async function addTechStack(tech: Omit<TechStackInsert, 'user_id'>): Promise<TechStack> {
-  const userId = await currentUserId();
-  return unwrap(
-    await supabase
-      .from('tech_stack')
-      .insert({ ...tech, user_id: userId })
-      .select(TECH_STACK_COLUMNS)
-      .single(),
-  );
+export async function addTechStack(tech: TechStackInsert): Promise<TechStack> {
+  return unwrap(await supabase.from('tech_stack').insert(tech).select(TECH_STACK_COLUMNS).single());
 }
 
 export async function updateTechStack(
