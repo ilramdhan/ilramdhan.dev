@@ -1,0 +1,54 @@
+name: ✨ Feature request
+description: Propose a new capability for the site or the admin dashboard
+title: "[Feature] "
+labels: ["type: feature", "status: triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / motivation
+      description: What need does this address? Who benefits (visitors, recruiters, the admin)?
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Public site
+        - Admin dashboard
+        - Database / RLS / Storage
+        - Performance
+        - SEO / social preview
+        - Accessibility
+        - Responsive / layout
+        - Animation
+        - i18n
+        - Build / CI / tooling
+        - Operations / monitoring
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: UX, data model changes, libraries, free-tier impact (Vercel Hobby / Supabase Free).
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: "- [ ] ...\n- [ ] Works at 320–2560 px, light/dark, reduced motion\n- [ ] Tests added"
+    validations:
+      required: true
+  - type: input
+    id: plan
+    attributes:
+      label: Plan task / audit reference (optional)
+      placeholder: "T-36 / SEO-03"

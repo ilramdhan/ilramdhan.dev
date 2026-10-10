@@ -19,3 +19,6 @@
 - Built as static assets using Vite (`npm run build`) and deployed as a static web app.
 - Platform configuration (for example on Vercel) serves the SPA entry point and static assets.
 - Experimental SSR-oriented modules are kept outside the production import path to avoid ambiguity in runtime expectations.
+
+## Planned evolution
+- The target architecture (`src/` feature folders, build-time prerendering, admin allowlist RLS, i18n EN/ID, motion system) is specified in [`PLAN.md`](./PLAN.md) §3–§4, based on the findings in [`audit/AUDIT.md`](./audit/AUDIT.md).
