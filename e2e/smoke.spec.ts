@@ -107,7 +107,7 @@ test('hero: copy and CTA never overlap the 3D card, which only renders from lg',
   } else {
     await expect(canvas.first()).toBeAttached();
   }
-  const cta = page.getByRole('button', { name: /view projects/i });
+  const cta = page.getByRole('link', { name: /view projects/i });
   const box = async (l: import('@playwright/test').Locator) => (await l.boundingBox())!;
   const [h, c] = [await box(h1), await box(cta)];
   // The card is parked in the right half (x offset 2.5 of a >= 10 wide canvas).

@@ -42,19 +42,13 @@
     <meta name="twitter:description" content="%SITE_OG_DESCRIPTION%" />
     <meta name="twitter:image" content="%SITE_OG_IMAGE%" />
 
-    <!-- Favicons -->
-    <link
-      rel="icon"
-      type="image/png"
-      href="/logo/ir-light.png"
-      media="(prefers-color-scheme: light)"
-    />
-    <link
-      rel="icon"
-      type="image/png"
-      href="/logo/ir-dark.png"
-      media="(prefers-color-scheme: dark)"
-    />
+    <!-- Favicons: SVG adapts to light/dark inside the file; PNG/ICO are fallbacks -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="icon" href="/favicon-16.png" type="image/png" sizes="16x16" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
 
     <!-- Structured Data (JSON-LD) is injected from src/config/site.ts by vite.config.ts -->
   </head>

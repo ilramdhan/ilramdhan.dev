@@ -138,3 +138,49 @@ test('project card demo/repo links still work independently of the card link', a
     expect(Number(z) || 0).toBeGreaterThan(0);
   }
 });
+
+// T-39 (#54): favicons and web app manifest.
+
+test('manifest is linked, served and valid, and every icon resolves', async ({ page, request }) => {
+  await page.goto('/');
+  const href = await page.locator('link[rel="manifest"]').getAttribute('href');
+  expect(href).toBe('/site.webmanifest');
+  const res = await request.get(href!);
+  expect(res.ok()).toBe(true);
+  const manifest = (await res.json()) as {
+    name: string;
+    short_name: string;
+    start_url: string;
+    theme_color: string;
+    background_color: string;
+    icons: { src: string; sizes: string; purpose?: string }[];
+  };
+  expect(manifest.name).toBeTruthy();
+  expect(manifest.short_name).toBeTruthy();
+  expect(manifest.start_url).toBe('/');
+  expect(manifest.theme_color).toMatch(/^#[0-9a-f]{6}$/i);
+  expect(manifest.background_color).toMatch(/^#[0-9a-f]{6}$/i);
+  const sizes = manifest.icons.map((i) => i.sizes);
+  expect(sizes).toContain('192x192');
+  expect(sizes).toContain('512x512');
+  expect(manifest.icons.some((i) => i.purpose === 'maskable')).toBe(true);
+  for (const icon of manifest.icons) {
+    const r = await request.get(icon.src);
+    expect(r.ok(), icon.src).toBe(true);
+    expect(r.headers()['content-type']).toContain('image/png');
+  }
+});
+
+test('favicon links and apple-touch-icon resolve', async ({ page, request }) => {
+  await page.goto('/');
+  const hrefs = await page
+    .locator('link[rel~="icon"], link[rel="apple-touch-icon"]')
+    .evaluateAll((els) => els.map((e) => e.getAttribute('href')!));
+  expect(hrefs).toEqual(
+    expect.arrayContaining(['/favicon.svg', '/favicon.ico', '/apple-touch-icon.png']),
+  );
+  for (const href of hrefs) {
+    expect((await request.get(href)).ok(), href).toBe(true);
+  }
+  await expect(page.locator('meta[name="theme-color"]')).toHaveCount(2);
+});
