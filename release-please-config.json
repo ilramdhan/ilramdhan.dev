@@ -1,0 +1,29 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "90f17baa4c84c8fcb21bd3adabfcbccad82be2ed",
+  "include-component-in-tag": false,
+  "include-v-in-tag": true,
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "package-name": "ilramdhan.dev",
+      "bump-minor-pre-major": true,
+      "bump-patch-for-minor-pre-major": false,
+      "changelog-path": "CHANGELOG.md",
+      "changelog-sections": [
+        { "type": "feat", "section": "Features" },
+        { "type": "fix", "section": "Bug Fixes" },
+        { "type": "perf", "section": "Performance" },
+        { "type": "security", "section": "Security" },
+        { "type": "refactor", "section": "Refactors" },
+        { "type": "docs", "section": "Documentation" },
+        { "type": "revert", "section": "Reverts" },
+        { "type": "test", "section": "Tests", "hidden": true },
+        { "type": "ci", "section": "CI", "hidden": true },
+        { "type": "build", "section": "Build", "hidden": true },
+        { "type": "chore", "section": "Chores", "hidden": true },
+        { "type": "style", "section": "Styles", "hidden": true }
+      ]
+    }
+  }
+}
