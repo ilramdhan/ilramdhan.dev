@@ -12,6 +12,9 @@ const KNOWN_HSCROLL: { paths: string[]; maxWidth: number; issue: string }[] = [
   // system font (the site has no web font): ~320 px locally, up to 414 px on the
   // Ubuntu CI runner.
   { paths: ['/projects/long-content', '/blog/long-content'], maxWidth: 414, issue: '#37' },
+  // "View All Certificates" header button overflows by ~4 px at 320 px with wider
+  // system fonts (DejaVu Sans on the CI runner).
+  { paths: ['/about'], maxWidth: 320, issue: '#37' },
 ];
 
 function knownHScrollIssue(path: string, width: number) {

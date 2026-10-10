@@ -14,9 +14,15 @@ export function horizontalOverflow(page: Page): Promise<number> {
 export function overflowingElements(page: Page, limit = 5): Promise<string[]> {
   return page.evaluate((max) => {
     const vw = document.documentElement.clientWidth;
+    // Clipped = inside a scroll/hidden container that itself fits in the viewport.
     const clipped = (el: Element) => {
       for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
-        if (getComputedStyle(p).overflowX !== 'visible') return true;
+        if (
+          getComputedStyle(p).overflowX !== 'visible' &&
+          p.getBoundingClientRect().right <= vw + 1
+        ) {
+          return true;
+        }
       }
       return false;
     };
@@ -25,8 +31,11 @@ export function overflowingElements(page: Page, limit = 5): Promise<string[]> {
       const visible = getComputedStyle(el).overflowX === 'visible';
       return rect.left + (visible ? Math.max(rect.width, el.scrollWidth) : rect.width) > vw + 1;
     };
-    return [...document.querySelectorAll<HTMLElement>('body *')]
-      .filter((el) => sticksOut(el) && !clipped(el) && ![...el.children].some(sticksOut))
+    const candidates = [...document.querySelectorAll<HTMLElement>('body *')].filter(
+      (el) => sticksOut(el) && !clipped(el),
+    );
+    return candidates
+      .filter((el) => !candidates.some((other) => other !== el && el.contains(other)))
       .slice(0, max)
       .map((el) => {
         const classes = [...el.classList].slice(0, 4).join('.');
