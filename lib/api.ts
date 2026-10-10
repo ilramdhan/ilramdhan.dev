@@ -192,16 +192,19 @@ export const getBlogs = async ({
   page = 1,
   limit = 6,
   query: searchQuery,
+  tag,
 }: {
   page?: number;
   limit?: number;
   query?: string;
+  tag?: string | null;
 }) => {
   let query = supabase
     .from('blogs')
     .select('*', { count: 'exact' })
     .order('published_at', { ascending: false });
   if (searchQuery) query = query.ilike('title', `%${searchQuery}%`);
+  if (tag) query = query.contains('tags', [tag]);
   const from = (page - 1) * limit;
   const to = from + limit - 1;
   query = query.range(from, to);

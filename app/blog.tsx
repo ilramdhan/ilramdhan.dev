@@ -35,7 +35,12 @@ export default function BlogPage() {
   } = useQuery({
     queryKey: ['blogs', currentPage, selectedTag, debouncedSearchQuery],
     queryFn: () =>
-      getBlogs({ page: currentPage, limit: ITEMS_PER_PAGE, query: debouncedSearchQuery }),
+      getBlogs({
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+        query: debouncedSearchQuery,
+        tag: selectedTag,
+      }),
     placeholderData: (previousData) => previousData,
   });
 
