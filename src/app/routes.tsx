@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AdminRoute } from '@/app/AdminRoute';
+import { RouteErrorBoundary } from '@/app/error/RouteError';
 import PublicLayout from '@/app/layouts/PublicLayout';
 import Page from '@/pages/home';
 import LoginPage from '@/pages/login';
@@ -12,13 +13,15 @@ import AboutPage from '@/pages/about';
 import CertificatesPage from '@/pages/certificates';
 import PrivacyPage from '@/pages/privacy';
 import TermsPage from '@/pages/terms';
+import NotFoundPage from '@/pages/not-found';
 
 // Admin-only code (dashboard, CRUD forms, react-hook-form) stays out of the public bundle.
 const AdminPage = lazy(() => import('@/pages/admin'));
 
-export function AppRoutes() {
+function GuardedRoutes() {
+  const { pathname } = useLocation();
   return (
-    <BrowserRouter>
+    <RouteErrorBoundary resetKey={pathname}>
       <Routes>
         <Route path="/" element={<PublicLayout />}>
           <Route index element={<Page />} />
@@ -41,8 +44,17 @@ export function AppRoutes() {
               </AdminRoute>
             }
           />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
+    </RouteErrorBoundary>
+  );
+}
+
+export function AppRoutes() {
+  return (
+    <BrowserRouter>
+      <GuardedRoutes />
     </BrowserRouter>
   );
 }

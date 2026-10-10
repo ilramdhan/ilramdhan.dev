@@ -18,6 +18,7 @@ import { techStackQueries } from '@/features/tech-stack/queries';
 import { serviceQueries } from '@/features/services/queries';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { useTheme } from '@/app/ThemeContext';
+import { formatDate } from '@/lib/date';
 
 const IconMap: { [key: string]: React.ElementType } = {
   code: Code,
@@ -119,7 +120,7 @@ export default function Page() {
                   I offer a range of services to help you build your next digital product.
                 </p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {services.map((service, idx) => {
                   const Icon = service.icon_name ? IconMap[service.icon_name] || Code : Code;
                   return (
@@ -273,7 +274,7 @@ export default function Page() {
                   <div className="p-6">
                     <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">
                       <Calendar className="h-3 w-3" />
-                      {post.published_at ? new Date(post.published_at).toLocaleDateString() : ''}
+                      {formatDate(post.published_at)}
                       {post.tags && post.tags.length > 0 && (
                         <>
                           <span>•</span>

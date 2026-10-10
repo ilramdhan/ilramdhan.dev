@@ -17,6 +17,7 @@ import {
 } from '@react-three/rapier';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import { useTexture, Environment, Lightformer, useGLTF } from '@react-three/drei';
+import { useMediaQuery } from '@/lib/hooks';
 import { SocialLinks } from '@/components/ui/SocialLinks';
 import { profileQueries } from '@/features/profile/queries';
 
@@ -244,6 +245,8 @@ useTexture.preload('/assets/images/tag_texture.png');
 export function Hero() {
   const navigate = useNavigate();
   const location = useLocation();
+  // The 3D card (and its physics) only renders where the layout reserves room for it.
+  const showCard = useMediaQuery('(min-width: 1024px)');
 
   const { data: profile, isLoading } = useQuery(profileQueries.detail());
 
@@ -284,47 +287,49 @@ export function Hero() {
 
   return (
     <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
-      {/* Canvas Layer - Full Screen Absolute */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <Canvas camera={{ position: [0, 0, 13], fov: 25 }} className="pointer-events-none">
-          <ambientLight intensity={Math.PI} />
-          <Suspense fallback={null}>
-            <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
-              <Band />
-            </Physics>
-            <Environment blur={0.75}>
-              <Lightformer
-                intensity={2}
-                color="white"
-                position={[0, -1, 5]}
-                rotation={[0, 0, Math.PI / 3]}
-                scale={[100, 0.1, 1]}
-              />
-              <Lightformer
-                intensity={3}
-                color="white"
-                position={[-1, -1, 1]}
-                rotation={[0, 0, Math.PI / 3]}
-                scale={[100, 0.1, 1]}
-              />
-              <Lightformer
-                intensity={3}
-                color="white"
-                position={[1, 1, 1]}
-                rotation={[0, 0, Math.PI / 3]}
-                scale={[100, 0.1, 1]}
-              />
-              <Lightformer
-                intensity={10}
-                color="white"
-                position={[-10, 0, 14]}
-                rotation={[0, Math.PI / 2, Math.PI / 3]}
-                scale={[100, 10, 1]}
-              />
-            </Environment>
-          </Suspense>
-        </Canvas>
-      </div>
+      {/* Canvas Layer - only from lg, where the spacer reserves room for the card */}
+      {showCard && (
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <Canvas camera={{ position: [0, 0, 13], fov: 25 }} className="pointer-events-none">
+            <ambientLight intensity={Math.PI} />
+            <Suspense fallback={null}>
+              <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
+                <Band />
+              </Physics>
+              <Environment blur={0.75}>
+                <Lightformer
+                  intensity={2}
+                  color="white"
+                  position={[0, -1, 5]}
+                  rotation={[0, 0, Math.PI / 3]}
+                  scale={[100, 0.1, 1]}
+                />
+                <Lightformer
+                  intensity={3}
+                  color="white"
+                  position={[-1, -1, 1]}
+                  rotation={[0, 0, Math.PI / 3]}
+                  scale={[100, 0.1, 1]}
+                />
+                <Lightformer
+                  intensity={3}
+                  color="white"
+                  position={[1, 1, 1]}
+                  rotation={[0, 0, Math.PI / 3]}
+                  scale={[100, 0.1, 1]}
+                />
+                <Lightformer
+                  intensity={10}
+                  color="white"
+                  position={[-10, 0, 14]}
+                  rotation={[0, Math.PI / 2, Math.PI / 3]}
+                  scale={[100, 10, 1]}
+                />
+              </Environment>
+            </Suspense>
+          </Canvas>
+        </div>
+      )}
 
       {/* Content Layer - Relative Z-10 */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pointer-events-none">
@@ -345,7 +350,7 @@ export function Hero() {
                 {profile.badge_text}
               </span>
             )}
-            <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-6">
+            <h1 className="font-extrabold tracking-tight text-slate-900 dark:text-white mb-6 break-words text-[clamp(2.25rem,1.2rem+4.5vw,4.5rem)] leading-[1.1]">
               <span>{text || '\u00A0'}</span>
             </h1>
             <p className="mt-4 max-w-2xl mx-auto lg:mx-0 text-xl text-slate-600 dark:text-slate-400 mb-8">

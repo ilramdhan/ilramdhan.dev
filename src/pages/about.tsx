@@ -182,7 +182,7 @@ export default function AboutPage() {
 
         {certificates && certificates.length > 0 && (
           <div className="mb-20">
-            <div className="flex items-center justify-between mb-8">
+            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 mb-8">
               <h2 className="text-2xl font-bold flex items-center gap-3">
                 <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600 dark:text-green-400">
                   <Award className="h-6 w-6" />

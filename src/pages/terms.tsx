@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { profileQueries } from '@/features/profile/queries';
 import { Navbar } from '@/app/layouts/Navbar';
+import { formatDate } from '@/lib/date';
 
 export default function TermsPage() {
   const navigate = useNavigate();
@@ -30,9 +31,7 @@ export default function TermsPage() {
         </button>
         <h1 className="text-4xl font-bold mb-8">Terms of Service</h1>
         <div className="prose prose-slate dark:prose-invert max-w-none">
-          <p className="text-sm text-slate-500 mb-8">
-            Last updated: {new Date().toLocaleDateString()}
-          </p>
+          <p className="text-sm text-slate-500 mb-8">Last updated: {formatDate(new Date())}</p>
           <ReactMarkdown>{profile?.terms_content || 'No terms content available.'}</ReactMarkdown>
         </div>
       </div>

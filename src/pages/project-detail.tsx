@@ -3,11 +3,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Github, ExternalLink, Calendar, ArrowLeft } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import NotFoundPage from '@/pages/not-found';
 import { Navbar } from '@/app/layouts/Navbar';
 import { projectQueries } from '@/features/projects/queries';
 import { isNotFoundError } from '@/lib/errors';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { ImageCarousel } from '@/features/projects/ImageCarousel';
+import { formatDate } from '@/lib/date';
 
 export default function ProjectDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -60,19 +62,7 @@ export default function ProjectDetailPage() {
     );
   }
 
-  if (!project) {
-    return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white">
-        <h1 className="text-2xl font-bold mb-4">Project Not Found</h1>
-        <button
-          onClick={() => navigate('/projects')}
-          className="text-indigo-600 dark:text-indigo-400 hover:underline"
-        >
-          Back to Projects
-        </button>
-      </div>
-    );
-  }
+  if (!project) return <NotFoundPage />;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors">
@@ -94,11 +84,12 @@ export default function ProjectDetailPage() {
         </div>
 
         {/* Title + Meta */}
-        <h1 className="text-4xl font-bold mb-4 text-slate-900 dark:text-white">{project.title}</h1>
+        <h1 className="text-4xl font-bold mb-4 text-slate-900 dark:text-white break-words hyphens-auto">
+          {project.title}
+        </h1>
         <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 mb-6">
           <span className="flex items-center gap-1">
-            <Calendar className="h-4 w-4" />{' '}
-            {project.created_at ? new Date(project.created_at).toLocaleDateString() : ''}
+            <Calendar className="h-4 w-4" /> {formatDate(project.created_at)}
           </span>
           {project.is_featured && (
             <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 rounded-full border border-indigo-200 dark:border-indigo-500/30">

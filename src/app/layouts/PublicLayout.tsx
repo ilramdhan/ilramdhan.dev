@@ -2,7 +2,6 @@ import React from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
-import { ThemeProvider } from '@/app/ThemeContext';
 import { profileQueries } from '@/features/profile/queries';
 import { releaseUrl, versionAriaLabel, versionLabel } from '@/lib/version';
 import { ScrollToTop } from './ScrollToTop';
@@ -66,14 +65,12 @@ function Footer() {
 export default function App() {
   return (
     <div className="min-h-screen text-slate-900 dark:text-slate-50 antialiased selection:bg-indigo-500/30 flex flex-col">
-      <ThemeProvider>
-        <BackgroundBeams />
-        <div className="flex-1">
-          <Outlet />
-        </div>
-        <Footer />
-        <ScrollToTop />
-      </ThemeProvider>
+      <BackgroundBeams />
+      <div className="flex-1">
+        <Outlet />
+      </div>
+      <Footer />
+      <ScrollToTop />
       <Toaster position="bottom-right" theme="system" />
     </div>
   );
