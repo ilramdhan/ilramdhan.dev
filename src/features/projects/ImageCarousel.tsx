@@ -1,13 +1,24 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Img } from '@/components/ui/Img';
 
 interface ImageCarouselProps {
   images: string[];
   alt: string;
   aspectRatio?: string; // e.g., 'aspect-video', 'aspect-square'
+  /** Above-the-fold hero image (detail pages): eager + high fetch priority. */
+  priority?: boolean;
+  /** `sizes` hint for the rendered width. */
+  sizes?: string;
 }
 
-export function ImageCarousel({ images, alt, aspectRatio = 'aspect-video' }: ImageCarouselProps) {
+export function ImageCarousel({
+  images,
+  alt,
+  aspectRatio = 'aspect-video',
+  priority = false,
+  sizes,
+}: ImageCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // If no images, show placeholder
@@ -35,9 +46,13 @@ export function ImageCarousel({ images, alt, aspectRatio = 'aspect-video' }: Ima
     <div
       className={`w-full ${aspectRatio} relative overflow-hidden group bg-slate-100 dark:bg-slate-900`}
     >
-      <img
-        src={images[currentIndex]}
-        alt={`${alt} - ${currentIndex + 1}`}
+      <Img
+        src={images[currentIndex]!}
+        alt={images.length > 1 ? `${alt}: image ${currentIndex + 1} of ${images.length}` : alt}
+        width={1600}
+        height={900}
+        priority={priority && currentIndex === 0}
+        sizes={sizes}
         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
       />
 

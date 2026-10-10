@@ -6,6 +6,7 @@ import { useTheme } from '@/app/ThemeContext';
 import { useIsAdmin } from '@/lib/useIsAdmin';
 import { profileQueries } from '@/features/profile/queries';
 import { prefetchRoute } from '@/app/prefetch';
+import { Img } from '@/components/ui/Img';
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -54,9 +55,12 @@ export function Navbar() {
             {isLoadingProfile ? (
               <div className="h-8 w-24 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
             ) : profile?.logo_url ? (
-              <img
+              <Img
                 src={profile.logo_url}
-                alt="Logo"
+                alt={profile.logo_text || 'Home'}
+                width={128}
+                height={32}
+                priority
                 className="h-8 w-auto object-contain transition-all duration-300"
               />
             ) : (

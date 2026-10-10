@@ -132,8 +132,10 @@ export default function BlogDetailPage() {
         {blog.images && blog.images.length > 0 ? (
           <ImageCarousel
             images={blog.images.slice(0, 1)}
-            alt={blog.title || 'Blog Post'}
+            alt={blog.title ? `Cover image for “${blog.title}”` : 'Blog post cover'}
             aspectRatio="h-full"
+            priority
+            sizes="100vw"
           />
         ) : (
           <div className="w-full h-full bg-slate-200 dark:bg-slate-900" />

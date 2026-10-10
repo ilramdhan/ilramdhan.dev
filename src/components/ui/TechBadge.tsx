@@ -1,3 +1,5 @@
+import { Img } from './Img';
+
 interface TechBadgeProps {
   name: string;
   iconUrl: string | null;
@@ -8,11 +10,19 @@ export function TechBadge({ name, iconUrl }: TechBadgeProps) {
   return (
     <div className="flex items-center gap-3 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300">
       {iconUrl ? (
-        <img src={iconUrl} alt={name} className="h-8 w-8 object-contain dark:invert" />
+        <Img
+          src={iconUrl}
+          alt={name}
+          width={32}
+          height={32}
+          className="h-8 w-8 object-contain dark:invert"
+        />
       ) : (
-        <img
+        <Img
           src={`https://cdn.simpleicons.org/${name.toLowerCase().replace(/\s+/g, '')}/default`}
           alt={name}
+          width={32}
+          height={32}
           className="h-8 w-8 dark:invert"
           onError={(e) => (e.currentTarget.style.display = 'none')}
         />

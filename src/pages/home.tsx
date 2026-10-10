@@ -17,6 +17,7 @@ import { serviceQueries } from '@/features/services/queries';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
 import { useInView } from '@/lib/hooks';
 import { formatDate } from '@/lib/date';
+import { Img } from '@/components/ui/Img';
 
 const IconMap: { [key: string]: React.ElementType } = {
   code: Code,
@@ -218,9 +219,12 @@ export default function Page() {
                 >
                   <div className="aspect-[2/1] overflow-hidden bg-slate-100 dark:bg-slate-900">
                     {post.images && post.images.length > 0 ? (
-                      <img
-                        src={post.images[0]}
-                        alt={post.title}
+                      <Img
+                        src={post.images[0]!}
+                        alt={post.title ? `Cover image for “${post.title}”` : ''}
+                        width={1600}
+                        height={800}
+                        sizes="(min-width: 768px) 50vw, 100vw"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (

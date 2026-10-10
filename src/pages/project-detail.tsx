@@ -78,8 +78,10 @@ export default function ProjectDetailPage() {
         <div className="mb-8 rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-2xl">
           <ImageCarousel
             images={project.images || []}
-            alt={project.title || ''}
+            alt={project.title ? `Screenshot of ${project.title}` : 'Project screenshot'}
             aspectRatio="aspect-video"
+            priority
+            sizes="(min-width: 1024px) 64rem, 100vw"
           />
         </div>
 

@@ -68,6 +68,10 @@ export function ResourceForm<V extends FormValues>({
           {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           {submitLabel}
         </button>
+        {/* Uploads are compressed in the browser first (T-27): say what's happening. */}
+        <span role="status" aria-live="polite" className="sr-only">
+          {isPending ? 'Compressing and uploading images, then saving…' : ''}
+        </span>
       </div>
     </form>
   );
@@ -152,7 +156,11 @@ function FormField<V extends FormValues>({
             <ul className="flex flex-wrap gap-2 mb-2" aria-label={`Current ${field.label}`}>
               {media.urls.map((url) => (
                 <li key={url} className="relative">
-                  <img src={url} alt="" className="h-16 w-16 object-cover rounded" />
+                  <img
+                    src={url}
+                    alt={`${field.label} ${media.urls.indexOf(url) + 1}`}
+                    className="h-16 w-16 object-cover rounded"
+                  />
                   <button
                     type="button"
                     aria-label="Remove image"
@@ -165,7 +173,13 @@ function FormField<V extends FormValues>({
               ))}
             </ul>
           )}
-          <Field {...common}>
+          <Field
+            {...common}
+            description={
+              common.description ??
+              'Converted to WebP (max 1600 px) in your browser before upload. Max 5 MB each.'
+            }
+          >
             <input
               type="file"
               multiple

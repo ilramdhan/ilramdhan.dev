@@ -15,6 +15,7 @@ import { wakatimeQueries } from '@/features/wakatime/queries';
 import { useTheme } from '@/app/ThemeContext';
 import { ensureFullUrl } from '@/lib/utils';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { Img } from '@/components/ui/Img';
 
 // recharts (~100 KB gzip) is only needed for this one chart (T-24).
 const WakatimeStats = lazy(() => import('@/features/wakatime/WakatimeStats'));
@@ -77,9 +78,13 @@ export default function AboutPage() {
           <div className="w-full md:w-1/3 shrink-0">
             <div className="aspect-square rounded-2xl overflow-hidden border-4 border-white dark:border-slate-800 shadow-xl relative mb-6">
               <div className="absolute inset-0 bg-indigo-500/10 mix-blend-overlay" />
-              <img
+              <Img
                 src={profile?.avatar_url || ''}
-                alt={profile?.display_name || 'User'}
+                alt={profile?.display_name ? `Portrait of ${profile.display_name}` : 'Portrait'}
+                width={512}
+                height={512}
+                priority
+                sizes="(min-width: 768px) 33vw, 100vw"
                 className="w-full h-full object-cover bg-white dark:bg-slate-900"
               />
             </div>
@@ -263,18 +268,22 @@ export default function AboutPage() {
             <div className="space-y-6">
               <div className="grid grid-cols-1 gap-6">
                 <a href={`https://github.com/${username}`}>
-                  <img
+                  <Img
+                    width={1200}
+                    height={420}
                     src={`https://github-readme-activity-graph.vercel.app/graph?username=${username}&theme=${theme === 'dark' ? 'high-contrast' : 'merko'}&hide_border=true&area=true`}
                     alt="GitHub Activity Graph"
-                    className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg w-full h-full"
+                    className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg w-full h-auto"
                   />
                 </a>
               </div>
               <div className="flex justify-center">
-                <img
+                <Img
+                  width={880}
+                  height={192}
                   src={`https://raw.githubusercontent.com/${siteConfig.githubUsername}/Snake-in-Contribution-Grid/output/github-contribution-grid-snake.svg`}
                   alt="GitHub Contribution Grid Snake"
-                  className="max-w-full"
+                  className="max-w-full h-auto"
                 />
               </div>
             </div>
