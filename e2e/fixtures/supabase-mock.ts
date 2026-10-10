@@ -10,7 +10,18 @@ export interface SupabaseMock {
   db: Record<string, Row[]>;
   /** Every request the app made to the mock (method, decoded path + query, body). */
   requests: { method: string; url: URL; path: string; body: string | null }[];
+  /** Responses for `POST /rest/v1/rpc/<name>`; set in a test to change what a function returns. */
+  rpc: Record<string, { status: number; body: unknown }>;
 }
+
+/** PostgREST's answer for a function that doesn't exist (migration not applied yet). */
+export const RPC_NOT_FOUND = {
+  status: 404,
+  body: {
+    code: 'PGRST202',
+    message: 'Could not find the function public.is_admin without parameters',
+  },
+};
 
 const json = (route: Route, status: number, body: unknown, headers: Record<string, string> = {}) =>
   route.fulfill({ status, contentType: 'application/json', headers, body: JSON.stringify(body) });
@@ -74,6 +85,12 @@ async function handle(route: Route, request: Request, mock: SupabaseMock) {
   }
   if (!url.pathname.startsWith('/rest/v1/')) return json(route, 404, { message: 'not mocked' });
 
+  if (url.pathname.startsWith('/rest/v1/rpc/')) {
+    const fn = url.pathname.replace('/rest/v1/rpc/', '');
+    const answer = mock.rpc[fn] ?? RPC_NOT_FOUND;
+    return json(route, answer.status, answer.body);
+  }
+
   const table = url.pathname.replace('/rest/v1/', '');
   if (request.method() === 'HEAD') return route.fulfill({ status: 200 });
   if (request.method() !== 'GET') return json(route, 201, []);
@@ -125,7 +142,11 @@ function stubThirdParty(route: Route, request: Request) {
  * dataset per test) and stubs every other third-party request so tests are hermetic.
  */
 export async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
-  const mock: SupabaseMock = { db: createDataset(), requests: [] };
+  const mock: SupabaseMock = {
+    db: createDataset(),
+    requests: [],
+    rpc: { is_admin: { status: 200, body: true } },
+  };
   // Registered first = lowest priority: the Supabase handler below wins for its URLs.
   await page.route('**/*', stubThirdParty);
   await page.route(`${MOCK_SUPABASE_URL}/**`, (route, request) => handle(route, request, mock));

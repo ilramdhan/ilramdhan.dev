@@ -1,9 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AdminRoute } from './components/AdminRoute';
 import { EnvErrorScreen } from './components/EnvErrorScreen';
-import { AuthProvider, useAuth } from './lib/auth';
+import { AuthProvider } from './lib/auth';
 import { envErrors } from './lib/env';
 import App from './App';
 import Page from './app/page';
@@ -26,16 +27,6 @@ if (!rootElement) {
   throw new Error('Could not find root element to mount to');
 }
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, isLoading } = useAuth();
-
-  if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
-
-  return user ? <>{children}</> : <Navigate to="/login" replace />;
-}
-
 function AppRoutes() {
   return (
     <BrowserRouter>
@@ -54,9 +45,9 @@ function AppRoutes() {
           <Route
             path="admin"
             element={
-              <ProtectedRoute>
+              <AdminRoute>
                 <AdminPage />
-              </ProtectedRoute>
+              </AdminRoute>
             }
           />
         </Route>

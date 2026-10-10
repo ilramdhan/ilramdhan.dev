@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTheme } from '../lib/ThemeContext';
-import { useAuth } from '../lib/auth';
+import { useIsAdmin } from '../lib/useIsAdmin';
 import * as api from '../lib/api';
 
 export function Navbar() {
@@ -13,14 +13,12 @@ export function Navbar() {
   const location = useLocation();
   const path = location.pathname;
   const { theme, toggleTheme } = useTheme();
-  const { user } = useAuth();
+  const { isAdmin } = useIsAdmin();
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery({
     queryKey: ['profile'],
     queryFn: api.getProfile,
   });
-
-  const isAuthenticated = !!user;
 
   const handleNav = (targetPath: string) => {
     if (targetPath.startsWith('/#')) {
@@ -97,8 +95,8 @@ export function Navbar() {
               </button>
 
               {/* No public "Sign In" button: /login stays reachable directly.
-                  TODO(T-08): show "Dashboard" only to admins (useIsAdmin). */}
-              {isAuthenticated && (
+                  "Dashboard" is only shown to allowlisted admins (T-08). */}
+              {isAdmin && (
                 <button
                   onClick={() => navigate('/admin')}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
@@ -144,7 +142,7 @@ export function Navbar() {
                   {link.name}
                 </button>
               ))}
-              {isAuthenticated && (
+              {isAdmin && (
                 <button
                   onClick={() => handleNav('/admin')}
                   className="text-left text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 block px-3 py-2 rounded-md text-base font-medium"

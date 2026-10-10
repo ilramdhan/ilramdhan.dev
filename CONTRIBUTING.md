@@ -60,6 +60,18 @@ npm run test:watch   # watch mode
 - Put tests next to the code as `*.test.ts(x)` (e.g. `lib/utils.test.ts`, `components/EnvErrorScreen.test.tsx`).
 - Query by role/label (`screen.getByRole(...)`), not by class names. For modules that read `import.meta.env` at import time, use `vi.stubEnv()` + `vi.resetModules()` and re-import (see `lib/env.test.ts`).
 
+### Database policy tests (RLS + storage)
+
+`supabase/policy-tests/` checks every RLS and storage policy (anon, a signed-in non-admin, the allowlisted admin) on a plain, **empty, throwaway** Postgres: it loads a minimal Supabase stub (`auth`/`storage` schemas, roles), all migrations (plus a fixture that recreates production-only drift), then the `*_test.sql` files. CI runs it against a Postgres service container.
+
+```bash
+docker run -d --rm --name pgtest -e POSTGRES_PASSWORD=postgres -p 55432:5432 postgres:17-alpine
+DATABASE_URL=postgres://postgres:postgres@127.0.0.1:55432/postgres npm run test:db   # needs psql
+docker stop pgtest
+```
+
+Never point it at a real Supabase project. When you add a table or policy, add assertions to a `*_test.sql` file.
+
 ### End-to-end tests (Playwright)
 
 ```bash

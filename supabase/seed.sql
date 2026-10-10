@@ -38,6 +38,12 @@ insert into auth.identities (
   'email', now(), now(), now()
 ) on conflict do nothing;
 
+-- Local admin allowlist (T-08): without this row is_admin() is false and the
+-- dashboard / writes are denied. Production is seeded by the owner once.
+insert into public.admin_users (user_id)
+values ('00000000-0000-4000-8000-000000000001')
+on conflict do nothing;
+
 -- ---------------------------------------------------------------------------
 -- Content
 -- ---------------------------------------------------------------------------

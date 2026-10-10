@@ -81,24 +81,25 @@ After changing the schema, add a migration (`npx supabase@2.120.0 migration new 
 
 #### Hosted project
 
-- **New project:** `npx supabase@2.120.0 link --project-ref <ref>` then `npx supabase@2.120.0 db push` (applies all migrations, never the seed). Then enable the GitHub provider in **Auth → Providers**, add your site URL to the redirect URLs, **disable new sign-ups** after your own account exists, and insert your profile row (`profile.id` = your `auth.users.id`).
+- **New project:** `npx supabase@2.120.0 link --project-ref <ref>` then `npx supabase@2.120.0 db push` (applies all migrations, never the seed). Then enable the GitHub provider in **Auth → Providers**, add your site URL to the redirect URLs, **disable new sign-ups** after your own account exists, insert your profile row (`profile.id` = your `auth.users.id`), and add yourself to the admin allowlist: `insert into public.admin_users (user_id) select id from auth.users where email = '<your-email>' on conflict do nothing;` (without it every write is denied).
 - **Existing production (created from the legacy SQL):** it already matches the baseline migration. Mark it as applied once instead of running it: `npx supabase@2.120.0 migration repair --status applied 20260101000000`. Later migrations are applied manually by the owner (SQL editor or `db push`) — see each PR's "Manual step" section — and then marked applied the same way.
 
 ### Scripts
 
-| Command                | What it does                                |
-| ---------------------- | ------------------------------------------- |
-| `npm run dev`          | Dev server on <http://localhost:3000>       |
-| `npm run build`        | Type-check and production build to `dist/`  |
-| `npm run preview`      | Serve the production build                  |
-| `npm run lint`         | ESLint (flat config, zero warnings allowed) |
-| `npm run lint:fix`     | ESLint with autofix                         |
-| `npm run format`       | Format the repo with Prettier               |
-| `npm run format:check` | Check formatting (CI)                       |
-| `npm run db:start`     | Start local Supabase (Docker)               |
-| `npm run db:stop`      | Stop local Supabase                         |
-| `npm run db:reset`     | Rebuild local DB from migrations + seed     |
-| `npm run db:types`     | Regenerate `lib/database.types.ts` (local)  |
+| Command                | What it does                                                      |
+| ---------------------- | ----------------------------------------------------------------- |
+| `npm run dev`          | Dev server on <http://localhost:3000>                             |
+| `npm run build`        | Type-check and production build to `dist/`                        |
+| `npm run preview`      | Serve the production build                                        |
+| `npm run lint`         | ESLint (flat config, zero warnings allowed)                       |
+| `npm run lint:fix`     | ESLint with autofix                                               |
+| `npm run format`       | Format the repo with Prettier                                     |
+| `npm run format:check` | Check formatting (CI)                                             |
+| `npm run db:start`     | Start local Supabase (Docker)                                     |
+| `npm run db:stop`      | Stop local Supabase                                               |
+| `npm run db:reset`     | Rebuild local DB from migrations + seed                           |
+| `npm run db:types`     | Regenerate `lib/database.types.ts` (local)                        |
+| `npm run test:db`      | RLS/storage policy tests on a throwaway Postgres (`DATABASE_URL`) |
 
 ## Project structure
 

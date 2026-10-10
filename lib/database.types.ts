@@ -3,6 +3,22 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      admin_users: {
+        Row: {
+          created_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       blog_comments: {
         Row: {
           blog_id: number | null;
@@ -367,7 +383,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      is_admin: { Args: never; Returns: boolean };
     };
     Enums: {
       [_ in never]: never;

@@ -51,6 +51,27 @@ jobs:
       - name: Bundle-size budget
         run: npm run size
 
+  db-policies:
+    name: DB policy tests (RLS + storage)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Run policy tests
+        run: bash scripts/test-db-policies.sh
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+
   e2e:
     name: E2E (Playwright)
     runs-on: ubuntu-latest
