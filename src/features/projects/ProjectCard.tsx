@@ -26,7 +26,11 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
       className="group relative rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-white/10 overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-colors cursor-pointer"
     >
       <div className="aspect-video w-full bg-slate-100 dark:bg-slate-800 relative group/image">
-        <ImageCarousel images={project.images || []} alt={project.title || 'Project'} />
+        <ImageCarousel
+          images={project.images || []}
+          alt={project.title ? `Screenshot of ${project.title}` : 'Project screenshot'}
+          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+        />
 
         <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover/image:opacity-100 transition-opacity flex items-center justify-center gap-4 pointer-events-none">
           {/* Actions overlay - separate from carousel interaction */}
@@ -80,3 +84,23 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
     </motion.div>
   );
 };
+
+/** Placeholder with the card's final box (image ratio, tag row, title, 2 lines), so the grid doesn't shift (T-26). */
+export function ProjectCardSkeleton() {
+  return (
+    <div
+      aria-hidden="true"
+      className="rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-white/10 overflow-hidden"
+    >
+      <div className="aspect-video w-full bg-slate-100 dark:bg-slate-800 animate-pulse" />
+      <div className="p-6">
+        <div className="flex gap-2 mb-4">
+          <span className="h-[26px] w-14 rounded-md bg-slate-100 dark:bg-slate-800" />
+          <span className="h-[26px] w-16 rounded-md bg-slate-100 dark:bg-slate-800" />
+        </div>
+        <div className="h-7 w-2/3 mb-2 rounded bg-slate-200 dark:bg-slate-800" />
+        <div className="h-10 w-full rounded bg-slate-100 dark:bg-slate-800/60" />
+      </div>
+    </div>
+  );
+}

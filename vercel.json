@@ -46,7 +46,7 @@
       ]
     },
     {
-      "source": "/assets/(3d|images)/(.*)",
+      "source": "/models/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase/client';
+import { compressImage, DEFAULT_MAX_IMAGE_EDGE, MAX_IMAGE_EDGE } from '@/lib/image-compress';
 
 /**
  * Admin uploads to the public "ilramdhan.dev" bucket (T-09).
@@ -77,9 +78,34 @@ export function validateUpload(
   return file.type;
 }
 
-/** `folder/<uuid>.<ext>`: never uses the original (user-controlled) file name. */
-export function buildUploadPath(folder: UploadFolder, mime: AllowedMimeType): string {
-  return `${folder}/${crypto.randomUUID()}.${ALLOWED_MIME_TYPES[mime]}`;
+/**
+ * `folder/<uuid>.<ext>`: never uses the original (user-controlled) file name. Images whose
+ * size is known get `_<w>x<h>` (`folder/<uuid>_1600x900.webp`) so pages can reserve their
+ * box without a database column (T-27).
+ */
+export function buildUploadPath(
+  folder: UploadFolder,
+  mime: AllowedMimeType,
+  size?: { width: number; height: number },
+): string {
+  const dims = size ? `_${size.width}x${size.height}` : '';
+  return `${folder}/${crypto.randomUUID()}${dims}.${ALLOWED_MIME_TYPES[mime]}`;
+}
+
+/**
+ * Images are resized (1600 px; avatars 512, logos 256) and re-encoded as WebP before
+ * upload; PDFs and images the browser can't convert are uploaded unchanged.
+ */
+async function prepareUpload(
+  file: File,
+  folder: UploadFolder,
+  mime: AllowedMimeType,
+): Promise<{ body: Blob; mime: AllowedMimeType; size?: { width: number; height: number } }> {
+  if (!IMAGE_MIME_TYPES.includes(mime)) return { body: file, mime };
+  const compressed = await compressImage(file, MAX_IMAGE_EDGE[folder] ?? DEFAULT_MAX_IMAGE_EDGE);
+  if (!compressed) return { body: file, mime };
+  const { blob, width, height } = compressed;
+  return { body: blob, mime: 'image/webp', size: { width, height } };
 }
 
 export interface UploadResult {
@@ -87,15 +113,16 @@ export interface UploadResult {
   publicUrl: string;
 }
 
-/** Validates and uploads one file, returning its storage path and public URL. */
+/** Validates, compresses (images) and uploads one file, returning its path and public URL. */
 export async function uploadFile(
   file: File,
   folder: UploadFolder,
   allowed: readonly AllowedMimeType[] = ALL_MIME_TYPES,
 ): Promise<UploadResult> {
-  const mime = validateUpload(file, allowed);
+  const original = validateUpload(file, allowed);
+  const { body, mime, size } = await prepareUpload(file, folder, original);
   const bucket = supabase.storage.from(UPLOAD_BUCKET);
-  const { data, error } = await bucket.upload(buildUploadPath(folder, mime), file, {
+  const { data, error } = await bucket.upload(buildUploadPath(folder, mime, size), body, {
     cacheControl: '3600',
     contentType: mime,
     upsert: false,

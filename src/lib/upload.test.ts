@@ -6,6 +6,11 @@ const upload =
 const getPublicUrl = vi.fn<(path: string) => { data: { publicUrl: string } }>();
 const from = vi.fn(() => ({ upload, getPublicUrl }));
 vi.mock('@/lib/supabase/client', () => ({ supabase: { storage: { from } } }));
+const compressImage = vi.fn();
+vi.mock('@/lib/image-compress', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./image-compress')>()),
+  compressImage: (...args: unknown[]) => compressImage(...args) as unknown,
+}));
 
 const {
   MAX_UPLOAD_BYTES,
@@ -25,6 +30,7 @@ const fakeFile = (name: string, type: string, size = 1024) =>
   new File([new Uint8Array(size)], name, { type });
 
 afterEach(() => {
+  compressImage.mockReset();
   upload.mockReset();
   getPublicUrl.mockReset();
   from.mockClear();
@@ -78,6 +84,12 @@ describe('buildUploadPath', () => {
     expect(buildUploadPath('cv', 'application/pdf')).toMatch(/^cv\/.+\.pdf$/);
   });
 
+  it('appends _<w>x<h> when the image size is known', () => {
+    expect(buildUploadPath('projects', 'image/webp', { width: 1600, height: 900 })).toMatch(
+      new RegExp(`^projects/${UUID.source}_1600x900\\.webp$`),
+    );
+  });
+
   it('generates a new name every time', () => {
     expect(buildUploadPath('blogs', 'image/webp')).not.toBe(buildUploadPath('blogs', 'image/webp'));
   });
@@ -105,6 +117,35 @@ describe('uploadFile', () => {
     expect(path).toMatch(new RegExp(`^projects/${UUID.source}\\.png$`));
     expect(options).toMatchObject({ contentType: 'image/png', upsert: false });
     expect(result).toEqual({ path, publicUrl: `https://cdn.test/${path}` });
+  });
+
+  it('stores images as compressed WebP named with their dimensions', async () => {
+    upload.mockImplementation((path) => Promise.resolve({ data: { path }, error: null }));
+    getPublicUrl.mockImplementation((path) => ({
+      data: { publicUrl: `https://cdn.test/${path}` },
+    }));
+    const webp = new Blob([new Uint8Array(300 * 1024)], { type: 'image/webp' });
+    compressImage.mockResolvedValue({ blob: webp, width: 512, height: 384 });
+
+    await uploadFile(fakeFile('me.jpg', 'image/jpeg', 4 * 1024 * 1024 - 1), 'avatars');
+
+    expect(compressImage).toHaveBeenCalledWith(expect.any(File), 512);
+    const [path, body, options] = upload.mock.calls[0]!;
+    expect(path).toMatch(new RegExp(`^avatars/${UUID.source}_512x384\\.webp$`));
+    expect(body).toBe(webp);
+    expect(options).toMatchObject({ contentType: 'image/webp' });
+  });
+
+  it('uploads PDFs unchanged and never compresses them', async () => {
+    upload.mockImplementation((path) => Promise.resolve({ data: { path }, error: null }));
+    getPublicUrl.mockImplementation((path) => ({
+      data: { publicUrl: `https://cdn.test/${path}` },
+    }));
+    const pdf = fakeFile('cv.pdf', 'application/pdf');
+    await uploadFile(pdf, 'cv');
+    expect(compressImage).not.toHaveBeenCalled();
+    expect(upload.mock.calls[0]![1]).toBe(pdf);
+    expect(upload.mock.calls[0]![0]).toMatch(/^cv\/[^_]+\.pdf$/);
   });
 
   it('does not call Storage for an invalid file', async () => {

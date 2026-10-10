@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import type { Certificate } from '@/features/certificates/api';
 import { formatDate } from '@/lib/date';
+import { Img } from '@/components/ui/Img';
 
 interface CertificateCardProps {
   cert: Certificate;
@@ -20,9 +21,12 @@ export function CertificateCard({ cert, delay }: CertificateCardProps) {
     >
       {cert.file_url ? (
         <div className="h-48 bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
-          <img
+          <Img
             src={cert.file_url}
-            alt={cert.title}
+            alt={`${cert.title} certificate${cert.issued_by ? ` issued by ${cert.issued_by}` : ''}`}
+            width={1600}
+            height={1200}
+            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         </div>

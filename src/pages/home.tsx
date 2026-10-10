@@ -1,13 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Code, Smartphone, Cloud, Terminal, Layout, Database } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
-import * as THREE from 'three';
-import GLOBE, { type VantaEffect } from 'vanta/dist/vanta.globe.min.js';
 import { Hero } from '@/features/hero-3d/Hero';
-import { ProjectCard } from '@/features/projects/ProjectCard';
+import { ProjectCard, ProjectCardSkeleton } from '@/features/projects/ProjectCard';
 import { ContactForm } from '@/features/messages/ContactForm';
 import { TechBadge } from '@/components/ui/TechBadge';
 import { Navbar } from '@/app/layouts/Navbar';
@@ -17,8 +15,9 @@ import { blogQueries } from '@/features/blog/queries';
 import { techStackQueries } from '@/features/tech-stack/queries';
 import { serviceQueries } from '@/features/services/queries';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
-import { useTheme } from '@/app/ThemeContext';
+import { useInView } from '@/lib/hooks';
 import { formatDate } from '@/lib/date';
+import { Img } from '@/components/ui/Img';
 
 const IconMap: { [key: string]: React.ElementType } = {
   code: Code,
@@ -29,25 +28,11 @@ const IconMap: { [key: string]: React.ElementType } = {
   database: Database,
 };
 
-const lightThemeConfig = {
-  color: 0x599bfa,
-  color2: 0x2a6daa,
-  backgroundColor: 0xf8fafc, // bg-slate-50
-  size: 1.0,
-};
-
-const darkThemeConfig = {
-  color: 0x599bfa,
-  color2: 0x2a6daa,
-  backgroundColor: 0x0f172a, // bg-slate-900
-  size: 1.0,
-};
-
 export default function Page() {
   const navigate = useNavigate();
-  const { theme } = useTheme();
-  const [vantaEffect, setVantaEffect] = useState<VantaEffect | null>(null);
-  const vantaRef = useRef<HTMLElement>(null);
+
+  const marqueeRef = useRef<HTMLDivElement>(null);
+  const marqueeInView = useInView(marqueeRef);
 
   useDocumentMeta({
     title: undefined, // Uses default: "Ilham Ramadhan | Web Developer & Portfolio"
@@ -72,35 +57,7 @@ export default function Page() {
 
   const { data: techStack } = useQuery(techStackQueries.list());
 
-  const { data: services } = useQuery(serviceQueries.list());
-
-  useEffect(() => {
-    if (!vantaRef.current) return;
-    const vantaInstance = GLOBE({
-      el: vantaRef.current,
-      THREE: THREE,
-      mouseControls: true,
-      touchControls: true,
-      gyroControls: false,
-      minHeight: 200.0,
-      minWidth: 200.0,
-      scale: 1.0,
-      scaleMobile: 1.0,
-      ...(theme === 'dark' ? darkThemeConfig : lightThemeConfig),
-    });
-    setVantaEffect(vantaInstance);
-    return () => {
-      if (vantaInstance) vantaInstance.destroy();
-    };
-    // Mount-only: theme changes are applied by the effect below via setOptions.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (vantaEffect) {
-      vantaEffect.setOptions(theme === 'dark' ? darkThemeConfig : lightThemeConfig);
-    }
-  }, [theme, vantaEffect]);
+  const { data: services, isPending: isPendingServices } = useQuery(serviceQueries.list());
 
   return (
     <>
@@ -109,7 +66,9 @@ export default function Page() {
         <Hero />
 
         {/* Services Section */}
-        {services && services.length > 0 && (
+        {/* Sections render their shell straight away with skeletons of the final size,
+            so content arriving later never pushes the page down (T-26). */}
+        {(isPendingServices || (services && services.length > 0)) && (
           <section className="py-20 bg-slate-50 dark:bg-slate-900/30 border-y border-slate-200 dark:border-white/5">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-12">
@@ -121,7 +80,19 @@ export default function Page() {
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {services.map((service, idx) => {
+                {isPendingServices &&
+                  [0, 1, 2].map((i) => (
+                    <div
+                      key={i}
+                      aria-hidden="true"
+                      className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 p-8 rounded-2xl flex flex-col items-center"
+                    >
+                      <div className="h-14 w-14 rounded-full bg-indigo-50 dark:bg-slate-800 mb-6" />
+                      <div className="h-7 w-1/2 mb-3 rounded bg-slate-200 dark:bg-slate-800" />
+                      <div className="h-[46px] w-full rounded bg-slate-100 dark:bg-slate-800/60" />
+                    </div>
+                  ))}
+                {services?.map((service, idx) => {
                   const Icon = service.icon_name ? IconMap[service.icon_name] || Code : Code;
                   return (
                     <motion.div
@@ -156,21 +127,23 @@ export default function Page() {
             </p>
           </div>
           <div
-            className="relative flex overflow-x-hidden group"
+            ref={marqueeRef}
+            data-paused={!marqueeInView}
+            className="marquee relative flex overflow-x-hidden"
             style={{
               maskImage:
                 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)',
             }}
           >
-            <div className="flex whitespace-nowrap group-hover:[animation-play-state:paused]">
-              <div className="animate-scroll flex-shrink-0 flex items-center justify-center gap-24 py-4 px-6">
+            <div className="marquee-track flex whitespace-nowrap min-h-[4.25rem]">
+              <div className="flex-shrink-0 flex items-center justify-center gap-24 py-4 px-6">
                 {techStack?.map((tech, i) => (
                   <TechBadge key={`tech-a-${i}`} name={tech.name} iconUrl={tech.icon_url} />
                 ))}
               </div>
               <div
                 aria-hidden="true"
-                className="animate-scroll flex-shrink-0 flex items-center justify-center gap-24 py-4 px-6"
+                className="flex-shrink-0 flex items-center justify-center gap-24 py-4 px-6"
               >
                 {techStack?.map((tech, i) => (
                   <TechBadge key={`tech-b-${i}`} name={tech.name} iconUrl={tech.icon_url} />
@@ -200,9 +173,14 @@ export default function Page() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {isLoadingProjects && (
-                <p className="text-slate-500 col-span-full text-center py-10">
-                  Loading projects...
-                </p>
+                <>
+                  <span className="sr-only" role="status">
+                    Loading projects...
+                  </span>
+                  {[0, 1, 2].map((i) => (
+                    <ProjectCardSkeleton key={i} />
+                  ))}
+                </>
               )}
               {isErrorProjects && (
                 <p className="text-red-500 col-span-full text-center py-10">
@@ -246,7 +224,25 @@ export default function Page() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {isLoadingBlogs && (
-                <p className="text-slate-500 col-span-full text-center py-10">Loading posts...</p>
+                <>
+                  <span className="sr-only" role="status">
+                    Loading posts...
+                  </span>
+                  {[0, 1].map((i) => (
+                    <div
+                      key={i}
+                      aria-hidden="true"
+                      className="bg-white border border-slate-200 dark:bg-slate-950/80 dark:border-white/10 rounded-xl overflow-hidden shadow-sm"
+                    >
+                      <div className="aspect-[2/1] bg-slate-100 dark:bg-slate-900 animate-pulse" />
+                      <div className="p-6">
+                        <div className="h-4 w-32 mb-3 rounded bg-slate-100 dark:bg-slate-800" />
+                        <div className="h-7 w-2/3 mb-3 rounded bg-slate-200 dark:bg-slate-800" />
+                        <div className="h-[60px] w-full rounded bg-slate-100 dark:bg-slate-800/60" />
+                      </div>
+                    </div>
+                  ))}
+                </>
               )}
               {isErrorBlogs && (
                 <p className="text-red-500 col-span-full text-center py-10">Error loading posts.</p>
@@ -260,9 +256,12 @@ export default function Page() {
                 >
                   <div className="aspect-[2/1] overflow-hidden bg-slate-100 dark:bg-slate-900">
                     {post.images && post.images.length > 0 ? (
-                      <img
-                        src={post.images[0]}
-                        alt={post.title}
+                      <Img
+                        src={post.images[0]!}
+                        alt={post.title ? `Cover image for “${post.title}”` : ''}
+                        width={1600}
+                        height={800}
+                        sizes="(min-width: 768px) 50vw, 100vw"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     ) : (
@@ -303,7 +302,11 @@ export default function Page() {
         </section>
 
         {/* Contact Section */}
-        <section id="contact" className="relative" ref={vantaRef}>
+        {/* Static CSS mesh gradient (replaces the Vanta WebGL globe, T-25). */}
+        <section
+          id="contact"
+          className="relative overflow-hidden bg-slate-50 dark:bg-slate-900 bg-[radial-gradient(ellipse_60%_50%_at_20%_30%,rgba(89,155,250,0.18),transparent),radial-gradient(ellipse_50%_60%_at_80%_70%,rgba(42,109,170,0.18),transparent)] dark:bg-[radial-gradient(ellipse_60%_50%_at_20%_30%,rgba(89,155,250,0.16),transparent),radial-gradient(ellipse_50%_60%_at_80%_70%,rgba(42,109,170,0.22),transparent)]"
+        >
           <div className="relative z-10 py-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="max-w-xl mx-auto text-center mb-12">

@@ -9,6 +9,7 @@ import { blogQueries } from '@/features/blog/queries';
 import { formatDate } from '@/lib/date';
 import { useListParams } from '@/lib/useListParams';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { Img } from '@/components/ui/Img';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -115,9 +116,12 @@ export default function BlogPage() {
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="w-full md:w-48 aspect-video md:aspect-square shrink-0 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800">
                   {blog.images && blog.images.length > 0 ? (
-                    <img
-                      src={blog.images[0]}
-                      alt={blog.title}
+                    <Img
+                      src={blog.images[0]!}
+                      alt={blog.title ? `Cover image for “${blog.title}”` : ''}
+                      width={1600}
+                      height={900}
+                      sizes="(min-width: 768px) 12rem, 100vw"
                       className="w-full h-full object-cover"
                     />
                   ) : (

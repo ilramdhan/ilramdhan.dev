@@ -1,19 +1,19 @@
 {
-  "$comment": "Bundle-size budgets checked by scripts/check-bundle-size.mjs after `npm run build`. Sizes in KiB. Current values = today's sizes + ~3% headroom so CI blocks growth; tighten towards PLAN §3.6 as the bundle is split (#39).",
+  "$comment": "Bundle-size budgets checked by scripts/check-bundle-size.mjs after `npm run build`. Sizes in KiB. `aggregate: initial` = JS the browser must download before a route renders (entry graph + the static graph of the route chunk matching `route`); PLAN \u00a73.6 caps public routes at 180 KiB gzip. Other budgets = current size + small headroom so CI blocks growth.",
   "budgets": [
     {
       "name": "JS total (gzip)",
       "pattern": "\\.js$",
       "metric": "gzip",
       "aggregate": "sum",
-      "maxKiB": 1400
+      "maxKiB": 1440
     },
     {
       "name": "Largest JS chunk (gzip)",
       "pattern": "\\.js$",
       "metric": "gzip",
       "aggregate": "max",
-      "maxKiB": 1400
+      "maxKiB": 1050
     },
     {
       "name": "CSS total (gzip)",
@@ -27,7 +27,38 @@
       "pattern": "\\.(glb|gltf)$",
       "metric": "raw",
       "aggregate": "sum",
-      "maxKiB": 3950
+      "maxKiB": 240
+    },
+    {
+      "name": "Initial JS /privacy (gzip)",
+      "pattern": "\\.js$",
+      "route": "^assets/privacy-[\\w-]{8}\\.js$",
+      "metric": "gzip",
+      "aggregate": "initial",
+      "maxKiB": 180
+    },
+    {
+      "name": "Initial JS /blog (gzip)",
+      "pattern": "\\.js$",
+      "route": "^assets/blog-[\\w-]{8}\\.js$",
+      "metric": "gzip",
+      "aggregate": "initial",
+      "maxKiB": 160
+    },
+    {
+      "name": "Initial JS / (gzip)",
+      "pattern": "\\.js$",
+      "route": "^assets/home-[\\w-]{8}\\.js$",
+      "metric": "gzip",
+      "aggregate": "initial",
+      "maxKiB": 250
+    },
+    {
+      "name": "3D card chunks (gzip)",
+      "pattern": "^assets/(three|HeroCard)-[\\w-]{8}\\.js$",
+      "metric": "gzip",
+      "aggregate": "sum",
+      "maxKiB": 1060
     }
   ]
 }

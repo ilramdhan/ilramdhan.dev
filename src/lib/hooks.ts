@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type RefObject } from 'react';
 
 export function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
@@ -29,4 +29,20 @@ export function useMediaQuery(query: string): boolean {
     return () => media.removeEventListener('change', onChange);
   }, [query]);
   return matches;
+}
+
+/** Whether the element is (partly) in the viewport; `true` where IntersectionObserver is missing. */
+export function useInView(ref: RefObject<Element>, rootMargin = '0px'): boolean {
+  const [inView, setInView] = useState(true);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setInView(Boolean(entry?.isIntersecting)),
+      { rootMargin },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [ref, rootMargin]);
+  return inView;
 }

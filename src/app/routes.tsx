@@ -1,22 +1,27 @@
-import { lazy, Suspense } from 'react';
+import { lazy } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AdminRoute } from '@/app/AdminRoute';
 import { RouteErrorBoundary } from '@/app/error/RouteError';
 import PublicLayout from '@/app/layouts/PublicLayout';
-import Page from '@/pages/home';
-import LoginPage from '@/pages/login';
-import ProjectsPage from '@/pages/projects';
-import ProjectDetailPage from '@/pages/project-detail';
-import BlogPage from '@/pages/blog';
-import BlogDetailPage from '@/pages/blog-detail';
-import AboutPage from '@/pages/about';
-import CertificatesPage from '@/pages/certificates';
-import PrivacyPage from '@/pages/privacy';
-import TermsPage from '@/pages/terms';
-import NotFoundPage from '@/pages/not-found';
+import { setRoutePrefetcher } from '@/app/prefetch';
+import { loadRouteChunk, pageLoaders } from '@/app/route-modules';
 
-// Admin-only code (dashboard, CRUD forms, react-hook-form) stays out of the public bundle.
-const AdminPage = lazy(() => import('@/pages/admin'));
+// Every page is its own chunk (T-24); admin-only code (dashboard, CRUD forms) stays
+// out of the public bundle entirely.
+const HomePage = lazy(pageLoaders.home);
+const AboutPage = lazy(pageLoaders.about);
+const CertificatesPage = lazy(pageLoaders.certificates);
+const ProjectsPage = lazy(pageLoaders.projects);
+const ProjectDetailPage = lazy(pageLoaders.projectDetail);
+const BlogPage = lazy(pageLoaders.blog);
+const BlogDetailPage = lazy(pageLoaders.blogDetail);
+const PrivacyPage = lazy(pageLoaders.privacy);
+const TermsPage = lazy(pageLoaders.terms);
+const LoginPage = lazy(pageLoaders.login);
+const AdminPage = lazy(pageLoaders.admin);
+const NotFoundPage = lazy(pageLoaders.notFound);
+
+setRoutePrefetcher(loadRouteChunk);
 
 function GuardedRoutes() {
   const { pathname } = useLocation();
@@ -24,7 +29,7 @@ function GuardedRoutes() {
     <RouteErrorBoundary resetKey={pathname}>
       <Routes>
         <Route path="/" element={<PublicLayout />}>
-          <Route index element={<Page />} />
+          <Route index element={<HomePage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="certificates" element={<CertificatesPage />} />
           <Route path="projects" element={<ProjectsPage />} />
@@ -38,9 +43,7 @@ function GuardedRoutes() {
             path="admin"
             element={
               <AdminRoute>
-                <Suspense fallback={<div className="p-8 text-center">Loading...</div>}>
-                  <AdminPage />
-                </Suspense>
+                <AdminPage />
               </AdminRoute>
             }
           />
@@ -53,7 +56,7 @@ function GuardedRoutes() {
 
 export function AppRoutes() {
   return (
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true }}>
       <GuardedRoutes />
     </BrowserRouter>
   );
