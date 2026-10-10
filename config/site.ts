@@ -25,6 +25,8 @@ export const siteConfig = {
   /** Path of the default Open Graph image (relative to the site root). */
   ogDefaultImage: '/logo.png',
   githubUsername: 'ilramdhan',
+  /** Source repository; the footer version links to its GitHub Releases. */
+  repoUrl: 'https://github.com/ilramdhan/ilramdhan.dev',
   /** Public WakaTime share JSON endpoints (Share -> Embeddable Charts). */
   wakatime: {
     languagesUrl:
