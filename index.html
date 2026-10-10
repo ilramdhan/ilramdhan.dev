@@ -12,8 +12,22 @@
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="%SITE_URL%" />
 
-    <!-- Theme Color -->
-    <meta name="theme-color" content="#4f46e5" />
+    <!-- Theme: applied before first paint to avoid a flash of the wrong theme -->
+    <script>
+      !(function () {
+        try {
+          var t = localStorage.getItem('theme'),
+            d =
+              t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches),
+            e = document.documentElement;
+          e.classList.toggle('dark', d);
+          e.style.colorScheme = d ? 'dark' : 'light';
+        } catch (a) {}
+      })();
+    </script>
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#020617" media="(prefers-color-scheme: dark)" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
