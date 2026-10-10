@@ -1,22 +1,11 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import {
-  Download,
-  MapPin,
-  Briefcase,
-  GraduationCap,
-  Mail,
-  Github,
-  Linkedin,
-  Twitter,
-  Instagram,
-  Youtube,
-  Award,
-  ArrowRight,
-} from 'lucide-react';
+import { Download, MapPin, Briefcase, GraduationCap, ArrowRight, Award } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import { CertificateCard } from '@/components/ui/CertificateCard';
+import { SocialLinks } from '@/components/ui/SocialLinks';
 import { Navbar } from '@/app/layouts/Navbar';
 import { siteConfig } from '@/config/site';
 import { profileQueries } from '@/features/profile/queries';
@@ -27,15 +16,6 @@ import { useTheme } from '@/app/ThemeContext';
 import WakatimeStats from '@/features/wakatime/WakatimeStats';
 import { ensureFullUrl } from '@/lib/utils';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
-
-const SocialIconMap: { [key: string]: React.ElementType } = {
-  github: Github,
-  linkedin: Linkedin,
-  twitter: Twitter,
-  instagram: Instagram,
-  youtube: Youtube,
-  mail: Mail,
-};
 
 export default function AboutPage() {
   const { theme } = useTheme();
@@ -110,29 +90,12 @@ export default function AboutPage() {
                 </div>
               )}
 
-              <div className="flex flex-wrap gap-4 mt-2">
-                {profile?.social_links &&
-                  typeof profile.social_links === 'object' &&
-                  Object.entries(profile.social_links).map(([key, value]) => {
-                    if (!value) return null;
-                    const Icon = SocialIconMap[key];
-                    if (!Icon) return null;
-                    // social_links values are URLs / addresses stored as strings.
-                    const link = value as string;
-                    const href = key === 'mail' ? `mailto:${link}` : ensureFullUrl(link) || '#';
-                    return (
-                      <a
-                        key={key}
-                        href={href}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="p-2 bg-slate-200 dark:bg-slate-900 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                      >
-                        <Icon className="h-5 w-5" />
-                      </a>
-                    );
-                  })}
-              </div>
+              <SocialLinks
+                links={profile?.social_links}
+                containerClassName="flex flex-wrap gap-4 mt-2"
+                linkClassName="p-2 bg-slate-200 dark:bg-slate-900 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                iconClassName="h-5 w-5"
+              />
             </div>
 
             {resumeUrl && (
@@ -237,51 +200,7 @@ export default function AboutPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {certificates.slice(0, 3).map((cert, idx) => (
-                <motion.div
-                  key={cert.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 rounded-xl overflow-hidden hover:border-indigo-500/30 transition-all shadow-sm dark:shadow-none group flex flex-col"
-                >
-                  {cert.file_url ? (
-                    <div className="h-48 bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
-                      <img
-                        src={cert.file_url}
-                        alt={cert.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                  ) : (
-                    <div className="h-48 bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
-                      <Award className="h-12 w-12" />
-                    </div>
-                  )}
-                  <div className="p-6 flex-1 flex flex-col">
-                    <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">
-                      {cert.title}
-                    </h3>
-                    <p className="text-sm text-indigo-600 dark:text-indigo-400 mb-2">
-                      {cert.issued_by}
-                    </p>
-                    <p className="text-xs text-slate-500 mb-4">
-                      {cert.issued_date} {cert.expiry_date ? ` - ${cert.expiry_date}` : ''}
-                    </p>
-                    <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4 flex-1 prose prose-sm dark:prose-invert line-clamp-3">
-                      <ReactMarkdown>{cert.description || ''}</ReactMarkdown>
-                    </div>
-                    {cert.credential_url && (
-                      <a
-                        href={cert.credential_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline mt-auto"
-                      >
-                        View Credential &rarr;
-                      </a>
-                    )}
-                  </div>
-                </motion.div>
+                <CertificateCard key={cert.id} cert={cert} delay={idx * 0.1} />
               ))}
             </div>
           </div>

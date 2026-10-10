@@ -9,6 +9,7 @@ import GLOBE, { type VantaEffect } from 'vanta/dist/vanta.globe.min.js';
 import { Hero } from '@/features/hero-3d/Hero';
 import { ProjectCard } from '@/features/projects/ProjectCard';
 import { ContactForm } from '@/features/messages/ContactForm';
+import { TechBadge } from '@/components/ui/TechBadge';
 import { Navbar } from '@/app/layouts/Navbar';
 import { profileQueries } from '@/features/profile/queries';
 import { projectQueries } from '@/features/projects/queries';
@@ -163,28 +164,7 @@ export default function Page() {
             <div className="flex whitespace-nowrap group-hover:[animation-play-state:paused]">
               <div className="animate-scroll flex-shrink-0 flex items-center justify-center gap-24 py-4 px-6">
                 {techStack?.map((tech, i) => (
-                  <div
-                    key={`tech-a-${i}`}
-                    className="flex items-center gap-3 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300"
-                  >
-                    {tech.icon_url ? (
-                      <img
-                        src={tech.icon_url}
-                        alt={tech.name}
-                        className="h-8 w-8 object-contain dark:invert"
-                      />
-                    ) : (
-                      <img
-                        src={`https://cdn.simpleicons.org/${tech.name.toLowerCase().replace(/\s+/g, '')}/default`}
-                        alt={tech.name}
-                        className="h-8 w-8 dark:invert"
-                        onError={(e) => (e.currentTarget.style.display = 'none')}
-                      />
-                    )}
-                    <span className="text-lg font-bold text-slate-600 dark:text-slate-300">
-                      {tech.name}
-                    </span>
-                  </div>
+                  <TechBadge key={`tech-a-${i}`} name={tech.name} iconUrl={tech.icon_url} />
                 ))}
               </div>
               <div
@@ -192,28 +172,7 @@ export default function Page() {
                 className="animate-scroll flex-shrink-0 flex items-center justify-center gap-24 py-4 px-6"
               >
                 {techStack?.map((tech, i) => (
-                  <div
-                    key={`tech-b-${i}`}
-                    className="flex items-center gap-3 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300"
-                  >
-                    {tech.icon_url ? (
-                      <img
-                        src={tech.icon_url}
-                        alt={tech.name}
-                        className="h-8 w-8 object-contain dark:invert"
-                      />
-                    ) : (
-                      <img
-                        src={`https://cdn.simpleicons.org/${tech.name.toLowerCase().replace(/\s+/g, '')}/default`}
-                        alt={tech.name}
-                        className="h-8 w-8 dark:invert"
-                        onError={(e) => (e.currentTarget.style.display = 'none')}
-                      />
-                    )}
-                    <span className="text-lg font-bold text-slate-600 dark:text-slate-300">
-                      {tech.name}
-                    </span>
-                  </div>
+                  <TechBadge key={`tech-b-${i}`} name={tech.name} iconUrl={tech.icon_url} />
                 ))}
               </div>
             </div>

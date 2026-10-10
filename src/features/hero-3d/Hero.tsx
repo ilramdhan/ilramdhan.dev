@@ -1,16 +1,6 @@
 import React, { useRef, useState, Suspense, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import {
-  ArrowRight,
-  Github,
-  Linkedin,
-  Twitter,
-  Instagram,
-  Youtube,
-  Mail,
-  Gamepad2,
-  Phone,
-} from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTypewriter } from 'react-simple-typewriter';
@@ -27,7 +17,7 @@ import {
 } from '@react-three/rapier';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import { useTexture, Environment, Lightformer, useGLTF } from '@react-three/drei';
-import { ensureFullUrl } from '@/lib/utils';
+import { SocialLinks } from '@/components/ui/SocialLinks';
 import { profileQueries } from '@/features/profile/queries';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
@@ -40,17 +30,6 @@ declare global {
     }
   }
 }
-
-const SocialIconMap: { [key: string]: React.ElementType } = {
-  github: Github,
-  linkedin: Linkedin,
-  twitter: Twitter,
-  instagram: Instagram,
-  youtube: Youtube,
-  mail: Mail,
-  whatsapp: Phone,
-  steam: Gamepad2,
-};
 
 const segmentProps = {
   type: 'dynamic',
@@ -388,29 +367,12 @@ export function Hero() {
               </button>
             </div>
 
-            <div className="mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-6">
-              {profile?.social_links &&
-                typeof profile.social_links === 'object' &&
-                Object.entries(profile.social_links).map(([key, value]) => {
-                  if (!value) return null;
-                  const Icon = SocialIconMap[key];
-                  if (!Icon) return null;
-                  // social_links values are URLs / addresses stored as strings.
-                  const link = value as string;
-                  const href = key === 'mail' ? `mailto:${link}` : ensureFullUrl(link) || '#';
-                  return (
-                    <a
-                      key={key}
-                      href={href}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"
-                    >
-                      <Icon className="h-6 w-6" />
-                    </a>
-                  );
-                })}
-            </div>
+            <SocialLinks
+              links={profile?.social_links}
+              containerClassName="mt-10 flex flex-wrap items-center justify-center lg:justify-start gap-6"
+              linkClassName="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"
+              iconClassName="h-6 w-6"
+            />
           </motion.div>
 
           {/* Spacer for the 3D Card on Desktop */}
