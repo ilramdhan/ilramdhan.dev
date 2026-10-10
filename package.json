@@ -14,7 +14,7 @@
     "db:start": "npx --yes supabase@2.120.0 start",
     "db:stop": "npx --yes supabase@2.120.0 stop",
     "db:reset": "npx --yes supabase@2.120.0 db reset",
-    "db:types": "npx --yes supabase@2.120.0 gen types typescript --local --schema public > lib/database.types.ts && prettier --write lib/database.types.ts",
+    "db:types": "npx --yes supabase@2.120.0 gen types typescript --local --schema public > src/types/database.ts && prettier --write src/types/database.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",

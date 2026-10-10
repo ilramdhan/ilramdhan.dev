@@ -1,5 +1,5 @@
 import type { Page, Request, Route } from '@playwright/test';
-import { FilterParseError, likeToRegExp, parseOrIlike } from '../../test/postgrest-filters';
+import { FilterParseError, likeToRegExp, parseOrIlike } from '../../src/test/postgrest-filters';
 import { createDataset, type Row } from './dataset';
 
 /** Must match the VITE_SUPABASE_URL the e2e build is made with (see playwright.config.ts). */

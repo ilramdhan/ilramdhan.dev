@@ -75,9 +75,9 @@ VITE_SUPABASE_URL=http://127.0.0.1:54321
 VITE_SUPABASE_ANON_KEY=<anon key printed by db:start>
 ```
 
-Then `npm run dev`. The seed creates a local admin user (`admin@example.com` / `password123`, local only) that owns all seeded content. Sign-ups are off locally as in production, and the GitHub provider is not configured locally, so to use `/admin` sign in once from the browser console on the dev site, e.g. `await (await import('/lib/supabase/client.ts')).supabase.auth.signInWithPassword({ email: 'admin@example.com', password: 'password123' })`, or enable `[auth.external.github]` in `supabase/config.toml` with your own OAuth app. Studio runs on <http://127.0.0.1:54323>.
+Then `npm run dev`. The seed creates a local admin user (`admin@example.com` / `password123`, local only) that owns all seeded content. Sign-ups are off locally as in production, and the GitHub provider is not configured locally, so to use `/admin` sign in once from the browser console on the dev site, e.g. `await (await import('/src/lib/supabase/client.ts')).supabase.auth.signInWithPassword({ email: 'admin@example.com', password: 'password123' })`, or enable `[auth.external.github]` in `supabase/config.toml` with your own OAuth app. Studio runs on <http://127.0.0.1:54323>.
 
-After changing the schema, add a migration (`npx supabase@2.120.0 migration new <name>`), run `npm run db:reset`, then `npm run db:types` to regenerate `lib/database.types.ts`.
+After changing the schema, add a migration (`npx supabase@2.120.0 migration new <name>`), run `npm run db:reset`, then `npm run db:types` to regenerate `src/types/database.ts`.
 
 #### Hosted project
 
@@ -98,19 +98,24 @@ After changing the schema, add a migration (`npx supabase@2.120.0 migration new 
 | `npm run db:start`     | Start local Supabase (Docker)                                     |
 | `npm run db:stop`      | Stop local Supabase                                               |
 | `npm run db:reset`     | Rebuild local DB from migrations + seed                           |
-| `npm run db:types`     | Regenerate `lib/database.types.ts` (local)                        |
+| `npm run db:types`     | Regenerate `src/types/database.ts` (local)                        |
 | `npm run test:db`      | RLS/storage policy tests on a throwaway Postgres (`DATABASE_URL`) |
 
 ## Project structure
 
 ```
 .
-├── App.tsx, index.tsx     # app shell & router (moving to src/ — plan T-14)
-├── app/                   # route pages (+ admin/ tabs)
-├── components/            # shared UI (Navbar, Hero, cards, forms…)
-├── config/site.ts         # site name, URL, usernames, WakaTime share URLs (single source)
-├── lib/                   # Supabase client, env validation, data access (api.ts), auth, theme, hooks
-├── actions/               # client-side form validation
+├── src/
+│   ├── main.tsx           # entry: providers + routes
+│   ├── app/               # routes.tsx, providers.tsx, layouts/, error/, auth & theme contexts
+│   ├── pages/             # route components (+ admin/ tabs)
+│   ├── features/          # hero-3d, wakatime, messages, projects
+│   ├── components/ui/     # shared UI primitives
+│   ├── lib/               # Supabase client, env validation, data access (api.ts), hooks, utils
+│   ├── config/site.ts     # site name, URL, usernames, WakaTime share URLs (single source)
+│   ├── styles/            # global.css
+│   ├── types/             # database.ts (generated), globals, shared types
+│   └── test/              # test setup and helpers
 ├── supabase/              # CLI config, migrations, seed.sql (legacy/ = old SQL, do not run)
 ├── public/                # static assets (logos, 3D model, robots, sitemap)
 └── docs/                  # architecture, audit, plan

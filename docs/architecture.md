@@ -1,5 +1,17 @@
 # Architecture Decision Record (SPA Runtime)
 
+## Source layout
+
+All application code lives in `src/` (the `@/` alias points there):
+
+- `main.tsx`: entry point; mounts `Providers` (React Query, auth) and `AppRoutes`.
+- `app/`: `routes.tsx`, `providers.tsx`, `layouts/` (public shell, navbar), `error/`, plus the auth and theme contexts and `AdminRoute`.
+- `pages/`: route components (`home`, `blog`, `admin` and its tabs, ...).
+- `features/`: domain code (`hero-3d`, `wakatime`, `messages`, `projects`).
+- `components/ui/`: shared UI primitives.
+- `lib/`: Supabase client, env validation, data access (`api.ts`), hooks and utilities.
+- `config/site.ts`, `styles/global.css`, `types/` (generated `database.ts`), `test/` (setup and helpers).
+
 ## Rendering strategy
 
 - The application runs as a **client-rendered Single Page Application (SPA)** built with React + Vite.
@@ -22,7 +34,6 @@
 
 - Built as static assets using Vite (`npm run build`) and deployed as a static web app.
 - Platform configuration (for example on Vercel) serves the SPA entry point and static assets.
-- Experimental SSR-oriented modules are kept outside the production import path to avoid ambiguity in runtime expectations.
 
 ## Planned evolution
 
