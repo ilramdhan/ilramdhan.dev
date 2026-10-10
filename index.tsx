@@ -2,7 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { EnvErrorScreen } from './components/EnvErrorScreen';
 import { AuthProvider, useAuth } from './lib/auth';
+import { envErrors } from './lib/env';
 import App from './App';
 import Page from './app/page';
 import AdminPage from './app/admin';
@@ -67,10 +69,14 @@ const root = ReactDOM.createRoot(rootElement);
 
 root.render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <AppRoutes />
-      </AuthProvider>
-    </QueryClientProvider>
+    {envErrors.length > 0 ? (
+      <EnvErrorScreen errors={envErrors} />
+    ) : (
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </QueryClientProvider>
+    )}
   </React.StrictMode>,
 );

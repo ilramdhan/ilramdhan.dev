@@ -1,3 +1,4 @@
+import { siteConfig } from '../config/site';
 import { Database } from '../types';
 import { supabase } from './supabase/client';
 
@@ -458,7 +459,7 @@ export const getWakatimeStats = async () => {
 
   // Note: The URL provided by user is likely for "Languages" or "Coding Activity".
   // Let's use it.
-  const url = 'https://wakatime.com/share/@ilramadhan/e5668821-74bc-46bf-8dc6-40ab8a343531.json';
+  const url = siteConfig.wakatime.languagesUrl;
 
   try {
     const response = await fetch(url);
@@ -479,7 +480,7 @@ export const getWakatimeCodingActivity = async () => {
   // TODO: Replace this with your actual Wakatime embeddable chart URL for daily coding activity.
   // You can find this in your Wakatime account under "Share" -> "Embeddable Charts".
   // It should be a URL ending in .json
-  const url = 'https://wakatime.com/share/@ilramadhan/3f350fd7-49e3-461a-a309-d820c7e93717.json';
+  const url = siteConfig.wakatime.activityUrl;
 
   try {
     const response = await fetch(url);

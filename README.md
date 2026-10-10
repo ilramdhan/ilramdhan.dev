@@ -82,7 +82,8 @@ Only `VITE_*` variables reach the browser. Never put service-role keys or other 
 ├── App.tsx, index.tsx     # app shell & router (moving to src/ — plan T-14)
 ├── app/                   # route pages (+ admin/ tabs)
 ├── components/            # shared UI (Navbar, Hero, cards, forms…)
-├── lib/                   # Supabase client, data access (api.ts), auth, theme, hooks
+├── config/site.ts         # site name, URL, usernames, WakaTime share URLs (single source)
+├── lib/                   # Supabase client, env validation, data access (api.ts), auth, theme, hooks
 ├── actions/               # client-side form validation
 ├── api/                   # Vercel serverless function(s)
 ├── supabase/              # SQL schema & RLS policies
