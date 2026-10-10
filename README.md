@@ -25,7 +25,7 @@ Personal portfolio of **Ilham Ramadhan**: projects, blog, certificates, résumé
 | 3D             | three.js, @react-three/fiber, drei, rapier, meshline                                     |
 | Content        | react-markdown, Recharts                                                                 |
 | Backend        | Supabase (Postgres + Row Level Security, Auth with GitHub OAuth, Storage)                |
-| Hosting        | Vercel (static SPA + optional serverless functions)                                      |
+| Hosting        | Vercel (static SPA, no serverless functions)                                             |
 
 Architecture notes: [`docs/architecture.md`](docs/architecture.md).
 
@@ -110,7 +110,6 @@ After changing the schema, add a migration (`npx supabase@2.120.0 migration new 
 ├── config/site.ts         # site name, URL, usernames, WakaTime share URLs (single source)
 ├── lib/                   # Supabase client, env validation, data access (api.ts), auth, theme, hooks
 ├── actions/               # client-side form validation
-├── api/                   # Vercel serverless function(s)
 ├── supabase/              # CLI config, migrations, seed.sql (legacy/ = old SQL, do not run)
 ├── public/                # static assets (logos, 3D model, robots, sitemap)
 └── docs/                  # architecture, audit, plan
