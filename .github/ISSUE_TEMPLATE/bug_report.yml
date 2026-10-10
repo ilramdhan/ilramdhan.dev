@@ -1,0 +1,88 @@
+name: 🐞 Bug report
+description: Something is broken or behaves incorrectly
+title: "[Bug] "
+labels: ["type: bug", "status: triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! **Security issues must not be reported here** — see [SECURITY.md](../blob/main/SECURITY.md).
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is wrong, in one or two sentences?
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Public site
+        - Admin dashboard
+        - Database / RLS / Storage
+        - Performance
+        - SEO / social preview
+        - Accessibility
+        - Responsive / layout
+        - Animation
+        - i18n
+        - Build / CI / tooling
+        - Other
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - "Critical — site down / data loss / exploitable"
+        - "High — major feature broken"
+        - "Medium — degraded experience, workaround exists"
+        - "Low — cosmetic"
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Page / URL
+      placeholder: https://ilramdhan.dev/blog/...
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to ...
+        2. Click ...
+        3. See ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior / evidence
+      description: Screenshots, console errors, network requests, code references (`file:line`).
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Browser / device / viewport
+      placeholder: Chrome 140 on Android, 390×844, dark mode
+  - type: textarea
+    id: fix
+    attributes:
+      label: Suggested fix (optional)
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: How do we know it's fixed? Include the regression test you expect.
+      placeholder: "- [ ] ...\n- [ ] Regression test added"

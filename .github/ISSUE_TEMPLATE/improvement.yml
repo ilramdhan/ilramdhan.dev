@@ -1,0 +1,80 @@
+name: 🛠️ Improvement / tech debt
+description: Refactor, performance, security hardening, SEO, accessibility, animation or tooling work (used for docs/PLAN.md tasks)
+title: "[T-xx] "
+labels: ["type: improvement", "status: triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for planned work from [`docs/PLAN.md`](../blob/main/docs/PLAN.md). Keep one task per issue.
+  - type: input
+    id: task
+    attributes:
+      label: Plan task ID
+      placeholder: T-24
+  - type: input
+    id: audit
+    attributes:
+      label: Audit finding IDs
+      description: From docs/audit/AUDIT.md
+      placeholder: PERF-01, PERF-02
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      options:
+        - Security
+        - Performance
+        - SEO
+        - Accessibility
+        - UX / UI / Responsive
+        - Animation
+        - Architecture / Refactor / DRY
+        - Admin dashboard
+        - i18n
+        - Testing / CI / Tooling
+        - Database
+        - Operations
+        - Documentation
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - "Critical"
+        - "High"
+        - "Medium"
+        - "Low"
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem & evidence
+      description: What is wrong today? Include `file:line` references, measurements, screenshots.
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution / steps
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: "- [ ] ...\n- [ ] CI green (typecheck, lint, tests, build, budget)"
+    validations:
+      required: true
+  - type: textarea
+    id: files
+    attributes:
+      label: Affected files
+  - type: input
+    id: deps
+    attributes:
+      label: Depends on
+      placeholder: "#12, #15"

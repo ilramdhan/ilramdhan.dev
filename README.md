@@ -1,122 +1,103 @@
-# Portfolio Website Ilramdhan.dev
+# ilramdhan.dev — Portfolio Website
 
-A modern, responsive portfolio website built with React, Vite, Tailwind CSS, and Supabase. This project showcases a developer's profile, projects, blog posts, and technical skills with a clean and interactive UI.
+Personal portfolio of **Ilham Ramadhan**: projects, blog, certificates, résumé and coding activity, with a private admin dashboard for managing all content.
 
-## 🚀 Features
+**Live:** <https://ilramdhan.dev>
 
-*   **Dynamic Content Management**: Powered by Supabase for easy management of projects, blogs, experience, education, and more.
-*   **Responsive Design**: Fully responsive layout optimized for all devices using Tailwind CSS.
-*   **Dark/Light Mode**: Seamless theme switching with persistent preference.
-*   **Interactive UI**: Animations powered by Framer Motion and 3D effects with Vanta.js/Three.js.
-*   **Blog System**: Markdown-supported blog posts with commenting functionality.
-*   **Project Showcase**: Detailed project pages with image galleries, tech stacks, and links.
-*   **Resume/CV Section**: Display of work experience, education, and certifications.
-*   **Wakatime Integration**: Real-time coding stats visualization.
-*   **Admin Dashboard**: Secure admin area for managing all content (protected by Supabase Auth).
+> 🚧 **An improvement program is in progress.** See the [audit](docs/audit/AUDIT.md) for what's being fixed and the [plan](docs/PLAN.md) for the roadmap (security hardening, performance, SEO/prerendering, Indonesian + English, accessibility, motion polish).
 
-## 🛠 Tech Stack
+## Features
 
-### Frontend
-*   **Framework**: [React](https://react.dev/) (with [Vite](https://vitejs.dev/))
-*   **Language**: [TypeScript](https://www.typescriptlang.org/)
-*   **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-*   **Routing**: [React Router](https://reactrouter.com/)
-*   **State Management/Data Fetching**: [TanStack Query (React Query)](https://tanstack.com/query/latest)
-*   **Animations**: [Framer Motion](https://www.framer.com/motion/), [Vanta.js](https://www.vantajs.com/)
-*   **Icons**: [Lucide React](https://lucide.dev/)
-*   **Markdown**: [React Markdown](https://github.com/remarkjs/react-markdown)
-*   **Charts**: [Recharts](https://recharts.org/)
+- **Content-managed site** — profile, projects, blog posts, services, tech stack, experience/education and certificates are stored in Supabase and edited from the dashboard.
+- **Admin dashboard** (`/admin`) — GitHub OAuth login, CRUD for all content, image/PDF uploads to Supabase Storage, contact-message inbox.
+- **Blog** — Markdown posts with tags, search and comments.
+- **Projects & certificates** — galleries, tag/issuer filters, pagination.
+- **Dark / light theme.**
+- **Interactive hero** — physics-based 3D lanyard card (React Three Fiber + Rapier).
+- **Coding activity** — Wakatime public stats and GitHub activity graph.
 
-### Backend / Services
-*   **Database**: [Supabase](https://supabase.com/) (PostgreSQL)
-*   **Authentication**: Supabase Auth
-*   **Storage**: Supabase Storage (for images and files)
+## Tech stack
 
-## 📂 Project Structure
+| Layer | Tools |
+| --- | --- |
+| UI | React 18, TypeScript, Vite 5, Tailwind CSS 3 (+ typography), Framer Motion, Lucide icons |
+| Routing & data | React Router 6, TanStack Query 5, Supabase JS 2, Zod |
+| 3D | three.js, @react-three/fiber, drei, rapier, meshline |
+| Content | react-markdown, Recharts |
+| Backend | Supabase (Postgres + Row Level Security, Auth with GitHub OAuth, Storage) |
+| Hosting | Vercel (static SPA + optional serverless functions) |
 
-```
-/
-├── actions/            # Client-triggered action handlers used by the SPA
-├── api/                # API related files
-├── app/                # Main application pages and layouts
-│   ├── admin/          # Admin dashboard components
-│   ├── about.tsx       # About page
-│   ├── blog.tsx        # Blog listing page
-│   ├── blog-detail.tsx # Individual blog post page
-│   ├── login.tsx       # Admin login page
-│   ├── page.tsx        # Home page
-│   ├── projects.tsx    # Projects listing page
-│   └── ...
-├── components/         # Reusable UI components
-│   ├── Hero.tsx        # Homepage hero section
-│   ├── Navbar.tsx      # Navigation bar
-│   ├── ProjectCard.tsx # Project display card
-│   └── ...
-├── lib/                # Utility functions and configurations
-│   ├── supabase/       # Supabase client setup
-│   ├── api.ts          # API service functions for data fetching
-│   ├── database.types.ts # TypeScript definitions for Supabase tables
-│   └── ...
-├── experimental/       # Archived or optional modules not used in current production runtime
-├── public/             # Static assets
-└── ...
-```
+Architecture notes: [`docs/architecture.md`](docs/architecture.md).
 
-## 🗄️ Database Schema
-
-The project uses the following tables in Supabase:
-
-*   `profile`: User profile information (bio, social links, avatar, etc.).
-*   `projects`: Portfolio projects with details, images, and tags.
-*   `blogs`: Blog posts with markdown content.
-*   `resume`: Work experience and education entries.
-*   `services`: Services offered by the developer.
-*   `certificates`: Certifications and awards.
-*   `tech_stack`: Technologies and skills with icons.
-*   `messages`: Contact form submissions.
-*   `blog_comments`: Comments on blog posts.
-
-## 🚀 Getting Started
+## Getting started
 
 ### Prerequisites
 
-*   Node.js (v18 or higher)
-*   npm or yarn
-*   A Supabase project
+- Node.js 20 LTS or newer, npm
+- A Supabase project (free tier is enough)
 
-### Installation
+### Setup
 
-1.  **Clone the repository**
-    ```bash
-    git clone https://github.com/yourusername/your-repo-name.git
-    cd your-repo-name
-    ```
+```bash
+git clone https://github.com/ilramdhan/ilramdhan.dev.git
+cd ilramdhan.dev
+npm ci
+cp .env.example .env.local
+```
 
-2.  **Install dependencies**
-    ```bash
-    npm install
-    ```
+Fill in `.env.local`:
 
-3.  **Environment Setup**
-    Create a `.env.local` file in the root directory and add your Supabase credentials:
-    ```env
-    VITE_SUPABASE_URL=your_supabase_project_url
-    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-    ```
+```env
+VITE_SUPABASE_URL=https://your-project-ref.supabase.co
+VITE_SUPABASE_ANON_KEY=your-public-anon-key
+```
 
-    - [ ] Never expose non-`VITE_` secrets to frontend bundle
+Only `VITE_*` variables reach the browser. Never put service-role keys or other secrets in a `VITE_` variable.
 
+### Database
 
-4.  **Run the development server**
-    ```bash
-    npm run dev
-    ```
+1. In the Supabase SQL editor run `supabase/schema.sql` **on a new, empty project only** (it drops existing tables), then `supabase/supabase-fix.sql` (RLS hardening).
+2. Create a public Storage bucket named `ilramdhan.dev`.
+3. Enable the GitHub provider in **Auth → Providers**, add your site URL to the redirect URLs, and **disable new sign-ups** after your own account exists.
+4. Insert your profile row (`profile.id` = your `auth.users.id`).
 
-5.  **Build for production**
-    ```bash
-    npm run build
-    ```
+> Supabase CLI migrations + seed data for a fully local setup are planned (task T-04 in the plan).
 
-## 📝 License
+### Scripts
 
-This project is licensed under the MIT License.
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Dev server on <http://localhost:3000> |
+| `npm run build` | Type-check and production build to `dist/` |
+| `npm run preview` | Serve the production build |
+| `npm run lint` | ESLint (config being added in T-01) |
+
+## Project structure
+
+```
+.
+├── App.tsx, index.tsx     # app shell & router (moving to src/ — plan T-14)
+├── app/                   # route pages (+ admin/ tabs)
+├── components/            # shared UI (Navbar, Hero, cards, forms…)
+├── lib/                   # Supabase client, data access (api.ts), auth, theme, hooks
+├── actions/               # client-side form validation
+├── api/                   # Vercel serverless function(s)
+├── supabase/              # SQL schema & RLS policies
+├── public/                # static assets (logos, 3D model, robots, sitemap)
+└── docs/                  # architecture, audit, plan
+```
+
+## Deployment
+
+Vercel builds with `npm run build` and serves `dist/` with an SPA rewrite (`vercel.json`). Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in the Vercel project environment.
+
+## Documentation
+
+- [Audit report](docs/audit/AUDIT.md) — findings with evidence
+- [Improvement plan & design spec](docs/PLAN.md) — phased tasks for upcoming sessions
+- [Architecture](docs/architecture.md)
+- [Contributing](CONTRIBUTING.md) · [Code of Conduct](CODE_OF_CONDUCT.md) · [Security](SECURITY.md) · [Accessibility](ACCESSIBILITY.md) · [Support](SUPPORT.md) · [Changelog](CHANGELOG.md)
+
+## License
+
+[MIT](LICENSE) © Ilham Ramadhan

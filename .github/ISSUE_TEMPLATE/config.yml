@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔒 Report a security vulnerability
+    url: https://github.com/ilramdhan/ilramdhan.dev/security/advisories/new
+    about: Please report security issues privately, not as public issues.
+  - name: 💬 Contact the owner
+    url: https://ilramdhan.dev/#contact
+    about: Collaboration, hiring, or general questions.
