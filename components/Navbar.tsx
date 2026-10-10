@@ -96,12 +96,16 @@ export function Navbar() {
                 {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </button>
 
-              <button
-                onClick={() => navigate(isAuthenticated ? '/admin' : '/login')}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
-              >
-                {isAuthenticated ? 'Dashboard' : 'Sign In'}
-              </button>
+              {/* No public "Sign In" button: /login stays reachable directly.
+                  TODO(T-08): show "Dashboard" only to admins (useIsAdmin). */}
+              {isAuthenticated && (
+                <button
+                  onClick={() => navigate('/admin')}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                >
+                  Dashboard
+                </button>
+              )}
             </div>
           </div>
 
@@ -140,12 +144,14 @@ export function Navbar() {
                   {link.name}
                 </button>
               ))}
-              <button
-                onClick={() => handleNav(isAuthenticated ? '/admin' : '/login')}
-                className="text-left text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 block px-3 py-2 rounded-md text-base font-medium"
-              >
-                {isAuthenticated ? 'Dashboard' : 'Sign In'}
-              </button>
+              {isAuthenticated && (
+                <button
+                  onClick={() => handleNav('/admin')}
+                  className="text-left text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 block px-3 py-2 rounded-md text-base font-medium"
+                >
+                  Dashboard
+                </button>
+              )}
             </div>
           </motion.div>
         )}

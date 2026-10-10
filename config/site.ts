@@ -42,5 +42,3 @@ export type SiteConfig = typeof siteConfig;
 
 /** Absolute URL for a site-relative path. */
 export const absoluteUrl = (path = '/') => new URL(path, siteConfig.url).toString();
-
-export const githubProfileUrl = `https://github.com/${siteConfig.githubUsername}`;

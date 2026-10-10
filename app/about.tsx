@@ -18,7 +18,7 @@ import {
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 import { Navbar } from '../components/Navbar';
-import { githubProfileUrl, siteConfig } from '../config/site';
+import { siteConfig } from '../config/site';
 import * as api from '../lib/api';
 import { useTheme } from '../lib/ThemeContext';
 import WakatimeStats from '../components/WakatimeStats';
@@ -97,6 +97,7 @@ export default function AboutPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-member-access -- TODO(#18)
   const username = getGithubUsername(ensureFullUrl((profile?.social_links as any)?.github));
+  const resumeUrl = ensureFullUrl(profile?.resume_url);
 
   if (isLoading) {
     return (
@@ -154,14 +155,16 @@ export default function AboutPage() {
               </div>
             </div>
 
-            <a
-              href={ensureFullUrl(profile?.resume_url) || '#'}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-8 w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-medium transition-all shadow-lg shadow-indigo-500/20"
-            >
-              <Download className="h-5 w-5" /> Download CV
-            </a>
+            {resumeUrl && (
+              <a
+                href={resumeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-8 w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-medium transition-all shadow-lg shadow-indigo-500/20"
+              >
+                <Download className="h-5 w-5" /> Download CV
+              </a>
+            )}
           </div>
 
           <div className="flex-1">
@@ -356,7 +359,7 @@ export default function AboutPage() {
           {username && (
             <div className="space-y-6">
               <div className="grid grid-cols-1 gap-6">
-                <a href={githubProfileUrl}>
+                <a href={`https://github.com/${username}`}>
                   <img
                     src={`https://github-readme-activity-graph.vercel.app/graph?username=${username}&theme=${theme === 'dark' ? 'high-contrast' : 'merko'}&hide_border=true&area=true`}
                     alt="GitHub Activity Graph"

@@ -27,12 +27,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center px-4 transition-colors">
       <div className="w-full max-w-sm bg-white border border-slate-200 dark:bg-slate-900 dark:border-white/10 rounded-2xl p-8 shadow-lg dark:shadow-none">
-        <div className="flex justify-center mb-6">
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">Welcome Back</h1>
-        </div>
-        <h2 className="text-xl font-semibold text-center text-slate-800 dark:text-white mb-4">
-          Admin Login
-        </h2>
+        <h1 className="text-3xl font-bold text-center text-slate-900 dark:text-white mb-4">
+          Admin login
+        </h1>
         <p className="text-center text-slate-600 dark:text-slate-400 mb-8 text-sm">
           Sign in to manage your portfolio content.
         </p>
