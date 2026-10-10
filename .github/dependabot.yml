@@ -17,6 +17,10 @@ updates:
       # Pinned to match the Playwright browser build; bump deliberately (see CONTRIBUTING).
       - dependency-name: '@playwright/test'
       - dependency-name: playwright-core
+      # Major upgrades carry breaking changes; they are staged deliberately with
+      # full e2e in T-56 (#71) rather than opened as individual weekly PRs.
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
 
   - package-ecosystem: github-actions
     directory: /
