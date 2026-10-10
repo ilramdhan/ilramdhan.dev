@@ -41,9 +41,44 @@ Database changes:
    npm run lint
    npm run format:check   # or `npm run format` to fix
    npm run build
+   npm test
+   npm run test:e2e
    ```
-   plus `npm test` / `npm run test:e2e` once they exist (T-05).
 5. Open a PR using the template, link the issue (`Closes #123`), include screenshots for UI changes (mobile 375 px + desktop, light + dark).
+
+## Tests
+
+### Unit / component tests (Vitest)
+
+```bash
+npm test             # run once (CI)
+npm run test:watch   # watch mode
+```
+
+- Vitest + jsdom + [Testing Library](https://testing-library.com/docs/react-testing-library/intro/); config in `vitest.config.mts`, setup (jest-dom matchers, cleanup) in `test/setup.ts`.
+- Put tests next to the code as `*.test.ts(x)` (e.g. `lib/utils.test.ts`, `components/EnvErrorScreen.test.tsx`).
+- Query by role/label (`screen.getByRole(...)`), not by class names. For modules that read `import.meta.env` at import time, use `vi.stubEnv()` + `vi.resetModules()` and re-import (see `lib/env.test.ts`).
+
+### End-to-end tests (Playwright)
+
+```bash
+npx playwright install chromium   # once (CI uses --with-deps)
+npm run test:e2e                  # builds dist-e2e/, serves it with vite preview, runs all projects
+npm run test:e2e -- --project=w320          # one viewport
+npm run test:e2e -- e2e/blog.spec.ts        # one spec
+npm run test:e2e:ui                         # interactive UI mode
+npx playwright show-report                  # HTML report of the last run
+```
+
+- The app is built with `VITE_SUPABASE_URL=https://mock.supabase.co` (`npm run build:e2e`) and **every** Supabase request is answered in-browser by `e2e/fixtures/supabase-mock.ts` from the dataset in `e2e/fixtures/dataset.ts`. All other third-party requests (images, fonts, WakaTime, GitHub) are stubbed, so tests never touch the network or a real database. No `.env` is needed.
+- `@playwright/test` is pinned (currently `1.56.1`); bump it together with the browsers (`npx playwright install`). To use an already-installed Chromium, set `CHROMIUM_PATH=/path/to/chrome`.
+- Locally an already running server on port 4173 is reused (start it yourself with `npm run build:e2e && npx vite preview --outDir dist-e2e --port 4173` to iterate faster).
+- **Projects** (`playwright.config.ts`): `w320` … `w2560` (responsive matrix) plus `reduced-motion` and `light` run `e2e/smoke.spec.ts` only; `mobile` (360), `tablet` (768) and `desktop` (1280) run every other spec.
+- Always import `test`/`expect` from `e2e/fixtures/test.ts`: it installs the Supabase mock, sets the theme and collects console errors (`consoleErrors` fixture). The `supabase` fixture exposes `db` (mutate it to change responses) and `requests` (assert what the app sent).
+- **Adding mock data:** add rows/tables to `createDataset()` in `e2e/fixtures/dataset.ts`. The mock supports the PostgREST filters the app uses (`eq`, `cs` (array contains), `ilike`, `or=(…ilike…)`, `limit`/`offset` with `content-range` counts, `.single()`); extend `applyFilters()` in `supabase-mock.ts` if you use a new one. Writes (`POST`/`PATCH`/`DELETE`) return `201 []` and are recorded in `supabase.requests`.
+- **Helpers:** `e2e/helpers/layout.ts` (`horizontalOverflow`, `overflowingElements`, `runningAnimations`, `observeCls`) and `e2e/helpers/a11y.ts` (`expectNoA11yViolations` — axe, **report-only**: violations are attached to the report; set `E2E_A11Y_ENFORCE=1` to make them fail).
+- **Home page is slow in tests:** its two WebGL loops (3D card + Vanta) starve the main thread under software rendering. Specs that interact with it install fake timers (`page.clock.install()` … `page.clock.pauseAt(...)`, then `clock.fastForward(ms)`) — see `e2e/contact.spec.ts`. Don't do this before axe runs (axe needs real timers).
+- **Known bugs:** mark a test `test.fixme(condition, 'description — #<issue>')` instead of letting it fail or deleting it (e.g. horizontal scroll from long words in detail-page titles at 320 px → #37, missing 404 page → #34). Remove the `fixme` in the PR that fixes the issue.
 
 ## Coding guidelines
 

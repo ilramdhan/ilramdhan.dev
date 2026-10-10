@@ -13,7 +13,12 @@
     "db:start": "npx --yes supabase@2.120.0 start",
     "db:stop": "npx --yes supabase@2.120.0 stop",
     "db:reset": "npx --yes supabase@2.120.0 db reset",
-    "db:types": "npx --yes supabase@2.120.0 gen types typescript --local --schema public > lib/database.types.ts && prettier --write lib/database.types.ts"
+    "db:types": "npx --yes supabase@2.120.0 gen types typescript --local --schema public > lib/database.types.ts && prettier --write lib/database.types.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "build:e2e": "vite build --outDir dist-e2e --emptyOutDir"
   },
   "dependencies": {
     "@react-three/drei": "^9.102.0",
@@ -38,8 +43,14 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^9.39.5",
+    "@playwright/test": "1.56.1",
     "@tailwindcss/typography": "^0.5.10",
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
     "@types/node": "^20.0.0",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
@@ -54,11 +65,16 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.26",
     "globals": "^15.15.0",
+    "jsdom": "^26.1.0",
     "postcss": "^8.0.0",
     "prettier": "^3.9.9",
     "tailwindcss": "^3.3.0",
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.71.1",
-    "vite": "^5.2.7"
+    "vite": "^5.2.7",
+    "vitest": "^3.2.7"
+  },
+  "overrides": {
+    "playwright-core": "1.56.1"
   }
 }

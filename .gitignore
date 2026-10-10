@@ -23,3 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 .env
+# Test output
+dist-e2e
+test-results
+playwright-report
+blob-report
