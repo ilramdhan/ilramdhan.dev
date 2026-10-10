@@ -84,3 +84,68 @@ test.describe('hero', () => {
     });
   });
 });
+
+// T-32 (#47): micro-interactions.
+test.describe('micro-interactions', () => {
+  test('navbar compacts after scrolling 16px', async ({ page }) => {
+    await page.goto('/');
+    const nav = page.locator('nav').first();
+    await expect(nav).toHaveAttribute('data-scrolled', 'false');
+    await page.evaluate(() => window.scrollTo({ top: 200, behavior: 'instant' }));
+    await expect(nav).toHaveAttribute('data-scrolled', 'true');
+  });
+
+  test('active nav pill follows the current route', async ({ page }) => {
+    await page.goto('/about');
+    await expect(page.locator('nav a[href="/about"]').first()).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    // The sliding pill only exists in the desktop (lg+) navbar.
+    if ((page.viewportSize()?.width ?? 0) >= 1024) {
+      await expect(page.getByTestId('nav-pill')).toBeAttached();
+    }
+  });
+
+  test('carousel: keyboard and dot buttons change the slide', async ({ page }) => {
+    await page.goto('/');
+    const carousel = page.getByRole('group', { name: /Screenshot of/ }).first();
+    await expect(carousel).toBeVisible();
+    const img = carousel.locator('img').first();
+    const before = await img.getAttribute('alt');
+    await carousel.focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(carousel.locator('img').first()).not.toHaveAttribute('alt', before ?? '');
+    await carousel.getByRole('button', { name: /Show image 1 of/ }).click({ force: true });
+    await expect(carousel.locator('img').first()).toHaveAttribute('alt', before ?? '');
+  });
+
+  test.describe('reduced motion', () => {
+    test.use({ contextOptions: { reducedMotion: 'reduce' } });
+    test('about: bars and counters render final values, nothing animates', async ({ page }) => {
+      await page.goto('/about');
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+      await page.waitForLoadState('networkidle');
+      const running = await page.evaluate(
+        () => document.getAnimations().filter((a) => a.playState === 'running').length,
+      );
+      expect(running).toBe(0);
+      for (const bar of await page.getByRole('progressbar').all()) {
+        const now = Number(await bar.getAttribute('aria-valuenow'));
+        const inner = await bar.locator('div').evaluate((el) => getComputedStyle(el).transform);
+        const scale = inner === 'none' ? 1 : Number(inner.match(/matrix\(([^,]+)/)?.[1]);
+        expect(Math.round(scale * 100)).toBe(now);
+      }
+    });
+    test('theme toggle switches instantly without a view transition', async ({ page }) => {
+      await page.goto('/');
+      const html = page.locator('html');
+      await expect(html).toHaveClass(/dark/);
+      await page
+        .getByRole('button', { name: /Switch to light theme/ })
+        .first()
+        .click();
+      await expect(html).not.toHaveClass(/dark/);
+    });
+  });
+});

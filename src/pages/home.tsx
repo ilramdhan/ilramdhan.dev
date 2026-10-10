@@ -98,7 +98,7 @@ export default function Page() {
                     <Reveal
                       key={service.id}
                       index={idx}
-                      className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 p-8 rounded-2xl flex flex-col items-center text-center hover:border-indigo-500/30 transition-all shadow-sm dark:shadow-none group"
+                      className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 p-8 rounded-2xl flex flex-col items-center text-center hover:border-indigo-500/30 transition-[transform,box-shadow,border-color] motion-safe:hover:-translate-y-0.5 hover:shadow-md shadow-sm dark:shadow-none group"
                     >
                       <div className="h-14 w-14 bg-indigo-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
                         <Icon className="h-7 w-7" />

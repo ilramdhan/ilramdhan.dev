@@ -15,7 +15,7 @@ export function CertificateCard({ cert, index }: CertificateCardProps) {
   return (
     <Reveal
       index={index}
-      className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 rounded-xl overflow-hidden hover:border-indigo-500/30 transition-all shadow-sm dark:shadow-none group flex flex-col"
+      className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 rounded-xl overflow-hidden hover:border-indigo-500/30 transition-[transform,box-shadow,border-color] motion-safe:hover:-translate-y-0.5 hover:shadow-md shadow-sm dark:shadow-none group flex flex-col"
     >
       {cert.file_url ? (
         <div className="h-48 bg-slate-100 dark:bg-slate-800 overflow-hidden relative">

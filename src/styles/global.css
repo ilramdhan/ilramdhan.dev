@@ -13,7 +13,7 @@
     }
   }
   body {
-    @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50 transition-colors duration-300;
+    @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50;
   }
 }
 
@@ -100,5 +100,25 @@
   }
   .btn-icon-red {
     @apply p-2 text-red-500 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800;
+  }
+}
+
+/* Theme switch (T-32): the View Transition owns the cross-fade; stop the default one. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 2;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }

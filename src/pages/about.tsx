@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Download, MapPin, Briefcase, GraduationCap, ArrowRight, Award } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { Reveal } from '@/components/motion';
+import { CountUp, GrowBar, Reveal } from '@/components/motion';
 import { CertificateCard } from '@/components/ui/CertificateCard';
 import { SocialLinks } from '@/components/ui/SocialLinks';
 import { Navbar } from '@/app/layouts/Navbar';
@@ -222,15 +222,16 @@ export default function AboutPage() {
                           {lang.name}
                         </span>
                         <span className="text-slate-500">
-                          {lang.text} ({lang.percent}%)
+                          {lang.text} (
+                          <CountUp
+                            value={lang.percent}
+                            decimals={String(lang.percent).split('.')[1]?.length ?? 0}
+                            suffix="%"
+                          />
+                          )
                         </span>
                       </div>
-                      <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
-                        <div
-                          className="bg-indigo-600 h-2.5 rounded-full transition-all duration-1000"
-                          style={{ width: `${lang.percent}%` }}
-                        />
-                      </div>
+                      <GrowBar percent={lang.percent} />
                     </div>
                   ))}
                 </div>

@@ -1,4 +1,12 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from 'react';
 import type { ReactNode } from 'react';
 
 export type ThemePreference = 'light' | 'dark' | 'system';
@@ -61,7 +69,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     return () => media.removeEventListener('change', onChange);
   }, []);
 
-  useEffect(() => applyTheme(theme), [theme]);
+  // Layout effect: the DOM is updated synchronously inside a View Transition callback.
+  useLayoutEffect(() => applyTheme(theme), [theme]);
 
   const setPreference = useCallback((next: ThemePreference) => {
     setPreferenceState(next);

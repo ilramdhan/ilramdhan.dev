@@ -20,7 +20,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
     <Reveal
       index={index}
       onClick={() => project.slug && navigate(`/projects/${project.slug}`)}
-      className="group relative rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-white/10 overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-colors cursor-pointer"
+      className="group relative rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-white/10 overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-[transform,box-shadow,border-color] motion-safe:hover:-translate-y-0.5 hover:shadow-lg cursor-pointer"
     >
       <div className="aspect-video w-full bg-slate-100 dark:bg-slate-800 relative group/image">
         <ImageCarousel

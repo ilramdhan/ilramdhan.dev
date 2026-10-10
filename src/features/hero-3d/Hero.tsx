@@ -161,13 +161,13 @@ export function Hero() {
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <button
                 onClick={() => navigate('/projects')}
-                className="w-full sm:w-auto px-8 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-all flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-8 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-all active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 View Projects <ArrowRight className="h-4 w-4" />
               </button>
               <Link
                 to="/#contact"
-                className="w-full sm:w-auto px-8 py-3 text-center rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/10 dark:text-white font-semibold transition-all"
+                className="w-full sm:w-auto px-8 py-3 text-center rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/10 dark:text-white font-semibold transition-all active:scale-[0.98]"
               >
                 Contact Me
               </Link>

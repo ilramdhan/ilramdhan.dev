@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Img } from '@/components/ui/Img';
 
@@ -20,6 +20,7 @@ export function ImageCarousel({
   sizes,
 }: ImageCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
 
   // If no images, show placeholder
   if (!images || images.length === 0) {
@@ -32,42 +33,82 @@ export function ImageCarousel({
     );
   }
 
+  const count = images.length;
+  const go = (delta: number) => setCurrentIndex((curr) => (curr + delta + count) % count);
   const prev = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setCurrentIndex((curr) => (curr === 0 ? images.length - 1 : curr - 1));
+    go(-1);
   };
-
   const next = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setCurrentIndex((curr) => (curr === images.length - 1 ? 0 : curr + 1));
+    go(1);
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    if (count < 2) return;
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      go(-1);
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      go(1);
+    }
+  };
+
+  // Swipe: a mostly-horizontal drag past 40px changes the slide.
+  const onPointerDown = (e: React.PointerEvent) => {
+    swipeStart.current = { x: e.clientX, y: e.clientY };
+  };
+  const onPointerUp = (e: React.PointerEvent) => {
+    const start = swipeStart.current;
+    swipeStart.current = null;
+    if (!start || count < 2) return;
+    const dx = e.clientX - start.x;
+    const dy = e.clientY - start.y;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
   };
 
   return (
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- carousel region is keyboard operable (arrow keys)
     <div
-      className={`w-full ${aspectRatio} relative overflow-hidden group bg-slate-100 dark:bg-slate-900`}
+      role="group"
+      aria-roledescription="carousel"
+      aria-label={alt}
+      tabIndex={count > 1 ? 0 : undefined}
+      onKeyDown={onKeyDown}
+      onPointerDown={onPointerDown}
+      onPointerUp={onPointerUp}
+      style={{ touchAction: 'pan-y' }}
+      className={`w-full ${aspectRatio} relative overflow-hidden group bg-slate-100 dark:bg-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500`}
     >
       <Img
+        key={currentIndex}
         src={images[currentIndex]!}
-        alt={images.length > 1 ? `${alt}: image ${currentIndex + 1} of ${images.length}` : alt}
+        alt={count > 1 ? `${alt}: image ${currentIndex + 1} of ${count}` : alt}
         width={1600}
         height={900}
         priority={priority && currentIndex === 0}
         sizes={sizes}
-        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        className="w-full h-full object-cover motion-safe:animate-page-in transition-transform duration-500 group-hover:scale-105"
       />
 
-      {images.length > 1 && (
+      {count > 1 && (
         <>
-          <div className="absolute inset-0 flex items-center justify-between p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          {/* Visible on touch/coarse pointers and keyboard focus; hover-only elsewhere. */}
+          <div className="absolute inset-0 flex items-center justify-between p-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity pointer-events-none">
             <button
+              type="button"
               onClick={prev}
-              className="p-1 rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm"
+              aria-label="Previous image"
+              className="pointer-events-auto p-1 rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
+              type="button"
               onClick={next}
-              className="p-1 rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm"
+              aria-label="Next image"
+              className="pointer-events-auto p-1 rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -75,9 +116,16 @@ export function ImageCarousel({
 
           <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
             {images.map((_, idx) => (
-              <div
+              <button
                 key={idx}
-                className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === currentIndex ? 'bg-white' : 'bg-white/40'}`}
+                type="button"
+                aria-label={`Show image ${idx + 1} of ${count}`}
+                aria-current={idx === currentIndex}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentIndex(idx);
+                }}
+                className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === currentIndex ? 'bg-white' : 'bg-white/40 hover:bg-white/70'}`}
               />
             ))}
           </div>
