@@ -140,3 +140,49 @@ test('home load: at most 3 long tasks (T-25)', async ({ page }, testInfo) => {
   testInfo.annotations.push({ type: 'long tasks on home load', description: String(longTasks) });
   expect(longTasks, 'long tasks during home load').toBeLessThanOrEqual(3);
 });
+
+test.describe('decorative layers & fonts (T-28)', () => {
+  test('no animated blur on full-viewport layers and no dead font preconnects', async ({
+    page,
+  }) => {
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+    const offenders = await page.evaluate(() => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      return [...document.querySelectorAll<HTMLElement>('body *')]
+        .filter((el) => {
+          const style = getComputedStyle(el);
+          if (style.position !== 'fixed') return false;
+          const r = el.getBoundingClientRect();
+          if (r.width < vw * 0.9 || r.height < vh * 0.9) return false;
+          const blurred = (node: Element) => getComputedStyle(node).filter.includes('blur');
+          const animated = (node: Element) => node.getAnimations().length > 0;
+          return [el, ...el.querySelectorAll('*')].some((n) => blurred(n) || animated(n));
+        })
+        .map((el) => el.className);
+    });
+    expect(offenders, 'fixed full-viewport layers with blur/animation').toEqual([]);
+    expect(
+      await page.locator('link[rel="preconnect"][href*="fonts."]').count(),
+      'font preconnects',
+    ).toBe(0);
+  });
+
+  test('tech marquee pauses off-screen and is static under reduced motion', async ({ page }) => {
+    await page.goto('/');
+    const marquee = page.locator('.marquee');
+    await expect(marquee.locator('.marquee-track > *').first()).toBeAttached();
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await expect(marquee).toHaveAttribute('data-paused', 'true');
+    await marquee.scrollIntoViewIfNeeded();
+    await expect(marquee).toHaveAttribute('data-paused', 'false');
+
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    const running = await marquee
+      .locator('.marquee-track > *')
+      .first()
+      .evaluate((el) => el.getAnimations().length);
+    expect(running, 'marquee animations under reduced motion').toBe(0);
+  });
+});

@@ -9,6 +9,46 @@
 }
 
 @layer components {
+  /* Static replacement for the blurred, pulsing background blobs (T-28). Ellipse
+     sizes approximate the old 40% / 30% / 50% blobs blurred by 100–150 px. */
+  .site-glow {
+    --glow-a: rgb(99 102 241 / 0.1);
+    --glow-b: rgb(168 85 247 / 0.1);
+    --glow-c: rgb(59 130 246 / 0.1);
+    background-image:
+      radial-gradient(ellipse 35% 35% at 10% 10%, var(--glow-a), transparent 70%),
+      radial-gradient(ellipse 28% 28% at 90% 35%, var(--glow-b), transparent 70%),
+      radial-gradient(ellipse 40% 40% at 45% 100%, var(--glow-c), transparent 70%);
+  }
+  .dark .site-glow {
+    --glow-a: rgb(49 46 129 / 0.18);
+    --glow-b: rgb(88 28 135 / 0.18);
+    --glow-c: rgb(30 58 138 / 0.18);
+  }
+
+  /* Tech marquee (T-28): runs only with motion allowed, pauses on hover, keyboard
+     focus and while off-screen (`data-paused`, set by an IntersectionObserver). */
+  .marquee-track > * {
+    animation: scroll 40s linear infinite;
+  }
+  .marquee:hover .marquee-track > *,
+  .marquee:focus-within .marquee-track > *,
+  .marquee[data-paused='true'] .marquee-track > * {
+    animation-play-state: paused;
+  }
+  @keyframes scroll {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-100%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track > * {
+      animation: none;
+    }
+  }
   /* Markdown content must never widen the page: wide code scrolls, tables scroll. */
   .prose {
     overflow-wrap: anywhere;

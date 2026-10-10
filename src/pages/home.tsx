@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Code, Smartphone, Cloud, Terminal, Layout, Database } from 'lucide-react';
@@ -15,6 +15,7 @@ import { blogQueries } from '@/features/blog/queries';
 import { techStackQueries } from '@/features/tech-stack/queries';
 import { serviceQueries } from '@/features/services/queries';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
+import { useInView } from '@/lib/hooks';
 import { formatDate } from '@/lib/date';
 
 const IconMap: { [key: string]: React.ElementType } = {
@@ -28,6 +29,9 @@ const IconMap: { [key: string]: React.ElementType } = {
 
 export default function Page() {
   const navigate = useNavigate();
+
+  const marqueeRef = useRef<HTMLDivElement>(null);
+  const marqueeInView = useInView(marqueeRef);
 
   useDocumentMeta({
     title: undefined, // Uses default: "Ilham Ramadhan | Web Developer & Portfolio"
@@ -108,21 +112,23 @@ export default function Page() {
             </p>
           </div>
           <div
-            className="relative flex overflow-x-hidden group"
+            ref={marqueeRef}
+            data-paused={!marqueeInView}
+            className="marquee relative flex overflow-x-hidden"
             style={{
               maskImage:
                 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)',
             }}
           >
-            <div className="flex whitespace-nowrap group-hover:[animation-play-state:paused]">
-              <div className="animate-scroll flex-shrink-0 flex items-center justify-center gap-24 py-4 px-6">
+            <div className="marquee-track flex whitespace-nowrap">
+              <div className="flex-shrink-0 flex items-center justify-center gap-24 py-4 px-6">
                 {techStack?.map((tech, i) => (
                   <TechBadge key={`tech-a-${i}`} name={tech.name} iconUrl={tech.icon_url} />
                 ))}
               </div>
               <div
                 aria-hidden="true"
-                className="animate-scroll flex-shrink-0 flex items-center justify-center gap-24 py-4 px-6"
+                className="flex-shrink-0 flex items-center justify-center gap-24 py-4 px-6"
               >
                 {techStack?.map((tech, i) => (
                   <TechBadge key={`tech-b-${i}`} name={tech.name} iconUrl={tech.icon_url} />

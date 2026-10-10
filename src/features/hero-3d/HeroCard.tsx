@@ -12,6 +12,7 @@ import {
 } from '@react-three/rapier';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 import { useTexture, Environment, Lightformer, useGLTF } from '@react-three/drei';
+import { useInView } from '@/lib/hooks';
 
 /**
  * The interactive 3D lanyard card (three.js + Rapier). Loaded with `React.lazy` from
@@ -252,17 +253,7 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
 /** Renders only while the hero is on screen: no frames or physics steps off-screen. */
 export default function HeroCard({ onReady }: { onReady?: () => void }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(true);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || typeof IntersectionObserver === 'undefined') return;
-    const observer = new IntersectionObserver(([entry]) =>
-      setInView(Boolean(entry?.isIntersecting)),
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
+  const inView = useInView(ref);
 
   return (
     <div ref={ref} className="absolute inset-0 z-0" data-testid="hero-card-canvas">
