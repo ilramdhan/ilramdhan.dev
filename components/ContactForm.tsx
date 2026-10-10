@@ -35,8 +35,8 @@ export function ContactForm() {
   const addMessageMutation = useMutation({
     mutationFn: api.addMessage,
     onSuccess: () => {
-      toast.success('Message sent successfully!');
-      setState({ success: true, message: 'Message sent successfully!' });
+      // The success toast/state are handled by the call-level `onSuccess` in
+      // `handleSubmit` (it also resets the form and starts the cooldown).
       // Invalidate messages query to refetch in admin panel if it's open
       // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
       queryClient.invalidateQueries({ queryKey: ['messages'] });

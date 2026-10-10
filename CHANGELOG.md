@@ -19,10 +19,12 @@ All notable changes to this project are documented here. The format follows [Kee
 
 - README rewritten: accurate stack, setup, project structure, docs links.
 - `react-router-dom` bumped to 6.30.6; `@vercel/node` moved to devDependencies; non-breaking `npm audit fix` (T-02).
+- Public navbar no longer shows a "Sign In" button; "Dashboard" appears only when logged in, `/login` stays reachable directly. Login page has a single H1 "Admin login" (T-21).
 
 ### Fixed
 
 - Blog tag filter: selecting a tag now filters posts (`getBlogs` gained a `tag` parameter using `tags=cs.{tag}`) (T-18).
+- Contact form shows a single success toast; "Download CV" is hidden when no CV is set; GitHub activity link uses the same username as the graph (T-21).
 
 ### Removed
 
