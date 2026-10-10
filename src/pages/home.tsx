@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Code, Smartphone, Cloud, Terminal, Layout, Database } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
-import { motion } from 'framer-motion';
+import { MotionScope, Reveal } from '@/components/motion';
 import { Hero } from '@/features/hero-3d/Hero';
 import { ProjectCard, ProjectCardSkeleton } from '@/features/projects/ProjectCard';
 import { ContactForm } from '@/features/messages/ContactForm';
@@ -60,7 +60,7 @@ export default function Page() {
   const { data: services, isPending: isPendingServices } = useQuery(serviceQueries.list());
 
   return (
-    <>
+    <MotionScope>
       <Navbar />
       <main className="min-h-screen">
         <Hero />
@@ -95,11 +95,9 @@ export default function Page() {
                 {services?.map((service, idx) => {
                   const Icon = service.icon_name ? IconMap[service.icon_name] || Code : Code;
                   return (
-                    <motion.div
+                    <Reveal
                       key={service.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: idx * 0.1 }}
+                      index={idx}
                       className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 p-8 rounded-2xl flex flex-col items-center text-center hover:border-indigo-500/30 transition-all shadow-sm dark:shadow-none group"
                     >
                       <div className="h-14 w-14 bg-indigo-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
@@ -111,7 +109,7 @@ export default function Page() {
                       <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed prose prose-sm dark:prose-invert">
                         <ReactMarkdown>{service.description || ''}</ReactMarkdown>
                       </div>
-                    </motion.div>
+                    </Reveal>
                   );
                 })}
               </div>
@@ -234,7 +232,7 @@ export default function Page() {
                       aria-hidden="true"
                       className="bg-white border border-slate-200 dark:bg-slate-950/80 dark:border-white/10 rounded-xl overflow-hidden shadow-sm"
                     >
-                      <div className="aspect-[2/1] bg-slate-100 dark:bg-slate-900 animate-pulse" />
+                      <div className="aspect-[2/1] bg-slate-100 dark:bg-slate-900 motion-safe:animate-pulse" />
                       <div className="p-6">
                         <div className="h-4 w-32 mb-3 rounded bg-slate-100 dark:bg-slate-800" />
                         <div className="h-7 w-2/3 mb-3 rounded bg-slate-200 dark:bg-slate-800" />
@@ -326,6 +324,6 @@ export default function Page() {
           </div>
         </section>
       </main>
-    </>
+    </MotionScope>
   );
 }

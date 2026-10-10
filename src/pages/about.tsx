@@ -2,8 +2,8 @@ import React, { lazy, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Download, MapPin, Briefcase, GraduationCap, ArrowRight, Award } from 'lucide-react';
-import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import { Reveal } from '@/components/motion';
 import { CertificateCard } from '@/components/ui/CertificateCard';
 import { SocialLinks } from '@/components/ui/SocialLinks';
 import { Navbar } from '@/app/layouts/Navbar';
@@ -135,13 +135,7 @@ export default function AboutPage() {
             </h2>
             <div className="space-y-8 border-l-2 border-slate-200 dark:border-slate-800 ml-3 pl-8 relative">
               {experience?.map((exp, idx) => (
-                <motion.div
-                  key={exp.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="relative"
-                >
+                <Reveal key={exp.id} from="left" index={idx} className="relative">
                   <span className="absolute -left-[41px] top-1 w-5 h-5 rounded-full border-4 border-white dark:border-slate-950 bg-indigo-500" />
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white">{exp.title}</h3>
                   <div className="text-indigo-600 dark:text-indigo-400 font-medium mb-2">
@@ -151,7 +145,7 @@ export default function AboutPage() {
                   <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-3 prose prose-sm dark:prose-invert">
                     <ReactMarkdown>{exp.description || ''}</ReactMarkdown>
                   </div>
-                </motion.div>
+                </Reveal>
               ))}
             </div>
           </div>
@@ -165,13 +159,7 @@ export default function AboutPage() {
             </h2>
             <div className="space-y-8 border-l-2 border-slate-200 dark:border-slate-800 ml-3 pl-8 relative">
               {education?.map((edu, idx) => (
-                <motion.div
-                  key={edu.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="relative"
-                >
+                <Reveal key={edu.id} from="left" index={idx} className="relative">
                   <span className="absolute -left-[41px] top-1 w-5 h-5 rounded-full border-4 border-white dark:border-slate-950 bg-purple-500" />
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white">{edu.title}</h3>
                   <div className="text-purple-600 dark:text-purple-400 font-medium mb-1">
@@ -181,7 +169,7 @@ export default function AboutPage() {
                   <div className="text-sm text-slate-600 dark:text-slate-400 mb-3 prose prose-sm dark:prose-invert">
                     <ReactMarkdown>{edu.description || ''}</ReactMarkdown>
                   </div>
-                </motion.div>
+                </Reveal>
               ))}
             </div>
           </div>
@@ -207,7 +195,7 @@ export default function AboutPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {certificates.slice(0, 3).map((cert, idx) => (
-                <CertificateCard key={cert.id} cert={cert} delay={idx * 0.1} />
+                <CertificateCard key={cert.id} cert={cert} index={idx} />
               ))}
             </div>
           </div>

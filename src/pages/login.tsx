@@ -40,7 +40,7 @@ export default function LoginPage() {
           className="w-full py-3 bg-slate-800 hover:bg-slate-950 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 rounded-lg font-semibold flex justify-center items-center gap-2 transition-colors"
         >
           {isLoading ? (
-            <Loader2 className="animate-spin h-5 w-5" />
+            <Loader2 className="motion-safe:animate-spin h-5 w-5" />
           ) : (
             <>
               <Github className="h-5 w-5" /> Sign In with GitHub

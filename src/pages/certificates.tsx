@@ -93,7 +93,7 @@ export default function CertificatesPage() {
             Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-xl bg-slate-200 dark:bg-slate-800/50 aspect-[4/3] animate-pulse"
+                className="rounded-xl bg-slate-200 dark:bg-slate-800/50 aspect-[4/3] motion-safe:animate-pulse"
               />
             ))}
           {isError && (
@@ -102,7 +102,7 @@ export default function CertificatesPage() {
             </div>
           )}
           {certificates.map((cert, idx) => (
-            <CertificateCard key={cert.id} cert={cert} delay={idx * 0.05} />
+            <CertificateCard key={cert.id} cert={cert} index={idx} />
           ))}
           {certificates.length === 0 && !isLoadingCerts && (
             <div className="col-span-full py-20 text-center text-slate-500">

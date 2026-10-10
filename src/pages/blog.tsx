@@ -100,7 +100,7 @@ export default function BlogPage() {
             Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
-                className="h-48 w-full animate-pulse bg-slate-200 dark:bg-slate-800/50 rounded-2xl"
+                className="h-48 w-full motion-safe:animate-pulse bg-slate-200 dark:bg-slate-800/50 rounded-2xl"
               />
             ))}
           {isErrorBlogs && (

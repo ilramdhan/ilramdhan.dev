@@ -26,7 +26,7 @@ export function CollapsibleTagFilter({
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="h-8 w-20 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse"
+            className="h-8 w-20 rounded-full bg-slate-200 dark:bg-slate-800 motion-safe:animate-pulse"
           />
         ))}
       </div>

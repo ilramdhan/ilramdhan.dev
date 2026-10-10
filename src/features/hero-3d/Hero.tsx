@@ -100,13 +100,13 @@ export function Hero() {
             {isLoading && (
               <span
                 aria-hidden="true"
-                className="block mx-auto lg:mx-0 h-[30px] w-40 rounded-full bg-slate-200 dark:bg-slate-800 animate-pulse mb-6"
+                className="block mx-auto lg:mx-0 h-[30px] w-40 rounded-full bg-slate-200 dark:bg-slate-800 motion-safe:animate-pulse mb-6"
               />
             )}
             {profile?.badge_text && (
               <span className="inline-flex align-top items-center gap-2 px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30 text-sm font-medium mb-6">
                 <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
+                  <span className="motion-safe:animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
                 </span>
                 {profile.badge_text}
@@ -130,7 +130,7 @@ export function Hero() {
               {isLoading ? (
                 <span
                   aria-hidden="true"
-                  className="inline-block h-6 w-3/4 align-middle rounded bg-slate-200 dark:bg-slate-800 animate-pulse"
+                  className="inline-block h-6 w-3/4 align-middle rounded bg-slate-200 dark:bg-slate-800 motion-safe:animate-pulse"
                 />
               ) : (
                 profile?.short_description

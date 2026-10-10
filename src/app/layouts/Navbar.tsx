@@ -53,7 +53,7 @@ export function Navbar() {
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- TODO(#57) */}
           <div className="flex-shrink-0 cursor-pointer" onClick={() => handleNav('/')}>
             {isLoadingProfile ? (
-              <div className="h-8 w-28 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+              <div className="h-8 w-28 bg-slate-200 dark:bg-slate-800 rounded motion-safe:animate-pulse" />
             ) : profile?.logo_url ? (
               <Img
                 src={profile.logo_url}

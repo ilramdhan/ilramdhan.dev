@@ -32,7 +32,7 @@ export default function ProjectDetailPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center">
-        <div className="w-16 h-16 border-4 border-t-transparent border-indigo-600 rounded-full animate-spin"></div>
+        <div className="w-16 h-16 border-4 border-t-transparent border-indigo-600 rounded-full motion-safe:animate-spin"></div>
       </div>
     );
   }
