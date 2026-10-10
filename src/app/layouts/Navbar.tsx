@@ -66,7 +66,7 @@ export function Navbar() {
             )}
           </div>
 
-          <div className="hidden md:flex items-center gap-6">
+          <div className="hidden lg:flex items-center gap-6">
             <div className="flex items-baseline space-x-4">
               {navLinks.map((link) => (
                 <button
@@ -104,7 +104,7 @@ export function Navbar() {
             </div>
           </div>
 
-          <div className="-mr-2 flex md:hidden items-center gap-4">
+          <div className="-mr-2 flex lg:hidden items-center gap-4">
             <button
               onClick={toggleTheme}
               className="p-2 rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
@@ -127,7 +127,7 @@ export function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-b border-slate-200 dark:border-white/5 bg-white dark:bg-slate-950"
+            className="lg:hidden border-b border-slate-200 dark:border-white/5 bg-white dark:bg-slate-950"
           >
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
               {navLinks.map((link) => (

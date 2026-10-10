@@ -120,7 +120,7 @@ export default function Page() {
                   I offer a range of services to help you build your next digital product.
                 </p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {services.map((service, idx) => {
                   const Icon = service.icon_name ? IconMap[service.icon_name] || Code : Code;
                   return (

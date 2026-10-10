@@ -84,7 +84,9 @@ export default function ProjectDetailPage() {
         </div>
 
         {/* Title + Meta */}
-        <h1 className="text-4xl font-bold mb-4 text-slate-900 dark:text-white">{project.title}</h1>
+        <h1 className="text-4xl font-bold mb-4 text-slate-900 dark:text-white break-words hyphens-auto">
+          {project.title}
+        </h1>
         <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 mb-6">
           <span className="flex items-center gap-1">
             <Calendar className="h-4 w-4" /> {formatDate(project.created_at)}

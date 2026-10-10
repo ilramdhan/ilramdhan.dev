@@ -158,7 +158,7 @@ export default function BlogDetailPage() {
                 </span>
               )}
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight text-slate-900 dark:text-white">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight text-slate-900 dark:text-white break-words hyphens-auto">
               {blog.title}
             </h1>
           </div>

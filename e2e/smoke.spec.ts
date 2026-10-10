@@ -2,25 +2,6 @@ import { expect, test } from './fixtures/test';
 import { horizontalOverflow, overflowingElements, runningAnimations } from './helpers/layout';
 import { PUBLIC_ROUTES } from './routes';
 
-/**
- * Known layout bugs, tracked in issues. The horizontal-scroll check for these
- * route/width combinations is marked `test.fixme` (reported as skipped) instead
- * of failing the suite. Remove the entry in the PR that fixes the issue.
- */
-const KNOWN_HSCROLL: { paths: string[]; maxWidth: number; issue: string }[] = [
-  // Long words in detail-page titles overflow on phones. How far depends on the
-  // system font (the site has no web font): ~320 px locally, up to 414 px on the
-  // Ubuntu CI runner.
-  { paths: ['/projects/long-content', '/blog/long-content'], maxWidth: 414, issue: '#37' },
-  // "View All Certificates" header button overflows by ~4 px at 320 px with wider
-  // system fonts (DejaVu Sans on the CI runner).
-  { paths: ['/about'], maxWidth: 320, issue: '#37' },
-];
-
-function knownHScrollIssue(path: string, width: number) {
-  return KNOWN_HSCROLL.find((k) => k.paths.includes(path) && width <= k.maxWidth)?.issue;
-}
-
 for (const route of PUBLIC_ROUTES) {
   test(`${route.name} (${route.path}) renders its H1 and footer version, no console errors, no horizontal scroll`, async ({
     page,
@@ -54,15 +35,21 @@ for (const route of PUBLIC_ROUTES) {
     }
 
     const width = page.viewportSize()?.width ?? 0;
-    const issue = knownHScrollIssue(route.path, width);
-    // H1/console checks above still ran; only the overflow assertion is skipped.
-    test.fixme(!!issue, `Horizontal scroll at ${width}px — known bug ${issue}`);
-
     const overflow = await horizontalOverflow(page);
     const culprits = overflow > 0 ? (await overflowingElements(page)).join(', ') : '';
     expect(overflow, `px of horizontal overflow (elements past the right edge: ${culprits})`).toBe(
       0,
     );
+
+    // Navbar: every visible control stays inside the viewport (no clipped links at 768).
+    const clipped = await page.evaluate(() => {
+      const vw = document.documentElement.clientWidth;
+      return [...document.querySelectorAll<HTMLElement>('nav button, nav a')]
+        .filter((el) => el.offsetParent !== null)
+        .map((el) => el.getBoundingClientRect())
+        .filter((r) => r.width > 0 && (r.left < -1 || r.right > vw + 1)).length;
+    });
+    expect(clipped, 'navbar controls outside the viewport').toBe(0);
   });
 }
 
@@ -75,3 +62,26 @@ for (const path of ['/this-page-does-not-exist', '/blog/unknown-slug', '/project
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
   });
 }
+
+test('hero: copy and CTA never overlap the 3D card, which only renders from lg', async ({
+  page,
+}) => {
+  await page.clock.install();
+  await page.goto('/');
+  const h1 = page.getByRole('heading', { level: 1 }).first();
+  await expect(h1).toBeVisible();
+  const width = page.viewportSize()?.width ?? 0;
+  const canvas = page.locator('section').first().locator('canvas');
+  if (width < 1024) {
+    await expect(canvas).toHaveCount(0);
+    return;
+  }
+  await expect(canvas.first()).toBeAttached();
+  const cta = page.getByRole('button', { name: /view projects/i });
+  const box = async (l: import('@playwright/test').Locator) => (await l.boundingBox())!;
+  const [h, c] = [await box(h1), await box(cta)];
+  // The card is parked in the right half (x offset 2.5 of a >= 10 wide canvas).
+  const half = width / 2;
+  expect(h.x + h.width, 'H1 stays in the left column').toBeLessThanOrEqual(half + 40);
+  expect(c.x + c.width, 'CTA stays in the left column').toBeLessThanOrEqual(half + 40);
+});
