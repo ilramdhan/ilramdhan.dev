@@ -1,11 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Calendar, Code, Smartphone, Cloud, Terminal, Layout, Database } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { motion } from 'framer-motion';
-import * as THREE from 'three';
-import GLOBE, { type VantaEffect } from 'vanta/dist/vanta.globe.min.js';
 import { Hero } from '@/features/hero-3d/Hero';
 import { ProjectCard } from '@/features/projects/ProjectCard';
 import { ContactForm } from '@/features/messages/ContactForm';
@@ -17,7 +15,6 @@ import { blogQueries } from '@/features/blog/queries';
 import { techStackQueries } from '@/features/tech-stack/queries';
 import { serviceQueries } from '@/features/services/queries';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
-import { useTheme } from '@/app/ThemeContext';
 import { formatDate } from '@/lib/date';
 
 const IconMap: { [key: string]: React.ElementType } = {
@@ -29,25 +26,8 @@ const IconMap: { [key: string]: React.ElementType } = {
   database: Database,
 };
 
-const lightThemeConfig = {
-  color: 0x599bfa,
-  color2: 0x2a6daa,
-  backgroundColor: 0xf8fafc, // bg-slate-50
-  size: 1.0,
-};
-
-const darkThemeConfig = {
-  color: 0x599bfa,
-  color2: 0x2a6daa,
-  backgroundColor: 0x0f172a, // bg-slate-900
-  size: 1.0,
-};
-
 export default function Page() {
   const navigate = useNavigate();
-  const { theme } = useTheme();
-  const [vantaEffect, setVantaEffect] = useState<VantaEffect | null>(null);
-  const vantaRef = useRef<HTMLElement>(null);
 
   useDocumentMeta({
     title: undefined, // Uses default: "Ilham Ramadhan | Web Developer & Portfolio"
@@ -73,34 +53,6 @@ export default function Page() {
   const { data: techStack } = useQuery(techStackQueries.list());
 
   const { data: services } = useQuery(serviceQueries.list());
-
-  useEffect(() => {
-    if (!vantaRef.current) return;
-    const vantaInstance = GLOBE({
-      el: vantaRef.current,
-      THREE: THREE,
-      mouseControls: true,
-      touchControls: true,
-      gyroControls: false,
-      minHeight: 200.0,
-      minWidth: 200.0,
-      scale: 1.0,
-      scaleMobile: 1.0,
-      ...(theme === 'dark' ? darkThemeConfig : lightThemeConfig),
-    });
-    setVantaEffect(vantaInstance);
-    return () => {
-      if (vantaInstance) vantaInstance.destroy();
-    };
-    // Mount-only: theme changes are applied by the effect below via setOptions.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
-    if (vantaEffect) {
-      vantaEffect.setOptions(theme === 'dark' ? darkThemeConfig : lightThemeConfig);
-    }
-  }, [theme, vantaEffect]);
 
   return (
     <>
@@ -303,7 +255,11 @@ export default function Page() {
         </section>
 
         {/* Contact Section */}
-        <section id="contact" className="relative" ref={vantaRef}>
+        {/* Static CSS mesh gradient (replaces the Vanta WebGL globe, T-25). */}
+        <section
+          id="contact"
+          className="relative overflow-hidden bg-slate-50 dark:bg-slate-900 bg-[radial-gradient(ellipse_60%_50%_at_20%_30%,rgba(89,155,250,0.18),transparent),radial-gradient(ellipse_50%_60%_at_80%_70%,rgba(42,109,170,0.18),transparent)] dark:bg-[radial-gradient(ellipse_60%_50%_at_20%_30%,rgba(89,155,250,0.16),transparent),radial-gradient(ellipse_50%_60%_at_80%_70%,rgba(42,109,170,0.22),transparent)]"
+        >
           <div className="relative z-10 py-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="max-w-xl mx-auto text-center mb-12">

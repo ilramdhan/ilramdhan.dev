@@ -30,14 +30,18 @@ function walk(dir) {
   });
 }
 
-const files = walk(assetsDir).map((file) => {
-  const content = fs.readFileSync(file);
-  return {
-    name: path.relative(distDir, file),
-    raw: content.length,
-    gzip: zlib.gzipSync(content, { level: 9 }).length,
-  };
-});
+// Hashed build output plus the static 3D models served from public/models.
+const modelsDir = path.join(distDir, 'models');
+const files = [...walk(assetsDir), ...(fs.existsSync(modelsDir) ? walk(modelsDir) : [])].map(
+  (file) => {
+    const content = fs.readFileSync(file);
+    return {
+      name: path.relative(distDir, file),
+      raw: content.length,
+      gzip: zlib.gzipSync(content, { level: 9 }).length,
+    };
+  },
+);
 
 /**
  * Static import graph: chunk file -> chunk files it imports with a static `import`

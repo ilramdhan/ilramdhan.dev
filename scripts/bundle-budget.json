@@ -27,7 +27,7 @@
       "pattern": "\\.(glb|gltf)$",
       "metric": "raw",
       "aggregate": "sum",
-      "maxKiB": 3950
+      "maxKiB": 240
     },
     {
       "name": "Initial JS /privacy (gzip)",
@@ -51,7 +51,14 @@
       "route": "^assets/home-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "initial",
-      "maxKiB": 1300
+      "maxKiB": 250
+    },
+    {
+      "name": "3D card chunks (gzip)",
+      "pattern": "^assets/(three|HeroCard)-[\\w-]{8}\\.js$",
+      "metric": "gzip",
+      "aggregate": "sum",
+      "maxKiB": 1060
     }
   ]
 }

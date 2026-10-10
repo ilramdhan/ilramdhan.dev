@@ -42,7 +42,6 @@
     "sonner": "^1.2.4",
     "tailwind-merge": "^2.6.1",
     "three": "^0.186.1",
-    "vanta": "^0.5.24",
     "zod": "^3.22.4"
   },
   "devDependencies": {
