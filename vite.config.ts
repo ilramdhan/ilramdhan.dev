@@ -2,10 +2,10 @@ import { readFileSync } from 'fs';
 import path from 'path';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
-import { absoluteUrl, siteConfig } from './config/site';
+import { absoluteUrl, siteConfig } from './src/config/site';
 
 /**
- * Build-time constants (`__APP_VERSION__`, `__APP_COMMIT__`, typed in `lib/globals.d.ts`).
+ * Build-time constants (`__APP_VERSION__`, `__APP_COMMIT__`, typed in `src/types/globals.d.ts`).
  * The version comes from `package.json` (bumped by release-please); the commit
  * from Vercel's `VERCEL_GIT_COMMIT_SHA` when available.
  */
@@ -37,7 +37,7 @@ const escapeHtml = (value: string) =>
   value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 /**
- * Injects values from `config/site.ts` into `index.html`:
+ * Injects values from `src/config/site.ts` into `index.html`:
  * replaces `%SITE_*%` placeholders and adds the JSON-LD `Person` block.
  */
 function siteConfigHtml(): Plugin {
@@ -97,7 +97,7 @@ export default defineConfig(() => {
     define: appVersionDefine(),
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(__dirname, 'src'),
       },
     },
   };

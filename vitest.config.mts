@@ -9,13 +9,13 @@ export default defineConfig({
   define: appVersionDefine(),
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, '.'),
+      '@': path.resolve(__dirname, 'src'),
     },
   },
   test: {
     environment: 'jsdom',
     globals: false,
-    setupFiles: ['./test/setup.ts'],
+    setupFiles: ['./src/test/setup.ts'],
     include: ['**/*.test.{ts,tsx}'],
     exclude: ['node_modules', 'dist', 'e2e', 'supabase', 'docs'],
     restoreMocks: true,

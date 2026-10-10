@@ -1,5 +1,5 @@
 import type { Page, Request, Route } from '@playwright/test';
-import { FilterParseError, likeToRegExp, parseOrIlike } from '../../test/postgrest-filters';
+import { FilterParseError, likeToRegExp, parseOrIlike } from '../../src/test/postgrest-filters';
 import { createDataset, type Row } from './dataset';
 
 /** Must match the VITE_SUPABASE_URL the e2e build is made with (see playwright.config.ts). */
@@ -10,7 +10,10 @@ export interface SupabaseMock {
   db: Record<string, Row[]>;
   /** Every request the app made to the mock (method, decoded path + query, body). */
   requests: { method: string; url: URL; path: string; body: string | null }[];
-  /** Responses for `POST /rest/v1/rpc/<name>`; set in a test to change what a function returns. */
+  /**
+   * Responses for `POST /rest/v1/rpc/<name>`; set in a test to change what a function returns.
+   * Unset tag/issuer functions are computed from `db`; anything else answers PGRST202.
+   */
   rpc: Record<string, { status: number; body: unknown }>;
 }
 
@@ -68,6 +71,21 @@ function applyFilters(rows: Row[], params: URLSearchParams): Row[] {
   return result;
 }
 
+/** Sorted distinct non-empty strings, like `select distinct ... order by`. */
+const distinct = (values: unknown[]) =>
+  [...new Set(values.filter((v): v is string => typeof v === 'string' && v !== ''))].sort((a, b) =>
+    a.localeCompare(b),
+  );
+const unnest = (rows: Row[] | undefined, column: string) =>
+  (rows ?? []).flatMap((r) => (Array.isArray(r[column]) ? (r[column] as unknown[]) : []));
+
+/** `setof text` functions of migration 20261010200000 (T-15), computed from the dataset. */
+const DISTINCT_FUNCTIONS: Record<string, (db: Record<string, Row[]>) => string[]> = {
+  project_tags: (db) => distinct(unnest(db.projects, 'tags')),
+  blog_tags: (db) => distinct(unnest(db.blogs, 'tags')),
+  certificate_issuers: (db) => distinct((db.certificates ?? []).map((c) => c.issued_by)),
+};
+
 async function handle(route: Route, request: Request, mock: SupabaseMock) {
   const url = new URL(request.url());
   mock.requests.push({
@@ -87,7 +105,9 @@ async function handle(route: Route, request: Request, mock: SupabaseMock) {
 
   if (url.pathname.startsWith('/rest/v1/rpc/')) {
     const fn = url.pathname.replace('/rest/v1/rpc/', '');
-    const answer = mock.rpc[fn] ?? RPC_NOT_FOUND;
+    const computed = DISTINCT_FUNCTIONS[fn];
+    const answer =
+      mock.rpc[fn] ?? (computed && { status: 200, body: computed(mock.db) }) ?? RPC_NOT_FOUND;
     return json(route, answer.status, answer.body);
   }
 

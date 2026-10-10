@@ -27,7 +27,7 @@ Database changes:
 
 - Every schema change is a new file from `npx supabase@2.120.0 migration new <name>`; never edit a migration that is already merged, and never run `supabase/legacy/*.sql`.
 - Migrations must be safe on production data: no `DROP TABLE`/`DROP COLUMN` of data, `IF NOT EXISTS` where possible, `NOT VALID` for new `CHECK` constraints. The frontend must keep working before and after the owner applies them.
-- After changing the schema run `npm run db:reset && npm run db:types` and commit the regenerated `lib/database.types.ts`.
+- After changing the schema run `npm run db:reset && npm run db:types` and commit the regenerated `src/types/database.ts`.
 
 ## Workflow
 
@@ -56,9 +56,9 @@ npm test             # run once (CI)
 npm run test:watch   # watch mode
 ```
 
-- Vitest + jsdom + [Testing Library](https://testing-library.com/docs/react-testing-library/intro/); config in `vitest.config.mts`, setup (jest-dom matchers, cleanup) in `test/setup.ts`.
-- Put tests next to the code as `*.test.ts(x)` (e.g. `lib/utils.test.ts`, `components/EnvErrorScreen.test.tsx`).
-- Query by role/label (`screen.getByRole(...)`), not by class names. For modules that read `import.meta.env` at import time, use `vi.stubEnv()` + `vi.resetModules()` and re-import (see `lib/env.test.ts`).
+- Vitest + jsdom + [Testing Library](https://testing-library.com/docs/react-testing-library/intro/); config in `vitest.config.mts`, setup (jest-dom matchers, cleanup) in `src/test/setup.ts`.
+- Put tests next to the code as `*.test.ts(x)` (e.g. `src/lib/utils.test.ts`, `src/app/error/EnvErrorScreen.test.tsx`).
+- Query by role/label (`screen.getByRole(...)`), not by class names. For modules that read `import.meta.env` at import time, use `vi.stubEnv()` + `vi.resetModules()` and re-import (see `src/lib/env.test.ts`).
 
 ### Database policy tests (RLS + storage)
 

@@ -1,0 +1,55 @@
+import { Award } from 'lucide-react';
+import { motion } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
+import type { Certificate } from '@/features/certificates/api';
+
+interface CertificateCardProps {
+  cert: Certificate;
+  /** Stagger delay (seconds) for the entrance animation. */
+  delay: number;
+}
+
+export function CertificateCard({ cert, delay }: CertificateCardProps) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ delay }}
+      className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 rounded-xl overflow-hidden hover:border-indigo-500/30 transition-all shadow-sm dark:shadow-none group flex flex-col"
+    >
+      {cert.file_url ? (
+        <div className="h-48 bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
+          <img
+            src={cert.file_url}
+            alt={cert.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        </div>
+      ) : (
+        <div className="h-48 bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
+          <Award className="h-12 w-12" />
+        </div>
+      )}
+      <div className="p-6 flex-1 flex flex-col">
+        <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">{cert.title}</h3>
+        <p className="text-sm text-indigo-600 dark:text-indigo-400 mb-2">{cert.issued_by}</p>
+        <p className="text-xs text-slate-500 mb-4">
+          {cert.issued_date} {cert.expiry_date ? ` - ${cert.expiry_date}` : ''}
+        </p>
+        <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4 flex-1 prose prose-sm dark:prose-invert line-clamp-3">
+          <ReactMarkdown>{cert.description || ''}</ReactMarkdown>
+        </div>
+        {cert.credential_url && (
+          <a
+            href={cert.credential_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline mt-auto"
+          >
+            View Credential &rarr;
+          </a>
+        )}
+      </div>
+    </motion.div>
+  );
+}

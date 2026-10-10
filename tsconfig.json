@@ -10,7 +10,7 @@
     "moduleDetection": "force",
     "jsx": "react-jsx",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./src/*"]
     },
     "strict": true,
     "noUncheckedIndexedAccess": true,
