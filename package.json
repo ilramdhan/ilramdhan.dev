@@ -9,7 +9,11 @@
     "preview": "vite preview",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "db:start": "npx --yes supabase@2.120.0 start",
+    "db:stop": "npx --yes supabase@2.120.0 stop",
+    "db:reset": "npx --yes supabase@2.120.0 db reset",
+    "db:types": "npx --yes supabase@2.120.0 gen types typescript --local --schema public > lib/database.types.ts && prettier --write lib/database.types.ts"
   },
   "dependencies": {
     "@react-three/drei": "^9.102.0",

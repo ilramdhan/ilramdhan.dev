@@ -34,7 +34,7 @@ Architecture notes: [`docs/architecture.md`](docs/architecture.md).
 ### Prerequisites
 
 - Node.js 20 LTS or newer, npm
-- A Supabase project (free tier is enough)
+- Docker (for the local Supabase stack), or a hosted Supabase project (free tier is enough)
 
 ### Setup
 
@@ -56,12 +56,33 @@ Only `VITE_*` variables reach the browser. Never put service-role keys or other 
 
 ### Database
 
-1. In the Supabase SQL editor run `supabase/schema.sql` **on a new, empty project only** (it drops existing tables), then `supabase/supabase-fix.sql` (RLS hardening).
-2. Create a public Storage bucket named `ilramdhan.dev`.
-3. Enable the GitHub provider in **Auth → Providers**, add your site URL to the redirect URLs, and **disable new sign-ups** after your own account exists.
-4. Insert your profile row (`profile.id` = your `auth.users.id`).
+The schema lives in Supabase CLI migrations under [`supabase/migrations/`](supabase/migrations/); [`supabase/seed.sql`](supabase/seed.sql) holds dummy content for local development. The old hand-run SQL files are kept for reference only in [`supabase/legacy/`](supabase/legacy/README.md) — don't run them.
 
-> Supabase CLI migrations + seed data for a fully local setup are planned (task T-04 in the plan).
+#### Local Supabase (recommended for development)
+
+Requires Docker. The npm scripts run a pinned Supabase CLI through `npx`.
+
+```bash
+npm run db:start   # start local Supabase (Postgres, Auth, Storage, Studio) and apply migrations
+npm run db:reset   # re-create the local DB from migrations + seed.sql
+npm run db:stop    # stop the containers
+```
+
+`db:start` prints the local API URL and anon key; put them in `.env.local`:
+
+```env
+VITE_SUPABASE_URL=http://127.0.0.1:54321
+VITE_SUPABASE_ANON_KEY=<anon key printed by db:start>
+```
+
+Then `npm run dev`. The seed creates a local admin user (`admin@example.com` / `password123`, local only) that owns all seeded content. Sign-ups are off locally as in production, and the GitHub provider is not configured locally, so to use `/admin` sign in once from the browser console on the dev site, e.g. `await (await import('/lib/supabase/client.ts')).supabase.auth.signInWithPassword({ email: 'admin@example.com', password: 'password123' })`, or enable `[auth.external.github]` in `supabase/config.toml` with your own OAuth app. Studio runs on <http://127.0.0.1:54323>.
+
+After changing the schema, add a migration (`npx supabase@2.120.0 migration new <name>`), run `npm run db:reset`, then `npm run db:types` to regenerate `lib/database.types.ts`.
+
+#### Hosted project
+
+- **New project:** `npx supabase@2.120.0 link --project-ref <ref>` then `npx supabase@2.120.0 db push` (applies all migrations, never the seed). Then enable the GitHub provider in **Auth → Providers**, add your site URL to the redirect URLs, **disable new sign-ups** after your own account exists, and insert your profile row (`profile.id` = your `auth.users.id`).
+- **Existing production (created from the legacy SQL):** it already matches the baseline migration. Mark it as applied once instead of running it: `npx supabase@2.120.0 migration repair --status applied 20260101000000`. Later migrations are applied manually by the owner (SQL editor or `db push`) — see each PR's "Manual step" section — and then marked applied the same way.
 
 ### Scripts
 
@@ -74,6 +95,10 @@ Only `VITE_*` variables reach the browser. Never put service-role keys or other 
 | `npm run lint:fix`     | ESLint with autofix                         |
 | `npm run format`       | Format the repo with Prettier               |
 | `npm run format:check` | Check formatting (CI)                       |
+| `npm run db:start`     | Start local Supabase (Docker)               |
+| `npm run db:stop`      | Stop local Supabase                         |
+| `npm run db:reset`     | Rebuild local DB from migrations + seed     |
+| `npm run db:types`     | Regenerate `lib/database.types.ts` (local)  |
 
 ## Project structure
 
@@ -86,7 +111,7 @@ Only `VITE_*` variables reach the browser. Never put service-role keys or other 
 ├── lib/                   # Supabase client, env validation, data access (api.ts), auth, theme, hooks
 ├── actions/               # client-side form validation
 ├── api/                   # Vercel serverless function(s)
-├── supabase/              # SQL schema & RLS policies
+├── supabase/              # CLI config, migrations, seed.sql (legacy/ = old SQL, do not run)
 ├── public/                # static assets (logos, 3D model, robots, sitemap)
 └── docs/                  # architecture, audit, plan
 ```

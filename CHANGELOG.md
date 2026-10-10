@@ -14,8 +14,11 @@ All notable changes to this project are documented here. The format follows [Kee
 - ESLint 9 flat config (typescript-eslint type-aware, react-hooks, react-refresh, jsx-a11y, import), Prettier, `.editorconfig`, and `lint:fix` / `format` / `format:check` scripts (T-01).
 - `lib/env.ts`: zod validation of `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`; missing or invalid values show a readable configuration error screen instead of a blank page (T-07).
 - `config/site.ts`: central site config; `index.html` meta tags and JSON-LD are injected from it at build time (T-07).
+- Supabase CLI setup (`supabase/config.toml`), a non-destructive baseline migration of the production schema + RLS policies, a migration adding CHECK/NOT NULL constraints, `updated_at` triggers and indexes, `supabase/seed.sql` dummy data, and `db:start` / `db:stop` / `db:reset` / `db:types` scripts for a fully local backend (T-04).
 
 ### Changed
+
+- `supabase/schema.sql` and `supabase/supabase-fix.sql` moved to `supabase/legacy/` (reference only; superseded by migrations) (T-04).
 
 - README rewritten: accurate stack, setup, project structure, docs links.
 - `react-router-dom` bumped to 6.30.6; `@vercel/node` moved to devDependencies; non-breaking `npm audit fix` (T-02).
