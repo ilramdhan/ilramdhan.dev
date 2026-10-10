@@ -38,6 +38,14 @@ export const test = base.extend<Fixtures & Options>({
           // storage unavailable — the app falls back to its default theme
         }
       }, theme);
+      // vite preview serves the vercel.json CSP (Report-Only): surface violations as errors.
+      await page.addInitScript(() => {
+        document.addEventListener('securitypolicyviolation', (e) => {
+          console.error(
+            `CSP violation (${e.disposition}): ${e.effectiveDirective} blocked ${e.blockedURI || 'inline'}`,
+          );
+        });
+      });
       const errors: string[] = [];
       page.on('console', (msg) => {
         if (msg.type() === 'error') errors.push(`console.error: ${msg.text()}`);

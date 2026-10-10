@@ -20,6 +20,19 @@ export function appVersionDefine() {
   };
 }
 
+/**
+ * Site-wide response headers from `vercel.json` (the `/(.*)` rule: CSP, HSTS, …),
+ * so `vite preview` — and the e2e suite that runs on it — serves the same
+ * security headers as production and CSP regressions show up in tests.
+ */
+export function vercelSiteHeaders(): Record<string, string> {
+  const config = JSON.parse(readFileSync(path.resolve(__dirname, 'vercel.json'), 'utf8')) as {
+    headers?: { source: string; headers: { key: string; value: string }[] }[];
+  };
+  const rule = config.headers?.find((h) => h.source === '/(.*)');
+  return Object.fromEntries((rule?.headers ?? []).map(({ key, value }) => [key, value]));
+}
+
 const escapeHtml = (value: string) =>
   value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
@@ -76,6 +89,9 @@ export default defineConfig(() => {
     server: {
       port: 3000,
       host: '0.0.0.0',
+    },
+    preview: {
+      headers: vercelSiteHeaders(),
     },
     plugins: [react(), siteConfigHtml()],
     define: appVersionDefine(),

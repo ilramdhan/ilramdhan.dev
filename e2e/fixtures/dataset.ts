@@ -20,7 +20,9 @@ const LONG_CONTENT = [
   '| value-aaaaaaaa | value-bbbbbbbb | value-cccccccc | value-dddddddd | value-eeeeeeee | value-ffffffff |',
 ].join('\n');
 
-const img = (text: string) => `https://placehold.co/1200x630/png?text=${encodeURIComponent(text)}`;
+// Images live in Supabase Storage like in production (allowed by the CSP); the mock serves an SVG.
+const img = (text: string) =>
+  `https://mock.supabase.co/storage/v1/object/public/portfolio/${encodeURIComponent(text)}.png`;
 
 export function createDataset(): Record<string, Row[]> {
   return {
