@@ -68,8 +68,10 @@ async function handle(route: Route, request: Request, mock: SupabaseMock) {
 
   // Anonymous visitor: no session, every auth call is a harmless no-op.
   if (url.pathname.startsWith('/auth/v1/')) return json(route, 200, {});
-  // Storage (images uploaded by the owner) — serve a tiny placeholder.
-  if (url.pathname.startsWith('/storage/v1/')) return route.fulfill({ status: 200, body: '' });
+  // Storage (images uploaded by the owner) — serve a tiny placeholder image.
+  if (url.pathname.startsWith('/storage/v1/')) {
+    return route.fulfill({ status: 200, contentType: 'image/svg+xml', body: PLACEHOLDER_SVG });
+  }
   if (!url.pathname.startsWith('/rest/v1/')) return json(route, 404, { message: 'not mocked' });
 
   const table = url.pathname.replace('/rest/v1/', '');
