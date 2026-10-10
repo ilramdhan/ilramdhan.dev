@@ -1,7 +1,7 @@
 name: 🐞 Bug report
 description: Something is broken or behaves incorrectly
-title: "[Bug] "
-labels: ["type: bug", "status: triage"]
+title: '[Bug] '
+labels: ['type: bug', 'status: triage']
 body:
   - type: markdown
     attributes:
@@ -37,10 +37,10 @@ body:
     attributes:
       label: Severity
       options:
-        - "Critical — site down / data loss / exploitable"
-        - "High — major feature broken"
-        - "Medium — degraded experience, workaround exists"
-        - "Low — cosmetic"
+        - 'Critical — site down / data loss / exploitable'
+        - 'High — major feature broken'
+        - 'Medium — degraded experience, workaround exists'
+        - 'Low — cosmetic'
     validations:
       required: true
   - type: input

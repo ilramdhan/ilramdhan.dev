@@ -1,7 +1,6 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { supabase } from './supabase/client';
 import type { Session, User } from '@supabase/supabase-js';
+import { supabase } from './supabase/client';
 
 interface AuthContextType {
   user: User | null;
@@ -20,12 +19,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const getInitialSession = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        setSession(session);
-        setUser(session?.user ?? null);
-        setIsLoading(false);
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      setSession(session);
+      setUser(session?.user ?? null);
+      setIsLoading(false);
     };
-    
+
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
     getInitialSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
@@ -60,6 +62,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components -- context provider and hook are co-located
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

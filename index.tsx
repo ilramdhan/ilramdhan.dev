@@ -21,7 +21,7 @@ const queryClient = new QueryClient();
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
+  throw new Error('Could not find root element to mount to');
 }
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -49,13 +49,13 @@ function AppRoutes() {
           <Route path="privacy" element={<PrivacyPage />} />
           <Route path="terms" element={<TermsPage />} />
           <Route path="login" element={<LoginPage />} />
-          <Route 
-            path="admin" 
+          <Route
+            path="admin"
             element={
               <ProtectedRoute>
                 <AdminPage />
               </ProtectedRoute>
-            } 
+            }
           />
         </Route>
       </Routes>
@@ -66,21 +66,11 @@ function AppRoutes() {
 const root = ReactDOM.createRoot(rootElement);
 
 root.render(
-
   <React.StrictMode>
-
     <QueryClientProvider client={queryClient}>
-
       <AuthProvider>
-
         <AppRoutes />
-
       </AuthProvider>
-
     </QueryClientProvider>
-
-  </React.StrictMode>
-
+  </React.StrictMode>,
 );
-
-

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Send } from 'lucide-react';
@@ -15,14 +14,19 @@ export function ContactForm() {
   const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    return () => { if (cooldownRef.current) clearInterval(cooldownRef.current); };
+    return () => {
+      if (cooldownRef.current) clearInterval(cooldownRef.current);
+    };
   }, []);
 
   const startCooldown = useCallback(() => {
     setCooldown(COOLDOWN_SECONDS);
     cooldownRef.current = setInterval(() => {
-      setCooldown(prev => {
-        if (prev <= 1) { clearInterval(cooldownRef.current!); return 0; }
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          clearInterval(cooldownRef.current!);
+          return 0;
+        }
         return prev - 1;
       });
     }, 1000);
@@ -31,13 +35,14 @@ export function ContactForm() {
   const addMessageMutation = useMutation({
     mutationFn: api.addMessage,
     onSuccess: () => {
-      toast.success("Message sent successfully!");
+      toast.success('Message sent successfully!');
       setState({ success: true, message: 'Message sent successfully!' });
       // Invalidate messages query to refetch in admin panel if it's open
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises -- TODO(#18)
       queryClient.invalidateQueries({ queryKey: ['messages'] });
     },
     onError: () => {
-      toast.error("Something went wrong. Please try again.");
+      toast.error('Something went wrong. Please try again.');
     },
   });
 
@@ -57,32 +62,38 @@ export function ContactForm() {
     const validation = await validateContactForm(formData);
 
     if (!validation.success) {
-        setState({
-            errors: validation.error,
-            message: 'Missing Fields',
-            success: false
-        });
-        return;
+      setState({
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment -- TODO(#18)
+        errors: validation.error,
+        message: 'Missing Fields',
+        success: false,
+      });
+      return;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-argument -- TODO(#18)
     addMessageMutation.mutate(validation.data, {
       onSuccess: () => {
         toast.success("Message sent! We'll get back to you soon.");
         form.reset();
         setState({ success: true, message: 'Message sent successfully!' });
         startCooldown();
-      }
+      },
     });
   };
 
   return (
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises -- TODO(#18)
     <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto">
       {/* Honeypot — invisible to users, catches bots */}
       <div className="absolute opacity-0 pointer-events-none" aria-hidden="true" tabIndex={-1}>
         <input type="text" name="website" tabIndex={-1} autoComplete="off" />
       </div>
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+        <label
+          htmlFor="name"
+          className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+        >
           Name
         </label>
         <input
@@ -100,7 +111,10 @@ export function ContactForm() {
       </div>
 
       <div>
-        <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+        <label
+          htmlFor="email"
+          className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+        >
           Email
         </label>
         <input
@@ -118,7 +132,10 @@ export function ContactForm() {
       </div>
 
       <div>
-        <label htmlFor="message" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+        <label
+          htmlFor="message"
+          className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
+        >
           Message
         </label>
         <textarea

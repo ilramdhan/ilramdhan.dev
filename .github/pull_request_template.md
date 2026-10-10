@@ -27,8 +27,8 @@ Audit IDs:
 ## Screenshots (UI changes)
 
 | Mobile 375 | Tablet 768 | Desktop 1280 |
-| --- | --- | --- |
-|  |  |  |
+| ---------- | ---------- | ------------ |
+|            |            |              |
 
 ## Checklist
 
