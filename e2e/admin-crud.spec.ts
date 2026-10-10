@@ -35,7 +35,6 @@ test('projects: create, edit (only changed fields) and delete', async ({ page, s
     slug: 'my-new-project',
     tech_stack: ['React', 'Go'],
     demo_url: 'https://demo.example.com',
-    user_id: expect.any(String),
   });
   await expect(page.getByRole('heading', { name: 'Create Project' })).toBeHidden();
 

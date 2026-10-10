@@ -1,7 +1,7 @@
 import type { Tables, TablesInsert, TablesUpdate } from '@/types';
 import { supabase } from '@/lib/supabase/client';
 import { columns } from '@/lib/supabase/columns';
-import { assertOk, currentUserId, unwrap, withoutId } from '@/lib/supabase/result';
+import { assertOk, unwrap, withoutId } from '@/lib/supabase/result';
 
 export type ResumeType = 'experience' | 'education';
 
@@ -34,15 +34,8 @@ export async function getResume(type: ResumeType): Promise<ResumeItem[]> {
   );
 }
 
-export async function addResumeItem(item: Omit<ResumeInsert, 'user_id'>): Promise<ResumeItem> {
-  const userId = await currentUserId();
-  return unwrap(
-    await supabase
-      .from('resume')
-      .insert({ ...item, user_id: userId })
-      .select(RESUME_COLUMNS)
-      .single(),
-  );
+export async function addResumeItem(item: ResumeInsert): Promise<ResumeItem> {
+  return unwrap(await supabase.from('resume').insert(item).select(RESUME_COLUMNS).single());
 }
 
 export async function updateResumeItem(

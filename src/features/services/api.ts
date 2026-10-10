@@ -1,7 +1,7 @@
 import type { Tables, TablesInsert, TablesUpdate } from '@/types';
 import { supabase } from '@/lib/supabase/client';
 import { columns } from '@/lib/supabase/columns';
-import { assertOk, currentUserId, unwrap, withoutId } from '@/lib/supabase/result';
+import { assertOk, unwrap, withoutId } from '@/lib/supabase/result';
 
 export const SERVICE_COLUMNS = columns('services', 'id', 'title', 'description', 'icon_name');
 
@@ -14,15 +14,8 @@ export async function getServices(): Promise<Service[]> {
   );
 }
 
-export async function addService(service: Omit<ServiceInsert, 'user_id'>): Promise<Service> {
-  const userId = await currentUserId();
-  return unwrap(
-    await supabase
-      .from('services')
-      .insert({ ...service, user_id: userId })
-      .select(SERVICE_COLUMNS)
-      .single(),
-  );
+export async function addService(service: ServiceInsert): Promise<Service> {
+  return unwrap(await supabase.from('services').insert(service).select(SERVICE_COLUMNS).single());
 }
 
 export async function updateService(

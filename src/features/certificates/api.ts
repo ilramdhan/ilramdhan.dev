@@ -2,14 +2,7 @@ import type { Tables, TablesInsert, TablesUpdate } from '@/types';
 import { supabase } from '@/lib/supabase/client';
 import { columns } from '@/lib/supabase/columns';
 import { distinctSorted, fetchDistinct } from '@/lib/supabase/distinct';
-import {
-  assertOk,
-  currentUserId,
-  pageRange,
-  unwrap,
-  withoutId,
-  unwrapPage,
-} from '@/lib/supabase/result';
+import { assertOk, pageRange, unwrap, withoutId, unwrapPage } from '@/lib/supabase/result';
 import { orIlikeFilter } from '@/lib/search';
 
 /** Everything the public cards and the admin form read (all but bookkeeping columns). */
@@ -77,16 +70,9 @@ export function getCertificateIssuers(): Promise<string[]> {
   });
 }
 
-export async function addCertificate(
-  cert: Omit<CertificateInsert, 'user_id'>,
-): Promise<Certificate> {
-  const userId = await currentUserId();
+export async function addCertificate(cert: CertificateInsert): Promise<Certificate> {
   return unwrap(
-    await supabase
-      .from('certificates')
-      .insert({ ...cert, user_id: userId })
-      .select(CERTIFICATE_COLUMNS)
-      .single(),
+    await supabase.from('certificates').insert(cert).select(CERTIFICATE_COLUMNS).single(),
   );
 }
 

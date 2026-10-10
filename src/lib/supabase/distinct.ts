@@ -12,9 +12,9 @@ export function distinctSorted(values: Iterable<string | null | undefined>): str
 
 /**
  * Distinct values computed by a database function (`select distinct unnest(tags)`), so
- * the browser no longer downloads a column of every row. Backward compatible: while
- * migration `20261010200000_distinct_values_user_id_default.sql` isn't applied, the
- * function doesn't exist and `fallback` (the old column scan) is used instead.
+ * the browser no longer downloads a column of every row. The migration `20261010200000_distinct_values_user_id_default.sql` is
+ * applied on prod; `fallback` (the old column scan) is kept for resilience if the function
+ * is missing (fresh or restored DB, local dev before migrating).
  */
 export async function fetchDistinct(
   fn: DistinctFunction,

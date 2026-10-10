@@ -2,14 +2,7 @@ import type { Tables, TablesInsert, TablesUpdate } from '@/types';
 import { supabase } from '@/lib/supabase/client';
 import { columns } from '@/lib/supabase/columns';
 import { distinctSorted, fetchDistinct } from '@/lib/supabase/distinct';
-import {
-  assertOk,
-  currentUserId,
-  pageRange,
-  unwrap,
-  withoutId,
-  unwrapPage,
-} from '@/lib/supabase/result';
+import { assertOk, pageRange, unwrap, withoutId, unwrapPage } from '@/lib/supabase/result';
 
 type Row = Tables<'projects'>;
 
@@ -118,14 +111,9 @@ export async function getAdminProjects(): Promise<Project[]> {
   );
 }
 
-export async function addProject(project: Omit<ProjectInsert, 'user_id'>): Promise<Project> {
-  const userId = await currentUserId();
+export async function addProject(project: ProjectInsert): Promise<Project> {
   return unwrap(
-    await supabase
-      .from('projects')
-      .insert({ ...project, user_id: userId })
-      .select(PROJECT_ADMIN_COLUMNS)
-      .single(),
+    await supabase.from('projects').insert(project).select(PROJECT_ADMIN_COLUMNS).single(),
   );
 }
 
