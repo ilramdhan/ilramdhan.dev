@@ -4,7 +4,13 @@ import { toast } from 'sonner';
 import { Save, Loader2 } from 'lucide-react';
 import * as api from '../../lib/api';
 import { Database } from '../../types';
-import { supabase } from '../../lib/supabase/client';
+import {
+  acceptAttribute,
+  IMAGE_MIME_TYPES,
+  PDF_MIME_TYPES,
+  uploadFile,
+  validateUpload,
+} from '../../lib/upload';
 import { ensureFullUrl } from '../../lib/utils';
 
 type Profile = Database['public']['Tables']['profile']['Row'];
@@ -34,58 +40,19 @@ export function ProfileTab() {
       let logo_url = updatedProfile.logo_url;
       let resume_url = updatedProfile.resume_url;
 
+      // Validate everything first so a bad file doesn't leave the others uploaded.
+      if (avatarFile) validateUpload(avatarFile, IMAGE_MIME_TYPES);
+      if (logoFile) validateUpload(logoFile, IMAGE_MIME_TYPES);
+      if (cvFile) validateUpload(cvFile, PDF_MIME_TYPES);
+
       if (avatarFile) {
-        const fileName = `avatar-${Date.now()}`;
-        const { data, error } = await supabase.storage
-          .from('ilramdhan.dev')
-          .upload(`avatars/${fileName}`, avatarFile, {
-            cacheControl: '3600',
-            upsert: true,
-          });
-
-        if (error) throw new Error(`Avatar Upload Error: ${error.message}`);
-
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from('ilramdhan.dev').getPublicUrl(data.path);
-
-        avatar_url = publicUrl;
+        avatar_url = (await uploadFile(avatarFile, 'avatars', IMAGE_MIME_TYPES)).publicUrl;
       }
-
       if (logoFile) {
-        const fileName = `logo-${Date.now()}`;
-        const { data, error } = await supabase.storage
-          .from('ilramdhan.dev')
-          .upload(`logos/${fileName}`, logoFile, {
-            cacheControl: '3600',
-            upsert: true,
-          });
-
-        if (error) throw new Error(`Logo Upload Error: ${error.message}`);
-
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from('ilramdhan.dev').getPublicUrl(data.path);
-
-        logo_url = publicUrl;
+        logo_url = (await uploadFile(logoFile, 'logos', IMAGE_MIME_TYPES)).publicUrl;
       }
-
       if (cvFile) {
-        const fileName = `cv-${Date.now()}`;
-        const { data, error } = await supabase.storage
-          .from('ilramdhan.dev')
-          .upload(`cv/${fileName}`, cvFile, {
-            cacheControl: '3600',
-            upsert: true,
-          });
-
-        if (error) throw new Error(`CV Upload Error: ${error.message}`);
-
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from('ilramdhan.dev').getPublicUrl(data.path);
-
-        resume_url = publicUrl;
+        resume_url = (await uploadFile(cvFile, 'cv', PDF_MIME_TYPES)).publicUrl;
       }
 
       const processedSocialLinks: { [key: string]: string } = {};
@@ -214,6 +181,7 @@ export function ProfileTab() {
             </label>
             <input
               type="file"
+              accept={acceptAttribute(IMAGE_MIME_TYPES)}
               onChange={(e) => setAvatarFile(e.target.files?.[0] ?? null)}
               className="input-file"
             />
@@ -229,6 +197,7 @@ export function ProfileTab() {
             </label>
             <input
               type="file"
+              accept={acceptAttribute(IMAGE_MIME_TYPES)}
               onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
               className="input-file"
             />
@@ -244,6 +213,7 @@ export function ProfileTab() {
             </label>
             <input
               type="file"
+              accept={acceptAttribute(PDF_MIME_TYPES)}
               onChange={(e) => setCvFile(e.target.files?.[0] ?? null)}
               className="input-file"
             />

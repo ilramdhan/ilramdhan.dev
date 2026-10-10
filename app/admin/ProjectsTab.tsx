@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Save, Loader2, Image, Trash } from 'lucide-react';
 import * as api from '../../lib/api';
 import { Database } from '../../types';
-import { supabase } from '../../lib/supabase/client';
+import { acceptAttribute, IMAGE_MIME_TYPES, uploadFile, validateUpload } from '../../lib/upload';
 import { ensureFullUrl } from '../../lib/utils';
 
 type Project = Database['public']['Tables']['projects']['Row'];
@@ -108,22 +108,13 @@ export function ProjectsTab() {
 
     let newImageUrls: string[] = [];
     if (files.length > 0) {
-      const uploadPromises = files.map(async (file) => {
-        const fileName = `${Date.now()}-${file.name}`;
-        const { data, error } = await supabase.storage
-          .from('ilramdhan.dev')
-          .upload(`projects/${fileName}`, file);
-
-        if (error) throw new Error(`Image Upload Error: ${error.message}`);
-
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from('ilramdhan.dev').getPublicUrl(data.path);
-        return publicUrl;
-      });
-
       try {
-        newImageUrls = await Promise.all(uploadPromises);
+        // Validate every file first so a bad one doesn't leave the others uploaded.
+        files.forEach((file) => validateUpload(file, IMAGE_MIME_TYPES));
+        const uploads = await Promise.all(
+          files.map((file) => uploadFile(file, 'projects', IMAGE_MIME_TYPES)),
+        );
+        newImageUrls = uploads.map((u) => u.publicUrl);
       } catch (error) {
         toast.error((error as Error).message);
         return;
@@ -256,6 +247,7 @@ export function ProjectsTab() {
               <input
                 type="file"
                 multiple
+                accept={acceptAttribute(IMAGE_MIME_TYPES)}
                 onChange={(e) => setFiles(Array.from(e.target.files || []))}
                 className="input-file"
               />

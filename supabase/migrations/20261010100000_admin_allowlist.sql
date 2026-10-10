@@ -1,5 +1,6 @@
 -- ============================================================================
 -- T-08 (#23): explicit admin allowlist for every write / private read
+-- T-09 (#24): storage hardening (bucket limits + admin-only writes)
 -- ============================================================================
 -- Until now "admin" meant "any logged-in user" (sign-ups are off, but one
 -- toggle would expose the inbox and allow defacement). This migration:
@@ -11,11 +12,15 @@
 --     on production but not in the repo (USING true). Public reads stay public
 --     through the repo's own "... viewable by everyone." policies, except
 --     blogs: drafts / scheduled posts (published_at in the future or NULL)
---     are now visible to admins only.
+--     are now visible to admins only;
+--   * T-09: limits the "ilramdhan.dev" bucket to images/PDF up to 5 MB and
+--     replaces every write policy on it (including 4 production-only ones)
+--     with admin-only insert/update/delete inside known folders. Public read
+--     of the bucket stays.
 --
 -- Nothing is dropped except policies (by exact name) of the tables listed
--- below. Re-running drops and recreates the same policies (idempotent).
--- Existing rows are kept.
+-- below and of the "ilramdhan.dev" storage bucket. Re-running drops and
+-- recreates the same policies (idempotent). Existing rows/objects are kept.
 -- Tables/policies not managed by this repo are not touched.
 --
 -- !! ORDER MATTERS !!  is_admin() is false for everyone until the owner is in
@@ -183,3 +188,55 @@ create policy "Admin can update comments." on public.blog_comments
   with check ((select public.is_admin()));
 create policy "Admin can delete comments." on public.blog_comments
   for delete to authenticated using ((select public.is_admin()));
+
+-- ---------------------------------------------------------------------------
+-- 6. Storage (T-09 / #24): bucket limits + admin-only writes, public read
+
+-- Enforced by the Storage API itself, so it holds even if the UI is bypassed:
+-- no SVG/HTML (stored XSS on the Supabase domain), no files over 5 MB.
+-- Existing objects are not touched. The insert only runs on an empty
+-- (local) database; production already has the bucket.
+insert into storage.buckets (id, name, public)
+values ('ilramdhan.dev', 'ilramdhan.dev', true)
+on conflict (id) do nothing;
+
+update storage.buckets
+set
+  file_size_limit = 5 * 1024 * 1024,
+  allowed_mime_types = array['image/webp', 'image/png', 'image/jpeg', 'image/avif', 'application/pdf']
+where id = 'ilramdhan.dev';
+
+-- Production-only policies (folder = auth.uid(), i.e. any signed-in user)
+drop policy if exists "Public read access for avatars" on storage.objects;
+drop policy if exists "Users can upload to their own folder" on storage.objects;
+drop policy if exists "Users can manage their own files" on storage.objects;
+drop policy if exists "Users can delete their own files" on storage.objects;
+-- Repo baseline: FOR ALL to any authenticated user
+drop policy if exists "Authenticated users can manage files in ilramdhan.dev" on storage.objects;
+
+drop policy if exists "Public read access for ilramdhan.dev" on storage.objects;
+create policy "Public read access for ilramdhan.dev" on storage.objects
+  for select using (bucket_id = 'ilramdhan.dev');
+
+drop policy if exists "Admins can upload to ilramdhan.dev" on storage.objects;
+drop policy if exists "Admins can update files in ilramdhan.dev" on storage.objects;
+drop policy if exists "Admins can delete files in ilramdhan.dev" on storage.objects;
+
+create policy "Admins can upload to ilramdhan.dev" on storage.objects
+  for insert to authenticated
+  with check (
+    bucket_id = 'ilramdhan.dev'
+    and (select public.is_admin())
+    and (storage.foldername(name))[1] = any (array['projects', 'blogs', 'certificates', 'avatars', 'logos', 'cv'])
+  );
+create policy "Admins can update files in ilramdhan.dev" on storage.objects
+  for update to authenticated
+  using (bucket_id = 'ilramdhan.dev' and (select public.is_admin()))
+  with check (
+    bucket_id = 'ilramdhan.dev'
+    and (select public.is_admin())
+    and (storage.foldername(name))[1] = any (array['projects', 'blogs', 'certificates', 'avatars', 'logos', 'cv'])
+  );
+create policy "Admins can delete files in ilramdhan.dev" on storage.objects
+  for delete to authenticated
+  using (bucket_id = 'ilramdhan.dev' and (select public.is_admin()));

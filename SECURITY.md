@@ -32,6 +32,7 @@ Out of scope: denial-of-service/volumetric attacks, social engineering, issues i
 
 - The browser only receives the public Supabase **anon** key; all authorization is enforced by **Row Level Security** in Postgres.
 - Admin access is via GitHub OAuth with sign-ups disabled. Being signed in is not enough: every write, the inbox and comment moderation require the account to be in the `public.admin_users` allowlist (checked by `public.is_admin()` in RLS); the `/admin` route signs out any other account. Keep sign-ups disabled anyway.
+- Uploads go to the public `ilramdhan.dev` bucket, which only accepts WebP/PNG/JPEG/AVIF/PDF up to 5 MB, only from admins, only into known folders, under random (UUID) names.
 - Server-only secrets live in Vercel/Supabase environment variables and are never prefixed with `VITE_`.
 
 Please test only against your own Supabase project or a local instance — never against production data.

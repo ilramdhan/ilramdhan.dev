@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { Plus, Edit, Trash2, Save, Loader2, FileText } from 'lucide-react';
 import * as api from '../../lib/api';
 import { Database } from '../../types';
-import { supabase } from '../../lib/supabase/client';
+import { acceptAttribute, uploadFile } from '../../lib/upload';
 import { ensureFullUrl } from '../../lib/utils';
 
 type Certificate = Database['public']['Tables']['certificates']['Row'];
@@ -84,18 +84,12 @@ export function CertificatesTab() {
     let file_url = formState.file_url;
 
     if (file) {
-      const fileName = `${Date.now()}-${file.name}`;
-      const { data, error } = await supabase.storage
-        .from('ilramdhan.dev')
-        .upload(`certificates/${fileName}`, file);
-      if (error) {
-        toast.error(`Upload Error: ${error.message}`);
+      try {
+        file_url = (await uploadFile(file, 'certificates')).publicUrl;
+      } catch (error) {
+        toast.error((error as Error).message);
         return;
       }
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from('ilramdhan.dev').getPublicUrl(data.path);
-      file_url = publicUrl;
     }
 
     const payload = {
@@ -177,6 +171,7 @@ export function CertificatesTab() {
             <label className="block text-sm font-medium mb-1">Certificate File (PDF/Image)</label>
             <input
               type="file"
+              accept={acceptAttribute()}
               onChange={(e) => setFile(e.target.files?.[0] ?? null)}
               className="input-file"
             />
