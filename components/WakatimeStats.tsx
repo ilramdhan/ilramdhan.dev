@@ -44,7 +44,7 @@ const WakatimeStats: React.FC<WakatimeStatsProps> = ({ data }) => {
                 color: theme === 'dark' ? '#f8fafc' : '#0f172a',
               }}
               labelStyle={{ fontWeight: 'bold' }}
-              formatter={(value: number | undefined) => [`${Number(value).toFixed(2)} hrs`, 'Time']}
+              formatter={(value) => [`${Number(value).toFixed(2)} hrs`, 'Time']}
             />
             <Bar dataKey="Coding" fill="#4f46e5" radius={[4, 4, 0, 0]} />
           </BarChart>
