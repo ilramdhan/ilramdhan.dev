@@ -1,4 +1,5 @@
 import type { Page, Request, Route } from '@playwright/test';
+import { FilterParseError, likeToRegExp, parseOrIlike } from '../../test/postgrest-filters';
 import { createDataset, type Row } from './dataset';
 
 /** Must match the VITE_SUPABASE_URL the e2e build is made with (see playwright.config.ts). */
@@ -29,29 +30,16 @@ const cell = (value: unknown): string => {
   return JSON.stringify(value);
 };
 
-const ilike = (pattern: string) =>
-  new RegExp(
-    `^${pattern
-      .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
-      .replace(/%/g, '.*')
-      .replace(/\*/g, '.*')}$`,
-    'i',
-  );
-
 /** Applies the subset of PostgREST filters the app uses (eq, cs, ilike, or=ilike). */
 function applyFilters(rows: Row[], params: URLSearchParams): Row[] {
   let result = rows;
   for (const [key, value] of params) {
     if (['select', 'order', 'limit', 'offset'].includes(key)) continue;
     if (key === 'or') {
-      const clauses = value
-        .replace(/^\(/, '')
-        .replace(/\)$/, '')
-        .split(',')
-        .map((c) => c.match(/^(\w+)\.ilike\.(.*)$/))
-        .filter((m): m is RegExpMatchArray => m !== null);
+      // Throws FilterParseError for malformed filters, like PostgREST's 400 (PGRST100).
+      const clauses = parseOrIlike(value);
       result = result.filter((r) =>
-        clauses.some(([, col, pat]) => ilike(pat ?? '').test(cell(r[col ?? '']))),
+        clauses.some(({ column, pattern }) => likeToRegExp(pattern).test(cell(r[column]))),
       );
     } else if (value.startsWith('eq.')) {
       result = result.filter((r) => cell(r[key]) === value.slice(3));
@@ -62,7 +50,7 @@ function applyFilters(rows: Row[], params: URLSearchParams): Row[] {
         return Array.isArray(col) && wanted.every((w) => col.map(String).includes(w));
       });
     } else if (value.startsWith('ilike.')) {
-      const re = ilike(value.slice(6));
+      const re = likeToRegExp(value.slice(6));
       result = result.filter((r) => re.test(cell(r[key])));
     }
   }
@@ -88,7 +76,13 @@ async function handle(route: Route, request: Request, mock: SupabaseMock) {
   if (request.method() === 'HEAD') return route.fulfill({ status: 200 });
   if (request.method() !== 'GET') return json(route, 201, []);
 
-  const rows = applyFilters(mock.db[table] ?? [], url.searchParams);
+  let rows: Row[];
+  try {
+    rows = applyFilters(mock.db[table] ?? [], url.searchParams);
+  } catch (error) {
+    if (!(error instanceof FilterParseError)) throw error;
+    return json(route, 400, { code: 'PGRST100', message: error.message });
+  }
 
   const single = (request.headers()['accept'] ?? '').includes('vnd.pgrst.object');
   if (single) {
