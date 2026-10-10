@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
@@ -67,7 +67,11 @@ export default function App() {
     <div className="min-h-screen text-slate-900 dark:text-slate-50 antialiased selection:bg-indigo-500/30 flex flex-col">
       <BackgroundBeams />
       <div className="flex-1">
-        <Outlet />
+        {/* Page chunks are lazy (T-24): keep the layout mounted and reserve the
+            viewport height while one loads so the footer doesn't jump. */}
+        <Suspense fallback={<div className="min-h-screen" aria-busy="true" />}>
+          <Outlet />
+        </Suspense>
       </div>
       <Footer />
       <ScrollToTop />

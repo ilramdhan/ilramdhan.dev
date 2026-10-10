@@ -84,6 +84,45 @@ function siteConfigHtml(): Plugin {
   };
 }
 
+/**
+ * Vendor chunk groups (T-24). Long-lived libraries get their own files so they stay
+ * cached across deploys, and heavy ones (three.js, charts, markdown) are only fetched by
+ * the lazy chunks that import them, never by the entry.
+ */
+const VENDOR_CHUNKS: [name: string, pattern: RegExp][] = [
+  [
+    'three',
+    /[\\/]node_modules[\\/](three|three-stdlib|@react-three|@dimforge|meshline|troika-[^/\\]+|camera-controls|maath|@monogrid|stats-gl|suspend-react|its-fine|zustand|react-reconciler)[\\/]/,
+  ],
+  [
+    'charts',
+    /[\\/]node_modules[\\/](recharts|d3-[^/\\]+|victory-vendor|@reduxjs|redux|react-redux|reselect|immer|decimal\.js-light|es-toolkit|eventemitter3)[\\/]/,
+  ],
+  [
+    'markdown',
+    /[\\/]node_modules[\\/](react-markdown|remark-[^/\\]+|rehype-[^/\\]+|unified|micromark[^/\\]*|mdast-[^/\\]+|hast-[^/\\]+|unist-[^/\\]+|vfile[^/\\]*|property-information|space-separated-tokens|comma-separated-tokens|decode-named-character-reference|character-entities[^/\\]*|devlop|bail|trough|is-plain-obj|zwitch|longest-streak|ccount|trim-lines|html-url-attributes|estree-util-[^/\\]+|style-to-[^/\\]+|inline-style-parser)[\\/]/,
+  ],
+  [
+    'motion',
+    /[\\/]node_modules[\\/](framer-motion|motion-dom|motion-utils|popmotion|style-value-types|framesync|hey-listen)[\\/]/,
+  ],
+  ['supabase', /[\\/]node_modules[\\/](@supabase|tslib|ws|iceberg-js)[\\/]/],
+  [
+    'router-query',
+    /[\\/]node_modules[\\/](react-router|react-router-dom|@remix-run|@tanstack)[\\/]/,
+  ],
+  ['react', /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/],
+];
+
+export function vendorChunk(id: string): string | undefined {
+  // Rollup/Vite runtime helpers (dynamic-import preloader, CJS interop) are shared by
+  // every chunk; pin them to the always-loaded `react` chunk, otherwise Rollup may hoist
+  // them into a heavy vendor chunk (it picked `three`) and drag that into the entry.
+  if (id.includes('vite/preload-helper') || id.includes('commonjsHelpers')) return 'react';
+  if (!id.includes('node_modules')) return undefined;
+  return VENDOR_CHUNKS.find(([, pattern]) => pattern.test(id))?.[0];
+}
+
 export default defineConfig(() => {
   return {
     server: {
@@ -95,6 +134,11 @@ export default defineConfig(() => {
     },
     plugins: [react(), siteConfigHtml()],
     define: appVersionDefine(),
+    build: {
+      rollupOptions: {
+        output: { manualChunks: vendorChunk },
+      },
+    },
     resolve: {
       alias: {
         '@': path.resolve(__dirname, 'src'),

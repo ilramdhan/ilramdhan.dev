@@ -39,10 +39,62 @@ const files = walk(assetsDir).map((file) => {
   };
 });
 
+/**
+ * Static import graph: chunk file -> chunk files it imports with a static `import`
+ * (dynamic `import()` is lazy and not part of the initial download).
+ */
+const byName = new Map(files.map((f) => [f.name, f]));
+function staticImports(name) {
+  const code = fs.readFileSync(path.join(distDir, name), 'utf8');
+  const deps = new Set();
+  for (const m of code.matchAll(
+    /(?:^|[;\n}])\s*import\s*(?:[\w$*{}\s,]+from\s*)?["']\.\/([^"']+\.js)["']/g,
+  )) {
+    deps.add(`assets/${m[1]}`);
+  }
+  return [...deps].filter((d) => byName.has(d));
+}
+/** All JS reached through static imports from the start files (inclusive). */
+function closure(start) {
+  const seen = new Set();
+  const queue = [...start];
+  while (queue.length) {
+    const name = queue.pop();
+    if (seen.has(name)) continue;
+    seen.add(name);
+    queue.push(...staticImports(name));
+  }
+  return [...seen];
+}
+const indexHtml = path.join(distDir, 'index.html');
+const entryFiles = fs.existsSync(indexHtml)
+  ? [
+      ...fs.readFileSync(indexHtml, 'utf8').matchAll(/<script[^>]+src="\/(assets\/[^"]+\.js)"/g),
+    ].map((m) => m[1])
+  : [];
+
+/**
+ * Files a budget measures. `initial` budgets measure what the browser downloads before
+ * the route renders: the entry graph plus the static graph of the route chunk(s) matching
+ * `route` (a regex on the file name), e.g. `assets/privacy-[hash].js`.
+ */
+function filesFor(budget) {
+  if (budget.aggregate === 'initial') {
+    const routeRe = budget.route ? new RegExp(budget.route) : null;
+    const routeFiles = routeRe ? files.filter((f) => routeRe.test(f.name)).map((f) => f.name) : [];
+    if (entryFiles.length === 0 || (routeRe && routeFiles.length === 0)) return null;
+    return closure([...entryFiles, ...routeFiles]).map((n) => byName.get(n));
+  }
+  const re = new RegExp(budget.pattern);
+  return files.filter((f) => re.test(f.name));
+}
+
 const kib = (bytes) => (bytes / 1024).toFixed(1);
 const rows = budgets.map((budget) => {
-  const re = new RegExp(budget.pattern);
-  const matched = files.filter((f) => re.test(f.name));
+  const matched = filesFor(budget);
+  if (!matched) {
+    return { ...budget, files: 0, actual: Infinity, limit: budget.maxKiB * 1024, ok: false };
+  }
   const sizes = matched.map((f) => f[budget.metric]);
   const actual =
     budget.aggregate === 'max' ? Math.max(0, ...sizes) : sizes.reduce((a, b) => a + b, 0);

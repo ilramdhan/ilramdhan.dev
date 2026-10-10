@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Menu, X, Sun, Moon } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTheme } from '@/app/ThemeContext';
 import { useIsAdmin } from '@/lib/useIsAdmin';
 import { profileQueries } from '@/features/profile/queries';
+import { prefetchRoute } from '@/app/prefetch';
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -72,6 +72,8 @@ export function Navbar() {
                 <button
                   key={link.name}
                   onClick={() => handleNav(link.path)}
+                  onMouseEnter={() => prefetchRoute(link.path)}
+                  onFocus={() => prefetchRoute(link.path)}
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     path === link.path
                       ? 'text-indigo-600 dark:text-white bg-indigo-50 dark:bg-white/10'
@@ -96,6 +98,8 @@ export function Navbar() {
               {isAdmin && (
                 <button
                   onClick={() => navigate('/admin')}
+                  onMouseEnter={() => prefetchRoute('/admin')}
+                  onFocus={() => prefetchRoute('/admin')}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Dashboard
@@ -121,36 +125,31 @@ export function Navbar() {
         </div>
       </div>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden border-b border-slate-200 dark:border-white/5 bg-white dark:bg-slate-950"
-          >
-            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
-              {navLinks.map((link) => (
-                <button
-                  key={link.name}
-                  onClick={() => handleNav(link.path)}
-                  className="text-left text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium"
-                >
-                  {link.name}
-                </button>
-              ))}
-              {isAdmin && (
-                <button
-                  onClick={() => handleNav('/admin')}
-                  className="text-left text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 block px-3 py-2 rounded-md text-base font-medium"
-                >
-                  Dashboard
-                </button>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {isOpen && (
+        <div className="motion-safe:animate-menu-in lg:hidden border-b border-slate-200 dark:border-white/5 bg-white dark:bg-slate-950">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
+            {navLinks.map((link) => (
+              <button
+                key={link.name}
+                onClick={() => handleNav(link.path)}
+                onTouchStart={() => prefetchRoute(link.path)}
+                onFocus={() => prefetchRoute(link.path)}
+                className="text-left text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium"
+              >
+                {link.name}
+              </button>
+            ))}
+            {isAdmin && (
+              <button
+                onClick={() => handleNav('/admin')}
+                className="text-left text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 block px-3 py-2 rounded-md text-base font-medium"
+              >
+                Dashboard
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

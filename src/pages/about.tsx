@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { Download, MapPin, Briefcase, GraduationCap, ArrowRight, Award } from 'lucide-react';
@@ -13,9 +13,11 @@ import { resumeQueries } from '@/features/resume/queries';
 import { certificateQueries } from '@/features/certificates/queries';
 import { wakatimeQueries } from '@/features/wakatime/queries';
 import { useTheme } from '@/app/ThemeContext';
-import WakatimeStats from '@/features/wakatime/WakatimeStats';
 import { ensureFullUrl } from '@/lib/utils';
 import { useDocumentMeta } from '@/lib/useDocumentMeta';
+
+// recharts (~100 KB gzip) is only needed for this one chart (T-24).
+const WakatimeStats = lazy(() => import('@/features/wakatime/WakatimeStats'));
 
 export default function AboutPage() {
   const { theme } = useTheme();
@@ -242,7 +244,16 @@ export default function AboutPage() {
               </div>
 
               {!isLoadingWakatimeActivity && !isWakatimeActivityError && wakatimeActivity && (
-                <WakatimeStats data={wakatimeActivity} />
+                <Suspense
+                  fallback={
+                    <div
+                      aria-hidden="true"
+                      className="h-[396px] rounded-xl border border-slate-200 bg-white dark:bg-slate-900/50 dark:border-white/5"
+                    />
+                  }
+                >
+                  <WakatimeStats data={wakatimeActivity} />
+                </Suspense>
               )}
             </div>
           )}
