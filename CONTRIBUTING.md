@@ -21,7 +21,13 @@ cp .env.example .env.local   # fill VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY
 npm run dev                  # http://localhost:3000
 ```
 
-A local Supabase (via the Supabase CLI, migrations and seed data) is planned in task T-04; until then you need your own Supabase project created from `supabase/schema.sql` + `supabase/supabase-fix.sql`.
+For a fully local backend (Docker required) run `npm run db:start`, copy the printed API URL + anon key into `.env.local`, and use `npm run db:reset` to rebuild the database from `supabase/migrations/` + `supabase/seed.sql`. Details (local admin login, hosted projects) are in the README "Database" section.
+
+Database changes:
+
+- Every schema change is a new file from `npx supabase@2.120.0 migration new <name>`; never edit a migration that is already merged, and never run `supabase/legacy/*.sql`.
+- Migrations must be safe on production data: no `DROP TABLE`/`DROP COLUMN` of data, `IF NOT EXISTS` where possible, `NOT VALID` for new `CHECK` constraints. The frontend must keep working before and after the owner applies them.
+- After changing the schema run `npm run db:reset && npm run db:types` and commit the regenerated `lib/database.types.ts`.
 
 ## Workflow
 
