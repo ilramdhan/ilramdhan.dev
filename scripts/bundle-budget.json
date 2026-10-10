@@ -20,7 +20,7 @@
       "pattern": "\\.css$",
       "metric": "gzip",
       "aggregate": "sum",
-      "maxKiB": 10.5
+      "maxKiB": 11.5
     },
     {
       "name": "3D models (raw)",

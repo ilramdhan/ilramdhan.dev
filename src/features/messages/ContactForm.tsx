@@ -156,7 +156,7 @@ export function ContactForm() {
       >
         {addMessageMutation.isPending ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" /> Sending...
+            <Loader2 className="h-4 w-4 motion-safe:animate-spin" /> Sending...
           </>
         ) : cooldown > 0 ? (
           <>Please wait {cooldown}s</>

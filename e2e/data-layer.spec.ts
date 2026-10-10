@@ -7,8 +7,7 @@ const restGets = (requests: SupabaseMock['requests'], table: string) =>
   requests.filter((r) => r.method === 'GET' && r.path.startsWith(`/rest/v1/${table}?`));
 
 test('list views never request content and never use select=*', async ({ page, supabase }) => {
-  // Wait for each page's list data. (Not the home <h1>: it is the hero typewriter,
-  // whose text can stay a blank placeholder on a slow runner.)
+  // Wait for each page's list data (the home H1 is the static owner name, T-31).
   const pages: [path: string, rendered: string][] = [
     ['/', 'Project 1'],
     ['/projects', 'Project 1'],

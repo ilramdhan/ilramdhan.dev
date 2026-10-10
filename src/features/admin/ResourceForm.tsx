@@ -65,7 +65,11 @@ export function ResourceForm<V extends FormValues>({
           </button>
         )}
         <button type="submit" disabled={isPending} className="btn-primary">
-          {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          {isPending ? (
+            <Loader2 className="h-4 w-4 motion-safe:animate-spin" />
+          ) : (
+            <Save className="h-4 w-4" />
+          )}
           {submitLabel}
         </button>
         {/* Uploads are compressed in the browser first (T-27): say what's happening. */}

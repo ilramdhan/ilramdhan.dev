@@ -1,23 +1,21 @@
 import { Award } from 'lucide-react';
-import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
+import { Reveal } from '@/components/motion';
 import type { Certificate } from '@/features/certificates/api';
 import { formatDate } from '@/lib/date';
 import { Img } from '@/components/ui/Img';
 
 interface CertificateCardProps {
   cert: Certificate;
-  /** Stagger delay (seconds) for the entrance animation. */
-  delay: number;
+  /** Position in the grid; drives the capped entrance stagger. */
+  index: number;
 }
 
-export function CertificateCard({ cert, delay }: CertificateCardProps) {
+export function CertificateCard({ cert, index }: CertificateCardProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ delay }}
-      className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 rounded-xl overflow-hidden hover:border-indigo-500/30 transition-all shadow-sm dark:shadow-none group flex flex-col"
+    <Reveal
+      index={index}
+      className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 rounded-xl overflow-hidden hover:border-indigo-500/30 transition-[transform,box-shadow,border-color] motion-safe:hover:-translate-y-0.5 hover:shadow-md shadow-sm dark:shadow-none group flex flex-col"
     >
       {cert.file_url ? (
         <div className="h-48 bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
@@ -56,6 +54,6 @@ export function CertificateCard({ cert, delay }: CertificateCardProps) {
           </a>
         )}
       </div>
-    </motion.div>
+    </Reveal>
   );
 }

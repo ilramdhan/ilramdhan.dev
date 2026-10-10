@@ -1,39 +1,49 @@
-import React, { useState } from 'react';
-import { Menu, X, Sun, Moon } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Menu, X } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { useTheme } from '@/app/ThemeContext';
 import { useIsAdmin } from '@/lib/useIsAdmin';
 import { profileQueries } from '@/features/profile/queries';
 import { prefetchRoute } from '@/app/prefetch';
 import { Img } from '@/components/ui/Img';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const path = location.pathname;
-  const { theme, toggleTheme } = useTheme();
   const { isAdmin } = useIsAdmin();
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery(profileQueries.detail());
 
+  // Compact + stronger blur/border once the page is scrolled 16px.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 16);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Active-link pill: one element that slides between links (transform only).
+  const linksRef = useRef<HTMLDivElement>(null);
+  const [pill, setPill] = useState<{ x: number; w: number } | null>(null);
+  useLayoutEffect(() => {
+    const measure = () => {
+      const active = linksRef.current?.querySelector<HTMLElement>('[aria-current="page"]');
+      setPill(active ? { x: active.offsetLeft, w: active.offsetWidth } : null);
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [path, profile]);
+
+  // Real links: `/#contact` is handled by ScrollManager (no timeouts, lands below the navbar).
+  const isActive = (linkPath: string) => (linkPath.includes('#') ? false : path === linkPath);
+
   const handleNav = (targetPath: string) => {
-    if (targetPath.startsWith('/#')) {
-      const selector = targetPath.substring(1);
-      if (location.pathname === '/') {
-        const element = document.querySelector(selector);
-        element?.scrollIntoView({ behavior: 'smooth' });
-      } else {
-        navigate('/');
-        setTimeout(() => {
-          const element = document.querySelector(selector);
-          element?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
-      }
-    } else {
-      navigate(targetPath);
-    }
+    navigate(targetPath);
     setIsOpen(false);
   };
 
@@ -47,13 +57,22 @@ export function Navbar() {
   ];
 
   return (
-    <nav className="fixed top-0 w-full z-50 border-b border-slate-200 dark:border-white/5 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md transition-colors duration-300">
+    <nav
+      data-scrolled={scrolled}
+      className={`fixed top-0 w-full z-50 border-b backdrop-blur-md motion-safe:transition-[background-color,border-color,box-shadow] duration-200 ${
+        scrolled
+          ? 'border-slate-300 bg-white/95 shadow-sm dark:border-white/10 dark:bg-slate-950/95 backdrop-blur-xl'
+          : 'border-slate-200 bg-white/80 dark:border-white/5 dark:bg-slate-950/80'
+      }`}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div
+          className={`flex items-center justify-between motion-safe:transition-[height] duration-200 ${scrolled ? 'h-14' : 'h-16'}`}
+        >
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- TODO(#57) */}
           <div className="flex-shrink-0 cursor-pointer" onClick={() => handleNav('/')}>
             {isLoadingProfile ? (
-              <div className="h-8 w-28 bg-slate-200 dark:bg-slate-800 rounded animate-pulse" />
+              <div className="h-8 w-28 bg-slate-200 dark:bg-slate-800 rounded motion-safe:animate-pulse" />
             ) : profile?.logo_url ? (
               <Img
                 src={profile.logo_url}
@@ -71,31 +90,35 @@ export function Navbar() {
           </div>
 
           <div className="hidden lg:flex items-center gap-6">
-            <div className="flex items-baseline space-x-4">
+            <div ref={linksRef} className="relative flex items-baseline space-x-4">
+              {pill && (
+                <span
+                  aria-hidden="true"
+                  data-testid="nav-pill"
+                  className="absolute left-0 top-0 h-full rounded-md bg-indigo-50 dark:bg-white/10 motion-safe:transition-[transform,width] motion-safe:duration-300 motion-safe:ease-out"
+                  style={{ width: pill.w, transform: `translateX(${pill.x}px)` }}
+                />
+              )}
               {navLinks.map((link) => (
-                <button
+                <Link
                   key={link.name}
-                  onClick={() => handleNav(link.path)}
+                  to={link.path}
+                  aria-current={isActive(link.path) ? 'page' : undefined}
                   onMouseEnter={() => prefetchRoute(link.path)}
                   onFocus={() => prefetchRoute(link.path)}
-                  className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    path === link.path
-                      ? 'text-indigo-600 dark:text-white bg-indigo-50 dark:bg-white/10'
+                  className={`relative px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                    isActive(link.path)
+                      ? 'text-indigo-600 dark:text-white'
                       : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-indigo-50 dark:hover:bg-white/10'
                   }`}
                 >
                   {link.name}
-                </button>
+                </Link>
               ))}
             </div>
 
             <div className="flex items-center gap-4 border-l border-slate-200 dark:border-white/10 pl-6">
-              <button
-                onClick={toggleTheme}
-                className="p-2 rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
-              >
-                {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </button>
+              <ThemeToggle />
 
               {/* No public "Sign In" button: /login stays reachable directly.
                   "Dashboard" is only shown to allowlisted admins (T-08). */}
@@ -113,12 +136,7 @@ export function Navbar() {
           </div>
 
           <div className="-mr-2 flex lg:hidden items-center gap-4">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
-            >
-              {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-            </button>
+            <ThemeToggle />
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none"
@@ -133,15 +151,16 @@ export function Navbar() {
         <div className="motion-safe:animate-menu-in lg:hidden border-b border-slate-200 dark:border-white/5 bg-white dark:bg-slate-950">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
             {navLinks.map((link) => (
-              <button
+              <Link
                 key={link.name}
-                onClick={() => handleNav(link.path)}
+                to={link.path}
+                onClick={() => setIsOpen(false)}
                 onTouchStart={() => prefetchRoute(link.path)}
                 onFocus={() => prefetchRoute(link.path)}
                 className="text-left text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium"
               >
                 {link.name}
-              </button>
+              </Link>
             ))}
             {isAdmin && (
               <button

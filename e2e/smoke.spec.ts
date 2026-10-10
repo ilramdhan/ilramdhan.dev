@@ -17,7 +17,6 @@ for (const route of PUBLIC_ROUTES) {
     await page.goto(route.path);
     const h1 = page.getByRole('heading', { level: 1 }).first();
     if (route.h1 === null) {
-      // Typewriter text cycles (and is briefly empty), so only check visibility.
       await expect(h1).toBeVisible();
     } else {
       await expect(h1).toHaveText(route.h1);

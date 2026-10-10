@@ -1,9 +1,10 @@
 import React, { Suspense } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { profileQueries } from '@/features/profile/queries';
 import { releaseUrl, versionAriaLabel, versionLabel } from '@/lib/version';
+import { ScrollManager } from './ScrollManager';
 import { ScrollToTop } from './ScrollToTop';
 
 /**
@@ -60,17 +61,23 @@ function Footer() {
 }
 
 export default function App() {
+  const { pathname } = useLocation();
   return (
     <div className="min-h-screen text-slate-900 dark:text-slate-50 antialiased selection:bg-indigo-500/30 flex flex-col">
       <BackgroundGlow />
       <div className="flex-1">
         {/* Page chunks are lazy (T-24): keep the layout mounted and reserve the
             viewport height while one loads so the footer doesn't jump. */}
-        <Suspense fallback={<div className="min-h-screen" aria-busy="true" />}>
-          <Outlet />
-        </Suspense>
+        {/* Keyed by path: each route fades in (opacity only, so fixed children and
+            layout never shift; disabled under reduced motion). */}
+        <div key={pathname} className="motion-safe:animate-page-in">
+          <Suspense fallback={<div className="min-h-screen" aria-busy="true" />}>
+            <Outlet />
+          </Suspense>
+        </div>
       </div>
       <Footer />
+      <ScrollManager />
       <ScrollToTop />
       <Toaster position="bottom-right" theme="system" />
     </div>

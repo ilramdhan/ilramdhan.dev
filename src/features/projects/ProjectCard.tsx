@@ -1,7 +1,7 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { ExternalLink, Github } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Reveal } from '@/components/motion';
 import type { Tables } from '@/types';
 import { ensureFullUrl } from '@/lib/utils';
 import { ImageCarousel } from './ImageCarousel';
@@ -17,13 +17,10 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
   const navigate = useNavigate();
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.1 }}
+    <Reveal
+      index={index}
       onClick={() => project.slug && navigate(`/projects/${project.slug}`)}
-      className="group relative rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-white/10 overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-colors cursor-pointer"
+      className="group relative rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-white/10 overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-[transform,box-shadow,border-color] motion-safe:hover:-translate-y-0.5 hover:shadow-lg cursor-pointer"
     >
       <div className="aspect-video w-full bg-slate-100 dark:bg-slate-800 relative group/image">
         <ImageCarousel
@@ -81,7 +78,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
           {project.short_description}
         </p>
       </div>
-    </motion.div>
+    </Reveal>
   );
 };
 
@@ -92,7 +89,7 @@ export function ProjectCardSkeleton() {
       aria-hidden="true"
       className="rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-white/10 overflow-hidden"
     >
-      <div className="aspect-video w-full bg-slate-100 dark:bg-slate-800 animate-pulse" />
+      <div className="aspect-video w-full bg-slate-100 dark:bg-slate-800 motion-safe:animate-pulse" />
       <div className="p-6">
         <div className="flex gap-2 mb-4">
           <span className="h-[26px] w-14 rounded-md bg-slate-100 dark:bg-slate-800" />
