@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Download, MapPin, Briefcase, GraduationCap, ArrowRight, Award } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { CountUp, GrowBar, Reveal } from '@/components/motion';
@@ -22,7 +22,6 @@ const WakatimeStats = lazy(() => import('@/features/wakatime/WakatimeStats'));
 
 export default function AboutPage() {
   const { theme } = useTheme();
-  const navigate = useNavigate();
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery(profileQueries.detail());
   const { data: experience, isLoading: isLoadingExp } = useQuery(resumeQueries.list('experience'));
@@ -183,12 +182,12 @@ export default function AboutPage() {
                 Certificates
               </h2>
               {certificates.length > 3 && (
-                <button
-                  onClick={() => navigate('/certificates')}
+                <Link
+                  to="/certificates"
                   className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium text-sm flex items-center gap-1"
                 >
                   View All Certificates <ArrowRight className="h-4 w-4" />
-                </button>
+                </Link>
               )}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

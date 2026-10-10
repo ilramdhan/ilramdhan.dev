@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Github, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/app/auth';
@@ -51,12 +51,12 @@ export default function LoginPage() {
         </button>
 
         <div className="mt-8 text-center">
-          <button
-            onClick={() => navigate('/')}
+          <Link
+            to="/"
             className="text-sm text-slate-500 hover:text-slate-900 dark:hover:text-white"
           >
             Back to Home
-          </button>
+          </Link>
         </div>
       </div>
     </div>

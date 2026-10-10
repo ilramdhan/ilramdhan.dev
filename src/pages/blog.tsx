@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Calendar, Search, Tag } from 'lucide-react';
 import { Pagination } from '@/components/ui/Pagination';
@@ -14,7 +14,6 @@ import { Img } from '@/components/ui/Img';
 const ITEMS_PER_PAGE = 6;
 
 export default function BlogPage() {
-  const navigate = useNavigate();
   const {
     input: searchInput,
     setInput: setSearchInput,
@@ -106,11 +105,9 @@ export default function BlogPage() {
             <div className="text-center text-red-500 py-10">Error loading articles.</div>
           )}
           {currentBlogs.map((blog) => (
-            // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions -- TODO(#57)
             <article
               key={blog.id}
-              onClick={() => blog.slug && navigate(`/blog/${blog.slug}`)}
-              className="group bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/5 rounded-2xl p-6 md:p-8 hover:shadow-lg dark:hover:bg-slate-900/80 hover:border-indigo-500/30 transition-all cursor-pointer backdrop-blur-md"
+              className="group relative bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-white/5 rounded-2xl p-6 md:p-8 hover:shadow-lg dark:hover:bg-slate-900/80 hover:border-indigo-500/30 transition-all backdrop-blur-md"
             >
               <div className="flex flex-col md:flex-row gap-6">
                 <div className="w-full md:w-48 aspect-video md:aspect-square shrink-0 rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800">
@@ -144,7 +141,16 @@ export default function BlogPage() {
                     )}
                   </div>
                   <h2 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                    {blog.title}
+                    {blog.slug ? (
+                      <Link
+                        to={`/blog/${blog.slug}`}
+                        className="after:absolute after:inset-0 after:content-['']"
+                      >
+                        {blog.title}
+                      </Link>
+                    ) : (
+                      blog.title
+                    )}
                   </h2>
                   <p className="text-slate-600 dark:text-slate-400 mb-4">{blog.excerpt}</p>
                   <span className="text-indigo-600 dark:text-indigo-400 text-sm font-medium hover:underline">

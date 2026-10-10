@@ -1,6 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { Github, ExternalLink, Calendar, ArrowLeft } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import NotFoundPage from '@/pages/not-found';
@@ -13,7 +13,6 @@ import { formatDate } from '@/lib/date';
 
 export default function ProjectDetailPage() {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
 
   const {
     data: project,
@@ -45,12 +44,9 @@ export default function ProjectDetailPage() {
           >
             Try again
           </button>
-          <button
-            onClick={() => navigate('/projects')}
-            className="text-indigo-600 dark:text-indigo-400 hover:underline"
-          >
+          <Link to="/projects" className="text-indigo-600 dark:text-indigo-400 hover:underline">
             Back to Projects
-          </button>
+          </Link>
         </div>
       </div>
     );
@@ -67,12 +63,12 @@ export default function ProjectDetailPage() {
       />
       <Navbar />
       <div className="pt-24 pb-20 max-w-5xl mx-auto px-4">
-        <button
-          onClick={() => navigate('/projects')}
+        <Link
+          to="/projects"
           className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white mb-8 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" /> Back to Projects
-        </button>
+        </Link>
 
         <div className="mb-8 rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-2xl">
           <ImageCarousel

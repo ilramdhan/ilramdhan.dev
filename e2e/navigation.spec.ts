@@ -9,7 +9,7 @@ test('back/forward restores the previous scroll position', async ({ page }) => {
   await expect.poll(() => page.evaluate(() => Math.round(window.scrollY))).toBeGreaterThan(600);
   const before = await page.evaluate(() => Math.round(window.scrollY));
 
-  await page.getByRole('button', { name: 'Privacy Policy' }).click();
+  await page.getByRole('link', { name: 'Privacy Policy' }).click();
   await expect(page.getByRole('heading', { level: 1 }).first()).toHaveText('Privacy Policy');
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
 

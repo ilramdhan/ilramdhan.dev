@@ -16,13 +16,13 @@ test.describe('admin allowlist (T-08)', () => {
   test('anonymous visitors see no "Dashboard" button', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByRole('navigation')).toBeVisible();
-    await expect(page.getByRole('button', dashboardButton)).toHaveCount(0);
+    await expect(page.getByRole('link', dashboardButton)).toHaveCount(0);
   });
 
   test('an allowlisted admin gets the dashboard and the navbar entry', async ({ page }) => {
     await signIn(page);
     await page.goto('/');
-    await expect(page.getByRole('button', dashboardButton).first()).toBeAttached();
+    await expect(page.getByRole('link', dashboardButton).first()).toBeAttached();
 
     await page.goto('/admin');
     await expect(page).toHaveURL(/\/admin$/);
@@ -38,7 +38,7 @@ test.describe('admin allowlist (T-08)', () => {
     await expect(
       page.getByText('This account is not allowed to access the dashboard.'),
     ).toBeVisible();
-    await expect(page.getByRole('button', dashboardButton)).toHaveCount(0);
+    await expect(page.getByRole('link', dashboardButton)).toHaveCount(0);
     // Signed out: supabase-js called /logout and dropped the stored session.
     await expect
       .poll(() => supabase.requests.some((r) => r.path.startsWith('/auth/v1/logout')))

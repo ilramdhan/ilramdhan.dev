@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Calendar, Tag, MessageSquare, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
@@ -17,7 +17,6 @@ const COMMENT_COOLDOWN = 30;
 
 export default function BlogDetailPage() {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const {
@@ -92,12 +91,9 @@ export default function BlogDetailPage() {
           >
             Try again
           </button>
-          <button
-            onClick={() => navigate('/blog')}
-            className="text-indigo-600 dark:text-indigo-400 hover:underline"
-          >
+          <Link to="/blog" className="text-indigo-600 dark:text-indigo-400 hover:underline">
             Back to Blog
-          </button>
+          </Link>
         </div>
       </div>
     );
@@ -144,12 +140,12 @@ export default function BlogDetailPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-slate-50 dark:from-slate-950 to-transparent z-10 pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-full z-20 pb-12 pointer-events-auto">
           <div className="max-w-3xl mx-auto px-4">
-            <button
-              onClick={() => navigate('/blog')}
+            <Link
+              to="/blog"
               className="text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white mb-6 flex items-center gap-2 text-sm"
             >
               <ArrowLeft className="h-4 w-4" /> Back to Blog
-            </button>
+            </Link>
             <div className="flex items-center gap-4 text-sm text-slate-500 dark:text-slate-400 mb-4">
               <span className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" /> {formatDate(blog.published_at)}

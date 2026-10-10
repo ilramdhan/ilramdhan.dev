@@ -1,6 +1,6 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Menu, X } from 'lucide-react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useIsAdmin } from '@/lib/useIsAdmin';
 import { profileQueries } from '@/features/profile/queries';
@@ -10,7 +10,6 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const navigate = useNavigate();
   const location = useLocation();
   const path = location.pathname;
   const { isAdmin } = useIsAdmin();
@@ -42,11 +41,6 @@ export function Navbar() {
   // Real links: `/#contact` is handled by ScrollManager (no timeouts, lands below the navbar).
   const isActive = (linkPath: string) => (linkPath.includes('#') ? false : path === linkPath);
 
-  const handleNav = (targetPath: string) => {
-    navigate(targetPath);
-    setIsOpen(false);
-  };
-
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'About', path: '/about' },
@@ -69,8 +63,7 @@ export function Navbar() {
         <div
           className={`flex items-center justify-between motion-safe:transition-[height] duration-200 ${scrolled ? 'h-14' : 'h-16'}`}
         >
-          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- TODO(#57) */}
-          <div className="flex-shrink-0 cursor-pointer" onClick={() => handleNav('/')}>
+          <Link to="/" aria-label="Home" className="flex-shrink-0" onClick={() => setIsOpen(false)}>
             {isLoadingProfile ? (
               <div className="h-8 w-28 bg-slate-200 dark:bg-slate-800 rounded motion-safe:animate-pulse" />
             ) : profile?.logo_url ? (
@@ -87,7 +80,7 @@ export function Navbar() {
                 <span>{profile?.logo_text || 'DevFolio'}</span>
               </div>
             )}
-          </div>
+          </Link>
 
           <div className="hidden lg:flex items-center gap-6">
             <div ref={linksRef} className="relative flex items-baseline space-x-4">
@@ -123,14 +116,14 @@ export function Navbar() {
               {/* No public "Sign In" button: /login stays reachable directly.
                   "Dashboard" is only shown to allowlisted admins (T-08). */}
               {isAdmin && (
-                <button
-                  onClick={() => navigate('/admin')}
+                <Link
+                  to="/admin"
                   onMouseEnter={() => prefetchRoute('/admin')}
                   onFocus={() => prefetchRoute('/admin')}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Dashboard
-                </button>
+                </Link>
               )}
             </div>
           </div>
@@ -163,12 +156,13 @@ export function Navbar() {
               </Link>
             ))}
             {isAdmin && (
-              <button
-                onClick={() => handleNav('/admin')}
+              <Link
+                to="/admin"
+                onClick={() => setIsOpen(false)}
                 className="text-left text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 block px-3 py-2 rounded-md text-base font-medium"
               >
                 Dashboard
-              </button>
+              </Link>
             )}
           </div>
         </div>
