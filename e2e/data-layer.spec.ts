@@ -7,11 +7,18 @@ const restGets = (requests: SupabaseMock['requests'], table: string) =>
   requests.filter((r) => r.method === 'GET' && r.path.startsWith(`/rest/v1/${table}?`));
 
 test('list views never request content and never use select=*', async ({ page, supabase }) => {
-  for (const path of ['/', '/projects', '/blog', '/certificates']) {
+  // Wait for each page's list data. (Not the home <h1>: it is the hero typewriter,
+  // whose text can stay a blank placeholder on a slow runner.)
+  const pages: [path: string, rendered: string][] = [
+    ['/', 'Project 1'],
+    ['/projects', 'Project 1'],
+    ['/blog', 'Blog Post 1'],
+    ['/certificates', 'Cert 1'],
+  ];
+  for (const [path, rendered] of pages) {
     await page.goto(path);
-    await expect(page.getByRole('heading', { level: 1 })).not.toHaveText('');
+    await expect(page.getByText(rendered, { exact: true }).first()).toBeAttached();
   }
-  await expect(page.getByText('Cert 1', { exact: true }).first()).toBeAttached();
 
   const lists = supabase.requests.filter(
     (r) => r.method === 'GET' && /^\/rest\/v1\/(projects|blogs)\?/.test(r.path),
