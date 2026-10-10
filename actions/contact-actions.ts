@@ -34,8 +34,3 @@ export async function validateContactForm(formData: FormData): Promise<{success:
 
   return { success: true, data: validatedFields.data };
 }
-
-// Keep the original function signature for compatibility but it's largely unused in the new flow
-export async function submitContactForm(prevState: ContactState, formData: FormData): Promise<ContactState> {
-    return { success: false, message: "Use validateContactForm instead" };
-}
