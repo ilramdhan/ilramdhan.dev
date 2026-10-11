@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { useMediaQuery } from '@/lib/hooks';
+import { useIsPrerendered, useMediaQuery } from '@/lib/hooks';
 import { SocialLinks } from '@/components/ui/SocialLinks';
 import { profileQueries } from '@/features/profile/queries';
 
@@ -12,6 +12,7 @@ import { profileQueries } from '@/features/profile/queries';
 const HeroCard = lazy(() => import('./HeroCard'));
 
 function hasWebGL(): boolean {
+  if (typeof document === 'undefined') return false;
   try {
     const canvas = document.createElement('canvas');
     return Boolean(canvas.getContext('webgl2') ?? canvas.getContext('webgl'));
@@ -90,6 +91,7 @@ function RotatingRole({ roles }: { roles: string[] }) {
 export function Hero() {
   const desktop = useMediaQuery('(min-width: 1024px)');
   const card = useHeroCard();
+  const prerendered = useIsPrerendered();
 
   const { data: profile, isLoading } = useQuery(profileQueries.detail());
 
@@ -116,7 +118,7 @@ export function Hero() {
           {/* Text Content - Enable Pointer Events */}
           <motion.div
             className="flex-1 w-full text-center lg:text-left pointer-events-auto"
-            initial={{ opacity: 0, x: -20 }}
+            initial={prerendered ? false : { opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >

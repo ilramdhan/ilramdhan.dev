@@ -68,7 +68,7 @@ export default function ProjectsPage() {
                 className="rounded-xl bg-slate-200 dark:bg-slate-800/50 aspect-[4/3] motion-safe:animate-pulse"
               />
             ))}
-          {isErrorProjects && (
+          {isErrorProjects && !projectData && (
             <div className="col-span-full py-20 text-center text-red-500">
               Error loading projects.
             </div>

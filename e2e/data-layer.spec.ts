@@ -38,6 +38,8 @@ test('tag and issuer filters come from the distinct-value functions', async ({
   await page.goto('/projects');
   // Dataset: projects are tagged web/backend + oss.
   await expect(page.getByRole('button', { name: /^#?oss$/ })).toBeVisible();
+  // Prerendered tags are refreshed in the background after hydration (T-35).
+  await page.waitForLoadState('networkidle');
   await page.goto('/certificates');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Certificates');
   await expect
@@ -60,7 +62,9 @@ test('tag filters still work before the migration (column-scan fallback)', async
     body: { code: 'PGRST202', message: 'Could not find the function' },
   };
   supabase.rpc.blog_tags = missing;
-  await page.goto('/blog');
+  // Client-side navigation: the prerendered /blog already carries its tags (T-35).
+  await page.goto('/no-such-page');
+  await page.getByRole('main').getByRole('link', { name: 'Blog', exact: true }).click();
   await expect(page.getByRole('button', { name: /^#?react$/ })).toBeVisible();
   expect(
     restGets(supabase.requests, 'blogs').some((r) => r.url.searchParams.get('select') === 'tags'),
@@ -74,6 +78,9 @@ test('the profile is fetched once per page load', async ({ page, supabase }) => 
   await page.evaluate(() => window.dispatchEvent(new Event('focus')));
   await page.evaluate(() => document.dispatchEvent(new Event('visibilitychange')));
   await expect(page.getByRole('contentinfo')).toBeVisible();
+  // The prerendered profile is refreshed once in the background after hydration (T-35).
+  await expect.poll(() => restGets(supabase.requests, 'profile').length).toBe(1);
+  await page.waitForLoadState('networkidle');
   expect(restGets(supabase.requests, 'profile')).toHaveLength(1);
 });
 
@@ -99,7 +106,12 @@ test('a network error on a detail page shows a retry instead of "Not Found"', as
     if (fail && route.request().url().includes('slug=eq.blog-post-1')) return route.abort();
     return route.fallback();
   });
-  await page.goto('/blog/blog-post-1');
+  // Client-side navigation: the prerendered page itself already holds the article (T-35).
+  await page.goto('/blog');
+  await page
+    .getByRole('link', { name: /Blog Post 1/ })
+    .first()
+    .click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText("Couldn't load this article", {
     timeout: 40_000,
   });

@@ -89,7 +89,7 @@ After changing the schema, add a migration (`npx supabase@2.120.0 migration new 
 | Command                | What it does                                                      |
 | ---------------------- | ----------------------------------------------------------------- |
 | `npm run dev`          | Dev server on <http://localhost:3000>                             |
-| `npm run build`        | Type-check and production build to `dist/`                        |
+| `npm run build`        | Type-check, production build and prerender to `dist/`             |
 | `npm run preview`      | Serve the production build                                        |
 | `npm run lint`         | ESLint (flat config, zero warnings allowed)                       |
 | `npm run lint:fix`     | ESLint with autofix                                               |
@@ -106,7 +106,8 @@ After changing the schema, add a migration (`npx supabase@2.120.0 migration new 
 ```
 .
 ├── src/
-│   ├── main.tsx           # entry: providers + routes
+│   ├── main.tsx           # entry: providers + routes (hydrates prerendered pages)
+│   ├── entry-server.tsx   # prerender entry (scripts/prerender.mjs)
 │   ├── app/               # routes.tsx, providers.tsx, layouts/, error/, auth & theme contexts
 │   ├── pages/             # route components (+ admin/ tabs)
 │   ├── features/          # per domain: api.ts + queries.ts (profile, projects, blog, ...), hero-3d
@@ -123,7 +124,23 @@ After changing the schema, add a migration (`npx supabase@2.120.0 migration new 
 
 ## Deployment
 
-Vercel builds with `npm run build` and serves `dist/` with an SPA rewrite (`vercel.json`). Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in the Vercel project environment.
+Vercel builds with `npm run build` and serves `dist/` (`vercel.json`). Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in the Vercel project environment.
+
+### Prerendering
+
+`npm run build` ends with `scripts/prerender.mjs`, which renders every public route — static pages plus each published project and post — to static HTML with its title, description, canonical and Open Graph tags, and the data the page hydrates from. Social previews and crawlers see the real page, and content stays readable if Supabase is unreachable.
+
+- Clean URLs: `/blog/my-post` is served from `blog/my-post.html`; `/admin*` gets the empty SPA shell (`spa.html`); any other unknown URL gets `404.html` with status 404.
+- Without the Supabase env vars the build still succeeds as a plain SPA (no prerendering). With them set but the API unreachable, the build fails, so Vercel keeps the previous deployment.
+- `PRERENDER_MOCK=1` prerenders against the e2e fixture dataset (CI and `npm run build:e2e`).
+
+### Rebuild on publish (optional, off by default)
+
+Prerendered pages change only on a new deploy. To redeploy automatically:
+
+1. Vercel → Project → Settings → Git → **Deploy Hooks**: create a hook for `main`, copy its URL.
+2. Supabase → Database → **Webhooks**: one webhook per table (`blogs`, `projects`, `certificates`, `services`, `resume`, `tech_stack`, `profile`) on insert/update/delete, `POST` to the hook URL. The URL is stored only in Supabase.
+3. Scheduled posts (`published_at` in the future) need a rebuild when they go live: set the repository variable `ENABLE_SCHEDULED_REBUILD=true` and the secret `VERCEL_DEPLOY_HOOK_URL` to enable the daily `Scheduled rebuild` workflow.
 
 ## Documentation
 

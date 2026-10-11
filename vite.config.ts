@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
@@ -31,6 +31,37 @@ export function vercelSiteHeaders(): Record<string, string> {
   };
   const rule = config.headers?.find((h) => h.source === '/(.*)');
   return Object.fromEntries((rule?.headers ?? []).map(({ key, value }) => [key, value]));
+}
+
+/**
+ * `vite preview` routing that mirrors `vercel.json` for the prerendered build (T-35):
+ * `/about` -> `about.html` (clean URLs), `/admin*` -> the SPA shell, any other unknown
+ * page -> `404.html` with status 404. Lets the e2e suite test what production serves.
+ */
+function previewRouting(): Plugin {
+  return {
+    name: 'preview-routing',
+    configurePreviewServer(server) {
+      const outDir = path.resolve(__dirname, server.config.build.outDir);
+      const headers = vercelSiteHeaders();
+      server.middlewares.use((req, res, next) => {
+        const accept = req.headers.accept ?? '';
+        if (req.method !== 'GET' || !accept.includes('text/html')) return next();
+        const pathname = decodeURIComponent(new URL(req.url ?? '/', 'http://x').pathname);
+        if (pathname === '/' || path.extname(pathname)) return next();
+        const page = path.join(outDir, `${pathname.replace(/\/$/, '')}.html`);
+        if (page.startsWith(outDir) && existsSync(page)) return next();
+        if (/^\/admin(\/|$)/.test(pathname) && existsSync(path.join(outDir, 'spa.html'))) {
+          req.url = '/spa.html';
+          return next();
+        }
+        const notFound = path.join(outDir, '404.html');
+        if (!existsSync(notFound)) return next();
+        res.writeHead(404, { ...headers, 'Content-Type': 'text/html; charset=utf-8' });
+        res.end(readFileSync(notFound));
+      });
+    },
+  };
 }
 
 const escapeHtml = (value: string) =>
@@ -132,7 +163,7 @@ export default defineConfig(() => {
     preview: {
       headers: vercelSiteHeaders(),
     },
-    plugins: [react(), siteConfigHtml()],
+    plugins: [react(), siteConfigHtml(), previewRouting()],
     define: appVersionDefine(),
     build: {
       rollupOptions: {

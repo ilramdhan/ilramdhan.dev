@@ -22,6 +22,34 @@ interface Options {
 export const test = base.extend<Fixtures & Options>({
   theme: ['dark', { option: true }],
 
+  // Prerendered pages (T-35) show content before they are interactive: `goto`/`reload`
+  // also wait for hydration (`data-hydrated` on <html>), so typing/clicking right after
+  // navigation reaches React. Skipped for `waitUntil` other than `load` (no-JS checks).
+  page: [
+    async ({ page }, use) => {
+      const waitForApp = () =>
+        page
+          .waitForFunction(() => document.documentElement.hasAttribute('data-hydrated'), null, {
+            timeout: 10_000,
+          })
+          .catch(() => undefined);
+      const goto = page.goto.bind(page);
+      const reload = page.reload.bind(page);
+      page.goto = async (url, options) => {
+        const response = await goto(url, options);
+        if ((options?.waitUntil ?? 'load') === 'load') await waitForApp();
+        return response;
+      };
+      page.reload = async (options) => {
+        const response = await reload(options);
+        if ((options?.waitUntil ?? 'load') === 'load') await waitForApp();
+        return response;
+      };
+      await use(page);
+    },
+    { scope: 'test' },
+  ],
+
   supabase: [
     async ({ page }, use) => {
       await use(await installSupabaseMock(page));

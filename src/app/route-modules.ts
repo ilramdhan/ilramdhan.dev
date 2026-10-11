@@ -18,7 +18,7 @@ export const pageLoaders = {
   notFound: () => import('@/pages/not-found'),
 } as const;
 
-type PageKey = keyof typeof pageLoaders;
+export type PageKey = keyof typeof pageLoaders;
 
 /** Maps a pathname (or `/#section` link) to the page chunk that renders it. */
 export function pageForPath(path: string): PageKey {

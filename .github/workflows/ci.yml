@@ -47,6 +47,8 @@ jobs:
           # nothing in CI talks to a real Supabase project.
           VITE_SUPABASE_URL: https://mock.supabase.co
           VITE_SUPABASE_ANON_KEY: ci-dummy-anon-key
+          # Prerender (T-35) against the e2e fixture dataset instead of the network.
+          PRERENDER_MOCK: '1'
 
       - name: Bundle-size budget
         run: npm run size

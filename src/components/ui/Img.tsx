@@ -1,5 +1,5 @@
 import type { ImgHTMLAttributes } from 'react';
-import { dimensionsFromUrl } from '@/lib/image-compress';
+import { dimensionsFromUrl } from '@/lib/image-dimensions';
 
 type ImgProps = Omit<ImgHTMLAttributes<HTMLImageElement>, 'alt' | 'width' | 'height'> & {
   src: string;

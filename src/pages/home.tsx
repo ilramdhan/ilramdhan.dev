@@ -173,7 +173,7 @@ export default function Page() {
                   ))}
                 </>
               )}
-              {isErrorProjects && (
+              {isErrorProjects && !featuredProjects && (
                 <p className="text-red-500 col-span-full text-center py-10">
                   Error loading projects.
                 </p>
@@ -235,7 +235,7 @@ export default function Page() {
                   ))}
                 </>
               )}
-              {isErrorBlogs && (
+              {isErrorBlogs && !featuredBlogs && (
                 <p className="text-red-500 col-span-full text-center py-10">Error loading posts.</p>
               )}
               {featuredBlogs?.map((post) => (

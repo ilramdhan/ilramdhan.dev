@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { applyHeadToHtml } from './head-html';
 import { buildHead } from './seo-head';
 
 const meta = (head: ReturnType<typeof buildHead>, key: string) =>
@@ -29,5 +30,32 @@ describe('buildHead', () => {
     expect(meta(buildHead({ image: 'https://cdn.x/a.png' }, '/'), 'og:image')).toBe(
       'https://cdn.x/a.png',
     );
+  });
+});
+
+describe('applyHeadToHtml', () => {
+  const template = [
+    '<html><head>',
+    '<title>Site</title>',
+    '<meta name="description" content="site" />',
+    '<meta property="og:title" content="Site" />',
+    '<meta name="author" content="me" />',
+    '</head><body></body></html>',
+  ].join('\n');
+
+  it('replaces the defaults instead of duplicating them and keeps other tags', () => {
+    const html = applyHeadToHtml(template, buildHead({ title: 'A "post"' }, '/blog/a'));
+    expect(html.match(/<title>/g)).toHaveLength(1);
+    expect(html).toContain('<title>A &quot;post&quot; | ');
+    expect(html.match(/name="description"/g)).toHaveLength(1);
+    expect(html.match(/property="og:title"/g)).toHaveLength(1);
+    expect(html).toContain('<meta name="author" content="me" />');
+    expect(html).toContain('<link rel="canonical" href="https://ilramdhan.dev/blog/a" />');
+  });
+
+  it('writes no canonical for noindex pages', () => {
+    const html = applyHeadToHtml(template, buildHead({ noindex: true }, '/login'));
+    expect(html).not.toContain('rel="canonical"');
+    expect(html).toContain('content="noindex, nofollow"');
   });
 });

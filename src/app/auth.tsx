@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, startTransition, useContext, useState, useEffect, ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase/client';
 
@@ -22,17 +22,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const {
         data: { session },
       } = await supabase.auth.getSession();
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsLoading(false);
+      // A transition: the page may still be hydrating (T-35, see `useHydrated`).
+      startTransition(() => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setIsLoading(false);
+      });
     };
 
     void getInitialSession();
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsLoading(false);
+      startTransition(() => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setIsLoading(false);
+      });
     });
 
     return () => {

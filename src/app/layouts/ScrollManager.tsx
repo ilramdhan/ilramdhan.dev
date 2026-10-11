@@ -30,11 +30,23 @@ export function ScrollManager() {
 
   useEffect(() => {
     window.history.scrollRestoration = 'manual';
+    // Leaving the document (a link clicked before hydration, T-35, or an external link):
+    // hand restoration back to the browser so "back" to it lands where the visitor was.
+    const onPageHide = () => (window.history.scrollRestoration = 'auto');
+    const onPageShow = () => (window.history.scrollRestoration = 'manual');
+    window.addEventListener('pagehide', onPageHide);
+    window.addEventListener('pageshow', onPageShow);
+    return () => {
+      window.removeEventListener('pagehide', onPageHide);
+      window.removeEventListener('pageshow', onPageShow);
+    };
   }, []);
 
   // Remember where each history entry was scrolled to.
   useEffect(() => {
     const save = () => positions.set(lastKey.current, window.scrollY);
+    // A prerendered page (T-35) may have been scrolled before it hydrated.
+    save();
     window.addEventListener('scroll', save, { passive: true });
     return () => window.removeEventListener('scroll', save);
   }, []);
@@ -45,7 +57,13 @@ export function ScrollManager() {
     lastKey.current = location.key;
   }, [location.key]);
 
+  // The first render is the page load, not a navigation: the browser owns the position.
+  // Prerendered pages (T-35) can be scrolled before they hydrate; don't reset that.
+  const isPageLoad = useRef(true);
   useEffect(() => {
+    const pageLoad = isPageLoad.current;
+    isPageLoad.current = false;
+    if (pageLoad && !location.hash) return;
     if (navType === NavigationType.Pop) {
       const y = positions.get(location.key) ?? 0;
       if (y === 0) {

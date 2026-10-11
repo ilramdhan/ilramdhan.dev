@@ -26,18 +26,29 @@ export const RPC_NOT_FOUND = {
   },
 };
 
-const json = (route: Route, status: number, body: unknown, headers: Record<string, string> = {}) =>
-  route.fulfill({
-    status,
-    contentType: 'application/json',
-    // Cross-origin: JS can only read content-range (the total count) if it is exposed.
-    headers: {
-      'access-control-allow-origin': '*',
-      'access-control-expose-headers': 'content-range',
-      ...headers,
-    },
-    body: JSON.stringify(body),
-  });
+/** A mock answer, independent of who serves it (Playwright route or `fetch`). */
+export interface MockResponse {
+  status: number;
+  contentType?: string;
+  headers?: Record<string, string>;
+  body?: string;
+}
+
+const json = (
+  status: number,
+  body: unknown,
+  headers: Record<string, string> = {},
+): MockResponse => ({
+  status,
+  contentType: 'application/json',
+  // Cross-origin: JS can only read content-range (the total count) if it is exposed.
+  headers: {
+    'access-control-allow-origin': '*',
+    'access-control-expose-headers': 'content-range',
+    ...headers,
+  },
+  body: JSON.stringify(body),
+});
 
 /** Parses a PostgREST array literal such as `{react,"go lang"}`. */
 function parseArrayLiteral(value: string): string[] {
@@ -96,56 +107,77 @@ const DISTINCT_FUNCTIONS: Record<string, (db: Record<string, Row[]>) => string[]
   certificate_issuers: (db) => distinct((db.certificates ?? []).map((c) => c.issued_by)),
 };
 
-async function handle(route: Route, request: Request, mock: SupabaseMock) {
-  const url = new URL(request.url());
+/** Answers one Supabase request from `mock` (also used to prerender the e2e build). */
+export function respond(
+  mock: SupabaseMock,
+  request: { method: string; url: string; accept?: string; body?: string | null },
+): MockResponse {
+  const url = new URL(request.url);
   mock.requests.push({
-    method: request.method(),
+    method: request.method,
     url,
     path: decodeURIComponent(url.pathname + url.search),
-    body: request.postData(),
+    body: request.body ?? null,
   });
 
   // Anonymous visitor: no session, every auth call is a harmless no-op.
-  if (url.pathname.startsWith('/auth/v1/')) return json(route, 200, {});
+  if (url.pathname.startsWith('/auth/v1/')) return json(200, {});
   // Storage (images uploaded by the owner) — serve a tiny placeholder image.
   if (url.pathname.startsWith('/storage/v1/')) {
-    return route.fulfill({ status: 200, contentType: 'image/svg+xml', body: PLACEHOLDER_SVG });
+    return { status: 200, contentType: 'image/svg+xml', body: PLACEHOLDER_SVG };
   }
-  if (!url.pathname.startsWith('/rest/v1/')) return json(route, 404, { message: 'not mocked' });
+  if (!url.pathname.startsWith('/rest/v1/')) return json(404, { message: 'not mocked' });
 
   if (url.pathname.startsWith('/rest/v1/rpc/')) {
     const fn = url.pathname.replace('/rest/v1/rpc/', '');
     const computed = DISTINCT_FUNCTIONS[fn];
     const answer =
       mock.rpc[fn] ?? (computed && { status: 200, body: computed(mock.db) }) ?? RPC_NOT_FOUND;
-    return json(route, answer.status, answer.body);
+    return json(answer.status, answer.body);
   }
 
   const table = url.pathname.replace('/rest/v1/', '');
-  if (request.method() === 'HEAD') return route.fulfill({ status: 200 });
-  if (request.method() !== 'GET') return json(route, 201, []);
+  if (request.method === 'HEAD') return { status: 200 };
+  if (request.method !== 'GET') return json(201, []);
 
   let rows: Row[];
   try {
     rows = applyFilters(mock.db[table] ?? [], url.searchParams);
   } catch (error) {
     if (!(error instanceof FilterParseError)) throw error;
-    return json(route, 400, { code: 'PGRST100', message: error.message });
+    return json(400, { code: 'PGRST100', message: error.message });
   }
 
-  const single = (request.headers()['accept'] ?? '').includes('vnd.pgrst.object');
+  const single = (request.accept ?? '').includes('vnd.pgrst.object');
   if (single) {
     return rows[0]
-      ? json(route, 200, rows[0])
-      : json(route, 406, { code: 'PGRST116', message: 'JSON object requested, no rows returned' });
+      ? json(200, rows[0])
+      : json(406, { code: 'PGRST116', message: 'JSON object requested, no rows returned' });
   }
 
   const limit = Number(url.searchParams.get('limit') ?? 0);
   const offset = Number(url.searchParams.get('offset') ?? 0);
   const page = limit ? rows.slice(offset, offset + limit) : rows;
   const range = page.length ? `${offset}-${offset + page.length - 1}` : '*';
-  return json(route, 200, page, { 'content-range': `${range}/${rows.length}` });
+  return json(200, page, { 'content-range': `${range}/${rows.length}` });
 }
+
+const handle = (route: Route, request: Request, mock: SupabaseMock) =>
+  route.fulfill(
+    respond(mock, {
+      method: request.method(),
+      url: request.url(),
+      accept: request.headers()['accept'],
+      body: request.postData(),
+    }),
+  );
+
+/** A fresh mock backend: the dataset plus the default RPC answers. */
+export const createMock = (): SupabaseMock => ({
+  db: createDataset(),
+  requests: [],
+  rpc: { is_admin: { status: 200, body: true } },
+});
 
 /** A 10x10 SVG used for every third-party image the pages load. */
 const PLACEHOLDER_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"/>';
@@ -172,11 +204,7 @@ function stubThirdParty(route: Route, request: Request) {
  * dataset per test) and stubs every other third-party request so tests are hermetic.
  */
 export async function installSupabaseMock(page: Page): Promise<SupabaseMock> {
-  const mock: SupabaseMock = {
-    db: createDataset(),
-    requests: [],
-    rpc: { is_admin: { status: 200, body: true } },
-  };
+  const mock = createMock();
   // Registered first = lowest priority: the Supabase handler below wins for its URLs.
   await page.route('**/*', stubThirdParty);
   await page.route(`${MOCK_SUPABASE_URL}/**`, (route, request) => handle(route, request, mock));
