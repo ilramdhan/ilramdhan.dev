@@ -101,7 +101,7 @@ export default function BlogPage() {
                 className="h-48 w-full motion-safe:animate-pulse bg-slate-200 dark:bg-slate-800/50 rounded-2xl"
               />
             ))}
-          {isErrorBlogs && (
+          {isErrorBlogs && !blogData && (
             <div className="text-center text-red-500 py-10">Error loading articles.</div>
           )}
           {currentBlogs.map((blog) => (

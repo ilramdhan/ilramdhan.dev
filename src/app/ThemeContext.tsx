@@ -1,5 +1,6 @@
 import {
   createContext,
+  startTransition,
   useCallback,
   useContext,
   useEffect,
@@ -8,6 +9,7 @@ import {
   useState,
 } from 'react';
 import type { ReactNode } from 'react';
+import { useHydrated, useMediaQuery } from '@/lib/hooks';
 
 export type ThemePreference = 'light' | 'dark' | 'system';
 export type ResolvedTheme = 'light' | 'dark';
@@ -42,9 +44,6 @@ function readPreference(): ThemePreference {
   return 'system';
 }
 
-const systemTheme = (): ResolvedTheme =>
-  typeof window.matchMedia === 'function' && window.matchMedia(QUERY).matches ? 'dark' : 'light';
-
 /**
  * Applies the theme to <html>. index.html runs the same logic before first paint
  * (no flash); this keeps it in sync afterwards.
@@ -56,21 +55,25 @@ function applyTheme(theme: ResolvedTheme) {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [preference, setPreferenceState] = useState<ThemePreference>(readPreference);
-  const [system, setSystem] = useState<ResolvedTheme>(systemTheme);
+  // Prerendered HTML is built with `system`/light; the stored choice and the OS preference
+  // arrive after hydration as transitions (see `useHydrated`). The inline script in
+  // index.html has already painted the right theme, so nothing flashes.
+  const hydrated = useHydrated();
+  const [preference, setPreferenceState] = useState<ThemePreference>('system');
+  const prefersDark = useMediaQuery(QUERY);
+  const system: ResolvedTheme = prefersDark ? 'dark' : 'light';
   const theme: ResolvedTheme = preference === 'system' ? system : preference;
 
   useEffect(() => {
-    if (typeof window.matchMedia !== 'function') return;
-    const media = window.matchMedia(QUERY);
-    const onChange = () => setSystem(media.matches ? 'dark' : 'light');
-    onChange();
-    media.addEventListener('change', onChange);
-    return () => media.removeEventListener('change', onChange);
+    const saved = readPreference();
+    startTransition(() => setPreferenceState(saved));
   }, []);
 
   // Layout effect: the DOM is updated synchronously inside a View Transition callback.
-  useLayoutEffect(() => applyTheme(theme), [theme]);
+  // Not while hydrating: the server value is a guess, the inline script already set the class.
+  useLayoutEffect(() => {
+    if (hydrated) applyTheme(theme);
+  }, [theme, hydrated]);
 
   const setPreference = useCallback((next: ThemePreference) => {
     setPreferenceState(next);

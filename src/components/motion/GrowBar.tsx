@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useReducedMotion } from 'framer-motion';
+import { useReducedMotion } from '@/lib/hooks';
 
 /** True once the element has been at least 30% visible; never flips back (animate once). */
 function useSeenOnce<T extends Element>() {

@@ -1,9 +1,14 @@
 {
   "framework": "vite",
+  "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/admin",
+      "destination": "/spa.html"
+    },
+    {
+      "source": "/admin/(.*)",
+      "destination": "/spa.html"
     }
   ],
   "headers": [

@@ -77,7 +77,7 @@ export default function BlogDetailPage() {
     );
   }
 
-  if (isError && !isNotFoundError(error)) {
+  if (isError && !blog && !isNotFoundError(error)) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white px-4 text-center">
         <h1 className="text-2xl font-bold mb-2">Couldn&apos;t load this article</h1>

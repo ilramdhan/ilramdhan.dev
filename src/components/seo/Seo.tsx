@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import { useContext, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { HeadCollectorContext } from './head-collector';
 import { buildHead, type HeadDescriptor, type SeoProps } from './seo-head';
 
 export type { SeoProps };
@@ -53,6 +54,8 @@ function apply(head: HeadDescriptor) {
 export function Seo(props: SeoProps) {
   const { pathname } = useLocation();
   const { title, description, path, image, type, noindex } = props;
+  const collector = useContext(HeadCollectorContext);
+  if (collector) collector.current = buildHead(props, pathname);
 
   useEffect(() => {
     apply(buildHead({ title, description, path, image, type, noindex }, pathname));
