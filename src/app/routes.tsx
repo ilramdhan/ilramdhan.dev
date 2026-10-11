@@ -1,4 +1,4 @@
-import { lazy, useRef, type ComponentType } from 'react';
+import { lazy, useEffect, useRef, type ComponentType } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AdminRoute } from '@/app/AdminRoute';
 import { RouteErrorBoundary } from '@/app/error/RouteError';
@@ -57,6 +57,8 @@ export function GuardedRoutes() {
   // During render (idempotent), not in an effect: the next page's components read the
   // flag while they render, before any effect would run.
   if (pathname !== firstPath.current) endPrerenderedView();
+  // Interactive from here on (prerendered pages: hydrated). Read by the e2e suite.
+  useEffect(() => document.documentElement.setAttribute('data-hydrated', ''), []);
   return (
     <RouteErrorBoundary resetKey={pathname}>
       <Routes>

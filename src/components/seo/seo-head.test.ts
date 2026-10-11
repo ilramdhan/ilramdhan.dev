@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { applyHeadToHtml, buildHead } from './seo-head';
+import { applyHeadToHtml } from './head-html';
+import { buildHead } from './seo-head';
 
 const meta = (head: ReturnType<typeof buildHead>, key: string) =>
   head.meta.find(([, k]) => k === key)?.[2];

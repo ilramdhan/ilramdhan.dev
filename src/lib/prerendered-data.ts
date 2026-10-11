@@ -17,7 +17,7 @@ export const serializePrerenderedData = (queries: PrerenderedQuery[]) =>
 /**
  * Seeds `client` with the data a prerendered page was built with, so hydration renders
  * exactly the static HTML (no loading flash) and Supabase being down doesn't blank it.
- * The data is marked stale: mounted queries refresh it in the background, so edits made
+ * Mounted queries refresh it in the background once the browser is idle, so edits made
  * since the build show up without waiting for the next deploy. Malformed or missing data
  * is ignored: the page just fetches as usual.
  */
@@ -28,7 +28,15 @@ export function seedPrerenderedData(client: QueryClient, doc: Document = documen
     for (const { key, data, updatedAt } of JSON.parse(text) as PrerenderedQuery[]) {
       client.setQueryData(key, data, { updatedAt });
     }
-    void client.invalidateQueries({ refetchType: 'none' });
+    // Refreshed once the page has loaded and the browser is idle, so the refresh never
+    // competes with hydration for the main thread.
+    const refresh = () => void client.invalidateQueries();
+    const whenIdle = () =>
+      typeof requestIdleCallback === 'function'
+        ? requestIdleCallback(refresh, { timeout: 3000 })
+        : setTimeout(refresh, 1000);
+    if (doc.readyState === 'complete') whenIdle();
+    else window.addEventListener('load', whenIdle, { once: true });
   } catch {
     // ignore: fall back to fetching
   }

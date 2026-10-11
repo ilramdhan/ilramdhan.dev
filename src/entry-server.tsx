@@ -20,7 +20,7 @@ import type { HeadDescriptor } from '@/components/seo/seo-head';
 import { supabase } from '@/lib/supabase/client';
 import type { PrerenderedQuery } from '@/lib/prerendered-data';
 
-export { applyHeadToHtml } from '@/components/seo/seo-head';
+export { applyHeadToHtml } from '@/components/seo/head-html';
 
 /** Public routes without parameters; `login` is prerendered too (noindex). */
 export const STATIC_ROUTES = [

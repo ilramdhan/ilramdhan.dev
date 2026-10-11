@@ -17,7 +17,7 @@ const docWith = (json: string) => {
 };
 
 describe('prerendered data', () => {
-  it('round-trips into the query cache, marked stale', () => {
+  it('round-trips into the query cache', () => {
     const client = new QueryClient();
     const json = serializePrerenderedData([
       { key: ['profile', 'detail'], data: { bio: '</script><b>x</b>' }, updatedAt: 1 },
@@ -25,7 +25,6 @@ describe('prerendered data', () => {
     expect(json).not.toContain('</script>');
     seedPrerenderedData(client, docWith(json));
     expect(client.getQueryData(['profile', 'detail'])).toEqual({ bio: '</script><b>x</b>' });
-    expect(client.getQueryState(['profile', 'detail'])?.isInvalidated).toBe(true);
   });
 
   it('ignores missing or malformed data', () => {

@@ -32,9 +32,9 @@ test('every project and post in the dataset has its own page', async ({ request 
 test.describe('JavaScript disabled', () => {
   test.use({ javaScriptEnabled: false });
   test('pages show their content from the static HTML', async ({ page }) => {
-    await page.goto('/projects/project-1');
+    await page.goto('/projects/project-1', { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Project 1');
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Dummy Dev');
   });
 });

@@ -80,13 +80,6 @@ export async function compressImage(
   }
 }
 
-/** Width/height encoded in an uploaded image name (`<uuid>_<w>x<h>.webp`), if present. */
-export function dimensionsFromUrl(
-  url: string | null | undefined,
-): { width: number; height: number } | null {
-  const match = url?.match(/_(\d{1,5})x(\d{1,5})\.\w+(?:[?#]|$)/);
-  if (!match) return null;
-  const width = Number(match[1]);
-  const height = Number(match[2]);
-  return width > 0 && height > 0 ? { width, height } : null;
-}
+// Kept with the compressor's naming scheme; lives in its own module so the public `Img`
+// doesn't pull the compression code into every route.
+export { dimensionsFromUrl } from './image-dimensions';
