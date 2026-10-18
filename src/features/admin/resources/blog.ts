@@ -28,7 +28,13 @@ export const blogResource = defineResource({
       fields: [
         { name: 'title', label: 'Title', kind: 'text' },
         { name: 'excerpt', label: 'Excerpt', kind: 'textarea', rows: 2 },
-        { name: 'content', label: 'Content (Markdown)', kind: 'markdown', rows: 10 },
+        {
+          name: 'content',
+          label: 'Content (Markdown)',
+          kind: 'markdown',
+          rows: 10,
+          folder: 'blogs',
+        },
         { name: 'tags', label: 'Tags (comma-separated)', kind: 'tags' },
         { name: 'is_featured', label: 'Featured', kind: 'boolean' },
         { name: 'images', label: 'Images', kind: 'images', folder: 'blogs' },

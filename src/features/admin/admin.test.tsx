@@ -8,9 +8,11 @@ import { z } from 'zod';
 const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn(), info: vi.fn() }));
 vi.mock('sonner', () => ({ toast }));
 const uploadAll = vi.hoisted(() => vi.fn<(jobs: unknown[]) => Promise<string[]>>());
+const uploadFile = vi.hoisted(() => vi.fn());
 vi.mock('@/lib/upload', async (orig) => ({
   ...(await orig<typeof import('@/lib/upload')>()),
   uploadAll,
+  uploadFile,
 }));
 // Supabase is never reached: every resource below talks to mocked api functions.
 vi.mock('@/lib/supabase/client', () => ({ supabase: {} }));
@@ -279,6 +281,33 @@ describe('useCrudResource', () => {
 });
 
 describe('ResourceForm', () => {
+  it('inserts an uploaded image into a markdown field at the cursor', async () => {
+    uploadFile.mockResolvedValue({ path: 'blogs/a.webp', publicUrl: 'https://cdn/blogs/a.webp' });
+    const mdSchema = z.object({ body: f.markdownText() });
+    render(
+      <ResourceForm
+        sections={[
+          {
+            fields: [{ name: 'body', label: 'Body', kind: 'markdown', folder: 'blogs' }],
+          },
+        ]}
+        schema={mdSchema}
+        defaultValues={{ body: 'Hello' }}
+        onSubmit={vi.fn()}
+        isPending={false}
+        submitLabel="Save"
+      />,
+    );
+    const area = screen.getByLabelText<HTMLTextAreaElement>('Body');
+    area.setSelectionRange(5, 5);
+    const file = new File(['x'], 'my-pic.png', { type: 'image/png' });
+    await userEvent.upload(screen.getByLabelText('Insert image'), file);
+    await waitFor(() =>
+      expect(area.value).toBe('Hello\n\n![my-pic](https://cdn/blogs/a.webp)\n\n'),
+    );
+    expect(uploadFile).toHaveBeenCalledWith(file, 'blogs', expect.any(Array));
+  });
+
   it('shows zod errors inline and does not submit invalid values', async () => {
     const onSubmit = vi.fn();
     const { resource } = makeResource();
