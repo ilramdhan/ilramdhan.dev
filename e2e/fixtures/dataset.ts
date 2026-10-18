@@ -79,27 +79,33 @@ export function createDataset(): Record<string, Row[]> {
       repo_url: 'github.com/x/y',
       is_featured: false,
     }),
+    // Post 1 is the newest, then one day older per post (prev/next navigation, sort).
     blogs: Array.from({ length: 7 }, (_, i) => ({
       id: i + 1,
       user_id: 'u1',
       created_at: now,
-      published_at: now,
+      published_at: `2026-01-${String(15 - i).padStart(2, '0')}T10:00:00.000Z`,
       title: `Blog Post ${i + 1}`,
       slug: `blog-post-${i + 1}`,
       excerpt: 'Dummy excerpt.',
       content:
         i === 0
           ? // GFM (lazy-loaded renderer): prerendered, then hydrated without a mismatch.
-            '## Heading\nParagraph with `code` and ~~old~~ text.\n\n| Tool | Use |\n| --- | --- |\n| Go | APIs |\n\n```js\nconsole.log(1)\n```'
+            // Three+ headings (one inside a code fence, ignored) give it a table of contents.
+            '## Heading\nParagraph with `code` and ~~old~~ text.\n\n| Tool | Use |\n| --- | --- |\n| Go | APIs |\n\n```js\n## not a heading\nconsole.log(1)\n```\n\n## Setup\n' +
+            'Install things.\n\n'.repeat(30) +
+            '### Details\nMore details.\n\n## Wrap-up\n' +
+            'Closing words.\n\n'.repeat(30)
           : '## Heading\nParagraph with `code`.\n\n```js\nconsole.log(1)\n```',
       images: [img(`b${i + 1}`)],
       tags: [i % 2 ? 'react' : 'go'],
-      is_featured: i < 2,
+      // Four featured posts: the home page shows them as a carousel (grid up to three).
+      is_featured: i < 4,
     })).concat({
       id: 99,
       user_id: 'u1',
       created_at: now,
-      published_at: now,
+      published_at: '2026-01-01T10:00:00.000Z',
       title: LONG_TITLE,
       slug: 'long-content',
       excerpt: 'Post with long, unbroken content.',

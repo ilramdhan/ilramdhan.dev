@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase/client';
 import { columns } from '@/lib/supabase/columns';
 import { distinctSorted, fetchDistinct } from '@/lib/supabase/distinct';
 import { assertOk, pageRange, unwrap, withoutId, unwrapPage } from '@/lib/supabase/result';
-import { ilikeContains } from '@/lib/search';
+import { orIlikeFilter } from '@/lib/search';
 
 type Row = Tables<'blogs'>;
 
@@ -61,18 +61,22 @@ export interface BlogListParams {
   limit: number;
   query?: string;
   tag?: string | null;
+  sort?: 'newest' | 'oldest';
 }
 
-export async function getBlogs({ page, limit, query: search, tag }: BlogListParams) {
+export async function getBlogs({ page, limit, query: search, tag, sort }: BlogListParams) {
   let query = supabase
     .from('blogs')
     .select(BLOG_CARD_COLUMNS, { count: 'exact' })
-    .order('published_at', { ascending: false });
-  const titlePattern = ilikeContains(search);
-  if (titlePattern) query = query.ilike('title', titlePattern);
+    .order('published_at', { ascending: sort === 'oldest' });
+  const searchFilter = orIlikeFilter(['title', 'excerpt'], search);
+  if (searchFilter) query = query.or(searchFilter);
   if (tag) query = query.contains('tags', [tag]);
   return unwrapPage<BlogCard>(await query.range(...pageRange(page, limit)));
 }
+
+/** Featured posts on the home carousel. */
+export const FEATURED_LIMIT = 9;
 
 export async function getFeaturedBlogs(): Promise<BlogCard[]> {
   return unwrap(
@@ -81,12 +85,60 @@ export async function getFeaturedBlogs(): Promise<BlogCard[]> {
       .select(BLOG_CARD_COLUMNS)
       .eq('is_featured', true)
       .order('published_at', { ascending: false })
-      .limit(2),
+      .limit(FEATURED_LIMIT),
   );
 }
 
 export async function getBlogBySlug(slug: string): Promise<BlogDetail> {
   return unwrap(await supabase.from('blogs').select(BLOG_DETAIL_COLUMNS).eq('slug', slug).single());
+}
+
+export interface AdjacentBlogs {
+  /** The next older post, if any. */
+  older: BlogCard | null;
+  /** The next newer post, if any. */
+  newer: BlogCard | null;
+}
+
+/** The posts published right before and right after `publishedAt` (detail page footer). */
+export async function getAdjacentBlogs(publishedAt: string): Promise<AdjacentBlogs> {
+  const [older, newer] = await Promise.all([
+    supabase
+      .from('blogs')
+      .select(BLOG_CARD_COLUMNS)
+      .lt('published_at', publishedAt)
+      .order('published_at', { ascending: false })
+      .limit(1),
+    supabase
+      .from('blogs')
+      .select(BLOG_CARD_COLUMNS)
+      .gt('published_at', publishedAt)
+      .order('published_at', { ascending: true })
+      .limit(1),
+  ]);
+  return { older: unwrap(older)[0] ?? null, newer: unwrap(newer)[0] ?? null };
+}
+
+export const RELATED_LIMIT = 3;
+
+/**
+ * Up to three other posts sharing a tag with post `id`, newest first, topped up with the
+ * latest posts when fewer share one.
+ */
+export async function getRelatedBlogs(id: number, tags: string[]): Promise<BlogCard[]> {
+  const latest = () =>
+    supabase
+      .from('blogs')
+      .select(BLOG_CARD_COLUMNS)
+      .neq('id', id)
+      .order('published_at', { ascending: false });
+  const related = tags.length
+    ? unwrap(await latest().overlaps('tags', tags).limit(RELATED_LIMIT))
+    : [];
+  if (related.length >= RELATED_LIMIT) return related;
+  const seen = new Set(related.map((b) => b.id));
+  const rest = unwrap(await latest().limit(RELATED_LIMIT * 2)).filter((b) => !seen.has(b.id));
+  return [...related, ...rest].slice(0, RELATED_LIMIT);
 }
 
 export function getBlogTags(): Promise<string[]> {

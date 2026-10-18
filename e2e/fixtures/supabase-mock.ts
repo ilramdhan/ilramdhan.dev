@@ -65,7 +65,16 @@ const cell = (value: unknown): string => {
   return JSON.stringify(value);
 };
 
-/** Applies the subset of PostgREST filters the app uses (eq, cs, ilike, or=ilike). */
+/** Orders by a cell for lt/gt: numerically when both sides are numbers, else as text (ISO dates). */
+const compare = (a: unknown, b: string): number => {
+  if (typeof a === 'number' && b.trim() !== '' && !Number.isNaN(Number(b))) return a - Number(b);
+  return cell(a).localeCompare(b);
+};
+
+/**
+ * Applies the subset of PostgREST filters the app uses
+ * (eq, neq, lt, gt, cs, ov, ilike, or=ilike).
+ */
 function applyFilters(rows: Row[], params: URLSearchParams): Row[] {
   let result = rows;
   for (const [key, value] of params) {
@@ -78,6 +87,18 @@ function applyFilters(rows: Row[], params: URLSearchParams): Row[] {
       );
     } else if (value.startsWith('eq.')) {
       result = result.filter((r) => cell(r[key]) === value.slice(3));
+    } else if (value.startsWith('neq.')) {
+      result = result.filter((r) => cell(r[key]) !== value.slice(4));
+    } else if (value.startsWith('lt.')) {
+      result = result.filter((r) => r[key] != null && compare(r[key], value.slice(3)) < 0);
+    } else if (value.startsWith('gt.')) {
+      result = result.filter((r) => r[key] != null && compare(r[key], value.slice(3)) > 0);
+    } else if (value.startsWith('ov.')) {
+      const wanted = parseArrayLiteral(value.slice(3));
+      result = result.filter((r) => {
+        const col = r[key];
+        return Array.isArray(col) && col.some((c) => wanted.includes(String(c)));
+      });
     } else if (value.startsWith('cs.')) {
       const wanted = parseArrayLiteral(value.slice(3));
       result = result.filter((r) => {
@@ -90,6 +111,34 @@ function applyFilters(rows: Row[], params: URLSearchParams): Row[] {
     }
   }
   return result;
+}
+
+/**
+ * Applies `order=col.asc,col2.desc.nullslast`, like PostgREST (stable, so rows with equal
+ * keys keep the dataset order). Nulls sort last ascending and first descending by default.
+ */
+function applyOrder(rows: Row[], order: string | null): Row[] {
+  if (!order) return rows;
+  const keys = order.split(',').map((part) => {
+    const [column = '', ...mods] = part.split('.');
+    const desc = mods.includes('desc');
+    const nullsFirst = mods.includes('nullsfirst') || (desc && !mods.includes('nullslast'));
+    return { column, desc, nullsFirst };
+  });
+  return [...rows].sort((a, b) => {
+    for (const { column, desc, nullsFirst } of keys) {
+      const x = a[column];
+      const y = b[column];
+      if (x == null || y == null) {
+        if (x == null && y == null) continue;
+        return (x == null) === nullsFirst ? -1 : 1;
+      }
+      const diff =
+        typeof x === 'number' && typeof y === 'number' ? x - y : cell(x).localeCompare(cell(y));
+      if (diff) return desc ? -diff : diff;
+    }
+    return 0;
+  });
 }
 
 /** Sorted distinct non-empty strings, like `select distinct ... order by`. */
@@ -142,7 +191,10 @@ export function respond(
 
   let rows: Row[];
   try {
-    rows = applyFilters(mock.db[table] ?? [], url.searchParams);
+    rows = applyOrder(
+      applyFilters(mock.db[table] ?? [], url.searchParams),
+      url.searchParams.get('order'),
+    );
   } catch (error) {
     if (!(error instanceof FilterParseError)) throw error;
     return json(400, { code: 'PGRST100', message: error.message });
