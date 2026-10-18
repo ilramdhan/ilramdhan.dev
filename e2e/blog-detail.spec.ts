@@ -88,6 +88,20 @@ test('related posts share a tag and exclude the current post', async ({ page }) 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Blog Post 3');
 });
 
+test("posts sharing a publish date are still each other's neighbours", async ({
+  page,
+  supabase,
+}) => {
+  // Posts 2 and 3 tie: by (published_at, id), 3 is newer than 2 and neither is skipped.
+  const two = supabase.db.blogs!.find((b) => b.id === 2)!;
+  supabase.db.blogs!.find((b) => b.id === 3)!.published_at = two.published_at;
+  await page.goto('/blog/blog-post-2');
+  await page.getByRole('link', { name: /Newer post/ }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Blog Post 3');
+  await page.getByRole('link', { name: /Newer post/ }).click();
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Blog Post 1');
+});
+
 test('copy link writes the canonical URL and confirms with a toast', async ({ page, context }) => {
   await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await page.goto(POST);

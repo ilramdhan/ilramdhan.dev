@@ -100,23 +100,31 @@ export interface AdjacentBlogs {
   newer: BlogCard | null;
 }
 
-/** The posts published right before and right after `publishedAt` (detail page footer). */
-export async function getAdjacentBlogs(publishedAt: string): Promise<AdjacentBlogs> {
-  const [older, newer] = await Promise.all([
-    supabase
-      .from('blogs')
-      .select(BLOG_CARD_COLUMNS)
+/**
+ * The posts right before and right after post `id` (detail page footer), in a total
+ * order of (published_at, id): posts sharing the timestamp are neighbours by id first, so
+ * none is skipped when `published_at` ties.
+ */
+export async function getAdjacentBlogs(id: number, publishedAt: string): Promise<AdjacentBlogs> {
+  const cards = () => supabase.from('blogs').select(BLOG_CARD_COLUMNS);
+  const [olderPeer, older, newerPeer, newer] = await Promise.all([
+    cards().eq('published_at', publishedAt).lt('id', id).order('id', { ascending: false }).limit(1),
+    cards()
       .lt('published_at', publishedAt)
       .order('published_at', { ascending: false })
+      .order('id', { ascending: false })
       .limit(1),
-    supabase
-      .from('blogs')
-      .select(BLOG_CARD_COLUMNS)
+    cards().eq('published_at', publishedAt).gt('id', id).order('id', { ascending: true }).limit(1),
+    cards()
       .gt('published_at', publishedAt)
       .order('published_at', { ascending: true })
+      .order('id', { ascending: true })
       .limit(1),
   ]);
-  return { older: unwrap(older)[0] ?? null, newer: unwrap(newer)[0] ?? null };
+  return {
+    older: unwrap(olderPeer)[0] ?? unwrap(older)[0] ?? null,
+    newer: unwrap(newerPeer)[0] ?? unwrap(newer)[0] ?? null,
+  };
 }
 
 export const RELATED_LIMIT = 3;

@@ -31,8 +31,8 @@ export const blogKeys = {
   detail: (slug: string) => [...blogKeys.details(), slug] as const,
   admin: () => [...blogKeys.all, 'admin'] as const,
   comments: (blogId: number | undefined) => [...blogKeys.all, 'comments', blogId] as const,
-  adjacent: (publishedAt: string | null | undefined) =>
-    [...blogKeys.all, 'adjacent', publishedAt ?? null] as const,
+  adjacent: (id: number | undefined, publishedAt: string | null | undefined) =>
+    [...blogKeys.all, 'adjacent', id, publishedAt ?? null] as const,
   related: (id: number | undefined, tags: readonly string[] = []) =>
     [...blogKeys.all, 'related', id, [...tags].sort()] as const,
 };
@@ -59,12 +59,12 @@ export const blogQueries = {
       queryFn: () => getComments(blogId!),
       enabled: blogId !== undefined,
     }),
-  /** Older/newer neighbours of a post (needs its publish date). */
-  adjacent: (publishedAt: string | null | undefined) =>
+  /** Older/newer neighbours of a post (needs its id and publish date). */
+  adjacent: (id: number | undefined, publishedAt: string | null | undefined) =>
     queryOptions({
-      queryKey: blogKeys.adjacent(publishedAt),
-      queryFn: () => getAdjacentBlogs(publishedAt!),
-      enabled: !!publishedAt,
+      queryKey: blogKeys.adjacent(id, publishedAt),
+      queryFn: () => getAdjacentBlogs(id!, publishedAt!),
+      enabled: id !== undefined && !!publishedAt,
     }),
   related: (id: number | undefined, tags: readonly string[] = []) =>
     queryOptions({

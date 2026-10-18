@@ -71,7 +71,7 @@ export default function BlogDetailPage() {
   } = useQuery(blogQueries.detail(slug ?? ''));
 
   const { data: comments, isLoading: isLoadingComments } = useQuery(blogQueries.comments(blog?.id));
-  const { data: adjacent } = useQuery(blogQueries.adjacent(blog?.published_at));
+  const { data: adjacent } = useQuery(blogQueries.adjacent(blog?.id, blog?.published_at));
   const { data: related } = useQuery(blogQueries.related(blog?.id, blog?.tags ?? []));
 
   const content = blog?.content ?? '';

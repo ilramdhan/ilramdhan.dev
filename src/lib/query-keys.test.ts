@@ -59,7 +59,7 @@ describe('query key factories', () => {
           blogKeys.featured(),
           blogKeys.detail('a'),
           blogKeys.admin(),
-          blogKeys.adjacent('2026-01-01'),
+          blogKeys.adjacent(1, '2026-01-01'),
           blogKeys.related(1, ['go']),
         ],
       ],
