@@ -3,6 +3,7 @@ import type { ZodType, ZodTypeDef } from 'zod';
 import { Loader2, Save, Trash } from 'lucide-react';
 import { Field } from '@/components/ui/Field';
 import { acceptAttribute, ALL_MIME_TYPES, IMAGE_MIME_TYPES } from '@/lib/upload';
+import { MarkdownField } from './MarkdownField';
 import type { FieldConfig, FormSection, MediaFile, MediaList } from './fields';
 import { useZodForm, type FormValues, type ZodForm } from './useZodForm';
 
@@ -121,8 +122,24 @@ function FormField<V extends FormValues>({
           <input {...text} type="date" />
         </Field>
       );
-    case 'textarea':
     case 'markdown':
+      if (field.folder)
+        return (
+          <MarkdownField
+            {...common}
+            text={text}
+            folder={field.folder}
+            placeholder={placeholder}
+            rows={field.rows ?? 3}
+            onValue={set}
+          />
+        );
+      return (
+        <Field {...common}>
+          <textarea {...text} placeholder={placeholder} rows={field.rows ?? 3} />
+        </Field>
+      );
+    case 'textarea':
       return (
         <Field {...common}>
           <textarea {...text} placeholder={placeholder} rows={field.rows ?? 3} />

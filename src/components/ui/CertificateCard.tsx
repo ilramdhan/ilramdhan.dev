@@ -1,5 +1,5 @@
 import { Award } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import { Markdown } from '@/components/ui/Markdown';
 import { Reveal } from '@/components/motion';
 import type { Certificate } from '@/features/certificates/api';
 import { formatDate } from '@/lib/date';
@@ -41,7 +41,7 @@ export function CertificateCard({ cert, index }: CertificateCardProps) {
           {cert.expiry_date ? ` - ${formatDate(cert.expiry_date)}` : ''}
         </p>
         <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4 flex-1 prose prose-sm dark:prose-invert line-clamp-3">
-          <ReactMarkdown>{cert.description || ''}</ReactMarkdown>
+          <Markdown>{cert.description || ''}</Markdown>
         </div>
         {cert.credential_url && (
           <a

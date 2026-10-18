@@ -2,7 +2,7 @@ import React, { lazy, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Download, MapPin, Briefcase, GraduationCap, ArrowRight, Award } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import { Markdown } from '@/components/ui/Markdown';
 import { CountUp, GrowBar, Reveal } from '@/components/motion';
 import { CertificateCard } from '@/components/ui/CertificateCard';
 import { SocialLinks } from '@/components/ui/SocialLinks';
@@ -117,7 +117,7 @@ export default function AboutPage() {
           <div className="flex-1">
             <h1 className="text-4xl font-bold mb-6">{profile?.display_name || 'About Me'}</h1>
             <div className="prose prose-lg prose-slate dark:prose-invert">
-              <ReactMarkdown components={{ h1: 'h2' }}>{profile?.detailed_bio || ''}</ReactMarkdown>
+              <Markdown components={{ h1: 'h2' }}>{profile?.detailed_bio || ''}</Markdown>
             </div>
           </div>
         </div>
@@ -140,7 +140,7 @@ export default function AboutPage() {
                   </div>
                   <div className="text-sm text-slate-500 mb-3">{exp.period}</div>
                   <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-3 prose prose-sm dark:prose-invert">
-                    <ReactMarkdown components={{ h1: 'h2' }}>{exp.description || ''}</ReactMarkdown>
+                    <Markdown components={{ h1: 'h2' }}>{exp.description || ''}</Markdown>
                   </div>
                 </Reveal>
               ))}
@@ -164,7 +164,7 @@ export default function AboutPage() {
                   </div>
                   <div className="text-sm text-slate-500 mb-2">{edu.period}</div>
                   <div className="text-sm text-slate-600 dark:text-slate-400 mb-3 prose prose-sm dark:prose-invert">
-                    <ReactMarkdown components={{ h1: 'h2' }}>{edu.description || ''}</ReactMarkdown>
+                    <Markdown components={{ h1: 'h2' }}>{edu.description || ''}</Markdown>
                   </div>
                 </Reveal>
               ))}

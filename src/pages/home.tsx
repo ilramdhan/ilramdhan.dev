@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Calendar, Code, Smartphone, Cloud, Terminal, Layout, Database } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import { Markdown } from '@/components/ui/Markdown';
 import { MotionScope, Reveal } from '@/components/motion';
 import { Hero } from '@/features/hero-3d/Hero';
 import { ProjectCard, ProjectCardSkeleton } from '@/features/projects/ProjectCard';
@@ -100,7 +100,7 @@ export default function Page() {
                         {service.title}
                       </h3>
                       <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed prose prose-sm dark:prose-invert">
-                        <ReactMarkdown>{service.description || ''}</ReactMarkdown>
+                        <Markdown>{service.description || ''}</Markdown>
                       </div>
                     </Reveal>
                   );

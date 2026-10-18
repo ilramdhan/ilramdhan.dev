@@ -31,7 +31,13 @@ export const projectsResource = defineResource({
       fields: [
         { name: 'title', label: 'Title', kind: 'text' },
         { name: 'short_description', label: 'Short Description', kind: 'textarea', rows: 2 },
-        { name: 'content', label: 'Content (Markdown)', kind: 'markdown', rows: 6 },
+        {
+          name: 'content',
+          label: 'Content (Markdown)',
+          kind: 'markdown',
+          rows: 6,
+          folder: 'projects',
+        },
         { name: 'tech_stack', label: 'Tech Stack (comma-separated)', kind: 'tags' },
         { name: 'tags', label: 'Tags (comma-separated)', kind: 'tags' },
         { name: 'demo_url', label: 'Demo URL', kind: 'url' },

@@ -35,7 +35,9 @@ interface BaseField<V extends FormValues> {
 export type FieldConfig<V extends FormValues> = BaseField<V> &
   (
     | { kind: 'text' | 'url' | 'email' | 'date' | 'tags' }
-    | { kind: 'textarea' | 'markdown'; rows?: number }
+    | { kind: 'textarea'; rows?: number }
+    /** With `folder`, shows an "Insert image" button that uploads there and inserts markdown. */
+    | { kind: 'markdown'; rows?: number; folder?: UploadFolder }
     | { kind: 'boolean' }
     | { kind: 'select'; options: readonly string[] }
     /** Value: `MediaList`. New files go to `folder` (images only). Top-level names only. */

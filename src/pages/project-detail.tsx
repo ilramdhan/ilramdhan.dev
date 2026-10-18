@@ -2,7 +2,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { Github, ExternalLink, Calendar, ArrowLeft } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import { Markdown } from '@/components/ui/Markdown';
 import NotFoundPage from '@/pages/not-found';
 import { Navbar } from '@/app/layouts/Navbar';
 import { projectQueries } from '@/features/projects/queries';
@@ -110,9 +110,9 @@ export default function ProjectDetailPage() {
                 About this project
               </h2>
               <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-white/5 text-slate-600 dark:text-slate-300 shadow-sm dark:shadow-none">
-                <ReactMarkdown components={{ h1: 'h2' }}>
+                <Markdown components={{ h1: 'h2' }}>
                   {project.content || 'No detailed content available for this project.'}
-                </ReactMarkdown>
+                </Markdown>
               </div>
             </div>
           </div>
