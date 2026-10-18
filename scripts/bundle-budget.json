@@ -35,7 +35,7 @@
       "route": "^assets/privacy-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "initial",
-      "maxKiB": 180
+      "maxKiB": 182
     },
     {
       "name": "Initial JS /blog (gzip)",

@@ -61,7 +61,7 @@ test('blog search treats % and _ literally', async ({ page, supabase, consoleErr
   await expect(page.getByText('Blog Post 1', { exact: true })).toHaveCount(0);
 
   await search.fill('_');
-  await expect(page.getByText('No articles found matching your criteria.')).toBeVisible();
+  await expect(page.getByText('No articles match your filters')).toBeVisible();
   await expect(page.getByText('Error loading articles.')).toHaveCount(0);
   expect(consoleErrors, 'console errors').toEqual([]);
 });

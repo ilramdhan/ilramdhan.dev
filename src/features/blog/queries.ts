@@ -1,11 +1,13 @@
 import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 import {
+  getAdjacentBlogs,
   getAdminBlogs,
   getBlogBySlug,
   getBlogs,
   getBlogTags,
   getComments,
   getFeaturedBlogs,
+  getRelatedBlogs,
   type BlogListParams,
 } from './api';
 
@@ -20,6 +22,7 @@ export const blogKeys = {
         limit: params.limit,
         tag: params.tag ?? null,
         query: params.query ?? '',
+        sort: params.sort ?? 'newest',
       },
     ] as const,
   featured: () => [...blogKeys.all, 'featured'] as const,
@@ -28,6 +31,10 @@ export const blogKeys = {
   detail: (slug: string) => [...blogKeys.details(), slug] as const,
   admin: () => [...blogKeys.all, 'admin'] as const,
   comments: (blogId: number | undefined) => [...blogKeys.all, 'comments', blogId] as const,
+  adjacent: (id: number | undefined, publishedAt: string | null | undefined) =>
+    [...blogKeys.all, 'adjacent', id, publishedAt ?? null] as const,
+  related: (id: number | undefined, tags: readonly string[] = []) =>
+    [...blogKeys.all, 'related', id, [...tags].sort()] as const,
 };
 
 export const blogQueries = {
@@ -51,5 +58,18 @@ export const blogQueries = {
       queryKey: blogKeys.comments(blogId),
       queryFn: () => getComments(blogId!),
       enabled: blogId !== undefined,
+    }),
+  /** Older/newer neighbours of a post (needs its id and publish date). */
+  adjacent: (id: number | undefined, publishedAt: string | null | undefined) =>
+    queryOptions({
+      queryKey: blogKeys.adjacent(id, publishedAt),
+      queryFn: () => getAdjacentBlogs(id!, publishedAt!),
+      enabled: id !== undefined && !!publishedAt,
+    }),
+  related: (id: number | undefined, tags: readonly string[] = []) =>
+    queryOptions({
+      queryKey: blogKeys.related(id, tags),
+      queryFn: () => getRelatedBlogs(id!, [...tags]),
+      enabled: id !== undefined,
     }),
 };

@@ -149,6 +149,8 @@ const VENDOR_CHUNKS: [name: string, pattern: RegExp][] = [
     /[\\/]node_modules[\\/](react-router|react-router-dom|@remix-run|@tanstack)[\\/]/,
   ],
   ['react', /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/],
+  // `cn()` is used by most components; keep it out of heavy chunks Rollup might hoist it into.
+  ['classnames', /[\\/]node_modules[\\/](tailwind-merge|clsx)[\\/]/],
 ];
 
 export function vendorChunk(id: string): string | undefined {

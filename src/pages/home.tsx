@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Calendar, Code, Smartphone, Cloud, Terminal, Layout, Database } from 'lucide-react';
+import { Code, Smartphone, Cloud, Terminal, Layout, Database } from 'lucide-react';
 import { Markdown } from '@/components/ui/Markdown';
 import { MotionScope, Reveal } from '@/components/motion';
 import { Hero } from '@/features/hero-3d/Hero';
@@ -12,12 +12,11 @@ import { Navbar } from '@/app/layouts/Navbar';
 import { profileQueries } from '@/features/profile/queries';
 import { projectQueries } from '@/features/projects/queries';
 import { blogQueries } from '@/features/blog/queries';
+import { FeaturedCarousel, FeaturedCarouselSkeleton } from '@/features/blog/FeaturedCarousel';
 import { techStackQueries } from '@/features/tech-stack/queries';
 import { serviceQueries } from '@/features/services/queries';
 import { Seo } from '@/components/seo/Seo';
 import { useInView } from '@/lib/hooks';
-import { formatDate } from '@/lib/date';
-import { Img } from '@/components/ui/Img';
 
 const IconMap: { [key: string]: React.ElementType } = {
   code: Code,
@@ -213,89 +212,23 @@ export default function Page() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {isLoadingBlogs && (
-                <>
-                  <span className="sr-only" role="status">
-                    Loading posts...
-                  </span>
-                  {[0, 1].map((i) => (
-                    <div
-                      key={i}
-                      aria-hidden="true"
-                      className="bg-white border border-slate-200 dark:bg-slate-950/80 dark:border-white/10 rounded-xl overflow-hidden shadow-sm"
-                    >
-                      <div className="aspect-[2/1] bg-slate-100 dark:bg-slate-900 motion-safe:animate-pulse" />
-                      <div className="p-6">
-                        <div className="h-4 w-32 mb-3 rounded bg-slate-100 dark:bg-slate-800" />
-                        <div className="h-7 w-2/3 mb-3 rounded bg-slate-200 dark:bg-slate-800" />
-                        <div className="h-[60px] w-full rounded bg-slate-100 dark:bg-slate-800/60" />
-                      </div>
-                    </div>
-                  ))}
-                </>
-              )}
-              {isErrorBlogs && !featuredBlogs && (
-                <p className="text-red-500 col-span-full text-center py-10">Error loading posts.</p>
-              )}
-              {featuredBlogs?.map((post) => (
-                <div
-                  key={post.id}
-                  className="relative bg-white border border-slate-200 dark:bg-slate-950/80 dark:border-white/10 rounded-xl overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-all group shadow-sm"
-                >
-                  <div className="aspect-[2/1] overflow-hidden bg-slate-100 dark:bg-slate-900">
-                    {post.images && post.images.length > 0 ? (
-                      <Img
-                        src={post.images[0]!}
-                        alt={post.title ? `Cover image for “${post.title}”` : ''}
-                        width={1600}
-                        height={800}
-                        sizes="(min-width: 768px) 50vw, 100vw"
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center text-slate-400">
-                        No Image
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-6">
-                    <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">
-                      <Calendar className="h-3 w-3" />
-                      {formatDate(post.published_at)}
-                      {post.tags && post.tags.length > 0 && (
-                        <>
-                          <span>•</span>
-                          <span className="text-indigo-600 dark:text-indigo-400">
-                            {post.tags[0]}
-                          </span>
-                        </>
-                      )}
-                    </div>
-                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                      {post.slug ? (
-                        <Link
-                          to={`/blog/${post.slug}`}
-                          className="after:absolute after:inset-0 after:content-['']"
-                        >
-                          {post.title}
-                        </Link>
-                      ) : (
-                        post.title
-                      )}
-                    </h3>
-                    <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3">
-                      {post.excerpt}
-                    </p>
-                  </div>
-                </div>
-              ))}
-              {featuredBlogs?.length === 0 && !isLoadingBlogs && (
-                <p className="text-slate-500 col-span-full text-center py-10">
-                  No featured blog posts.
-                </p>
-              )}
-            </div>
+            {isLoadingBlogs && (
+              <>
+                <span className="sr-only" role="status">
+                  Loading posts...
+                </span>
+                <FeaturedCarouselSkeleton />
+              </>
+            )}
+            {isErrorBlogs && !featuredBlogs && (
+              <p className="text-red-500 text-center py-10">Error loading posts.</p>
+            )}
+            {featuredBlogs && featuredBlogs.length > 0 && (
+              <FeaturedCarousel posts={featuredBlogs} />
+            )}
+            {featuredBlogs?.length === 0 && !isLoadingBlogs && (
+              <p className="text-slate-500 text-center py-10">No featured blog posts.</p>
+            )}
           </div>
         </section>
 
