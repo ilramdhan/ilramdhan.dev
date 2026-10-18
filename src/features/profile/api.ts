@@ -1,5 +1,5 @@
 import type { Tables, TablesUpdate } from '@/types';
-import { supabase } from '@/lib/supabase/client';
+import { getSupabase } from '@/lib/supabase/lazy';
 import { columns } from '@/lib/supabase/columns';
 import { currentUserId, unwrap } from '@/lib/supabase/result';
 
@@ -43,10 +43,12 @@ export type Profile = Pick<
 >;
 
 export async function getProfile(): Promise<Profile> {
+  const supabase = await getSupabase();
   return unwrap(await supabase.from('profile').select(PROFILE_COLUMNS).single());
 }
 
 export async function updateProfile(updates: TablesUpdate<'profile'>): Promise<Profile> {
+  const supabase = await getSupabase();
   const userId = await currentUserId();
   return unwrap(
     await supabase

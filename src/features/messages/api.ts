@@ -1,5 +1,5 @@
 import type { Tables, TablesInsert } from '@/types';
-import { supabase } from '@/lib/supabase/client';
+import { getSupabase } from '@/lib/supabase/lazy';
 import { columns } from '@/lib/supabase/columns';
 import { assertOk, unwrap } from '@/lib/supabase/result';
 
@@ -18,6 +18,7 @@ export type MessageInsert = TablesInsert<'messages'>;
 
 /** Admin inbox, newest first (RLS: admins only). */
 export async function getMessages(): Promise<Message[]> {
+  const supabase = await getSupabase();
   return unwrap(
     await supabase
       .from('messages')
@@ -28,15 +29,18 @@ export async function getMessages(): Promise<Message[]> {
 
 /** Public contact form. No `select()`: anon may insert but not read messages. */
 export async function addMessage(message: MessageInsert): Promise<{ success: true }> {
+  const supabase = await getSupabase();
   assertOk(await supabase.from('messages').insert(message));
   return { success: true };
 }
 
 export async function deleteMessage(id: number): Promise<void> {
+  const supabase = await getSupabase();
   assertOk(await supabase.from('messages').delete().eq('id', id));
 }
 
 export async function markMessageAsRead(id: number): Promise<Message> {
+  const supabase = await getSupabase();
   return unwrap(
     await supabase
       .from('messages')
@@ -48,6 +52,7 @@ export async function markMessageAsRead(id: number): Promise<Message> {
 }
 
 export async function markAllMessagesAsRead(): Promise<Message[]> {
+  const supabase = await getSupabase();
   return unwrap(
     await supabase
       .from('messages')

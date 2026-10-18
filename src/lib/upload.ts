@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabase/client';
+import { getSupabase } from '@/lib/supabase/lazy';
 import { compressImage, DEFAULT_MAX_IMAGE_EDGE, MAX_IMAGE_EDGE } from '@/lib/image-compress';
 
 /**
@@ -119,6 +119,7 @@ export async function uploadFile(
   folder: UploadFolder,
   allowed: readonly AllowedMimeType[] = ALL_MIME_TYPES,
 ): Promise<UploadResult> {
+  const supabase = await getSupabase();
   const original = validateUpload(file, allowed);
   const { body, mime, size } = await prepareUpload(file, folder, original);
   const bucket = supabase.storage.from(UPLOAD_BUCKET);
