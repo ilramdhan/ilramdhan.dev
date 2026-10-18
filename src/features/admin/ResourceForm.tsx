@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import type { ZodType, ZodTypeDef } from 'zod';
 import { Loader2, Save, Trash } from 'lucide-react';
 import { Field } from '@/components/ui/Field';
@@ -41,6 +41,11 @@ export function ResourceForm<V extends FormValues>({
   extra,
 }: ResourceFormProps<V>) {
   const form = useZodForm(schema, defaultValues);
+  // In-content image uploads (MarkdownField) still running: saving or cancelling now
+  // would drop the URL they are about to insert.
+  const [uploads, setUploads] = useState(0);
+  const onUploading = (active: boolean) => setUploads((n) => Math.max(0, n + (active ? 1 : -1)));
+  const busy = isPending || uploads > 0;
 
   return (
     <form noValidate onSubmit={form.handleSubmit(onSubmit)} className={className}>
@@ -52,7 +57,7 @@ export function ResourceForm<V extends FormValues>({
           <div className={GRID[section.columns ?? 1]}>
             {section.fields.map((field) => (
               <div key={field.name} className={field.wide ? 'md:col-span-full' : undefined}>
-                <FormField field={field} form={form} />
+                <FormField field={field} form={form} onUploading={onUploading} />
               </div>
             ))}
           </div>
@@ -61,11 +66,11 @@ export function ResourceForm<V extends FormValues>({
       {extra?.(form)}
       <div className="flex justify-end gap-2">
         {onCancel && (
-          <button type="button" onClick={onCancel} className="btn-secondary">
+          <button type="button" onClick={onCancel} disabled={busy} className="btn-secondary">
             Cancel
           </button>
         )}
-        <button type="submit" disabled={isPending} className="btn-primary">
+        <button type="submit" disabled={busy} className="btn-primary">
           {isPending ? (
             <Loader2 className="h-4 w-4 motion-safe:animate-spin" />
           ) : (
@@ -85,9 +90,11 @@ export function ResourceForm<V extends FormValues>({
 function FormField<V extends FormValues>({
   field,
   form,
+  onUploading,
 }: {
   field: FieldConfig<V>;
   form: ZodForm<V>;
+  onUploading: (active: boolean) => void;
 }) {
   const name = field.name as string;
   const value = form.get(name);
@@ -132,6 +139,7 @@ function FormField<V extends FormValues>({
             placeholder={placeholder}
             rows={field.rows ?? 3}
             onValue={set}
+            onUploading={onUploading}
           />
         );
       return (

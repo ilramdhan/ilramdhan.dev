@@ -308,6 +308,35 @@ describe('ResourceForm', () => {
     expect(uploadFile).toHaveBeenCalledWith(file, 'blogs', expect.any(Array));
   });
 
+  it('blocks saving and cancelling while an in-content image is uploading', async () => {
+    let finish!: (v: { path: string; publicUrl: string }) => void;
+    uploadFile.mockReturnValue(new Promise((resolve) => (finish = resolve)));
+    render(
+      <ResourceForm
+        sections={[
+          { fields: [{ name: 'body', label: 'Body', kind: 'markdown', folder: 'blogs' }] },
+        ]}
+        schema={z.object({ body: f.markdownText() })}
+        defaultValues={{ body: '' }}
+        onSubmit={vi.fn()}
+        onCancel={vi.fn()}
+        isPending={false}
+        submitLabel="Save"
+      />,
+    );
+    await userEvent.upload(
+      screen.getByLabelText('Insert image'),
+      new File(['x'], 'a.png', { type: 'image/png' }),
+    );
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
+    finish({ path: 'blogs/a.webp', publicUrl: 'https://cdn/blogs/a.webp' });
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled());
+    expect(screen.getByLabelText<HTMLTextAreaElement>('Body').value).toContain(
+      'https://cdn/blogs/a.webp',
+    );
+  });
+
   it('shows zod errors inline and does not submit invalid values', async () => {
     const onSubmit = vi.fn();
     const { resource } = makeResource();

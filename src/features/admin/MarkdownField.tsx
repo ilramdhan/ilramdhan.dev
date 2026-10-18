@@ -16,6 +16,8 @@ interface Props {
   placeholder: string;
   rows: number;
   onValue: (next: string) => void;
+  /** Called with true when an upload starts and false when it ends (the form blocks saving). */
+  onUploading?: (active: boolean) => void;
 }
 
 /** Markdown textarea with an "Insert image" button that uploads and inserts `![alt](url)`. */
@@ -28,6 +30,7 @@ export function MarkdownField({
   placeholder,
   rows,
   onValue,
+  onUploading,
 }: Props) {
   const areaRef = useRef<HTMLTextAreaElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -44,6 +47,7 @@ export function MarkdownField({
     const pos = area?.selectionStart ?? current.length;
     const end = area?.selectionEnd ?? pos;
     setUploading(true);
+    onUploading?.(true);
     const lines: string[] = [];
     for (const file of files) {
       try {
@@ -55,6 +59,7 @@ export function MarkdownField({
       }
     }
     setUploading(false);
+    onUploading?.(false);
     if (lines.length === 0) return;
     const before = current.slice(0, pos);
     const after = current.slice(end);
