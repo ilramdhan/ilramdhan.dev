@@ -15,7 +15,7 @@ import {
   X,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { motion, AnimatePresence } from 'framer-motion';
+import { m, AnimatePresence } from 'framer-motion';
 import { Seo } from '@/components/seo/Seo';
 import { MotionScope } from '@/components/motion';
 import { useAuth } from '@/app/auth';
@@ -131,14 +131,14 @@ export default function AdminPage() {
         <AnimatePresence>
           {isMobileMenuOpen && (
             <>
-              <motion.div
+              <m.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="md:hidden fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
               />
-              <motion.aside
+              <m.aside
                 initial={{ x: '-100%' }}
                 animate={{ x: 0 }}
                 exit={{ x: '-100%' }}
@@ -188,7 +188,7 @@ export default function AdminPage() {
                     </button>
                   </div>
                 </div>
-              </motion.aside>
+              </m.aside>
             </>
           )}
         </AnimatePresence>

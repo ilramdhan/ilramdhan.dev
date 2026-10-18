@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { useIsPrerendered, useReducedMotion } from '@/lib/hooks';
 import { distance, duration, ease, staggerDelay, viewport } from './tokens';
 
@@ -31,7 +31,7 @@ export function Reveal({ children, className, index = 0, from = 'bottom', onClic
   }
   const offset = from === 'left' ? { x: -distance } : { y: distance };
   return (
-    <motion.div
+    <m.div
       className={className}
       onClick={onClick}
       initial={{ opacity: 0, ...offset }}
@@ -40,6 +40,6 @@ export function Reveal({ children, className, index = 0, from = 'bottom', onClic
       transition={{ duration: duration.base, ease, delay: staggerDelay(index) }}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }

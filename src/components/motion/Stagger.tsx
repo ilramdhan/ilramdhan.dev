@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { motion, type Variants } from 'framer-motion';
+import { m, type Variants } from 'framer-motion';
 import { useIsPrerendered, useReducedMotion } from '@/lib/hooks';
 import { distance, duration, ease, stagger, viewport } from './tokens';
 
@@ -18,7 +18,7 @@ export function Stagger({ children, className }: { children: ReactNode; classNam
   const prerendered = useIsPrerendered();
   if (reduced || prerendered) return <div className={className}>{children}</div>;
   return (
-    <motion.div
+    <m.div
       className={className}
       variants={container}
       initial="hidden"
@@ -26,7 +26,7 @@ export function Stagger({ children, className }: { children: ReactNode; classNam
       viewport={viewport}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -35,8 +35,8 @@ export function StaggerItem({ children, className }: { children: ReactNode; clas
   const prerendered = useIsPrerendered();
   if (reduced || prerendered) return <div className={className}>{children}</div>;
   return (
-    <motion.div className={className} variants={item}>
+    <m.div className={className} variants={item}>
       {children}
-    </motion.div>
+    </m.div>
   );
 }
