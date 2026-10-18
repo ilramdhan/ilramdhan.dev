@@ -1,6 +1,6 @@
 import { createContext, startTransition, useContext, useState, useEffect, ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase/client';
+import { getSupabase } from '@/lib/supabase/lazy';
 
 interface AuthContextType {
   user: User | null;
@@ -8,6 +8,29 @@ interface AuthContextType {
   isLoading: boolean;
   login: () => Promise<void>;
   logout: () => Promise<void>;
+}
+
+/**
+ * Whether this browser may hold a Supabase session: a stored `sb-<project>-auth-token`
+ * (supabase-js's default storage key) or an OAuth redirect carrying tokens/an error.
+ */
+function hasSessionHint(): boolean {
+  try {
+    if (
+      /[#&?](access_token|refresh_token|error_description|code)=/.test(
+        location.hash + location.search,
+      )
+    ) {
+      return true;
+    }
+    for (let i = 0; i < localStorage.length; i++) {
+      if (/^sb-.+-auth-token$/.test(localStorage.key(i) ?? '')) return true;
+    }
+    return false;
+  } catch {
+    // Storage blocked: let supabase-js decide.
+    return true;
+  }
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,7 +41,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const getInitialSession = async () => {
+    // Visitors without a stored session (almost everyone) never need the Supabase client
+    // for auth, so it isn't downloaded for them (T-58): signed out, done.
+    if (!hasSessionHint()) {
+      startTransition(() => setIsLoading(false));
+      return;
+    }
+
+    let unsubscribe: (() => void) | undefined;
+    let cancelled = false;
+    void getSupabase().then(async (supabase) => {
+      if (cancelled) return;
+      const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+        startTransition(() => {
+          setSession(session);
+          setUser(session?.user ?? null);
+          setIsLoading(false);
+        });
+      });
+      unsubscribe = () => authListener.subscription.unsubscribe();
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -28,30 +69,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(session?.user ?? null);
         setIsLoading(false);
       });
-    };
-
-    void getInitialSession();
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      startTransition(() => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setIsLoading(false);
-      });
     });
 
     return () => {
-      authListener.subscription.unsubscribe();
+      cancelled = true;
+      unsubscribe?.();
     };
   }, []);
 
   const login = async () => {
+    const supabase = await getSupabase();
     await supabase.auth.signInWithOAuth({
       provider: 'github',
     });
   };
 
   const logout = async () => {
+    const supabase = await getSupabase();
     await supabase.auth.signOut();
   };
 

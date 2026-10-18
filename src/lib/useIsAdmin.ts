@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/app/auth';
 import { isMissingFunctionError } from '@/lib/errors';
-import { supabase } from '@/lib/supabase/client';
+import { getSupabase } from '@/lib/supabase/lazy';
 
 // Re-exported: the RPC fallback below and its tests use the shared helper.
 export { isMissingFunctionError };
@@ -15,6 +15,7 @@ export { isMissingFunctionError };
  * error is thrown so callers can show a retry instead of guessing.
  */
 export async function fetchIsAdmin(): Promise<boolean> {
+  const supabase = await getSupabase();
   const { data, error, status } = await supabase.rpc('is_admin');
   if (error) {
     if (isMissingFunctionError(error, status)) {

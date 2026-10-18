@@ -1,5 +1,5 @@
 import type { Tables, TablesInsert, TablesUpdate } from '@/types';
-import { supabase } from '@/lib/supabase/client';
+import { getSupabase } from '@/lib/supabase/lazy';
 import { columns } from '@/lib/supabase/columns';
 import { distinctSorted, fetchDistinct } from '@/lib/supabase/distinct';
 import { assertOk, pageRange, unwrap, withoutId, unwrapPage } from '@/lib/supabase/result';
@@ -39,6 +39,7 @@ export interface CertificateListParams {
 }
 
 export async function getCertificates(): Promise<Certificate[]> {
+  const supabase = await getSupabase();
   return unwrap(
     await supabase
       .from('certificates')
@@ -53,6 +54,7 @@ export async function getCertificatesPaginated({
   query: search,
   issuer,
 }: CertificateListParams) {
+  const supabase = await getSupabase();
   let query = supabase
     .from('certificates')
     .select(CERTIFICATE_COLUMNS, { count: 'exact' })
@@ -65,12 +67,14 @@ export async function getCertificatesPaginated({
 
 export function getCertificateIssuers(): Promise<string[]> {
   return fetchDistinct('certificate_issuers', async () => {
+    const supabase = await getSupabase();
     const rows = unwrap(await supabase.from('certificates').select('issued_by'));
     return distinctSorted(rows.map((c) => c.issued_by));
   });
 }
 
 export async function addCertificate(cert: CertificateInsert): Promise<Certificate> {
+  const supabase = await getSupabase();
   return unwrap(
     await supabase.from('certificates').insert(cert).select(CERTIFICATE_COLUMNS).single(),
   );
@@ -79,6 +83,7 @@ export async function addCertificate(cert: CertificateInsert): Promise<Certifica
 export async function updateCertificate(
   updates: TablesUpdate<'certificates'> & { id: number },
 ): Promise<Certificate> {
+  const supabase = await getSupabase();
   return unwrap(
     await supabase
       .from('certificates')
@@ -90,5 +95,6 @@ export async function updateCertificate(
 }
 
 export async function deleteCertificate(id: number): Promise<void> {
+  const supabase = await getSupabase();
   assertOk(await supabase.from('certificates').delete().eq('id', id));
 }

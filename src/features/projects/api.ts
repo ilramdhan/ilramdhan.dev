@@ -1,5 +1,5 @@
 import type { Tables, TablesInsert, TablesUpdate } from '@/types';
-import { supabase } from '@/lib/supabase/client';
+import { getSupabase } from '@/lib/supabase/lazy';
 import { columns } from '@/lib/supabase/columns';
 import { distinctSorted, fetchDistinct } from '@/lib/supabase/distinct';
 import { assertOk, pageRange, unwrap, withoutId, unwrapPage } from '@/lib/supabase/result';
@@ -68,6 +68,7 @@ export interface ProjectListParams {
 }
 
 export async function getProjects({ page, limit, tag }: ProjectListParams) {
+  const supabase = await getSupabase();
   let query = supabase
     .from('projects')
     .select(PROJECT_CARD_COLUMNS, { count: 'exact' })
@@ -77,6 +78,7 @@ export async function getProjects({ page, limit, tag }: ProjectListParams) {
 }
 
 export async function getFeaturedProjects(): Promise<ProjectCard[]> {
+  const supabase = await getSupabase();
   return unwrap(
     await supabase
       .from('projects')
@@ -88,6 +90,7 @@ export async function getFeaturedProjects(): Promise<ProjectCard[]> {
 }
 
 export async function getProjectBySlug(slug: string): Promise<ProjectDetail> {
+  const supabase = await getSupabase();
   return unwrap(
     await supabase.from('projects').select(PROJECT_DETAIL_COLUMNS).eq('slug', slug).single(),
   );
@@ -95,6 +98,7 @@ export async function getProjectBySlug(slug: string): Promise<ProjectDetail> {
 
 export function getProjectTags(): Promise<string[]> {
   return fetchDistinct('project_tags', async () => {
+    const supabase = await getSupabase();
     const rows = unwrap(await supabase.from('projects').select('tags'));
     return distinctSorted(rows.flatMap((p) => p.tags ?? []));
   });
@@ -102,6 +106,7 @@ export function getProjectTags(): Promise<string[]> {
 
 /** Admin: up to 100 projects, newest first. */
 export async function getAdminProjects(): Promise<Project[]> {
+  const supabase = await getSupabase();
   return unwrap(
     await supabase
       .from('projects')
@@ -112,6 +117,7 @@ export async function getAdminProjects(): Promise<Project[]> {
 }
 
 export async function addProject(project: ProjectInsert): Promise<Project> {
+  const supabase = await getSupabase();
   return unwrap(
     await supabase.from('projects').insert(project).select(PROJECT_ADMIN_COLUMNS).single(),
   );
@@ -120,6 +126,7 @@ export async function addProject(project: ProjectInsert): Promise<Project> {
 export async function updateProject(
   updates: TablesUpdate<'projects'> & { id: number },
 ): Promise<Project> {
+  const supabase = await getSupabase();
   return unwrap(
     await supabase
       .from('projects')
@@ -131,5 +138,6 @@ export async function updateProject(
 }
 
 export async function deleteProject(id: number): Promise<void> {
+  const supabase = await getSupabase();
   assertOk(await supabase.from('projects').delete().eq('id', id));
 }

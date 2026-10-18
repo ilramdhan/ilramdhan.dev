@@ -1,5 +1,5 @@
 import type { Tables, TablesInsert, TablesUpdate } from '@/types';
-import { supabase } from '@/lib/supabase/client';
+import { getSupabase } from '@/lib/supabase/lazy';
 import { columns } from '@/lib/supabase/columns';
 import { assertOk, unwrap, withoutId } from '@/lib/supabase/result';
 
@@ -25,6 +25,7 @@ export type ResumeItem = Pick<
 export type ResumeInsert = TablesInsert<'resume'>;
 
 export async function getResume(type: ResumeType): Promise<ResumeItem[]> {
+  const supabase = await getSupabase();
   return unwrap(
     await supabase
       .from('resume')
@@ -35,12 +36,14 @@ export async function getResume(type: ResumeType): Promise<ResumeItem[]> {
 }
 
 export async function addResumeItem(item: ResumeInsert): Promise<ResumeItem> {
+  const supabase = await getSupabase();
   return unwrap(await supabase.from('resume').insert(item).select(RESUME_COLUMNS).single());
 }
 
 export async function updateResumeItem(
   updates: TablesUpdate<'resume'> & { id: number },
 ): Promise<ResumeItem> {
+  const supabase = await getSupabase();
   return unwrap(
     await supabase
       .from('resume')
@@ -52,5 +55,6 @@ export async function updateResumeItem(
 }
 
 export async function deleteResumeItem(id: number): Promise<void> {
+  const supabase = await getSupabase();
   assertOk(await supabase.from('resume').delete().eq('id', id));
 }

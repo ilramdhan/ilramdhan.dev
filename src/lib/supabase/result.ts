@@ -1,5 +1,5 @@
 import { AuthError, toAppError } from '@/lib/errors';
-import { supabase } from './client';
+import { getSupabase } from './lazy';
 
 /** The parts of a supabase-js / PostgREST response the data layer reads. */
 interface Result<T> {
@@ -36,6 +36,7 @@ export function pageRange(page: number, limit: number): [from: number, to: numbe
  * locally stored session (no request unless it must be refreshed).
  */
 export async function currentUserId(): Promise<string> {
+  const supabase = await getSupabase();
   const {
     data: { session },
     error,

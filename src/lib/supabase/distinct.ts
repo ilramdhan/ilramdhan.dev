@@ -1,5 +1,5 @@
 import { isMissingFunctionError, toAppError } from '@/lib/errors';
-import { supabase } from './client';
+import { getSupabase } from './lazy';
 
 type DistinctFunction = 'project_tags' | 'blog_tags' | 'certificate_issuers';
 
@@ -20,6 +20,7 @@ export async function fetchDistinct(
   fn: DistinctFunction,
   fallback: () => Promise<string[]>,
 ): Promise<string[]> {
+  const supabase = await getSupabase();
   const { data, error, status } = await supabase.rpc(fn);
   if (!error) return distinctSorted(data ?? []);
   if (isMissingFunctionError(error, status)) return fallback();

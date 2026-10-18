@@ -50,8 +50,36 @@ jobs:
           # Prerender (T-35) against the e2e fixture dataset instead of the network.
           PRERENDER_MOCK: '1'
 
+      # Baseline for the PR diff: build the base branch in a second checkout. Best effort:
+      # if it fails, or the base lacks the --json flag, the comparison is skipped.
+      - name: Checkout base for bundle comparison
+        if: github.event_name == 'pull_request'
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.base_ref }}
+          path: base
+
+      - name: Build base bundle baseline
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
+        working-directory: base
+        run: |
+          npm ci
+          npm run build
+          node scripts/check-bundle-size.mjs --json "$RUNNER_TEMP/base-size.json" || true
+          test -s "$RUNNER_TEMP/base-size.json" || echo "Base has no --json support: skipping bundle comparison."
+        env:
+          VITE_SUPABASE_URL: https://mock.supabase.co
+          VITE_SUPABASE_ANON_KEY: ci-dummy-anon-key
+          PRERENDER_MOCK: '1'
+
       - name: Bundle-size budget
-        run: npm run size
+        run: |
+          if [ -s "$RUNNER_TEMP/base-size.json" ]; then
+            npm run size -- --compare "$RUNNER_TEMP/base-size.json"
+          else
+            npm run size
+          fi
 
   db-policies:
     name: DB policy tests (RLS + storage)

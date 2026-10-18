@@ -1,5 +1,5 @@
 import type { Tables, TablesInsert, TablesUpdate } from '@/types';
-import { supabase } from '@/lib/supabase/client';
+import { getSupabase } from '@/lib/supabase/lazy';
 import { columns } from '@/lib/supabase/columns';
 import { distinctSorted, fetchDistinct } from '@/lib/supabase/distinct';
 import { assertOk, pageRange, unwrap, withoutId, unwrapPage } from '@/lib/supabase/result';
@@ -65,6 +65,7 @@ export interface BlogListParams {
 }
 
 export async function getBlogs({ page, limit, query: search, tag, sort }: BlogListParams) {
+  const supabase = await getSupabase();
   let query = supabase
     .from('blogs')
     .select(BLOG_CARD_COLUMNS, { count: 'exact' })
@@ -79,6 +80,7 @@ export async function getBlogs({ page, limit, query: search, tag, sort }: BlogLi
 export const FEATURED_LIMIT = 9;
 
 export async function getFeaturedBlogs(): Promise<BlogCard[]> {
+  const supabase = await getSupabase();
   return unwrap(
     await supabase
       .from('blogs')
@@ -90,6 +92,7 @@ export async function getFeaturedBlogs(): Promise<BlogCard[]> {
 }
 
 export async function getBlogBySlug(slug: string): Promise<BlogDetail> {
+  const supabase = await getSupabase();
   return unwrap(await supabase.from('blogs').select(BLOG_DETAIL_COLUMNS).eq('slug', slug).single());
 }
 
@@ -106,6 +109,7 @@ export interface AdjacentBlogs {
  * none is skipped when `published_at` ties.
  */
 export async function getAdjacentBlogs(id: number, publishedAt: string): Promise<AdjacentBlogs> {
+  const supabase = await getSupabase();
   const cards = () => supabase.from('blogs').select(BLOG_CARD_COLUMNS);
   const [olderPeer, older, newerPeer, newer] = await Promise.all([
     cards().eq('published_at', publishedAt).lt('id', id).order('id', { ascending: false }).limit(1),
@@ -134,6 +138,7 @@ export const RELATED_LIMIT = 3;
  * latest posts when fewer share one.
  */
 export async function getRelatedBlogs(id: number, tags: string[]): Promise<BlogCard[]> {
+  const supabase = await getSupabase();
   const latest = () =>
     supabase
       .from('blogs')
@@ -151,6 +156,7 @@ export async function getRelatedBlogs(id: number, tags: string[]): Promise<BlogC
 
 export function getBlogTags(): Promise<string[]> {
   return fetchDistinct('blog_tags', async () => {
+    const supabase = await getSupabase();
     const rows = unwrap(await supabase.from('blogs').select('tags'));
     return distinctSorted(rows.flatMap((b) => b.tags ?? []));
   });
@@ -158,6 +164,7 @@ export function getBlogTags(): Promise<string[]> {
 
 /** Admin: up to 100 posts (drafts included for admins by RLS), newest first. */
 export async function getAdminBlogs(): Promise<Blog[]> {
+  const supabase = await getSupabase();
   return unwrap(
     await supabase
       .from('blogs')
@@ -168,10 +175,12 @@ export async function getAdminBlogs(): Promise<Blog[]> {
 }
 
 export async function addBlog(blog: BlogInsert): Promise<Blog> {
+  const supabase = await getSupabase();
   return unwrap(await supabase.from('blogs').insert(blog).select(BLOG_ADMIN_COLUMNS).single());
 }
 
 export async function updateBlog(updates: TablesUpdate<'blogs'> & { id: number }): Promise<Blog> {
+  const supabase = await getSupabase();
   return unwrap(
     await supabase
       .from('blogs')
@@ -183,12 +192,14 @@ export async function updateBlog(updates: TablesUpdate<'blogs'> & { id: number }
 }
 
 export async function deleteBlog(id: number): Promise<void> {
+  const supabase = await getSupabase();
   assertOk(await supabase.from('blogs').delete().eq('id', id));
 }
 
 // --- Comments ---
 
 export async function getComments(blogId: number): Promise<Comment[]> {
+  const supabase = await getSupabase();
   return unwrap(
     await supabase
       .from('blog_comments')
@@ -207,6 +218,7 @@ export async function addComment({
   name: string;
   text: string;
 }): Promise<{ success: true }> {
+  const supabase = await getSupabase();
   assertOk(await supabase.from('blog_comments').insert({ blog_id: postId, name, content: text }));
   return { success: true };
 }

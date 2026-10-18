@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -116,7 +116,7 @@ export function Hero() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 pointer-events-none">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
           {/* Text Content - Enable Pointer Events */}
-          <motion.div
+          <m.div
             className="flex-1 w-full text-center lg:text-left pointer-events-auto"
             initial={prerendered ? false : { opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -180,7 +180,7 @@ export function Hero() {
               linkClassName="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"
               iconClassName="h-6 w-6"
             />
-          </motion.div>
+          </m.div>
 
           {/* Room for the 3D card on desktop (the canvas renders behind this box).
               Without the interactive card (reduced motion / no WebGL) a static
