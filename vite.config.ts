@@ -139,10 +139,8 @@ const VENDOR_CHUNKS: [name: string, pattern: RegExp][] = [
     'markdown',
     /[\\/]node_modules[\\/](react-markdown|remark-[^/\\]+|rehype-[^/\\]+|unified|micromark[^/\\]*|mdast-[^/\\]+|hast-[^/\\]+|unist-[^/\\]+|vfile[^/\\]*|property-information|space-separated-tokens|comma-separated-tokens|decode-named-character-reference|character-entities[^/\\]*|devlop|bail|trough|is-plain-obj|zwitch|longest-streak|ccount|trim-lines|html-url-attributes|estree-util-[^/\\]+|style-to-[^/\\]+|inline-style-parser)[\\/]/,
   ],
-  [
-    'motion',
-    /[\\/]node_modules[\\/](framer-motion|motion-dom|motion-utils|popmotion|style-value-types|framesync|hey-listen)[\\/]/,
-  ],
+  // framer-motion is deliberately not pinned to a chunk: LazyMotion (components/motion/features)
+  // loads its animation features through a dynamic import, which a manual chunk would defeat.
   ['supabase', /[\\/]node_modules[\\/](@supabase|tslib|ws|iceberg-js)[\\/]/],
   [
     'router-query',
@@ -158,16 +156,32 @@ export function vendorChunk(id: string): string | undefined {
   // every chunk; pin them to the always-loaded `react` chunk, otherwise Rollup may hoist
   // them into a heavy vendor chunk (it picked `three`) and drag that into the entry.
   if (id.includes('vite/preload-helper') || id.includes('commonjsHelpers')) return 'react';
-  if (/[\\/]src[\\/](components[\\/]ui[\\/]Markdown|lib[\\/]markdown-url)\.tsx?$/.test(id)) {
+  // The lazily loaded Markdown renderer (T-58) travels with its libraries: one request.
+  if (
+    /[\\/]src[\\/](components[\\/]ui[\\/]MarkdownRenderer|lib[\\/]markdown-url)\.tsx?$/.test(id)
+  ) {
     return 'markdown';
   }
   if (/[\\/]src[\\/]components[\\/]ui[\\/]MarkdownGfm\.tsx$/.test(id)) return 'markdown-gfm';
+  // Shared by `Img` (always loaded) and the lazy Markdown renderer: without the pin Rollup
+  // puts it in `markdown`, and every page with an image loads the parser up front.
   if (/[\\/]src[\\/]lib[\\/]image-dimensions\.ts$/.test(id)) return 'react';
   if (!id.includes('node_modules')) return undefined;
   return VENDOR_CHUNKS.find(([, pattern]) => pattern.test(id))?.[0];
 }
 
-export default defineConfig(() => {
+export default defineConfig(async () => {
+  // ESM-only package: load it lazily, and only when analysing (`npm run analyze`).
+  const analyze =
+    process.env.ANALYZE === '1'
+      ? [
+          (await import('rollup-plugin-visualizer')).visualizer({
+            filename: 'dist/stats.html',
+            template: 'treemap',
+            gzipSize: true,
+          }),
+        ]
+      : [];
   return {
     server: {
       port: 3000,
@@ -176,15 +190,9 @@ export default defineConfig(() => {
     preview: {
       headers: vercelSiteHeaders(),
     },
-    plugins: [react(), siteConfigHtml(), previewRouting()],
+    plugins: [react(), siteConfigHtml(), previewRouting(), ...analyze],
     define: appVersionDefine(),
     build: {
-      modulePreload: {
-        // The lazy GFM chunk is imported from `markdown`, so `react` is always loaded by
-        // then: skip the redundant preload list (keeps /privacy within its budget).
-        resolveDependencies: (filename: string, deps: string[]) =>
-          /markdown-gfm-/.test(filename) ? [] : deps,
-      },
       rollupOptions: {
         output: { manualChunks: vendorChunk },
       },

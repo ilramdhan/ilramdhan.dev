@@ -21,6 +21,7 @@
     "test:db": "bash scripts/test-db-policies.sh",
     "test:e2e:ui": "playwright test --ui",
     "build:e2e": "vite build --outDir dist-e2e --emptyOutDir && PRERENDER_MOCK=1 node scripts/prerender.mjs dist-e2e",
+    "analyze": "ANALYZE=1 vite build",
     "size": "node scripts/check-bundle-size.mjs"
   },
   "dependencies": {
@@ -69,6 +70,7 @@
     "jsdom": "^26.1.0",
     "postcss": "^8.0.0",
     "prettier": "^3.9.9",
+    "rollup-plugin-visualizer": "7.1.1",
     "tailwindcss": "^3.3.0",
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.71.1",
