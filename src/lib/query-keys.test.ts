@@ -29,7 +29,7 @@ describe('query key factories', () => {
     expect(blogKeys.list({ page: 1, limit: 6, tag: 'react', query: 'x' })).toEqual([
       'blogs',
       'list',
-      { page: 1, limit: 6, tag: 'react', query: 'x' },
+      { page: 1, limit: 6, tag: 'react', query: 'x', sort: 'newest' },
     ]);
     expect(blogKeys.comments(7)).toEqual(['blogs', 'comments', 7]);
     expect(certificateKeys.list({ page: 1, limit: 9 })).toEqual([
@@ -59,6 +59,8 @@ describe('query key factories', () => {
           blogKeys.featured(),
           blogKeys.detail('a'),
           blogKeys.admin(),
+          blogKeys.adjacent('2026-01-01'),
+          blogKeys.related(1, ['go']),
         ],
       ],
       [certificateKeys.all, [certificateKeys.full(), certificateKeys.issuers()]],
