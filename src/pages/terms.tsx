@@ -1,8 +1,8 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import ReactMarkdown from 'react-markdown';
 import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { Markdown } from '@/components/ui/Markdown';
 import { profileQueries } from '@/features/profile/queries';
 import { Navbar } from '@/app/layouts/Navbar';
 import { formatDate } from '@/lib/date';
@@ -33,9 +33,9 @@ export default function TermsPage() {
         <h1 className="text-4xl font-bold mb-8">Terms of Service</h1>
         <div className="prose prose-slate dark:prose-invert max-w-none">
           <p className="text-sm text-slate-500 mb-8">Last updated: {formatDate(new Date())}</p>
-          <ReactMarkdown components={{ h1: 'h2' }}>
+          <Markdown components={{ h1: 'h2' }}>
             {profile?.terms_content || 'No terms content available.'}
-          </ReactMarkdown>
+          </Markdown>
         </div>
       </div>
     </div>

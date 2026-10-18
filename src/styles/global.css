@@ -70,6 +70,14 @@
     max-width: 100%;
     overflow-x: auto;
   }
+  .prose img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+  }
+  .prose li:has(> input[type='checkbox']) {
+    list-style: none;
+  }
 
   /* Forms */
   .input {

@@ -129,6 +129,12 @@ const VENDOR_CHUNKS: [name: string, pattern: RegExp][] = [
     'charts',
     /[\\/]node_modules[\\/](recharts|d3-[^/\\]+|victory-vendor|@reduxjs|redux|react-redux|reselect|immer|decimal\.js-light|es-toolkit|eventemitter3)[\\/]/,
   ],
+  // GFM is lazy-loaded (components/ui/MarkdownGfm) only for content that uses it; listed
+  // before 'markdown' so its packages don't land in the always-needed markdown chunk.
+  [
+    'markdown-gfm',
+    /[\\/]node_modules[\\/](remark-gfm|micromark-extension-gfm[^/\\]*|mdast-util-gfm[^/\\]*|mdast-util-find-and-replace|mdast-util-to-markdown|mdast-util-phrasing|markdown-table|escape-string-regexp|longest-streak|ccount|zwitch|remark-stringify)[\\/]/,
+  ],
   [
     'markdown',
     /[\\/]node_modules[\\/](react-markdown|remark-[^/\\]+|rehype-[^/\\]+|unified|micromark[^/\\]*|mdast-[^/\\]+|hast-[^/\\]+|unist-[^/\\]+|vfile[^/\\]*|property-information|space-separated-tokens|comma-separated-tokens|decode-named-character-reference|character-entities[^/\\]*|devlop|bail|trough|is-plain-obj|zwitch|longest-streak|ccount|trim-lines|html-url-attributes|estree-util-[^/\\]+|style-to-[^/\\]+|inline-style-parser)[\\/]/,
@@ -150,6 +156,11 @@ export function vendorChunk(id: string): string | undefined {
   // every chunk; pin them to the always-loaded `react` chunk, otherwise Rollup may hoist
   // them into a heavy vendor chunk (it picked `three`) and drag that into the entry.
   if (id.includes('vite/preload-helper') || id.includes('commonjsHelpers')) return 'react';
+  if (/[\\/]src[\\/](components[\\/]ui[\\/]Markdown|lib[\\/]markdown-url)\.tsx?$/.test(id)) {
+    return 'markdown';
+  }
+  if (/[\\/]src[\\/]components[\\/]ui[\\/]MarkdownGfm\.tsx$/.test(id)) return 'markdown-gfm';
+  if (/[\\/]src[\\/]lib[\\/]image-dimensions\.ts$/.test(id)) return 'react';
   if (!id.includes('node_modules')) return undefined;
   return VENDOR_CHUNKS.find(([, pattern]) => pattern.test(id))?.[0];
 }
@@ -166,6 +177,12 @@ export default defineConfig(() => {
     plugins: [react(), siteConfigHtml(), previewRouting()],
     define: appVersionDefine(),
     build: {
+      modulePreload: {
+        // The lazy GFM chunk is imported from `markdown`, so `react` is always loaded by
+        // then: skip the redundant preload list (keeps /privacy within its budget).
+        resolveDependencies: (filename: string, deps: string[]) =>
+          /markdown-gfm-/.test(filename) ? [] : deps,
+      },
       rollupOptions: {
         output: { manualChunks: vendorChunk },
       },

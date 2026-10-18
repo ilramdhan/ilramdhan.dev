@@ -87,7 +87,11 @@ export function createDataset(): Record<string, Row[]> {
       title: `Blog Post ${i + 1}`,
       slug: `blog-post-${i + 1}`,
       excerpt: 'Dummy excerpt.',
-      content: '## Heading\nParagraph with `code`.\n\n```js\nconsole.log(1)\n```',
+      content:
+        i === 0
+          ? // GFM (lazy-loaded renderer): prerendered, then hydrated without a mismatch.
+            '## Heading\nParagraph with `code` and ~~old~~ text.\n\n| Tool | Use |\n| --- | --- |\n| Go | APIs |\n\n```js\nconsole.log(1)\n```'
+          : '## Heading\nParagraph with `code`.\n\n```js\nconsole.log(1)\n```',
       images: [img(`b${i + 1}`)],
       tags: [i % 2 ? 'react' : 'go'],
       is_featured: i < 2,

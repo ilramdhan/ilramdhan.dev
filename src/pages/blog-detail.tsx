@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router-dom';
 import { ArrowLeft, Calendar, Tag, MessageSquare, Send } from 'lucide-react';
 import { toast } from 'sonner';
-import ReactMarkdown from 'react-markdown';
+import { Markdown } from '@/components/ui/Markdown';
 import NotFoundPage from '@/pages/not-found';
 import { Navbar } from '@/app/layouts/Navbar';
 import { addComment as addCommentAPI } from '@/features/blog/api';
@@ -168,7 +168,7 @@ export default function BlogDetailPage() {
           <p className="lead text-xl text-slate-600 dark:text-slate-300 mb-8 font-light">
             {blog.excerpt}
           </p>
-          <ReactMarkdown components={{ h1: 'h2' }}>{blog.content || ''}</ReactMarkdown>
+          <Markdown components={{ h1: 'h2' }}>{blog.content || ''}</Markdown>
         </div>
 
         <hr className="border-slate-200 dark:border-white/10 mb-12" />
