@@ -130,3 +130,13 @@
     animation: none !important;
   }
 }
+
+@media (prefers-reduced-transparency: reduce) {
+  .nav-glass {
+    background: #fff !important;
+    backdrop-filter: none !important;
+  }
+  .dark .nav-glass {
+    background: #020617 !important;
+  }
+}

@@ -27,16 +27,44 @@ export function Navbar() {
 
   // Active-link pill: one element that slides between links (transform only).
   const linksRef = useRef<HTMLDivElement>(null);
-  const [pill, setPill] = useState<{ x: number; w: number } | null>(null);
+  const [pill, setPill] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
   useLayoutEffect(() => {
+    const container = linksRef.current;
     const measure = () => {
-      const active = linksRef.current?.querySelector<HTMLElement>('[aria-current="page"]');
-      setPill(active ? { x: active.offsetLeft, w: active.offsetWidth } : null);
+      const active = container?.querySelector<HTMLElement>('[aria-current="page"]');
+      const next = active
+        ? {
+            x: active.offsetLeft,
+            y: active.offsetTop,
+            w: active.offsetWidth,
+            h: active.offsetHeight,
+          }
+        : null;
+      setPill((prev) =>
+        prev &&
+        next &&
+        prev.x === next.x &&
+        prev.y === next.y &&
+        prev.w === next.w &&
+        prev.h === next.h
+          ? prev
+          : next,
+      );
     };
     measure();
     window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, [path, profile]);
+    let ro: ResizeObserver | undefined;
+    if (typeof ResizeObserver !== 'undefined' && container) {
+      ro = new ResizeObserver(measure);
+      ro.observe(container);
+      const active = container.querySelector<HTMLElement>('[aria-current="page"]');
+      if (active) ro.observe(active);
+    }
+    return () => {
+      window.removeEventListener('resize', measure);
+      ro?.disconnect();
+    };
+  }, [path, profile, isAdmin]);
 
   // Real links: `/#contact` is handled by ScrollManager (no timeouts, lands below the navbar).
   const isActive = (linkPath: string) => (linkPath.includes('#') ? false : path === linkPath);
@@ -53,10 +81,10 @@ export function Navbar() {
   return (
     <nav
       data-scrolled={scrolled}
-      className={`fixed top-0 w-full z-50 border-b backdrop-blur-md motion-safe:transition-[background-color,border-color,box-shadow] duration-200 ${
+      className={`nav-glass fixed top-0 w-full z-50 border-b bg-white/95 dark:bg-slate-950/95 supports-[backdrop-filter]:backdrop-blur-xl supports-[backdrop-filter]:backdrop-saturate-150 motion-safe:transition-[background-color,border-color,box-shadow] duration-200 ${
         scrolled
-          ? 'border-slate-300 bg-white/95 shadow-sm dark:border-white/10 dark:bg-slate-950/95 backdrop-blur-xl'
-          : 'border-slate-200 bg-white/80 dark:border-white/5 dark:bg-slate-950/80'
+          ? 'border-slate-300 shadow-sm supports-[backdrop-filter]:bg-white/75 dark:border-white/10 dark:supports-[backdrop-filter]:bg-slate-950/70'
+          : 'border-slate-200 supports-[backdrop-filter]:bg-white/60 dark:border-white/5 dark:supports-[backdrop-filter]:bg-slate-950/50'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -83,13 +111,17 @@ export function Navbar() {
           </Link>
 
           <div className="hidden lg:flex items-center gap-6">
-            <div ref={linksRef} className="relative flex items-baseline space-x-4">
+            <div ref={linksRef} className="relative flex items-center space-x-4">
               {pill && (
                 <span
                   aria-hidden="true"
                   data-testid="nav-pill"
-                  className="absolute left-0 top-0 h-full rounded-md bg-indigo-50 dark:bg-white/10 motion-safe:transition-[transform,width] motion-safe:duration-300 motion-safe:ease-out"
-                  style={{ width: pill.w, transform: `translateX(${pill.x}px)` }}
+                  className="absolute left-0 top-0 rounded-md bg-indigo-50 dark:bg-white/10 motion-safe:transition-[transform,width,height] motion-safe:duration-300 motion-safe:ease-out"
+                  style={{
+                    width: pill.w,
+                    height: pill.h,
+                    transform: `translate(${pill.x}px, ${pill.y}px)`,
+                  }}
                 />
               )}
               {navLinks.map((link) => (
@@ -141,7 +173,7 @@ export function Navbar() {
       </div>
 
       {isOpen && (
-        <div className="motion-safe:animate-menu-in lg:hidden border-b border-slate-200 dark:border-white/5 bg-white dark:bg-slate-950">
+        <div className="motion-safe:animate-menu-in lg:hidden border-t border-slate-200 dark:border-white/5">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
             {navLinks.map((link) => (
               <Link
