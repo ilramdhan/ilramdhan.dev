@@ -8,10 +8,12 @@ import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
 import { certificateQueries } from '@/features/certificates/queries';
 import { useListParams } from '@/lib/useListParams';
 import { Seo } from '@/components/seo/Seo';
+import { MotionScope } from '@/components/motion';
+import motionFeatures from '@/components/motion/features';
 
 const ITEMS_PER_PAGE = 9;
 
-export default function CertificatesPage() {
+function CertificatesContent() {
   const {
     input: searchInput,
     setInput: setSearchInput,
@@ -118,5 +120,19 @@ export default function CertificatesPage() {
         />
       </div>
     </div>
+  );
+}
+
+/**
+ * The cards use `Reveal` (`m.*`), which needs a `LazyMotion` ancestor. This wrapper has no
+ * state, so it never re-renders: LazyMotion hands out a new context value on every render,
+ * and React would push that change into Markdown boundaries that are still hydrating
+ * (React #421). The features load synchronously for the same reason.
+ */
+export default function CertificatesPage() {
+  return (
+    <MotionScope features={motionFeatures}>
+      <CertificatesContent />
+    </MotionScope>
   );
 }

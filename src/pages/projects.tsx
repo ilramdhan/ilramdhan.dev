@@ -7,10 +7,12 @@ import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
 import { projectQueries } from '@/features/projects/queries';
 import { useListParams } from '@/lib/useListParams';
 import { Seo } from '@/components/seo/Seo';
+import { MotionScope } from '@/components/motion';
+import motionFeatures from '@/components/motion/features';
 
 const ITEMS_PER_PAGE = 6;
 
-export default function ProjectsPage() {
+function ProjectsContent() {
   const { filter: selectedTag, page: currentPage, setFilter, setPage } = useListParams('tag');
 
   const { data: allTags, isLoading: isLoadingTags } = useQuery(projectQueries.tags());
@@ -91,5 +93,19 @@ export default function ProjectsPage() {
         />
       </div>
     </div>
+  );
+}
+
+/**
+ * The cards use `Reveal` (`m.*`), which needs a `LazyMotion` ancestor. This wrapper has no
+ * state, so it never re-renders: LazyMotion hands out a new context value on every render,
+ * and React would push that change into Markdown boundaries that are still hydrating
+ * (React #421). The features load synchronously for the same reason.
+ */
+export default function ProjectsPage() {
+  return (
+    <MotionScope features={motionFeatures}>
+      <ProjectsContent />
+    </MotionScope>
   );
 }
