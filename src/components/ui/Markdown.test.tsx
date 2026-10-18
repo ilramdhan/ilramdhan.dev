@@ -3,6 +3,14 @@ import { describe, expect, it } from 'vitest';
 import { Markdown } from './Markdown';
 
 describe('Markdown', () => {
+  it('shows the plain text while the renderer chunk loads, then the rendered Markdown', async () => {
+    const { container } = render(<Markdown>{'**bold** first\n\nsecond'}</Markdown>);
+    // Lazy renderer (T-58): plain-text stand-in first, formatted once the chunk is in.
+    expect(container.querySelector('[aria-busy]')).toHaveTextContent('**bold** first');
+    expect((await screen.findByText('bold')).tagName).toBe('STRONG');
+    expect(container.querySelector('[aria-busy]')).toBeNull();
+  });
+
   it('renders GFM tables, strikethrough and task lists (lazy GFM path)', async () => {
     const { container } = render(
       <Markdown>{'| a | b |\n| - | - |\n| 1 | 2 |\n\n~~old~~\n\n- [x] done\n- [ ] todo'}</Markdown>,
@@ -13,7 +21,7 @@ describe('Markdown', () => {
     expect(screen.getAllByRole('checkbox')).toHaveLength(2);
   });
 
-  it('rewrites GitHub blob images to raw files and lazy-loads them', () => {
+  it('rewrites GitHub blob images to raw files and lazy-loads them', async () => {
     render(
       <Markdown>
         {
@@ -21,7 +29,7 @@ describe('Markdown', () => {
         }
       </Markdown>,
     );
-    const img = screen.getByRole('img', { name: 'demo' });
+    const img = await screen.findByRole('img', { name: 'demo' });
     expect(img).toHaveAttribute(
       'src',
       'https://raw.githubusercontent.com/storytold/photocraft/main/docs/images/photocraft-demo.jpg',
@@ -30,9 +38,9 @@ describe('Markdown', () => {
     expect(img).toHaveAttribute('decoding', 'async');
   });
 
-  it('reserves image size from upload URLs', () => {
+  it('reserves image size from upload URLs', async () => {
     render(<Markdown>{'![x](https://a.supabase.co/p/img_800x600.webp)'}</Markdown>);
-    const img = screen.getByRole('img', { name: 'x' });
+    const img = await screen.findByRole('img', { name: 'x' });
     expect(img).toHaveAttribute('width', '800');
     expect(img).toHaveAttribute('height', '600');
   });
@@ -45,7 +53,7 @@ describe('Markdown', () => {
         }
       </Markdown>,
     );
-    const ext = screen.getByRole('link', { name: 'ext' });
+    const ext = await screen.findByRole('link', { name: 'ext' });
     expect(ext).toHaveAttribute('href', 'https://github.com/a/b/blob/main/c.png');
     expect(ext).toHaveAttribute('target', '_blank');
     expect(ext).toHaveAttribute('rel', 'noopener noreferrer');
@@ -58,23 +66,22 @@ describe('Markdown', () => {
     );
   });
 
-  it('does not render raw HTML or javascript: URLs', () => {
+  it('does not render raw HTML or javascript: URLs', async () => {
     const { container } = render(
       <Markdown>{'<script>alert(1)</script>\n\n[x](javascript:alert(1))'}</Markdown>,
     );
+    expect((await screen.findByText('x')).closest('a')).toHaveAttribute('href', '');
     expect(container.querySelector('script')).toBeNull();
-    expect(screen.getByText('x').closest('a')).toHaveAttribute('href', '');
   });
 
-  it('merges caller overrides with defaults', () => {
+  it('merges caller overrides with defaults', async () => {
     render(<Markdown components={{ h1: 'h2' }}>{'# Title'}</Markdown>);
-    expect(screen.getByRole('heading', { level: 2, name: 'Title' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { level: 2, name: 'Title' })).toBeInTheDocument();
   });
 
-  it('renders plain CommonMark synchronously, without the GFM renderer', () => {
+  it('renders plain CommonMark without the GFM renderer', async () => {
     render(<Markdown>{'**bold** and ~single~ tilde'}</Markdown>);
-    // Synchronous: present on the first render, no Suspense fallback involved.
-    expect(screen.getByText('bold').tagName).toBe('STRONG');
+    expect((await screen.findByText('bold')).tagName).toBe('STRONG');
     expect(screen.getByText(/~single~ tilde/)).toBeInTheDocument();
   });
 
