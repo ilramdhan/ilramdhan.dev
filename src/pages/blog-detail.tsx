@@ -17,7 +17,7 @@ import { PostNavigation, RelatedPosts, TagLinks } from '@/features/blog/ArticleF
 import { ReadingProgress } from '@/features/blog/ReadingProgress';
 import { readingTime } from '@/features/blog/reading';
 import { ShareBar } from '@/features/blog/ShareBar';
-import { TocDisclosure, TocSidebar } from '@/features/blog/TableOfContents';
+import { TOC_ASIDE_CLASS, TocDisclosure, TocSidebar } from '@/features/blog/TableOfContents';
 import { extractHeadings } from '@/features/blog/toc';
 import { formatDate } from '@/lib/date';
 
@@ -26,7 +26,19 @@ const COMMENT_COOLDOWN = 30;
 const TOC_MIN_HEADINGS = 3;
 /** Balanced title lines; inline because the shared CSS bundle is at its budget. */
 const BALANCE = { textWrap: 'balance' } as const;
+/**
+ * One frame for every section (#122): header, cover, tags/share, prev/next, related and
+ * comments span it edge to edge, so they share the same left and right edges.
+ */
 const CONTAINER = 'max-w-5xl mx-auto px-4 sm:px-6 lg:px-8';
+/** Body + TOC (16rem = the aside's w-64): the TOC's right edge is the frame's right edge. */
+const BODY_GRID = 'mt-10 lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-12';
+/**
+ * Article column (prose, gallery), left aligned with the frame. 44rem is ~70ch of the
+ * prose-lg text: with the TOC the grid track (41rem at 1280 px) is narrower, so the column
+ * fills it; without a TOC it keeps the measure instead of stretching to the frame.
+ */
+const BODY_COLUMN = 'min-w-0 max-w-[44rem]';
 
 /** Placeholder with the article's header / cover / body boxes while the post loads. */
 function ArticleSkeleton() {
@@ -37,21 +49,23 @@ function ArticleSkeleton() {
         <span className="sr-only" role="status">
           Loading article...
         </span>
-        <div aria-hidden="true" className="max-w-3xl space-y-4 motion-safe:animate-pulse">
-          <div className="h-4 w-40 rounded bg-slate-200 dark:bg-slate-800" />
-          <div className="h-12 w-4/5 rounded bg-slate-200 dark:bg-slate-800" />
-          <div className="h-6 w-full rounded bg-slate-100 dark:bg-slate-800/60" />
-          <div className="h-4 w-40 rounded bg-slate-100 dark:bg-slate-800/60" />
-        </div>
-        <div
-          aria-hidden="true"
-          className="mt-8 aspect-video rounded-2xl bg-slate-200 dark:bg-slate-800 motion-safe:animate-pulse"
-        />
-        <div aria-hidden="true" className="mt-10 max-w-3xl space-y-3">
-          {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="h-4 w-full rounded bg-slate-100 dark:bg-slate-800/60" />
-          ))}
-          <div className="h-4 w-2/3 rounded bg-slate-100 dark:bg-slate-800/60" />
+        {/* Same boxes and spacing as the loaded header / cover / body (no layout shift). */}
+        <div aria-hidden="true" className="motion-safe:animate-pulse">
+          <div className="mb-6 h-5 w-40 rounded bg-slate-200 dark:bg-slate-800" />
+          <div className="mb-4 h-7 w-20 rounded-full bg-slate-100 dark:bg-slate-800/60" />
+          <div className="mb-4 h-10 w-4/5 rounded bg-slate-200 dark:bg-slate-800 md:h-12" />
+          <div className="mb-6 h-7 max-w-prose text-xl rounded bg-slate-100 dark:bg-slate-800/60" />
+          <div className="h-5 w-40 rounded bg-slate-100 dark:bg-slate-800/60" />
+          <div className="mt-8 aspect-video rounded-2xl bg-slate-200 dark:bg-slate-800" />
+          <div className={BODY_GRID}>
+            <div className={`${BODY_COLUMN} space-y-3`}>
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="h-4 rounded bg-slate-100 dark:bg-slate-800/60" />
+              ))}
+              <div className="h-4 w-2/3 rounded bg-slate-100 dark:bg-slate-800/60" />
+            </div>
+            <div className="hidden h-40 rounded-xl bg-slate-100 dark:bg-slate-800/60 lg:block" />
+          </div>
         </div>
       </main>
     </div>
@@ -178,7 +192,7 @@ export default function BlogDetailPage() {
 
       <main className={`${CONTAINER} pt-24 pb-20`}>
         <article ref={articleRef}>
-          <header className="max-w-3xl">
+          <header>
             <nav
               aria-label="Breadcrumb"
               className="mb-6 text-sm text-slate-600 dark:text-slate-400"
@@ -211,7 +225,10 @@ export default function BlogDetailPage() {
               {blog.title}
             </h1>
             {blog.excerpt && (
-              <p className="mb-6 text-xl text-slate-600 dark:text-slate-300">{blog.excerpt}</p>
+              // Full-width block; the text itself keeps a ~65ch measure.
+              <p className="mb-6 max-w-prose text-xl text-slate-600 dark:text-slate-300">
+                {blog.excerpt}
+              </p>
             )}
             <p className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-600 dark:text-slate-400">
               {blog.published_at && (
@@ -241,8 +258,8 @@ export default function BlogDetailPage() {
             </figure>
           )}
 
-          <div className="mt-10 gap-12 lg:flex">
-            <div className="min-w-0 max-w-3xl flex-1">
+          <div className={showToc ? BODY_GRID : 'mt-10'}>
+            <div className={BODY_COLUMN}>
               {showToc && <TocDisclosure headings={headings} />}
               <div className="prose prose-lg prose-slate dark:prose-invert max-w-none">
                 <Markdown components={components}>{content}</Markdown>
@@ -266,16 +283,18 @@ export default function BlogDetailPage() {
                   ))}
                 </ul>
               )}
-              <div className="mt-10 space-y-6 border-t border-slate-200 py-6 dark:border-white/10">
-                <TagLinks tags={blog.tags ?? []} />
-                <ShareBar title={blog.title} url={absoluteUrl(`/blog/${blog.slug ?? slug}`)} />
-              </div>
             </div>
             {showToc && (
-              <aside className="hidden w-64 shrink-0 lg:flex">
+              <aside className={TOC_ASIDE_CLASS}>
                 <TocSidebar headings={headings} />
               </aside>
             )}
+          </div>
+
+          {/* Full frame width, below the body grid: same right edge as the header. */}
+          <div className="mt-10 space-y-6 border-t border-slate-200 py-6 dark:border-white/10">
+            <TagLinks tags={blog.tags ?? []} />
+            <ShareBar title={blog.title} url={absoluteUrl(`/blog/${blog.slug ?? slug}`)} />
           </div>
         </article>
 
@@ -284,7 +303,7 @@ export default function BlogDetailPage() {
           <RelatedPosts posts={related} />
         </div>
 
-        <section aria-labelledby="comments-heading" className="max-w-3xl">
+        <section aria-labelledby="comments-heading">
           <h2
             id="comments-heading"
             className="mb-6 flex items-center gap-2 text-2xl font-bold text-slate-900 dark:text-white"
@@ -293,105 +312,108 @@ export default function BlogDetailPage() {
             {comments?.length || 0})
           </h2>
 
-          <form
-            onSubmit={handleCommentSubmit}
-            className="relative mb-8 space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900"
-          >
-            {/* Honeypot */}
-            <div
-              className="absolute opacity-0 pointer-events-none"
-              aria-hidden="true"
-              tabIndex={-1}
+          {/* lg: form | list side by side; stacked full width below. */}
+          <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-12">
+            <form
+              onSubmit={handleCommentSubmit}
+              className="relative space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900"
             >
-              <input
-                type="text"
-                value={commentHoneypot}
-                onChange={(e) => setCommentHoneypot(e.target.value)}
+              {/* Honeypot */}
+              <div
+                className="absolute opacity-0 pointer-events-none"
+                aria-hidden="true"
                 tabIndex={-1}
-                autoComplete="off"
-              />
-            </div>
-            <div>
-              <label htmlFor={nameId} className="mb-1 block text-sm font-medium">
-                Name
-              </label>
-              <input
-                id={nameId}
-                type="text"
-                value={commentName}
-                onChange={(e) => setCommentName(e.target.value)}
-                className="input focus:ring-2"
-                placeholder="Your Name"
-                autoComplete="name"
-                maxLength={100}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor={commentId} className="mb-1 block text-sm font-medium">
-                Comment
-              </label>
-              <textarea
-                id={commentId}
-                value={commentText}
-                onChange={(e) => setCommentText(e.target.value)}
-                className="input focus:ring-2"
-                placeholder="Share your thoughts..."
-                rows={4}
-                maxLength={2000}
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={isAddingComment || cooldown > 0}
-              className="btn-primary px-6"
-            >
-              {isAddingComment ? (
-                'Posting...'
-              ) : cooldown > 0 ? (
-                `Wait ${cooldown}s`
-              ) : (
-                <>
-                  <Send className="h-4 w-4" aria-hidden="true" /> Post Comment
-                </>
-              )}
-            </button>
-          </form>
+              >
+                <input
+                  type="text"
+                  value={commentHoneypot}
+                  onChange={(e) => setCommentHoneypot(e.target.value)}
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
+              <div>
+                <label htmlFor={nameId} className="mb-1 block text-sm font-medium">
+                  Name
+                </label>
+                <input
+                  id={nameId}
+                  type="text"
+                  value={commentName}
+                  onChange={(e) => setCommentName(e.target.value)}
+                  className="input focus:ring-2"
+                  placeholder="Your Name"
+                  autoComplete="name"
+                  maxLength={100}
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor={commentId} className="mb-1 block text-sm font-medium">
+                  Comment
+                </label>
+                <textarea
+                  id={commentId}
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  className="input focus:ring-2"
+                  placeholder="Share your thoughts..."
+                  rows={4}
+                  maxLength={2000}
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={isAddingComment || cooldown > 0}
+                className="btn-primary px-6"
+              >
+                {isAddingComment ? (
+                  'Posting...'
+                ) : cooldown > 0 ? (
+                  `Wait ${cooldown}s`
+                ) : (
+                  <>
+                    <Send className="h-4 w-4" aria-hidden="true" /> Post Comment
+                  </>
+                )}
+              </button>
+            </form>
 
-          <div className="space-y-4">
-            {isLoadingComments ? (
-              <p className="text-slate-600 dark:text-slate-400">Loading comments...</p>
-            ) : (
-              <ul className="space-y-4">
-                {comments?.map((comment) => (
-                  <li
-                    key={comment.id}
-                    className="rounded-xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900/50"
-                  >
-                    <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-                      <h3 className="font-semibold text-slate-900 dark:text-white">
-                        {comment.name}
-                      </h3>
-                      <time
-                        dateTime={comment.created_at}
-                        className="text-xs text-slate-600 dark:text-slate-400"
-                      >
-                        {formatDate(comment.created_at)}
-                      </time>
-                    </div>
-                    <p className="whitespace-pre-wrap break-words text-sm text-slate-700 dark:text-slate-300">
-                      {comment.content}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {comments?.length === 0 && (
-              <p className="text-slate-600 dark:text-slate-400">
-                No comments yet. Be the first to share your thoughts!
-              </p>
-            )}
+            <div className="space-y-4">
+              {isLoadingComments ? (
+                <p className="text-slate-600 dark:text-slate-400">Loading comments...</p>
+              ) : (
+                <ul className="space-y-4">
+                  {comments?.map((comment) => (
+                    <li
+                      key={comment.id}
+                      className="rounded-xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900/50"
+                    >
+                      <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
+                        <h3 className="font-semibold text-slate-900 dark:text-white">
+                          {comment.name}
+                        </h3>
+                        <time
+                          dateTime={comment.created_at}
+                          className="text-xs text-slate-600 dark:text-slate-400"
+                        >
+                          {formatDate(comment.created_at)}
+                        </time>
+                      </div>
+                      <p className="whitespace-pre-wrap break-words text-sm text-slate-700 dark:text-slate-300">
+                        {comment.content}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {comments?.length === 0 && (
+                <p className="text-slate-600 dark:text-slate-400">
+                  No comments yet. Be the first to share your thoughts!
+                </p>
+              )}
+            </div>
           </div>
         </section>
       </main>

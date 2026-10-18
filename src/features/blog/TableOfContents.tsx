@@ -60,13 +60,17 @@ function TocList({ headings, active }: { headings: TocHeading[]; active?: string
   );
 }
 
+/** Classes for the `<aside>` wrapping `TocSidebar`: the sticky part lives on the wrapper. */
+export const TOC_ASIDE_CLASS =
+  'hidden lg:block w-64 shrink-0 self-start sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto';
+
 const TITLE = 'On this page';
 
 /** Sticky "On this page" sidebar (lg+), with the heading being read highlighted. */
 export function TocSidebar({ headings }: { headings: TocHeading[] }) {
   const active = useActiveHeading(headings.map((h) => h.id).join('\n'));
   return (
-    <nav aria-label={TITLE} className="sticky md:top-24 w-full">
+    <nav aria-label={TITLE} className="w-full">
       <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
         {TITLE}
       </p>
