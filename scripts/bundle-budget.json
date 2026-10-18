@@ -35,7 +35,7 @@
       "route": "^assets/privacy-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "initial",
-      "maxKiB": 182
+      "maxKiB": 105
     },
     {
       "name": "Initial JS /blog (gzip)",
@@ -43,7 +43,7 @@
       "route": "^assets/blog-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "initial",
-      "maxKiB": 160
+      "maxKiB": 120
     },
     {
       "name": "Initial JS / (gzip)",
@@ -51,7 +51,7 @@
       "route": "^assets/home-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "initial",
-      "maxKiB": 250
+      "maxKiB": 190
     },
     {
       "name": "3D card chunks (gzip)",

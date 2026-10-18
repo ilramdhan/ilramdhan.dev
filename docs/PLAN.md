@@ -154,17 +154,19 @@ Content change:
 
 ### 3.6 Performance budget
 
-| Asset                               | Budget (gzip)                                        |
-| ----------------------------------- | ---------------------------------------------------- |
-| Initial JS for any public route     | ≤ 180 KB                                             |
-| Route chunk                         | ≤ 60 KB                                              |
-| `hero-3d` chunk (lazy)              | ≤ 350 KB + model ≤ 400 KB                            |
-| Admin chunk (lazy)                  | ≤ 250 KB                                             |
-| CSS                                 | ≤ 25 KB                                              |
-| Lighthouse mobile (home, blog post) | Perf ≥ 90, A11y ≥ 95, Best Practices ≥ 95, SEO = 100 |
-| CLS                                 | < 0.1 at every viewport in the matrix                |
+| Asset                               | Budget (gzip)                                                   |
+| ----------------------------------- | --------------------------------------------------------------- |
+| Initial JS for any public route     | ≤ 180 KB (CI: `/privacy` ≤ 105, `/blog` ≤ 120, `/` ≤ 190, T-58) |
+| Route chunk                         | ≤ 60 KB                                                         |
+| `hero-3d` chunk (lazy)              | ≤ 350 KB + model ≤ 400 KB                                       |
+| Admin chunk (lazy)                  | ≤ 250 KB                                                        |
+| CSS                                 | ≤ 25 KB                                                         |
+| Lighthouse mobile (home, blog post) | Perf ≥ 90, A11y ≥ 95, Best Practices ≥ 95, SEO = 100            |
+| CLS                                 | < 0.1 at every viewport in the matrix                           |
 
 Enforced in CI with `size-limit` (or a small script over `dist/assets`) and Lighthouse CI against the Vercel preview.
+
+Since T-58 the Supabase client and the markdown parser are loaded on first use, not on the critical path. CI budgets are the measured size plus ~15–20% headroom; `npm run analyze` shows the treemap and PR builds diff sizes against `main` in the job summary.
 
 ### 3.7 Responsive matrix
 
