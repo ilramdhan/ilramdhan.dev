@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Download, MapPin, Briefcase, GraduationCap, ArrowRight, Award } from 'lucide-react';
 import { Markdown } from '@/components/ui/Markdown';
-import { CountUp, GrowBar, Reveal } from '@/components/motion';
+import { CountUp, GrowBar, MotionScope, Reveal } from '@/components/motion';
 import { CertificateCard } from '@/components/ui/CertificateCard';
 import { SocialLinks } from '@/components/ui/SocialLinks';
 import { Navbar } from '@/app/layouts/Navbar';
@@ -16,11 +16,12 @@ import { useTheme } from '@/app/ThemeContext';
 import { ensureFullUrl } from '@/lib/utils';
 import { Seo } from '@/components/seo/Seo';
 import { Img } from '@/components/ui/Img';
+import motionFeatures from '@/components/motion/features';
 
 // recharts (~100 KB gzip) is only needed for this one chart (T-24).
 const WakatimeStats = lazy(() => import('@/features/wakatime/WakatimeStats'));
 
-export default function AboutPage() {
+function AboutContent() {
   const { theme } = useTheme();
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery(profileQueries.detail());
@@ -277,5 +278,19 @@ export default function AboutPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * The cards use `Reveal` (`m.*`), which needs a `LazyMotion` ancestor. This wrapper has no
+ * state, so it never re-renders: LazyMotion hands out a new context value on every render,
+ * and React would push that change into Markdown boundaries that are still hydrating
+ * (React #421). The features load synchronously for the same reason.
+ */
+export default function AboutPage() {
+  return (
+    <MotionScope features={motionFeatures}>
+      <AboutContent />
+    </MotionScope>
   );
 }
