@@ -1,6 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Img } from '@/components/ui/Img';
+import { useSwipe } from './use-swipe';
 
 interface ImageCarouselProps {
   images: string[];
@@ -20,7 +21,11 @@ export function ImageCarousel({
   sizes,
 }: ImageCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const swipeStart = useRef<{ x: number; y: number } | null>(null);
+  const count = images?.length ?? 0;
+  const go = (delta: number) => setCurrentIndex((curr) => (curr + delta + count) % count);
+  const swipe = useSwipe((direction) => {
+    if (count > 1) go(direction);
+  });
 
   // If no images, show placeholder
   if (!images || images.length === 0) {
@@ -33,8 +38,6 @@ export function ImageCarousel({
     );
   }
 
-  const count = images.length;
-  const go = (delta: number) => setCurrentIndex((curr) => (curr + delta + count) % count);
   const prev = (e: React.MouseEvent) => {
     e.stopPropagation();
     go(-1);
@@ -55,19 +58,6 @@ export function ImageCarousel({
     }
   };
 
-  // Swipe: a mostly-horizontal drag past 40px changes the slide.
-  const onPointerDown = (e: React.PointerEvent) => {
-    swipeStart.current = { x: e.clientX, y: e.clientY };
-  };
-  const onPointerUp = (e: React.PointerEvent) => {
-    const start = swipeStart.current;
-    swipeStart.current = null;
-    if (!start || count < 2) return;
-    const dx = e.clientX - start.x;
-    const dy = e.clientY - start.y;
-    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
-  };
-
   return (
     // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- carousel region is keyboard operable (arrow keys)
     <div
@@ -76,8 +66,7 @@ export function ImageCarousel({
       aria-label={alt}
       tabIndex={count > 1 ? 0 : undefined}
       onKeyDown={onKeyDown}
-      onPointerDown={onPointerDown}
-      onPointerUp={onPointerUp}
+      {...swipe}
       style={{ touchAction: 'pan-y' }}
       className={`w-full ${aspectRatio} relative overflow-hidden group bg-slate-100 dark:bg-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500`}
     >

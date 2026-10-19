@@ -5,6 +5,7 @@ import {
   getProjectBySlug,
   getProjects,
   getProjectTags,
+  getRelatedProjects,
   type ProjectListParams,
 } from './api';
 
@@ -21,6 +22,8 @@ export const projectKeys = {
   details: () => [...projectKeys.all, 'detail'] as const,
   detail: (slug: string) => [...projectKeys.details(), slug] as const,
   admin: () => [...projectKeys.all, 'admin'] as const,
+  related: (id: number | undefined, tags: readonly string[] = []) =>
+    [...projectKeys.all, 'related', id, [...tags].sort()] as const,
 };
 
 export const projectQueries = {
@@ -39,4 +42,10 @@ export const projectQueries = {
       enabled: !!slug,
     }),
   admin: () => queryOptions({ queryKey: projectKeys.admin(), queryFn: getAdminProjects }),
+  related: (id: number | undefined, tags: readonly string[] = []) =>
+    queryOptions({
+      queryKey: projectKeys.related(id, tags),
+      queryFn: () => getRelatedProjects(id!, [...tags]),
+      enabled: id !== undefined,
+    }),
 };

@@ -6,13 +6,24 @@ interface DialogProps {
   title: string;
   children: ReactNode;
   className?: string;
+  /** Backdrop classes (default: dimmed, centred, padded). */
+  overlayClassName?: string;
 }
 
 const FOCUSABLE =
   'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
 /** Modal dialog: Esc closes, Tab is trapped inside, focus is restored on close. */
-export function Dialog({ open, onClose, title, children, className }: DialogProps) {
+const OVERLAY = 'fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4';
+
+export function Dialog({
+  open,
+  onClose,
+  title,
+  children,
+  className,
+  overlayClassName = OVERLAY,
+}: DialogProps) {
   const ref = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
@@ -56,7 +67,7 @@ export function Dialog({ open, onClose, title, children, className }: DialogProp
   return (
     <div
       role="presentation"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className={overlayClassName}
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
