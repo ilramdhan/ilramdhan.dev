@@ -92,7 +92,7 @@ export function createDataset(): Record<string, Row[]> {
         i === 0
           ? // GFM (lazy-loaded renderer): prerendered, then hydrated without a mismatch.
             // Three+ headings (one inside a code fence, ignored) give it a table of contents.
-            '## Heading\nParagraph with `code` and ~~old~~ text.\n\n| Tool | Use |\n| --- | --- |\n| Go | APIs |\n\n```js\n## not a heading\nconsole.log(1)\n```\n\n## Setup\n' +
+            '## Heading\nParagraph with `code` and ~~old~~ text.\n\n| Tool | Use |\n| --- | --- |\n| Go | APIs |\n\n```ts\nconst answer: number = 42;\n```\n\n```js\n## not a heading\nconsole.log(1)\n```\n\n## Setup\n' +
             'Install things.\n\n'.repeat(30) +
             '### Details\nMore details.\n\n## Wrap-up\n' +
             'Closing words.\n\n'.repeat(30)

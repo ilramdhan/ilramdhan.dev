@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { needsGfm, toEmbeddableImageUrl } from './markdown-url';
+import { needsGfm, needsHighlight, toEmbeddableImageUrl } from './markdown-url';
 
 const RAW =
   'https://raw.githubusercontent.com/storytold/photocraft/main/docs/images/photocraft-demo.jpg';
@@ -79,6 +79,24 @@ describe('needsGfm', () => {
       '[ref][1]\n\n[1]: /about',
     ]) {
       expect(needsGfm(text), String(text)).toBe(false);
+    }
+  });
+});
+
+describe('needsHighlight', () => {
+  it('detects fenced blocks with a language tag', () => {
+    for (const text of [
+      '```ts\nconst a = 1;\n```',
+      'x\n\n~~~python\nx\n~~~',
+      '  ``` js\nx\n```',
+      '````go\nx\n````',
+    ]) {
+      expect(needsHighlight(text), text).toBe(true);
+    }
+  });
+  it('ignores untagged fences, inline code and plain text', () => {
+    for (const text of ['```\nplain\n```', 'use `ts` here', 'plain text', '', null, undefined]) {
+      expect(needsHighlight(text), String(text)).toBe(false);
     }
   });
 });

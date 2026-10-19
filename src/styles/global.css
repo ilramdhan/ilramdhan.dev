@@ -64,6 +64,56 @@
   }
   .prose pre {
     overflow-x: auto;
+    @apply rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-slate-800 dark:border-white/10 dark:bg-slate-950 dark:text-slate-200;
+  }
+  .prose pre code {
+    @apply bg-transparent p-0 text-[0.85em];
+  }
+  /* Syntax tokens (highlight.js classes): a small palette instead of a theme file. */
+  .hljs-comment,
+  .hljs-quote {
+    @apply italic text-slate-500;
+  }
+  .hljs-keyword,
+  .hljs-selector-tag,
+  .hljs-literal,
+  .hljs-doctag {
+    @apply text-violet-700 dark:text-violet-400;
+  }
+  .hljs-string,
+  .hljs-regexp,
+  .hljs-addition {
+    @apply text-emerald-700 dark:text-emerald-400;
+  }
+  .hljs-number,
+  .hljs-symbol,
+  .hljs-bullet,
+  .hljs-meta {
+    @apply text-amber-700 dark:text-amber-400;
+  }
+  .hljs-title,
+  .hljs-section,
+  .hljs-built_in,
+  .hljs-name {
+    @apply text-blue-700 dark:text-blue-400;
+  }
+  .hljs-attr,
+  .hljs-attribute,
+  .hljs-variable,
+  .hljs-template-variable,
+  .hljs-type,
+  .hljs-selector-class,
+  .hljs-selector-id {
+    @apply text-cyan-700 dark:text-cyan-400;
+  }
+  .hljs-deletion {
+    @apply text-rose-700 dark:text-rose-400;
+  }
+  .hljs-emphasis {
+    @apply italic;
+  }
+  .hljs-strong {
+    @apply font-bold;
   }
   .prose table {
     display: block;
