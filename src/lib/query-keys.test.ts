@@ -50,6 +50,7 @@ describe('query key factories', () => {
           projectKeys.tags(),
           projectKeys.detail('a'),
           projectKeys.admin(),
+          projectKeys.related(1, ['oss']),
         ],
       ],
       [

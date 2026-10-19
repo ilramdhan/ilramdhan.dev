@@ -22,3 +22,10 @@ const GFM_SYNTAX = /\||~~|\[[ xX]\]|\[\^|(?:^|\s)(?:https?:\/\/|www\.)\w|\w@[\w-
 export function needsGfm(text: string | null | undefined): boolean {
   return !!text && GFM_SYNTAX.test(text);
 }
+
+const FENCED_CODE_WITH_LANGUAGE = /^ {0,3}(?:`{3,}|~{3,})[ \t]*[\w#+.-]/m;
+
+/** Whether `text` has a fenced code block with a language tag (the only blocks highlighted). */
+export function needsHighlight(text: string | null | undefined): boolean {
+  return !!text && FENCED_CODE_WITH_LANGUAGE.test(text);
+}

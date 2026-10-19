@@ -9,7 +9,35 @@ import { projectQueries } from '@/features/projects/queries';
 import { isNotFoundError } from '@/lib/errors';
 import { Seo } from '@/components/seo/Seo';
 import { ImageCarousel } from '@/features/projects/ImageCarousel';
+import { ProjectGallery } from '@/features/projects/ProjectGallery';
+import { ProjectCard } from '@/features/projects/ProjectCard';
 import { formatDate } from '@/lib/date';
+import type { ProjectCard as ProjectCardData } from '@/features/projects/api';
+
+/** Same frame as the blog article (#122): every section shares the left and right edges. */
+const CONTAINER = 'max-w-5xl mx-auto px-4 sm:px-6 lg:px-8';
+
+/** "Related projects": up to three cards sharing a tag, topped up with the latest. */
+function RelatedProjects({ projects }: { projects: ProjectCardData[] | undefined }) {
+  if (!projects?.length) return null;
+  return (
+    <section aria-labelledby="related-projects-heading" className="mt-16">
+      <h2
+        id="related-projects-heading"
+        className="mb-6 text-2xl font-bold text-slate-900 dark:text-white"
+      >
+        Related projects
+      </h2>
+      <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {projects.map((p, i) => (
+          <li key={p.id}>
+            <ProjectCard project={p} index={i} />
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
 
 export default function ProjectDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -21,6 +49,7 @@ export default function ProjectDetailPage() {
     error,
     refetch,
   } = useQuery(projectQueries.detail(slug ?? ''));
+  const { data: related } = useQuery(projectQueries.related(project?.id, project?.tags ?? []));
 
   if (isLoading) {
     return (
@@ -54,6 +83,9 @@ export default function ProjectDetailPage() {
 
   if (!project) return <NotFoundPage />;
 
+  const images = project.images ?? [];
+  const alt = project.title ? `Screenshot of ${project.title}` : 'Project screenshot';
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors">
       <Seo
@@ -62,7 +94,7 @@ export default function ProjectDetailPage() {
         image={project.images?.[0] || undefined}
       />
       <Navbar />
-      <div className="pt-24 pb-20 max-w-5xl mx-auto px-4">
+      <main className={`${CONTAINER} pt-24 pb-20`}>
         <Link
           to="/projects"
           className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white mb-8 transition-colors"
@@ -70,14 +102,17 @@ export default function ProjectDetailPage() {
           <ArrowLeft className="h-4 w-4" /> Back to Projects
         </Link>
 
-        <div className="mb-8 rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-2xl">
-          <ImageCarousel
-            images={project.images || []}
-            alt={project.title ? `Screenshot of ${project.title}` : 'Project screenshot'}
-            aspectRatio="aspect-video"
-            priority
-            sizes="(min-width: 1024px) 64rem, 100vw"
-          />
+        <div className="mb-8 space-y-3">
+          <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-2xl">
+            <ImageCarousel
+              images={images}
+              alt={alt}
+              aspectRatio="aspect-video"
+              priority
+              sizes="(min-width: 1024px) 64rem, 100vw"
+            />
+          </div>
+          <ProjectGallery images={images} alt={alt} />
         </div>
 
         {/* Title + Meta */}
@@ -173,7 +208,9 @@ export default function ProjectDetailPage() {
             </div>
           </div>
         </div>
-      </div>
+
+        <RelatedProjects projects={related} />
+      </main>
     </div>
   );
 }

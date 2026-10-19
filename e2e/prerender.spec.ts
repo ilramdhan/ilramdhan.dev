@@ -45,6 +45,24 @@ test('GFM content (tables, strikethrough) is prerendered and hydrates cleanly', 
   expect(consoleErrors).toEqual([]);
 });
 
+test('fenced code with a language is highlighted in the static HTML and after hydration', async ({
+  page,
+  request,
+  consoleErrors,
+}) => {
+  const html = await (await request.get('/blog/blog-post-1')).text();
+  expect(html).toMatch(
+    /<code class="hljs language-ts">[\s\S]*<span class="hljs-keyword">const<\/span>/,
+  );
+
+  await page.goto('/blog/blog-post-1');
+  await page.waitForLoadState('networkidle');
+  const code = page.locator('pre code.hljs').first();
+  await expect(code.locator('.hljs-keyword').first()).toHaveText('const');
+  await expect(page.locator('pre code.hljs')).toHaveCount(2);
+  expect(consoleErrors).toEqual([]);
+});
+
 test.describe('JavaScript disabled', () => {
   test.use({ javaScriptEnabled: false });
   test('pages show their content from the static HTML', async ({ page }) => {

@@ -135,6 +135,9 @@ const VENDOR_CHUNKS: [name: string, pattern: RegExp][] = [
     'markdown-gfm',
     /[\\/]node_modules[\\/](remark-gfm|micromark-extension-gfm[^/\\]*|mdast-util-gfm[^/\\]*|mdast-util-find-and-replace|mdast-util-to-markdown|mdast-util-phrasing|markdown-table|escape-string-regexp|longest-streak|ccount|zwitch|remark-stringify)[\\/]/,
   ],
+  // Syntax highlighting is lazy-loaded (components/ui/MarkdownHighlight) only for content
+  // with a fenced code block that names a language.
+  ['highlight', /[\\/]node_modules[\\/](lowlight|highlight\.js)[\\/]/],
   [
     'markdown',
     /[\\/]node_modules[\\/](react-markdown|remark-[^/\\]+|rehype-[^/\\]+|unified|micromark[^/\\]*|mdast-[^/\\]+|hast-[^/\\]+|unist-[^/\\]+|vfile[^/\\]*|property-information|space-separated-tokens|comma-separated-tokens|decode-named-character-reference|character-entities[^/\\]*|devlop|bail|trough|is-plain-obj|zwitch|longest-streak|ccount|trim-lines|html-url-attributes|estree-util-[^/\\]+|style-to-[^/\\]+|inline-style-parser)[\\/]/,
@@ -163,6 +166,7 @@ export function vendorChunk(id: string): string | undefined {
     return 'markdown';
   }
   if (/[\\/]src[\\/]components[\\/]ui[\\/]MarkdownGfm\.tsx$/.test(id)) return 'markdown-gfm';
+  if (/[\\/]src[\\/]components[\\/]ui[\\/]MarkdownHighlight\.tsx$/.test(id)) return 'highlight';
   // Shared by `Img` (always loaded) and the lazy Markdown renderer: without the pin Rollup
   // puts it in `markdown`, and every page with an image loads the parser up front.
   if (/[\\/]src[\\/]lib[\\/]image-dimensions\.ts$/.test(id)) return 'react';

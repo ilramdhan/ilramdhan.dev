@@ -1,9 +1,10 @@
 import { lazy, Suspense } from 'react';
 import ReactMarkdown, { type Components, type Options } from 'react-markdown';
 import { dimensionsFromUrl } from '@/lib/image-dimensions';
-import { needsGfm, toEmbeddableImageUrl } from '@/lib/markdown-url';
+import { needsGfm, needsHighlight, toEmbeddableImageUrl } from '@/lib/markdown-url';
 
 const MarkdownGfm = lazy(() => import('@/components/ui/MarkdownGfm'));
+const MarkdownHighlight = lazy(() => import('@/components/ui/MarkdownHighlight'));
 
 const COMPONENTS: Components = {
   /**
@@ -51,7 +52,7 @@ export interface MarkdownRendererProps {
  * The Markdown renderer behind `Markdown`, in the lazily loaded `markdown` chunk (T-58):
  * no raw HTML, sanitized URLs, GitHub blob image URLs rewritten to raw files. Content
  * using GitHub-flavoured syntax (tables, task lists, strikethrough, footnotes, bare URLs)
- * loads the GFM renderer on demand, with the CommonMark render as its fallback.
+ * loads the GFM renderer on demand, and fenced code with a language loads the highlighter (own chunk), with the CommonMark render as its fallback.
  */
 export default function MarkdownRenderer({ children, components }: MarkdownRendererProps) {
   const options: Options = {
@@ -59,7 +60,15 @@ export default function MarkdownRenderer({ children, components }: MarkdownRende
     components: components ? { ...COMPONENTS, ...components } : COMPONENTS,
   };
   const plain = <ReactMarkdown {...options} />;
-  if (!needsGfm(children)) return plain;
+  const gfm = needsGfm(children);
+  if (needsHighlight(children)) {
+    return (
+      <Suspense fallback={plain}>
+        <MarkdownHighlight {...options} gfm={gfm} />
+      </Suspense>
+    );
+  }
+  if (!gfm) return plain;
   return (
     <Suspense fallback={plain}>
       <MarkdownGfm {...options} />

@@ -96,6 +96,33 @@ export async function getProjectBySlug(slug: string): Promise<ProjectDetail> {
   );
 }
 
+/** How many related projects the detail page shows. */
+export const RELATED_PROJECTS_LIMIT = 3;
+
+/**
+ * Up to three other projects sharing a tag with project `id`, newest first, topped up with
+ * the latest projects when fewer share one (mirrors `getRelatedBlogs`).
+ */
+export async function getRelatedProjects(id: number, tags: string[]): Promise<ProjectCard[]> {
+  const supabase = await getSupabase();
+  const latest = () =>
+    supabase
+      .from('projects')
+      .select(PROJECT_CARD_COLUMNS)
+      .neq('id', id)
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: false });
+  const related = tags.length
+    ? unwrap(await latest().overlaps('tags', tags).limit(RELATED_PROJECTS_LIMIT))
+    : [];
+  if (related.length >= RELATED_PROJECTS_LIMIT) return related;
+  const seen = new Set(related.map((p) => p.id));
+  const rest = unwrap(await latest().limit(RELATED_PROJECTS_LIMIT * 2)).filter(
+    (p) => !seen.has(p.id),
+  );
+  return [...related, ...rest].slice(0, RELATED_PROJECTS_LIMIT);
+}
+
 export function getProjectTags(): Promise<string[]> {
   return fetchDistinct('project_tags', async () => {
     const supabase = await getSupabase();
