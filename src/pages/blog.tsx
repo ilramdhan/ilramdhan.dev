@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Search, X } from 'lucide-react';
+import { ChevronDown, Search, X } from 'lucide-react';
 import { Pagination } from '@/components/ui/Pagination';
 import { Navbar } from '@/app/layouts/Navbar';
 import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
@@ -127,7 +127,7 @@ export default function BlogPage() {
                 </button>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="relative flex items-center gap-2">
               <label htmlFor="blog-sort" className="sr-only">
                 Sort articles
               </label>
@@ -135,11 +135,15 @@ export default function BlogPage() {
                 id="blog-sort"
                 value={sort}
                 onChange={(e) => setSort(e.target.value === 'oldest' ? 'oldest' : 'newest')}
-                className="w-full sm:w-auto bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 rounded-full py-3 px-5 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm"
+                className="w-full sm:w-auto bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 appearance-none rounded-full py-3 pl-5 pr-11 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm"
               >
                 <option value="newest">Newest first</option>
                 <option value="oldest">Oldest first</option>
               </select>
+              <ChevronDown
+                aria-hidden="true"
+                className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 dark:text-slate-400"
+              />
             </div>
           </div>
 

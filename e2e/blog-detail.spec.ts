@@ -1,4 +1,6 @@
+import type { Locator } from '@playwright/test';
 import { expect, test } from './fixtures/test';
+import { horizontalOverflow, overflowingElements } from './helpers/layout';
 
 // #113: article page header, cover, reading time, TOC, share, prev/next, related.
 
@@ -132,4 +134,70 @@ test('loading state is a skeleton, not a spinner', async ({ page }) => {
   await expect(page.getByRole('status').filter({ hasText: 'Loading article...' })).toBeAttached();
   await expect(page.locator('.motion-safe\\:animate-spin')).toHaveCount(0);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Blog Post 3');
+});
+
+test.describe('layout frame (#122)', () => {
+  test('sections share the left and right edges at 1280 px', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'desktop layout');
+    await page.goto(POST);
+    await page.waitForLoadState('networkidle');
+    const box = async (name: string, locator: Locator) => {
+      const b = await locator.boundingBox();
+      expect(b, name).not.toBeNull();
+      return { name, left: b!.x, right: b!.x + b!.width };
+    };
+    const header = await box('header', page.locator('main > article > header'));
+    const cover = await box(
+      'cover',
+      page.locator('figure').filter({ has: page.getByRole('img', { name: /^Cover image/ }) }),
+    );
+    const comments = await box('comments', page.getByRole('region', { name: /^Comments/ }));
+    const related = await box('related', page.getByRole('region', { name: 'Related articles' }));
+    const left = [
+      await box('breadcrumb', page.getByRole('navigation', { name: 'Breadcrumb' })),
+      await box('h1', page.getByRole('heading', { level: 1 })),
+      header,
+      cover,
+      comments,
+      related,
+    ];
+    for (const b of left)
+      expect(Math.abs(b.left - header.left), `${b.name} left`).toBeLessThanOrEqual(1);
+    for (const b of [cover, comments, related]) {
+      expect(Math.abs(b.right - header.right), `${b.name} right`).toBeLessThanOrEqual(1);
+    }
+    // The TOC column ends on the frame's right edge too.
+    const toc = await box('toc', page.getByRole('complementary'));
+    expect(Math.abs(toc.right - header.right), 'toc right').toBeLessThanOrEqual(1);
+  });
+
+  test('the TOC stays pinned below the navbar while reading', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'the sidebar TOC is lg+ only');
+    await page.goto(POST);
+    await page.waitForLoadState('networkidle');
+    const aside = page.getByRole('complementary');
+    await expect(aside.getByRole('navigation', { name: 'On this page' })).toBeVisible();
+    const article = (await page.locator('main > article').boundingBox())!;
+    const viewport = page.viewportSize()!;
+    // Long enough for the sticky aside to actually move.
+    expect(article.height).toBeGreaterThan(viewport.height * 2.5);
+    for (const fraction of [0.5, 0.85]) {
+      await page.evaluate(
+        ([y]) => window.scrollTo(0, y!),
+        [article.y + article.height * fraction - viewport.height / 2],
+      );
+      await expect(async () => {
+        const b = (await aside.boundingBox())!;
+        expect(b.y).toBeGreaterThanOrEqual(0);
+        expect(b.y).toBeLessThanOrEqual(200);
+      }).toPass();
+    }
+  });
+
+  test('no horizontal overflow on mobile', async ({ page }) => {
+    await page.setViewportSize({ width: 375, height: 740 });
+    await page.goto(POST);
+    await page.waitForLoadState('networkidle');
+    expect(await horizontalOverflow(page), (await overflowingElements(page)).join(', ')).toBe(0);
+  });
 });
