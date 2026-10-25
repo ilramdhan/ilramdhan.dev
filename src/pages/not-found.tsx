@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Navbar } from '@/app/layouts/Navbar';
 import { EmptyState } from '@/components/ui/PageState';
 import { Seo } from '@/components/seo/Seo';

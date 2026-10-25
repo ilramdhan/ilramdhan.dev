@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router';
 import { Github, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/app/auth';
@@ -12,7 +12,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (user) {
       toast.success('Already logged in. Redirecting...');
-      navigate('/admin');
+      void navigate('/admin');
     }
   }, [user, navigate]);
 

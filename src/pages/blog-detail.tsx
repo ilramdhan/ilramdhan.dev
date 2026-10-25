@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, useId, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router';
 import { Calendar, Clock, MessageSquare, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { Markdown } from '@/components/ui/Markdown';

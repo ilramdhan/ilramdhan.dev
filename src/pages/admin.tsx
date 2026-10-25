@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router';
 import {
   FolderKanban,
   Mail,
@@ -46,7 +46,7 @@ export default function AdminPage() {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/');
+    void navigate('/');
     toast.info('Logged out successfully');
   };
 

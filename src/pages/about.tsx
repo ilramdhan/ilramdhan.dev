@@ -1,6 +1,6 @@
 import React, { lazy, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Download, MapPin, Briefcase, GraduationCap, ArrowRight, Award } from 'lucide-react';
 import { Markdown } from '@/components/ui/Markdown';
 import { CountUp, GrowBar, MotionScope, Reveal } from '@/components/motion';

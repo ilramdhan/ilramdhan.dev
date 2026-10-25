@@ -1,5 +1,5 @@
 import { lazy, useEffect, useRef, type ComponentType } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router';
 import { AdminRoute } from '@/app/AdminRoute';
 import { RouteErrorBoundary } from '@/app/error/RouteError';
 import PublicLayout from '@/app/layouts/PublicLayout';
@@ -90,7 +90,7 @@ export function GuardedRoutes() {
 
 export function AppRoutes() {
   return (
-    <BrowserRouter future={{ v7_startTransition: true }}>
+    <BrowserRouter>
       <GuardedRoutes />
     </BrowserRouter>
   );

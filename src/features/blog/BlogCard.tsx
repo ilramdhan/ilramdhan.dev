@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Calendar, FileText } from 'lucide-react';
 import { Img } from '@/components/ui/Img';
 import { formatDate } from '@/lib/date';

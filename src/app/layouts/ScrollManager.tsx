@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
-import { NavigationType, useLocation, useNavigationType } from 'react-router-dom';
+import { NavigationType, useLocation, useNavigationType } from 'react-router';
 
 const positions = new Map<string, number>();
 
