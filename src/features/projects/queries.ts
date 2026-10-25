@@ -15,7 +15,13 @@ export const projectKeys = {
   list: (params: ProjectListParams) =>
     [
       ...projectKeys.lists(),
-      { page: params.page, limit: params.limit, tag: params.tag ?? null },
+      {
+        page: params.page,
+        limit: params.limit,
+        tag: params.tag ?? null,
+        query: params.query ?? '',
+        sort: params.sort ?? 'newest',
+      },
     ] as const,
   featured: () => [...projectKeys.all, 'featured'] as const,
   tags: () => [...projectKeys.all, 'tags'] as const,

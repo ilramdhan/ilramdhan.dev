@@ -23,7 +23,12 @@ describe('query key factories', () => {
     expect(projectKeys.list({ page: 2, limit: 6 })).toEqual([
       'projects',
       'list',
-      { page: 2, limit: 6, tag: null },
+      { page: 2, limit: 6, tag: null, query: '', sort: 'newest' },
+    ]);
+    expect(projectKeys.list({ page: 1, limit: 6, query: 'x', sort: 'oldest' })).toEqual([
+      'projects',
+      'list',
+      { page: 1, limit: 6, tag: null, query: 'x', sort: 'oldest' },
     ]);
     expect(projectKeys.detail('my-slug')).toEqual(['projects', 'detail', 'my-slug']);
     expect(blogKeys.list({ page: 1, limit: 6, tag: 'react', query: 'x' })).toEqual([
