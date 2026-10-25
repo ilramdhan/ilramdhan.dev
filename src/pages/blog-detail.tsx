@@ -20,57 +20,16 @@ import { ShareBar } from '@/features/blog/ShareBar';
 import { TOC_ASIDE_CLASS, TocDisclosure, TocSidebar } from '@/features/blog/TableOfContents';
 import { extractHeadings } from '@/features/blog/toc';
 import { formatDate } from '@/lib/date';
+import { ArticleSkeleton } from '@/features/article/ArticleSkeleton';
+import {
+  BALANCE,
+  BODY_COLUMN,
+  BODY_GRID,
+  CONTAINER,
+  TOC_MIN_HEADINGS,
+} from '@/features/article/layout';
 
 const COMMENT_COOLDOWN = 30;
-/** The TOC is shown from this many headings on. */
-const TOC_MIN_HEADINGS = 3;
-/** Balanced title lines; inline because the shared CSS bundle is at its budget. */
-const BALANCE = { textWrap: 'balance' } as const;
-/**
- * One frame for every section (#122): header, cover, tags/share, prev/next, related and
- * comments span it edge to edge, so they share the same left and right edges.
- */
-const CONTAINER = 'max-w-5xl mx-auto px-4 sm:px-6 lg:px-8';
-/** Body + TOC (16rem = the aside's w-64): the TOC's right edge is the frame's right edge. */
-const BODY_GRID = 'mt-10 lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-12';
-/**
- * Article column (prose, gallery), left aligned with the frame. 44rem is ~70ch of the
- * prose-lg text: with the TOC the grid track (41rem at 1280 px) is narrower, so the column
- * fills it; without a TOC it keeps the measure instead of stretching to the frame.
- */
-const BODY_COLUMN = 'min-w-0 max-w-[44rem]';
-
-/** Placeholder with the article's header / cover / body boxes while the post loads. */
-function ArticleSkeleton() {
-  return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
-      <Navbar />
-      <main className={`${CONTAINER} pt-24 pb-20`} aria-busy="true">
-        <span className="sr-only" role="status">
-          Loading article...
-        </span>
-        {/* Same boxes and spacing as the loaded header / cover / body (no layout shift). */}
-        <div aria-hidden="true" className="motion-safe:animate-pulse">
-          <div className="mb-6 h-5 w-40 rounded bg-slate-200 dark:bg-slate-800" />
-          <div className="mb-4 h-7 w-20 rounded-full bg-slate-100 dark:bg-slate-800/60" />
-          <div className="mb-4 h-10 w-4/5 rounded bg-slate-200 dark:bg-slate-800 md:h-12" />
-          <div className="mb-6 h-7 max-w-prose text-xl rounded bg-slate-100 dark:bg-slate-800/60" />
-          <div className="h-5 w-40 rounded bg-slate-100 dark:bg-slate-800/60" />
-          <div className="mt-8 aspect-video rounded-2xl bg-slate-200 dark:bg-slate-800" />
-          <div className={BODY_GRID}>
-            <div className={`${BODY_COLUMN} space-y-3`}>
-              {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="h-4 rounded bg-slate-100 dark:bg-slate-800/60" />
-              ))}
-              <div className="h-4 w-2/3 rounded bg-slate-100 dark:bg-slate-800/60" />
-            </div>
-            <div className="hidden h-40 rounded-xl bg-slate-100 dark:bg-slate-800/60 lg:block" />
-          </div>
-        </div>
-      </main>
-    </div>
-  );
-}
 
 export default function BlogDetailPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -136,7 +95,7 @@ export default function BlogDetailPage() {
     }, 1000);
   }, []);
 
-  if (isLoading) return <ArticleSkeleton />;
+  if (isLoading) return <ArticleSkeleton label="Loading article..." />;
 
   if (isError && !blog && !isNotFoundError(error)) {
     return (
