@@ -1,6 +1,7 @@
 import type { Tables, TablesInsert, TablesUpdate } from '@/types';
 import { getSupabase } from '@/lib/supabase/lazy';
 import { columns } from '@/lib/supabase/columns';
+import { orIlikeFilter } from '@/lib/search';
 import { distinctSorted, fetchDistinct } from '@/lib/supabase/distinct';
 import { assertOk, pageRange, unwrap, withoutId, unwrapPage } from '@/lib/supabase/result';
 
@@ -64,15 +65,22 @@ export type ProjectInsert = TablesInsert<'projects'>;
 export interface ProjectListParams {
   page: number;
   limit: number;
+  query?: string;
   tag?: string | null;
+  sort?: 'newest' | 'oldest';
 }
 
-export async function getProjects({ page, limit, tag }: ProjectListParams) {
+export async function getProjects({ page, limit, query: search, tag, sort }: ProjectListParams) {
   const supabase = await getSupabase();
+  // `id` breaks ties so pages are stable. It stays ascending in both directions, which keeps
+  // the default first page unchanged when rows share a `created_at` (as the e2e fixtures do).
   let query = supabase
     .from('projects')
     .select(PROJECT_CARD_COLUMNS, { count: 'exact' })
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: sort === 'oldest' })
+    .order('id', { ascending: true });
+  const searchFilter = orIlikeFilter(['title', 'short_description'], search);
+  if (searchFilter) query = query.or(searchFilter);
   if (tag) query = query.contains('tags', [tag]);
   return unwrapPage<ProjectCard>(await query.range(...pageRange(page, limit)));
 }
