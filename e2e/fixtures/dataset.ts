@@ -63,7 +63,7 @@ export function createDataset(): Record<string, Row[]> {
       tags: [i % 2 ? 'web' : 'backend', 'oss'],
       demo_url: 'https://example.com',
       repo_url: 'github.com/x/y',
-      is_featured: i < 3,
+      is_featured: i < 4,
     })).concat({
       id: 99,
       user_id: 'u1',
