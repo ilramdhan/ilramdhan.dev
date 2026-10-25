@@ -4,7 +4,7 @@ import { Loader2, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { addMessage } from './api';
 import { messageKeys } from './queries';
-import { validateContactForm, type ContactState } from './contact-validation';
+import type { ContactState } from './contact-validation';
 
 const COOLDOWN_SECONDS = 60;
 
@@ -46,7 +46,7 @@ export function ContactForm() {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
@@ -59,6 +59,8 @@ export function ContactForm() {
       return;
     }
 
+    // Loaded on submit, so zod stays out of the home page's initial JS.
+    const { validateContactForm } = await import('./contact-validation');
     const validation = validateContactForm(formData);
 
     if (!validation.success) {
@@ -81,7 +83,7 @@ export function ContactForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-w-md mx-auto">
+    <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6 max-w-md mx-auto">
       {/* Honeypot — invisible to users, catches bots */}
       <div className="absolute opacity-0 pointer-events-none" aria-hidden="true" tabIndex={-1}>
         <input type="text" name="website" tabIndex={-1} autoComplete="off" />
