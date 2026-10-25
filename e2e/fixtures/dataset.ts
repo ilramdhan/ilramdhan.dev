@@ -20,6 +20,21 @@ const LONG_CONTENT = [
   '| value-aaaaaaaa | value-bbbbbbbb | value-cccccccc | value-dddddddd | value-eeeeeeee | value-ffffffff |',
 ].join('\n');
 
+/** Project 2's body: enough headings for the table of contents (T-62). */
+const PROJECT_TOC_CONTENT = [
+  '## Overview',
+  'What the project does.',
+  '',
+  '## Architecture',
+  'How it is built.',
+  '',
+  '### Data model',
+  'Tables and keys.',
+  '',
+  '## Lessons learned',
+  'What went well.',
+].join('\n');
+
 // Images live in Supabase Storage like in production (allowed by the CSP); the mock serves an SVG.
 const img = (text: string) =>
   `https://mock.supabase.co/storage/v1/object/public/portfolio/${encodeURIComponent(text)}.png`;
@@ -57,7 +72,7 @@ export function createDataset(): Record<string, Row[]> {
       slug: `project-${i + 1}`,
       short_description:
         'A dummy project description that is reasonably long to test clamping behaviour.',
-      content: '## Overview\nDummy content\n\n- a\n- b',
+      content: i === 1 ? PROJECT_TOC_CONTENT : '## Overview\nDummy content\n\n- a\n- b',
       images: [img(`p${i + 1}a`), img(`p${i + 1}b`)],
       tech_stack: ['React', 'Supabase', 'Go'],
       tags: [i % 2 ? 'web' : 'backend', 'oss'],
