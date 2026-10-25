@@ -85,6 +85,9 @@ export async function getProjects({ page, limit, query: search, tag, sort }: Pro
   return unwrapPage<ProjectCard>(await query.range(...pageRange(page, limit)));
 }
 
+/** Featured projects on the home carousel. */
+export const FEATURED_PROJECTS_LIMIT = 9;
+
 export async function getFeaturedProjects(): Promise<ProjectCard[]> {
   const supabase = await getSupabase();
   return unwrap(
@@ -93,7 +96,8 @@ export async function getFeaturedProjects(): Promise<ProjectCard[]> {
       .select(PROJECT_CARD_COLUMNS)
       .eq('is_featured', true)
       .order('created_at', { ascending: false })
-      .limit(3),
+      .order('id', { ascending: true })
+      .limit(FEATURED_PROJECTS_LIMIT),
   );
 }
 
