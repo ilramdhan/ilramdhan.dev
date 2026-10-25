@@ -1,5 +1,7 @@
 # Handover: project section parity with the blog overhaul
 
+> **Done.** All four tasks are implemented: T-60 (#142), T-61 (#143), T-59 (#144) and T-62 (#138, the last PR). Kept for history; nothing below is pending once that PR merges.
+
 > **For a new AI session.** Everything needed to bring the project section (home featured, `/projects` list, the card, `/projects/:slug` detail, Markdown content) to the level the blog reached. The analysis is done; don't redo it. **Read [§0 Status](#0-status-resume-here) first**: it says what is merged, what is in review, and exactly what to do next. Then use [§6](#6-execution-plan) for the remaining task.
 >
 > Tracking issue: **#139 (T-63)**. Written 2026-10-25 against v0.4.0 (`a6dafba`); §0 and the T-62 notes were updated the same day after T-60/T-61 merged and T-59 opened. If `main` has moved, re-check only the `file:line` references you touch.
@@ -8,12 +10,12 @@
 
 ## 0. Status (resume here)
 
-| #   | Task                                          | Issue | PR   | State                                                                                 |
-| --- | --------------------------------------------- | ----- | ---- | ------------------------------------------------------------------------------------- |
-| 1   | T-60 ProjectCard parity + `ensureFullUrl` fix | #135  | #142 | **merged** (`d4a0656`)                                                                |
-| 2   | T-61 `/projects` list parity                  | #136  | #143 | **merged** (`77652ff`)                                                                |
-| 3   | T-59 featured projects carousel               | #137  | #144 | **in review**, branch `feat/T-59-featured-projects-carousel`, worktree `/tmp/wt-T-59` |
-| 4   | T-62 project detail as a reading page         | #138  | none | **next**: not started                                                                 |
+| #   | Task                                          | Issue | PR   | State                                            |
+| --- | --------------------------------------------- | ----- | ---- | ------------------------------------------------ |
+| 1   | T-60 ProjectCard parity + `ensureFullUrl` fix | #135  | #142 | **merged** (`d4a0656`)                           |
+| 2   | T-61 `/projects` list parity                  | #136  | #143 | **merged** (`77652ff`)                           |
+| 3   | T-59 featured projects carousel               | #137  | #144 | **merged** (`c0964a1`)                           |
+| 4   | T-62 project detail as a reading page         | #138  | this | **in review**, branch `feat/T-62-project-detail` |
 
 **Next steps for a new session:**
 
@@ -342,5 +344,5 @@ Facts collected for T-62 (2026-10-25, against `77652ff`):
 - [ ] #135, #136, #137, #138 merged; #139 closed (#135 and #136 merged; #137 in review as #144; #138 not started)
 - [ ] Project pages offer everything in [§3](#3-what-the-blog-has-reuse-dont-copy) that makes sense for projects
 - [ ] All contracts in §5 pass on `main`; budgets pass with headroom
-- [ ] `docs/PLAN.md` §9 issue index lists T-59…T-63
-- [ ] This file is deleted, or marked "Done" at the top, in the last PR
+- [x] `docs/PLAN.md` §9 issue index lists T-59…T-63
+- [x] This file is deleted, or marked "Done" at the top, in the last PR
