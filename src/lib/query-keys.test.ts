@@ -55,6 +55,7 @@ describe('query key factories', () => {
           projectKeys.tags(),
           projectKeys.detail('a'),
           projectKeys.admin(),
+          projectKeys.adjacent(1, '2026-01-15'),
           projectKeys.related(1, ['oss']),
         ],
       ],

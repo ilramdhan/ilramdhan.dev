@@ -108,6 +108,45 @@ export async function getProjectBySlug(slug: string): Promise<ProjectDetail> {
   );
 }
 
+export interface AdjacentProjects {
+  /** The next older project (the one after it in the newest-first list), if any. */
+  older: ProjectCard | null;
+  /** The next newer project (the one before it in the newest-first list), if any. */
+  newer: ProjectCard | null;
+}
+
+/**
+ * The projects right before and right after project `id` (detail page footer), in the
+ * `/projects` list order (`created_at desc, id asc`), so the footer agrees with the list.
+ * In that order a same-timestamp peer with a *higher* id comes later, i.e. it is older;
+ * this is the reverse of `getAdjacentBlogs`, whose posts never share a timestamp.
+ */
+export async function getAdjacentProjects(
+  id: number,
+  createdAt: string,
+): Promise<AdjacentProjects> {
+  const supabase = await getSupabase();
+  const cards = () => supabase.from('projects').select(PROJECT_CARD_COLUMNS);
+  const [olderPeer, older, newerPeer, newer] = await Promise.all([
+    cards().eq('created_at', createdAt).gt('id', id).order('id', { ascending: true }).limit(1),
+    cards()
+      .lt('created_at', createdAt)
+      .order('created_at', { ascending: false })
+      .order('id', { ascending: true })
+      .limit(1),
+    cards().eq('created_at', createdAt).lt('id', id).order('id', { ascending: false }).limit(1),
+    cards()
+      .gt('created_at', createdAt)
+      .order('created_at', { ascending: true })
+      .order('id', { ascending: false })
+      .limit(1),
+  ]);
+  return {
+    older: unwrap(olderPeer)[0] ?? unwrap(older)[0] ?? null,
+    newer: unwrap(newerPeer)[0] ?? unwrap(newer)[0] ?? null,
+  };
+}
+
 /** How many related projects the detail page shows. */
 export const RELATED_PROJECTS_LIMIT = 3;
 

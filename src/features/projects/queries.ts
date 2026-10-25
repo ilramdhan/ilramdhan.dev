@@ -1,5 +1,6 @@
 import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 import {
+  getAdjacentProjects,
   getAdminProjects,
   getFeaturedProjects,
   getProjectBySlug,
@@ -28,6 +29,8 @@ export const projectKeys = {
   details: () => [...projectKeys.all, 'detail'] as const,
   detail: (slug: string) => [...projectKeys.details(), slug] as const,
   admin: () => [...projectKeys.all, 'admin'] as const,
+  adjacent: (id: number | undefined, createdAt: string | null | undefined) =>
+    [...projectKeys.all, 'adjacent', id, createdAt ?? null] as const,
   related: (id: number | undefined, tags: readonly string[] = []) =>
     [...projectKeys.all, 'related', id, [...tags].sort()] as const,
 };
@@ -48,6 +51,13 @@ export const projectQueries = {
       enabled: !!slug,
     }),
   admin: () => queryOptions({ queryKey: projectKeys.admin(), queryFn: getAdminProjects }),
+  /** Older/newer neighbours of a project (needs its id and creation date). */
+  adjacent: (id: number | undefined, createdAt: string | null | undefined) =>
+    queryOptions({
+      queryKey: projectKeys.adjacent(id, createdAt),
+      queryFn: () => getAdjacentProjects(id!, createdAt!),
+      enabled: id !== undefined && !!createdAt,
+    }),
   related: (id: number | undefined, tags: readonly string[] = []) =>
     queryOptions({
       queryKey: projectKeys.related(id, tags),
