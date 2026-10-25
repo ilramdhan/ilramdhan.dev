@@ -12,6 +12,7 @@ import { ImageCarousel } from '@/features/projects/ImageCarousel';
 import { ProjectGallery } from '@/features/projects/ProjectGallery';
 import { ProjectCard } from '@/features/projects/ProjectCard';
 import { formatDate } from '@/lib/date';
+import { ensureFullUrl } from '@/lib/utils';
 import type { ProjectCard as ProjectCardData } from '@/features/projects/api';
 
 /** Same frame as the blog article (#122): every section shares the left and right edges. */
@@ -186,7 +187,7 @@ export default function ProjectDetailPage() {
               <div className="flex flex-col gap-3 pt-2">
                 {project.demo_url && (
                   <a
-                    href={project.demo_url}
+                    href={ensureFullUrl(project.demo_url)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors shadow-lg shadow-indigo-500/20"
@@ -196,7 +197,7 @@ export default function ProjectDetailPage() {
                 )}
                 {project.repo_url && (
                   <a
-                    href={project.repo_url}
+                    href={ensureFullUrl(project.repo_url)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center justify-center gap-2 py-3 bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 dark:border-white/10 rounded-lg font-medium transition-colors"

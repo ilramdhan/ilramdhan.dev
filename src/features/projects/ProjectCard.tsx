@@ -1,86 +1,139 @@
 import React from 'react';
-import { ExternalLink, Github } from 'lucide-react';
+import { ExternalLink, FolderGit2, Github } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Reveal } from '@/components/motion';
 import type { Tables } from '@/types';
-import { ensureFullUrl } from '@/lib/utils';
+import { cn, ensureFullUrl } from '@/lib/utils';
 import { ImageCarousel } from './ImageCarousel';
 
 type Project = Tables<'projects'>;
 
+const MAX_TECH = 3;
+
 interface ProjectCardProps {
   project: Partial<Project>;
   index: number;
+  /** Heading level for the title: h3 inside a titled section (default), h2 on list pages. */
+  headingLevel?: 'h2' | 'h3';
+  /** `sizes` for the screenshots; defaults to a 3-column grid. */
+  sizes?: string;
+  className?: string;
 }
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ project, index }) => {
+const ACTION_CLASS =
+  'flex h-9 w-9 items-center justify-center rounded-full shadow-md transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500';
+
+/**
+ * Project card (home, /projects, related projects): screenshot carousel or placeholder, demo/repo
+ * actions, up to three tech chips (+N), clamped title and description. The title link is stretched
+ * over the card; carousel controls and actions sit above it.
+ */
+export const ProjectCard: React.FC<ProjectCardProps> = ({
+  project,
+  index,
+  headingLevel: Heading = 'h3',
+  sizes = '(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw',
+  className,
+}) => {
+  const tech = project.tech_stack ?? [];
+  const images = project.images ?? [];
+  const demo = ensureFullUrl(project.demo_url);
+  const repo = ensureFullUrl(project.repo_url);
+  const title = project.title ?? 'project';
+
   return (
     <Reveal
       index={index}
-      className="group relative rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-white/10 overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-[transform,box-shadow,border-color] motion-safe:hover:-translate-y-0.5 hover:shadow-lg"
+      className={cn(
+        'group relative flex flex-col rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-white/10 overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-[transform,box-shadow,border-color] motion-safe:hover:-translate-y-0.5 hover:shadow-lg focus-within:ring-2 focus-within:ring-indigo-500',
+        className,
+      )}
     >
-      <div className="aspect-video w-full bg-slate-100 dark:bg-slate-800 relative group/image">
-        <ImageCarousel
-          images={project.images || []}
-          alt={project.title ? `Screenshot of ${project.title}` : 'Project screenshot'}
-          sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-        />
+      <div className="aspect-video w-full shrink-0 bg-slate-100 dark:bg-slate-800 relative">
+        {images.length > 0 ? (
+          <ImageCarousel
+            images={images}
+            alt={project.title ? `Screenshot of ${project.title}` : 'Project screenshot'}
+            sizes={sizes}
+          />
+        ) : (
+          <div
+            aria-hidden="true"
+            className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-500/15 via-slate-100 to-sky-500/15 text-indigo-400 dark:via-slate-900"
+          >
+            <FolderGit2 className="h-10 w-10" />
+          </div>
+        )}
 
-        <div className="absolute inset-0 z-10 bg-slate-950/60 opacity-0 group-hover/image:opacity-100 transition-opacity flex items-center justify-center gap-4 pointer-events-none">
-          {/* Actions overlay - separate from carousel interaction */}
-          <div className="flex gap-4 pointer-events-auto">
-            {project.demo_url && (
+        {(demo || repo) && (
+          // Above the stretched title link; visible on hover, keyboard focus and touch.
+          <div className="absolute right-2 top-2 z-20 flex gap-2 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100">
+            {demo && (
               <a
-                href={ensureFullUrl(project.demo_url) || '#'}
+                href={demo}
                 target="_blank"
                 rel="noreferrer"
-                className="p-2 bg-white text-slate-900 rounded-full hover:bg-indigo-400 transition-colors"
-                title="Live Demo"
+                aria-label={`Live demo of ${title}`}
+                title="Live demo"
+                className={cn(ACTION_CLASS, 'bg-white text-slate-900 hover:bg-indigo-400')}
               >
-                <ExternalLink className="h-5 w-5" />
+                <ExternalLink className="h-4 w-4" aria-hidden="true" />
               </a>
             )}
-            {project.repo_url && (
+            {repo && (
               <a
-                href={ensureFullUrl(project.repo_url) || '#'}
+                href={repo}
                 target="_blank"
                 rel="noreferrer"
-                className="p-2 bg-slate-900 border border-white/20 text-white rounded-full hover:bg-indigo-600 transition-colors"
-                title="GitHub Repo"
+                aria-label={`Source code of ${title}`}
+                title="Source code"
+                className={cn(
+                  ACTION_CLASS,
+                  'bg-slate-900 border border-white/20 text-white hover:bg-indigo-600',
+                )}
               >
-                <Github className="h-5 w-5" />
+                <Github className="h-4 w-4" aria-hidden="true" />
               </a>
             )}
           </div>
-        </div>
+        )}
       </div>
 
-      <div className="p-6">
-        <div className="flex flex-wrap gap-2 mb-4">
-          {project.tech_stack?.slice(0, 3).map((tech) => (
-            <span
-              key={tech}
-              className="px-2 py-1 text-xs font-medium rounded-md bg-indigo-50 text-indigo-600 border border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/20"
-            >
-              {tech}
-            </span>
-          ))}
-        </div>
-        <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+      <div className="flex flex-1 flex-col p-6">
+        {tech.length > 0 && (
+          <ul className="flex flex-wrap gap-2 mb-4" aria-label="Tech stack">
+            {tech.slice(0, MAX_TECH).map((t) => (
+              <li
+                key={t}
+                className="px-2 py-1 text-xs font-medium rounded-md bg-indigo-50 text-indigo-600 border border-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-300 dark:border-indigo-500/20"
+              >
+                {t}
+              </li>
+            ))}
+            {tech.length > MAX_TECH && (
+              <li className="px-2 py-1 text-xs rounded-md bg-slate-100 text-slate-600 border border-slate-200 dark:bg-white/5 dark:text-slate-400 dark:border-white/10">
+                +{tech.length - MAX_TECH}
+              </li>
+            )}
+          </ul>
+        )}
+        <Heading className="text-xl font-bold text-slate-900 dark:text-white mb-2 line-clamp-2 break-words group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
           {project.slug ? (
             <Link
               to={`/projects/${project.slug}`}
-              className="after:absolute after:inset-0 after:content-['']"
+              className="outline-none after:absolute after:inset-0 after:content-['']"
             >
               {project.title}
             </Link>
           ) : (
             project.title
           )}
-        </h3>
-        <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-2">
-          {project.short_description}
-        </p>
+        </Heading>
+        {project.short_description && (
+          <p className="text-slate-600 dark:text-slate-400 text-sm line-clamp-3">
+            {project.short_description}
+          </p>
+        )}
       </div>
     </Reveal>
   );
@@ -91,7 +144,7 @@ export function ProjectCardSkeleton() {
   return (
     <div
       aria-hidden="true"
-      className="rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-white/10 overflow-hidden"
+      className="flex flex-col rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-white/10 overflow-hidden"
     >
       <div className="aspect-video w-full bg-slate-100 dark:bg-slate-800 motion-safe:animate-pulse" />
       <div className="p-6">
