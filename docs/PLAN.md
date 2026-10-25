@@ -594,62 +594,69 @@ Legend: **Deps** = must be merged first · ⚡ = quick win, can be done any time
 
 ## 9. Issue index
 
-| Task     | Issue                                                       | Title                                           | Phase | Audit IDs                 |
-| -------- | ----------------------------------------------------------- | ----------------------------------------------- | ----- | ------------------------- |
-| Tracking | [#15](https://github.com/ilramdhan/ilramdhan.dev/issues/15) | Improvement program                             | —     | all                       |
-| T-01     | [#16](https://github.com/ilramdhan/ilramdhan.dev/issues/16) | ESLint, Prettier, EditorConfig                  | 0     | ARCH-05                   |
-| T-02     | [#17](https://github.com/ilramdhan/ilramdhan.dev/issues/17) | Remove dead code & unused deps; fix vulns       | 0     | ARCH-02, SEC-07           |
-| T-03     | [#18](https://github.com/ilramdhan/ilramdhan.dev/issues/18) | TypeScript strict + generated types             | 0     | ARCH-04                   |
-| T-04     | [#19](https://github.com/ilramdhan/ilramdhan.dev/issues/19) | Supabase migrations, seed, constraints, indexes | 0     | ARCH-08, SEC-08, PERF-08  |
-| T-05     | [#20](https://github.com/ilramdhan/ilramdhan.dev/issues/20) | Vitest + Playwright (mocked Supabase) + axe     | 0     | ARCH-06                   |
-| T-06     | [#21](https://github.com/ilramdhan/ilramdhan.dev/issues/21) | CI, Dependabot, bundle budget                   | 0     | ARCH-06, OPS-03, OPS-05   |
-| T-07     | [#22](https://github.com/ilramdhan/ilramdhan.dev/issues/22) | Env validation & site config                    | 0     | ARCH-09, ARCH-10          |
-| T-08     | [#23](https://github.com/ilramdhan/ilramdhan.dev/issues/23) | Admin allowlist (RLS + UI gate)                 | 1     | SEC-01                    |
-| T-09     | [#24](https://github.com/ilramdhan/ilramdhan.dev/issues/24) | Storage hardening                               | 1     | SEC-02                    |
-| T-10     | [#25](https://github.com/ilramdhan/ilramdhan.dev/issues/25) | Search filter injection                         | 1     | SEC-03                    |
-| T-11     | [#26](https://github.com/ilramdhan/ilramdhan.dev/issues/26) | Server-side anti-spam + comment approval        | 1     | SEC-04                    |
-| T-12     | [#27](https://github.com/ilramdhan/ilramdhan.dev/issues/27) | Security & caching headers                      | 1     | SEC-05, PERF-10           |
-| T-13     | [#28](https://github.com/ilramdhan/ilramdhan.dev/issues/28) | Remove/secure Wakatime proxy                    | 1     | SEC-06                    |
-| T-14     | [#29](https://github.com/ilramdhan/ilramdhan.dev/issues/29) | Restructure into src/ feature folders           | 2     | ARCH-01                   |
-| T-15     | [#30](https://github.com/ilramdhan/ilramdhan.dev/issues/30) | Data layer refactor & query defaults            | 2     | ARCH-07, PERF-06, PERF-07 |
-| T-16     | [#31](https://github.com/ilramdhan/ilramdhan.dev/issues/31) | Shared UI primitives                            | 2     | ARCH-03, UX-05            |
-| T-17     | [#32](https://github.com/ilramdhan/ilramdhan.dev/issues/32) | Generic admin CRUD, upload, slugify             | 2     | ARCH-03, ADM-10           |
-| T-18     | [#33](https://github.com/ilramdhan/ilramdhan.dev/issues/33) | Bug: blog tag filter                            | 3     | UX-01                     |
-| T-19     | [#34](https://github.com/ilramdhan/ilramdhan.dev/issues/34) | 404 page & error boundaries                     | 3     | UX-03, SEO-05             |
-| T-20     | [#35](https://github.com/ilramdhan/ilramdhan.dev/issues/35) | Theme flash & system preference                 | 3     | UX-04                     |
-| T-21     | [#36](https://github.com/ilramdhan/ilramdhan.dev/issues/36) | Small UX fixes                                  | 3     | UX-08, UX-09              |
-| T-22     | [#37](https://github.com/ilramdhan/ilramdhan.dev/issues/37) | Responsive fixes 320–2560 px                    | 3     | UX-02                     |
-| T-23     | [#38](https://github.com/ilramdhan/ilramdhan.dev/issues/38) | URL state & locale dates                        | 3     | UX-06, UX-07              |
-| T-24     | [#39](https://github.com/ilramdhan/ilramdhan.dev/issues/39) | Route code splitting                            | 4     | PERF-01                   |
-| T-25     | [#40](https://github.com/ilramdhan/ilramdhan.dev/issues/40) | 3D card optimize/lazy; remove Vanta             | 4     | PERF-02, PERF-03, ANIM-06 |
-| T-26     | [#41](https://github.com/ilramdhan/ilramdhan.dev/issues/41) | Eliminate CLS                                   | 4     | PERF-04                   |
-| T-27     | [#42](https://github.com/ilramdhan/ilramdhan.dev/issues/42) | Image pipeline                                  | 4     | PERF-05, ADM-04           |
-| T-28     | [#43](https://github.com/ilramdhan/ilramdhan.dev/issues/43) | Lighter background layers & fonts               | 4     | PERF-09, ANIM-03          |
-| T-29     | [#44](https://github.com/ilramdhan/ilramdhan.dev/issues/44) | Motion foundation (reduced motion, Reveal)      | 5     | ANIM-01, A11Y-05          |
-| T-30     | [#45](https://github.com/ilramdhan/ilramdhan.dev/issues/45) | Route transitions & scroll                      | 5     | ANIM-02                   |
-| T-31     | [#46](https://github.com/ilramdhan/ilramdhan.dev/issues/46) | Static H1 + rotating role                       | 5     | ANIM-04, SEO-06           |
-| T-32     | [#47](https://github.com/ilramdhan/ilramdhan.dev/issues/47) | Micro-interactions                              | 5     | ANIM-05                   |
-| T-33     | [#48](https://github.com/ilramdhan/ilramdhan.dev/issues/48) | &lt;Seo&gt; component, canonical, noindex       | 6     | SEO-01, SEO-09            |
-| T-34     | [#49](https://github.com/ilramdhan/ilramdhan.dev/issues/49) | Real links everywhere                           | 6     | SEO-07, A11Y-02           |
-| T-35     | [#50](https://github.com/ilramdhan/ilramdhan.dev/issues/50) | Build-time prerendering + rebuild hook          | 6     | SEO-02, OPS-01            |
-| T-36     | [#51](https://github.com/ilramdhan/ilramdhan.dev/issues/51) | OG images                                       | 6     | SEO-03                    |
-| T-37     | [#52](https://github.com/ilramdhan/ilramdhan.dev/issues/52) | Sitemap & RSS                                   | 6     | SEO-04, SEO-11            |
-| T-38     | [#53](https://github.com/ilramdhan/ilramdhan.dev/issues/53) | Structured data & sameAs                        | 6     | SEO-08, SEO-11            |
-| T-39     | [#54](https://github.com/ilramdhan/ilramdhan.dev/issues/54) | Favicons & manifest                             | 6     | SEO-10                    |
-| T-40     | [#55](https://github.com/ilramdhan/ilramdhan.dev/issues/55) | i18n UI + localized routes                      | 7     | I18N-01                   |
-| T-41     | [#56](https://github.com/ilramdhan/ilramdhan.dev/issues/56) | i18n content + admin tabs                       | 7     | I18N-01                   |
-| T-42     | [#57](https://github.com/ilramdhan/ilramdhan.dev/issues/57) | A11y names, landmarks, forms                    | 8     | A11Y-01, A11Y-03, A11Y-04 |
-| T-43     | [#58](https://github.com/ilramdhan/ilramdhan.dev/issues/58) | Keyboard & touch                                | 8     | A11Y-06, A11Y-07, A11Y-08 |
-| T-44     | [#59](https://github.com/ilramdhan/ilramdhan.dev/issues/59) | Contrast & axe gate                             | 8     | A11Y-09                   |
-| T-45     | [#60](https://github.com/ilramdhan/ilramdhan.dev/issues/60) | Delete confirmation                             | 9     | ADM-01                    |
-| T-46     | [#61](https://github.com/ilramdhan/ilramdhan.dev/issues/61) | Stable slugs                                    | 9     | ADM-02                    |
-| T-47     | [#62](https://github.com/ilramdhan/ilramdhan.dev/issues/62) | Storage orphan cleanup                          | 9     | ADM-03                    |
-| T-48     | [#63](https://github.com/ilramdhan/ilramdhan.dev/issues/63) | Drafts, scheduling, preview                     | 9     | ADM-05, ADM-06            |
-| T-49     | [#64](https://github.com/ilramdhan/ilramdhan.dev/issues/64) | Comment moderation                              | 9     | ADM-07                    |
-| T-50     | [#65](https://github.com/ilramdhan/ilramdhan.dev/issues/65) | Admin ergonomics                                | 9     | ADM-08                    |
-| T-51     | [#66](https://github.com/ilramdhan/ilramdhan.dev/issues/66) | New message notifications                       | 9     | ADM-09                    |
-| T-52     | [#67](https://github.com/ilramdhan/ilramdhan.dev/issues/67) | Reading experience                              | 9     | UX-10, SEO-11             |
-| T-53     | [#68](https://github.com/ilramdhan/ilramdhan.dev/issues/68) | Keep-alive & backups                            | 10    | OPS-01, OPS-02            |
-| T-54     | [#69](https://github.com/ilramdhan/ilramdhan.dev/issues/69) | Analytics & monitoring                          | 10    | ARCH-12                   |
-| T-55     | [#70](https://github.com/ilramdhan/ilramdhan.dev/issues/70) | Privacy dates & retention                       | 10    | SEC-09                    |
-| T-56     | [#71](https://github.com/ilramdhan/ilramdhan.dev/issues/71) | Major upgrades                                  | 10    | ARCH-11                   |
+| Task     | Issue                                                         | Title                                            | Phase | Audit IDs                 |
+| -------- | ------------------------------------------------------------- | ------------------------------------------------ | ----- | ------------------------- |
+| Tracking | [#15](https://github.com/ilramdhan/ilramdhan.dev/issues/15)   | Improvement program                              | —     | all                       |
+| T-01     | [#16](https://github.com/ilramdhan/ilramdhan.dev/issues/16)   | ESLint, Prettier, EditorConfig                   | 0     | ARCH-05                   |
+| T-02     | [#17](https://github.com/ilramdhan/ilramdhan.dev/issues/17)   | Remove dead code & unused deps; fix vulns        | 0     | ARCH-02, SEC-07           |
+| T-03     | [#18](https://github.com/ilramdhan/ilramdhan.dev/issues/18)   | TypeScript strict + generated types              | 0     | ARCH-04                   |
+| T-04     | [#19](https://github.com/ilramdhan/ilramdhan.dev/issues/19)   | Supabase migrations, seed, constraints, indexes  | 0     | ARCH-08, SEC-08, PERF-08  |
+| T-05     | [#20](https://github.com/ilramdhan/ilramdhan.dev/issues/20)   | Vitest + Playwright (mocked Supabase) + axe      | 0     | ARCH-06                   |
+| T-06     | [#21](https://github.com/ilramdhan/ilramdhan.dev/issues/21)   | CI, Dependabot, bundle budget                    | 0     | ARCH-06, OPS-03, OPS-05   |
+| T-07     | [#22](https://github.com/ilramdhan/ilramdhan.dev/issues/22)   | Env validation & site config                     | 0     | ARCH-09, ARCH-10          |
+| T-08     | [#23](https://github.com/ilramdhan/ilramdhan.dev/issues/23)   | Admin allowlist (RLS + UI gate)                  | 1     | SEC-01                    |
+| T-09     | [#24](https://github.com/ilramdhan/ilramdhan.dev/issues/24)   | Storage hardening                                | 1     | SEC-02                    |
+| T-10     | [#25](https://github.com/ilramdhan/ilramdhan.dev/issues/25)   | Search filter injection                          | 1     | SEC-03                    |
+| T-11     | [#26](https://github.com/ilramdhan/ilramdhan.dev/issues/26)   | Server-side anti-spam + comment approval         | 1     | SEC-04                    |
+| T-12     | [#27](https://github.com/ilramdhan/ilramdhan.dev/issues/27)   | Security & caching headers                       | 1     | SEC-05, PERF-10           |
+| T-13     | [#28](https://github.com/ilramdhan/ilramdhan.dev/issues/28)   | Remove/secure Wakatime proxy                     | 1     | SEC-06                    |
+| T-14     | [#29](https://github.com/ilramdhan/ilramdhan.dev/issues/29)   | Restructure into src/ feature folders            | 2     | ARCH-01                   |
+| T-15     | [#30](https://github.com/ilramdhan/ilramdhan.dev/issues/30)   | Data layer refactor & query defaults             | 2     | ARCH-07, PERF-06, PERF-07 |
+| T-16     | [#31](https://github.com/ilramdhan/ilramdhan.dev/issues/31)   | Shared UI primitives                             | 2     | ARCH-03, UX-05            |
+| T-17     | [#32](https://github.com/ilramdhan/ilramdhan.dev/issues/32)   | Generic admin CRUD, upload, slugify              | 2     | ARCH-03, ADM-10           |
+| T-18     | [#33](https://github.com/ilramdhan/ilramdhan.dev/issues/33)   | Bug: blog tag filter                             | 3     | UX-01                     |
+| T-19     | [#34](https://github.com/ilramdhan/ilramdhan.dev/issues/34)   | 404 page & error boundaries                      | 3     | UX-03, SEO-05             |
+| T-20     | [#35](https://github.com/ilramdhan/ilramdhan.dev/issues/35)   | Theme flash & system preference                  | 3     | UX-04                     |
+| T-21     | [#36](https://github.com/ilramdhan/ilramdhan.dev/issues/36)   | Small UX fixes                                   | 3     | UX-08, UX-09              |
+| T-22     | [#37](https://github.com/ilramdhan/ilramdhan.dev/issues/37)   | Responsive fixes 320–2560 px                     | 3     | UX-02                     |
+| T-23     | [#38](https://github.com/ilramdhan/ilramdhan.dev/issues/38)   | URL state & locale dates                         | 3     | UX-06, UX-07              |
+| T-24     | [#39](https://github.com/ilramdhan/ilramdhan.dev/issues/39)   | Route code splitting                             | 4     | PERF-01                   |
+| T-25     | [#40](https://github.com/ilramdhan/ilramdhan.dev/issues/40)   | 3D card optimize/lazy; remove Vanta              | 4     | PERF-02, PERF-03, ANIM-06 |
+| T-26     | [#41](https://github.com/ilramdhan/ilramdhan.dev/issues/41)   | Eliminate CLS                                    | 4     | PERF-04                   |
+| T-27     | [#42](https://github.com/ilramdhan/ilramdhan.dev/issues/42)   | Image pipeline                                   | 4     | PERF-05, ADM-04           |
+| T-28     | [#43](https://github.com/ilramdhan/ilramdhan.dev/issues/43)   | Lighter background layers & fonts                | 4     | PERF-09, ANIM-03          |
+| T-29     | [#44](https://github.com/ilramdhan/ilramdhan.dev/issues/44)   | Motion foundation (reduced motion, Reveal)       | 5     | ANIM-01, A11Y-05          |
+| T-30     | [#45](https://github.com/ilramdhan/ilramdhan.dev/issues/45)   | Route transitions & scroll                       | 5     | ANIM-02                   |
+| T-31     | [#46](https://github.com/ilramdhan/ilramdhan.dev/issues/46)   | Static H1 + rotating role                        | 5     | ANIM-04, SEO-06           |
+| T-32     | [#47](https://github.com/ilramdhan/ilramdhan.dev/issues/47)   | Micro-interactions                               | 5     | ANIM-05                   |
+| T-33     | [#48](https://github.com/ilramdhan/ilramdhan.dev/issues/48)   | &lt;Seo&gt; component, canonical, noindex        | 6     | SEO-01, SEO-09            |
+| T-34     | [#49](https://github.com/ilramdhan/ilramdhan.dev/issues/49)   | Real links everywhere                            | 6     | SEO-07, A11Y-02           |
+| T-35     | [#50](https://github.com/ilramdhan/ilramdhan.dev/issues/50)   | Build-time prerendering + rebuild hook           | 6     | SEO-02, OPS-01            |
+| T-36     | [#51](https://github.com/ilramdhan/ilramdhan.dev/issues/51)   | OG images                                        | 6     | SEO-03                    |
+| T-37     | [#52](https://github.com/ilramdhan/ilramdhan.dev/issues/52)   | Sitemap & RSS                                    | 6     | SEO-04, SEO-11            |
+| T-38     | [#53](https://github.com/ilramdhan/ilramdhan.dev/issues/53)   | Structured data & sameAs                         | 6     | SEO-08, SEO-11            |
+| T-39     | [#54](https://github.com/ilramdhan/ilramdhan.dev/issues/54)   | Favicons & manifest                              | 6     | SEO-10                    |
+| T-40     | [#55](https://github.com/ilramdhan/ilramdhan.dev/issues/55)   | i18n UI + localized routes                       | 7     | I18N-01                   |
+| T-41     | [#56](https://github.com/ilramdhan/ilramdhan.dev/issues/56)   | i18n content + admin tabs                        | 7     | I18N-01                   |
+| T-42     | [#57](https://github.com/ilramdhan/ilramdhan.dev/issues/57)   | A11y names, landmarks, forms                     | 8     | A11Y-01, A11Y-03, A11Y-04 |
+| T-43     | [#58](https://github.com/ilramdhan/ilramdhan.dev/issues/58)   | Keyboard & touch                                 | 8     | A11Y-06, A11Y-07, A11Y-08 |
+| T-44     | [#59](https://github.com/ilramdhan/ilramdhan.dev/issues/59)   | Contrast & axe gate                              | 8     | A11Y-09                   |
+| T-45     | [#60](https://github.com/ilramdhan/ilramdhan.dev/issues/60)   | Delete confirmation                              | 9     | ADM-01                    |
+| T-46     | [#61](https://github.com/ilramdhan/ilramdhan.dev/issues/61)   | Stable slugs                                     | 9     | ADM-02                    |
+| T-47     | [#62](https://github.com/ilramdhan/ilramdhan.dev/issues/62)   | Storage orphan cleanup                           | 9     | ADM-03                    |
+| T-48     | [#63](https://github.com/ilramdhan/ilramdhan.dev/issues/63)   | Drafts, scheduling, preview                      | 9     | ADM-05, ADM-06            |
+| T-49     | [#64](https://github.com/ilramdhan/ilramdhan.dev/issues/64)   | Comment moderation                               | 9     | ADM-07                    |
+| T-50     | [#65](https://github.com/ilramdhan/ilramdhan.dev/issues/65)   | Admin ergonomics                                 | 9     | ADM-08                    |
+| T-51     | [#66](https://github.com/ilramdhan/ilramdhan.dev/issues/66)   | New message notifications                        | 9     | ADM-09                    |
+| T-52     | [#67](https://github.com/ilramdhan/ilramdhan.dev/issues/67)   | Reading experience                               | 9     | UX-10, SEO-11             |
+| T-53     | [#68](https://github.com/ilramdhan/ilramdhan.dev/issues/68)   | Keep-alive & backups                             | 10    | OPS-01, OPS-02            |
+| T-54     | [#69](https://github.com/ilramdhan/ilramdhan.dev/issues/69)   | Analytics & monitoring                           | 10    | ARCH-12                   |
+| T-55     | [#70](https://github.com/ilramdhan/ilramdhan.dev/issues/70)   | Privacy dates & retention                        | 10    | SEC-09                    |
+| T-56     | [#71](https://github.com/ilramdhan/ilramdhan.dev/issues/71)   | Major upgrades                                   | 10    | ARCH-11                   |
+| T-57     | [#80](https://github.com/ilramdhan/ilramdhan.dev/issues/80)   | Release automation & version in footer           | 0     | —                         |
+| T-58     | [#116](https://github.com/ilramdhan/ilramdhan.dev/issues/116) | Bundle reduction (lazy Supabase/markdown/motion) | 4     | PERF-01                   |
+| T-59     | [#137](https://github.com/ilramdhan/ilramdhan.dev/issues/137) | Featured projects carousel                       | 9     | UX-10                     |
+| T-60     | [#135](https://github.com/ilramdhan/ilramdhan.dev/issues/135) | ProjectCard parity                               | 9     | UX-10                     |
+| T-61     | [#136](https://github.com/ilramdhan/ilramdhan.dev/issues/136) | /projects list parity                            | 9     | UX-10                     |
+| T-62     | [#138](https://github.com/ilramdhan/ilramdhan.dev/issues/138) | Project detail reading page                      | 9     | UX-10, SEO-11             |
+| T-63     | [#139](https://github.com/ilramdhan/ilramdhan.dev/issues/139) | Tracking: project section parity                 | 9     | —                         |
