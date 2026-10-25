@@ -9,6 +9,14 @@
     {
       "source": "/admin/(.*)",
       "destination": "/spa.html"
+    },
+    {
+      "source": "/blog/:slug",
+      "destination": "/api/detail-page?kind=blog&slug=:slug"
+    },
+    {
+      "source": "/projects/:slug",
+      "destination": "/api/detail-page?kind=project&slug=:slug"
     }
   ],
   "headers": [

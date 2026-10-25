@@ -133,6 +133,7 @@ Vercel builds with `npm run build` and serves `dist/` (`vercel.json`). Set `VITE
 - Clean URLs: `/blog/my-post` is served from `blog/my-post.html`; `/admin*` gets the empty SPA shell (`spa.html`); any other unknown URL gets `404.html` with status 404.
 - Without the Supabase env vars the build still succeeds as a plain SPA (no prerendering). With them set but the API unreachable, the build fails, so Vercel keeps the previous deployment.
 - `PRERENDER_MOCK=1` prerenders against the e2e fixture dataset (CI and `npm run build:e2e`).
+- New content before the next deploy: `/blog/:slug` and `/projects/:slug` URLs with no prerendered file are rewritten to the `api/detail-page` function (prerendered files are served first). It reads the published row from Supabase and returns the SPA shell with the same title/description/Open Graph tags as the prerendered page, so link previews work; unknown slugs still get `404.html` with status 404. The page body is not prerendered, so still set up the rebuild below.
 
 ### Rebuild on publish (optional, off by default)
 

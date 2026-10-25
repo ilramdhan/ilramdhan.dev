@@ -1,4 +1,5 @@
-import { absoluteUrl, siteConfig } from '@/config/site';
+// Relative on purpose: also bundled into the Vercel function (api/), which ignores tsconfig paths.
+import { absoluteUrl, siteConfig } from '../../config/site';
 
 export interface SeoProps {
   /** Page title; rendered as `<title> | <site name>`. Omit for the site default title. */
