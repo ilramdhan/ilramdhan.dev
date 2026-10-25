@@ -1,6 +1,6 @@
 import React, { useMemo, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router';
 import { Github, ExternalLink, Calendar, Clock } from 'lucide-react';
 import { Markdown } from '@/components/ui/Markdown';
 import NotFoundPage from '@/pages/not-found';

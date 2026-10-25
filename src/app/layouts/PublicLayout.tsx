@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import { Link, Outlet, useLocation } from 'react-router-dom';
+import { Link, Outlet, useLocation } from 'react-router';
 import { Toaster } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { profileQueries } from '@/features/profile/queries';

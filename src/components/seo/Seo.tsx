@@ -1,5 +1,5 @@
 import { useContext, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router';
 import { HeadCollectorContext } from './head-collector';
 import { buildHead, type HeadDescriptor, type SeoProps } from './seo-head';
 

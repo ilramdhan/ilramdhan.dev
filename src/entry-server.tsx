@@ -10,7 +10,7 @@
 import { Writable } from 'node:stream';
 import { StrictMode, type ReactElement } from 'react';
 import { renderToPipeableStream } from 'react-dom/server';
-import { StaticRouter } from 'react-router-dom/server';
+import { StaticRouter } from 'react-router';
 import type { Query, QueryClient } from '@tanstack/react-query';
 import { Providers } from '@/app/providers';
 import { createQueryClient, QUERY_DEFAULTS } from '@/app/query-client';

@@ -145,10 +145,7 @@ const VENDOR_CHUNKS: [name: string, pattern: RegExp][] = [
   // framer-motion is deliberately not pinned to a chunk: LazyMotion (components/motion/features)
   // loads its animation features through a dynamic import, which a manual chunk would defeat.
   ['supabase', /[\\/]node_modules[\\/](@supabase|tslib|ws|iceberg-js)[\\/]/],
-  [
-    'router-query',
-    /[\\/]node_modules[\\/](react-router|react-router-dom|@remix-run|@tanstack)[\\/]/,
-  ],
+  ['router-query', /[\\/]node_modules[\\/](react-router|@tanstack)[\\/]/],
   ['react', /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/],
   // `cn()` is used by most components; keep it out of heavy chunks Rollup might hoist it into.
   ['classnames', /[\\/]node_modules[\\/](tailwind-merge|clsx)[\\/]/],

@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { m } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { useIsPrerendered, useMediaQuery } from '@/lib/hooks';
 import { SocialLinks } from '@/components/ui/SocialLinks';

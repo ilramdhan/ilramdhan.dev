@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link } from 'react-router';
 import { Code, Smartphone, Cloud, Terminal, Layout, Database } from 'lucide-react';
 // Synchronous renderer on home (T-58): its blurbs sit inside motion components whose
 // async feature load (LazyMotion) would race the lazy renderer's hydration (React #421).

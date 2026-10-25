@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate } from 'react-router';
 import { toast } from 'sonner';
 import { useIsAdmin } from '@/lib/useIsAdmin';
 import { useAuth } from './auth';
