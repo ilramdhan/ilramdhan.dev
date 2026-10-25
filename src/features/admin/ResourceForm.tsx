@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import type { ZodType, ZodTypeDef } from 'zod';
+import type { ZodType } from 'zod';
 import { Loader2, Save, Trash } from 'lucide-react';
 import { Field } from '@/components/ui/Field';
 import { acceptAttribute, ALL_MIME_TYPES, IMAGE_MIME_TYPES } from '@/lib/upload';
@@ -16,7 +16,7 @@ const GRID: Record<1 | 2 | 3, string> = {
 export interface ResourceFormProps<V extends FormValues> {
   title?: string;
   sections: FormSection<V>[];
-  schema: ZodType<V, ZodTypeDef, unknown>;
+  schema: ZodType<V, unknown>;
   defaultValues: V;
   onSubmit: (values: V) => unknown;
   onCancel?: () => void;

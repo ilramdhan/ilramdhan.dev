@@ -1,5 +1,5 @@
 import type { QueryKey } from '@tanstack/react-query';
-import type { ZodType, ZodTypeDef } from 'zod';
+import type { ZodType } from 'zod';
 import type { FormValues } from './useZodForm';
 import type { FormSection } from './fields';
 
@@ -30,7 +30,7 @@ export interface ResourceConfig<
     update: (patch: Partial<Payload> & { id: number }) => Promise<unknown>;
     remove: (id: number) => Promise<void>;
   };
-  schema: ZodType<V, ZodTypeDef, unknown>;
+  schema: ZodType<V, unknown>;
   sections: FormSection<V>[];
   /** Form values for a new row. */
   empty: () => V;

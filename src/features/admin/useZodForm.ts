@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
-import type { ZodType, ZodTypeDef } from 'zod';
+import type { ZodType } from 'zod';
 
 /** Object values only; nested objects are addressed with dotted paths ("social_links.github"). */
 export type FormValues = Record<string, unknown>;
@@ -35,7 +35,7 @@ export interface ZodForm<V extends FormValues> {
  * Small on purpose — the admin bundle only needs this much.
  */
 export function useZodForm<V extends FormValues>(
-  schema: ZodType<V, ZodTypeDef, unknown>,
+  schema: ZodType<V, unknown>,
   defaultValues: V,
 ): ZodForm<V> {
   const [values, setValues] = useState<V>(defaultValues);
