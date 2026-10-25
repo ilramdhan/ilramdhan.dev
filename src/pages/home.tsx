@@ -15,10 +15,13 @@ import { profileQueries } from '@/features/profile/queries';
 import { projectQueries } from '@/features/projects/queries';
 import { blogQueries } from '@/features/blog/queries';
 import { FeaturedCarousel, FeaturedCarouselSkeleton } from '@/features/blog/FeaturedCarousel';
+import { Carousel, CarouselSkeleton } from '@/components/ui/Carousel';
 import { techStackQueries } from '@/features/tech-stack/queries';
 import { serviceQueries } from '@/features/services/queries';
 import { Seo } from '@/components/seo/Seo';
 import { useInView } from '@/lib/hooks';
+
+const renderProjectSkeleton = () => <ProjectCardSkeleton />;
 
 const IconMap: { [key: string]: React.ElementType } = {
   code: Code,
@@ -163,31 +166,33 @@ export default function Page() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {isLoadingProjects && (
-                <>
-                  <span className="sr-only" role="status">
-                    Loading projects...
-                  </span>
-                  {[0, 1, 2].map((i) => (
-                    <ProjectCardSkeleton key={i} />
-                  ))}
-                </>
-              )}
-              {isErrorProjects && !featuredProjects && (
-                <p className="text-red-500 col-span-full text-center py-10">
-                  Error loading projects.
-                </p>
-              )}
-              {featuredProjects?.map((project, index) => (
-                <ProjectCard key={project.id} project={project} index={index} />
-              ))}
-              {featuredProjects?.length === 0 && !isLoadingProjects && (
-                <p className="text-slate-500 col-span-full text-center py-10">
-                  No featured projects yet.
-                </p>
-              )}
-            </div>
+            {isLoadingProjects && (
+              <>
+                <span className="sr-only" role="status">
+                  Loading projects...
+                </span>
+                <CarouselSkeleton renderSkeleton={renderProjectSkeleton} />
+              </>
+            )}
+            {isErrorProjects && !featuredProjects && (
+              <p className="text-red-500 text-center py-10">Error loading projects.</p>
+            )}
+            {featuredProjects && featuredProjects.length > 0 && (
+              <Carousel
+                items={featuredProjects}
+                getKey={(project) => project.id}
+                renderItem={(project, { sizes, index }) => (
+                  <ProjectCard project={project} index={index} sizes={sizes} className="h-full" />
+                )}
+                label="Featured projects"
+                prevLabel="Previous projects"
+                nextLabel="Next projects"
+                trackTestId="featured-projects-track"
+              />
+            )}
+            {featuredProjects?.length === 0 && !isLoadingProjects && (
+              <p className="text-slate-500 text-center py-10">No featured projects yet.</p>
+            )}
           </div>
         </section>
 
