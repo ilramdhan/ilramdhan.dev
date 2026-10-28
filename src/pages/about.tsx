@@ -258,8 +258,8 @@ function AboutContent() {
                   <Img
                     width={1200}
                     height={420}
-                    src={`https://github-readme-activity-graph.vercel.app/graph?username=${username}&theme=${theme === 'dark' ? 'high-contrast' : 'merko'}&hide_border=true&area=true`}
-                    alt="GitHub Activity Graph"
+                    src={`https://github-act-graph.rodriaum.com/graph?username=${username}&${theme === 'dark' ? 'bg_color=09090B&color=FAFAFA&line=FAFAFA&point=FAFAFA' : 'bg_color=FFFFFF&color=09090B&line=09090B&point=09090B'}&area=true&hide_border=true`}
+                    alt={`${username}'s GitHub activity graph`}
                     className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg w-full h-auto"
                   />
                 </a>
