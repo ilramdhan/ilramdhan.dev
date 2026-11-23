@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface PaginationProps {
   currentPage: number;
@@ -6,8 +7,10 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-const NAV_BTN =
-  'p-2 rounded-lg border border-slate-200 dark:border-on-dark/10 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-on-dark/5 disabled:opacity-50 disabled:cursor-not-allowed';
+/** 44px round targets in the tile action colour (mutugading catalogue pager); the current page sits on parchment. */
+const BTN =
+  'inline-grid min-h-11 min-w-11 place-items-center rounded-full px-3 text-body tabular transition-[color,background-color] duration-200 ease-apple motion-reduce:transition-none';
+const NAV_BTN = `${BTN} text-tile-action hover:bg-parchment disabled:cursor-not-allowed disabled:text-tile-muted disabled:hover:bg-transparent`;
 
 /** Page numbers to render; `null` marks an ellipsis. Short ranges are listed in full. */
 function getPageItems(current: number, total: number): (number | null)[] {
@@ -26,7 +29,7 @@ function getPageItems(current: number, total: number): (number | null)[] {
 export function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
   if (totalPages <= 1) return null;
   return (
-    <nav aria-label="Pagination" className="flex justify-center gap-2">
+    <nav aria-label="Pagination" className="flex items-center justify-center gap-1">
       <button
         type="button"
         aria-label="Previous page"
@@ -34,11 +37,15 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         disabled={currentPage === 1}
         className={NAV_BTN}
       >
-        <ChevronLeft className="h-5 w-5" />
+        <ChevronLeft className="h-5 w-5" aria-hidden="true" />
       </button>
       {getPageItems(currentPage, totalPages).map((page, i) =>
         page === null ? (
-          <span key={`gap-${i}`} aria-hidden="true" className="w-10 h-10 grid place-items-center">
+          <span
+            key={`gap-${i}`}
+            aria-hidden="true"
+            className="grid min-h-11 min-w-6 place-items-center text-tile-muted sm:min-w-11"
+          >
             …
           </span>
         ) : (
@@ -47,11 +54,14 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
             key={page}
             aria-current={currentPage === page ? 'page' : undefined}
             onClick={() => onPageChange(page)}
-            className={`w-10 h-10 rounded-lg font-medium transition-colors ${
+            className={cn(
+              BTN,
               currentPage === page
-                ? 'bg-indigo-600 text-on-dark'
-                : 'border border-slate-200 dark:border-on-dark/10 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-on-dark/5'
-            }`}
+                ? 'bg-parchment font-semibold text-tile-ink'
+                : 'text-tile-action hover:underline underline-offset-4',
+              // Phones keep one row of 44px targets: first, current, last (+ ellipses and arrows).
+              page !== currentPage && page !== 1 && page !== totalPages && 'max-sm:hidden',
+            )}
           >
             {page}
           </button>
@@ -64,7 +74,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         disabled={currentPage === totalPages}
         className={NAV_BTN}
       >
-        <ChevronRight className="h-5 w-5" />
+        <ChevronRight className="h-5 w-5" aria-hidden="true" />
       </button>
     </nav>
   );
