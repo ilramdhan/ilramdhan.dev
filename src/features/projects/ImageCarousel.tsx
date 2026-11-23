@@ -68,7 +68,7 @@ export function ImageCarousel({
       onKeyDown={onKeyDown}
       {...swipe}
       style={{ touchAction: 'pan-y' }}
-      className={`w-full ${aspectRatio} relative overflow-hidden group bg-slate-100 dark:bg-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500`}
+      className={`w-full ${aspectRatio} relative overflow-hidden group bg-slate-100 dark:bg-slate-900 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-indigo-500`}
     >
       <Img
         key={currentIndex}
@@ -89,7 +89,7 @@ export function ImageCarousel({
               type="button"
               onClick={prev}
               aria-label="Previous image"
-              className="pointer-events-auto p-1 rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm"
+              className="pointer-events-auto p-1 rounded-full bg-black/50 text-on-dark hover:bg-black/70 backdrop-blur-xs"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
@@ -97,7 +97,7 @@ export function ImageCarousel({
               type="button"
               onClick={next}
               aria-label="Next image"
-              className="pointer-events-auto p-1 rounded-full bg-black/50 text-white hover:bg-black/70 backdrop-blur-sm"
+              className="pointer-events-auto p-1 rounded-full bg-black/50 text-on-dark hover:bg-black/70 backdrop-blur-xs"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -114,7 +114,7 @@ export function ImageCarousel({
                   e.stopPropagation();
                   setCurrentIndex(idx);
                 }}
-                className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === currentIndex ? 'bg-white' : 'bg-white/40 hover:bg-white/70'}`}
+                className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === currentIndex ? 'bg-on-dark' : 'bg-on-dark/40 hover:bg-on-dark/70'}`}
               />
             ))}
           </div>

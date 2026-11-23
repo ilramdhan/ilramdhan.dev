@@ -49,7 +49,7 @@ function TocList({ headings, active }: { headings: TocHeading[]; active?: string
               'block border-l-2 py-1 px-3 transition-colors hover:text-indigo-600 dark:hover:text-indigo-400',
               active === h.id
                 ? 'border-indigo-600 font-medium text-indigo-600 dark:text-indigo-400'
-                : 'border-slate-200 text-slate-600 dark:border-white/10 dark:text-slate-400',
+                : 'border-slate-200 text-slate-600 dark:border-on-dark/10 dark:text-slate-400',
             )}
           >
             {h.text}
@@ -82,7 +82,7 @@ export function TocSidebar({ headings }: { headings: TocHeading[] }) {
 /** Collapsible "On this page" list above the article (below lg). */
 export function TocDisclosure({ headings }: { headings: TocHeading[] }) {
   return (
-    <details className="mb-8 rounded-xl border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-slate-900 lg:hidden">
+    <details className="mb-8 rounded-xl border border-slate-200 bg-on-dark p-4 dark:border-on-dark/10 dark:bg-slate-900 lg:hidden">
       <summary className="font-semibold">{TITLE}</summary>
       <nav aria-label={TITLE} className="mt-4">
         <TocList headings={headings} />

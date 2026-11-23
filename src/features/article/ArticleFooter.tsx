@@ -19,7 +19,7 @@ export function TagLinks({
         <li key={tag}>
           <Link
             to={`${basePath}?tag=${encodeURIComponent(tag)}`}
-            className="inline-block rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700 transition-colors hover:bg-indigo-100 outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-900/50"
+            className="inline-block rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700 transition-colors hover:bg-indigo-100 outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-900/50"
           >
             #{tag}
           </Link>
@@ -66,7 +66,7 @@ function AdjacentLink({
       to={`${basePath}/${item.slug}`}
       rel={newer ? 'next' : 'prev'}
       className={cn(
-        'group flex h-full flex-col gap-1 rounded-xl border border-slate-200 bg-white p-5 transition-colors hover:border-indigo-500/50 outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-white/10 dark:bg-slate-900',
+        'group flex h-full flex-col gap-1 rounded-xl border border-slate-200 bg-on-dark p-5 transition-colors hover:border-indigo-500/50 outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-on-dark/10 dark:bg-slate-900',
         newer && 'items-end text-right',
       )}
     >
@@ -75,7 +75,7 @@ function AdjacentLink({
         {text}
         {newer && <span aria-hidden="true">&rarr;</span>}
       </span>
-      <span className="font-semibold text-slate-900 transition-colors group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400 line-clamp-2">
+      <span className="font-semibold text-slate-900 transition-colors group-hover:text-indigo-600 dark:text-on-dark dark:group-hover:text-indigo-400 line-clamp-2">
         {item.title}
       </span>
     </Link>

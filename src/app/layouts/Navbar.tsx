@@ -81,19 +81,19 @@ export function Navbar() {
   return (
     <nav
       data-scrolled={scrolled}
-      className={`nav-glass fixed top-0 w-full z-50 border-b bg-white/95 dark:bg-slate-950/95 supports-[backdrop-filter]:backdrop-blur-xl supports-[backdrop-filter]:backdrop-saturate-150 motion-safe:transition-[background-color,border-color,box-shadow] duration-200 ${
+      className={`nav-glass fixed top-0 w-full z-50 border-b bg-on-dark/95 dark:bg-slate-950/95 supports-backdrop-filter:backdrop-blur-xl supports-backdrop-filter:backdrop-saturate-150 motion-safe:transition-[background-color,border-color,box-shadow] duration-200 ${
         scrolled
-          ? 'border-slate-300 shadow-sm supports-[backdrop-filter]:bg-white/75 dark:border-white/10 dark:supports-[backdrop-filter]:bg-slate-950/70'
-          : 'border-slate-200 supports-[backdrop-filter]:bg-white/60 dark:border-white/5 dark:supports-[backdrop-filter]:bg-slate-950/50'
+          ? 'border-slate-300 shadow-xs supports-backdrop-filter:bg-on-dark/75 dark:border-on-dark/10 dark:supports-backdrop-filter:bg-slate-950/70'
+          : 'border-slate-200 supports-backdrop-filter:bg-on-dark/60 dark:border-on-dark/5 dark:supports-backdrop-filter:bg-slate-950/50'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
           className={`flex items-center justify-between motion-safe:transition-[height] duration-200 ${scrolled ? 'h-14' : 'h-16'}`}
         >
-          <Link to="/" aria-label="Home" className="flex-shrink-0" onClick={() => setIsOpen(false)}>
+          <Link to="/" aria-label="Home" className="shrink-0" onClick={() => setIsOpen(false)}>
             {isLoadingProfile ? (
-              <div className="h-8 w-28 bg-slate-200 dark:bg-slate-800 rounded motion-safe:animate-pulse" />
+              <div className="h-8 w-28 bg-slate-200 dark:bg-slate-800 rounded-sm motion-safe:animate-pulse" />
             ) : profile?.logo_url ? (
               <Img
                 src={profile.logo_url}
@@ -116,7 +116,7 @@ export function Navbar() {
                 <span
                   aria-hidden="true"
                   data-testid="nav-pill"
-                  className="absolute left-0 top-0 rounded-md bg-indigo-50 dark:bg-white/10 motion-safe:transition-[transform,width,height] motion-safe:duration-300 motion-safe:ease-out"
+                  className="absolute left-0 top-0 rounded-md bg-indigo-50 dark:bg-on-dark/10 motion-safe:transition-[transform,width,height] motion-safe:duration-300 motion-safe:ease-out"
                   style={{
                     width: pill.w,
                     height: pill.h,
@@ -133,8 +133,8 @@ export function Navbar() {
                   onFocus={() => prefetchRoute(link.path)}
                   className={`relative px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     isActive(link.path)
-                      ? 'text-indigo-600 dark:text-white'
-                      : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-indigo-50 dark:hover:bg-white/10'
+                      ? 'text-indigo-600 dark:text-on-dark'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-on-dark hover:bg-indigo-50 dark:hover:bg-on-dark/10'
                   }`}
                 >
                   {link.name}
@@ -142,7 +142,7 @@ export function Navbar() {
               ))}
             </div>
 
-            <div className="flex items-center gap-4 border-l border-slate-200 dark:border-white/10 pl-6">
+            <div className="flex items-center gap-4 border-l border-slate-200 dark:border-on-dark/10 pl-6">
               <ThemeToggle />
 
               {/* No public "Sign In" button: /login stays reachable directly.
@@ -152,7 +152,7 @@ export function Navbar() {
                   to="/admin"
                   onMouseEnter={() => prefetchRoute('/admin')}
                   onFocus={() => prefetchRoute('/admin')}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                  className="bg-indigo-600 hover:bg-indigo-700 text-on-dark px-4 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   Dashboard
                 </Link>
@@ -164,7 +164,7 @@ export function Navbar() {
             <ThemeToggle />
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className="inline-flex items-center justify-center p-2 rounded-md text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none"
+              className="inline-flex items-center justify-center p-2 rounded-md text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-on-dark hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-hidden"
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -173,7 +173,7 @@ export function Navbar() {
       </div>
 
       {isOpen && (
-        <div className="motion-safe:animate-menu-in lg:hidden border-t border-slate-200 dark:border-white/5">
+        <div className="motion-safe:animate-menu-in lg:hidden border-t border-slate-200 dark:border-on-dark/5">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
             {navLinks.map((link) => (
               <Link
@@ -182,7 +182,7 @@ export function Navbar() {
                 onClick={() => setIsOpen(false)}
                 onTouchStart={() => prefetchRoute(link.path)}
                 onFocus={() => prefetchRoute(link.path)}
-                className="text-left text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 block px-3 py-2 rounded-md text-base font-medium"
+                className="text-left text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-on-dark hover:bg-slate-100 dark:hover:bg-on-dark/10 block px-3 py-2 rounded-md text-base font-medium"
               >
                 {link.name}
               </Link>

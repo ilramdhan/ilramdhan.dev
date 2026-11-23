@@ -39,7 +39,7 @@ export function AdminRoute({ children }: { children: ReactNode }) {
         <button
           type="button"
           onClick={retry}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+          className="bg-indigo-600 hover:bg-indigo-700 text-on-dark px-4 py-2 rounded-md text-sm font-medium"
         >
           Try again
         </button>

@@ -139,11 +139,11 @@ export function Hero() {
             )}
             {/* The H1 is the owner's name: static, never typed, so it is stable for crawlers,
                 screen readers and tests. A skeleton holds its place while the profile loads. */}
-            <h1 className="font-extrabold tracking-tight text-slate-900 dark:text-white mb-3 break-words text-[clamp(2.25rem,1.2rem+4.5vw,4.5rem)] leading-[1.1] min-h-[1.1em]">
+            <h1 className="font-extrabold tracking-tight text-slate-900 dark:text-on-dark mb-3 wrap-break-word text-[clamp(2.25rem,1.2rem+4.5vw,4.5rem)] leading-[1.1] min-h-[1.1em]">
               {profile?.display_name ?? (
                 <span
                   aria-hidden="true"
-                  className="inline-block h-[1em] w-3/4 align-middle rounded bg-slate-200 dark:bg-slate-800 motion-safe:animate-pulse"
+                  className="inline-block h-[1em] w-3/4 align-middle rounded-sm bg-slate-200 dark:bg-slate-800 motion-safe:animate-pulse"
                 />
               )}
             </h1>
@@ -152,7 +152,7 @@ export function Hero() {
               {isLoading ? (
                 <span
                   aria-hidden="true"
-                  className="inline-block h-6 w-3/4 align-middle rounded bg-slate-200 dark:bg-slate-800 motion-safe:animate-pulse"
+                  className="inline-block h-6 w-3/4 align-middle rounded-sm bg-slate-200 dark:bg-slate-800 motion-safe:animate-pulse"
                 />
               ) : (
                 profile?.short_description
@@ -162,13 +162,13 @@ export function Hero() {
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
               <Link
                 to="/projects"
-                className="w-full sm:w-auto px-8 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-8 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-on-dark font-semibold transition-all active:scale-[0.98] flex items-center justify-center gap-2"
               >
                 View Projects <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/#contact"
-                className="w-full sm:w-auto px-8 py-3 text-center rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-white/5 dark:hover:bg-white/10 dark:border-white/10 dark:text-white font-semibold transition-all active:scale-[0.98]"
+                className="w-full sm:w-auto px-8 py-3 text-center rounded-lg bg-on-dark border border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-on-dark/5 dark:hover:bg-on-dark/10 dark:border-on-dark/10 dark:text-on-dark font-semibold transition-all active:scale-[0.98]"
               >
                 Contact Me
               </Link>
@@ -177,7 +177,7 @@ export function Hero() {
             <SocialLinks
               links={profile?.social_links}
               containerClassName="mt-10 min-h-6 flex flex-wrap items-center justify-center lg:justify-start gap-6"
-              linkClassName="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white transition-colors"
+              linkClassName="text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-on-dark transition-colors"
               iconClassName="h-6 w-6"
             />
           </m.div>

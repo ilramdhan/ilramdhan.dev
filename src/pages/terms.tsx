@@ -20,13 +20,13 @@ export default function TermsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-on-dark transition-colors duration-300">
       <Seo title="Terms of Service" description="Terms of Service for ilramdhan.dev." />
       <Navbar />
       <div className="pt-32 pb-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link
           to="/"
-          className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white mb-8 transition-colors"
+          className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-on-dark mb-8 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" /> Back to Home
         </Link>

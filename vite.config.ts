@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import { absoluteUrl, siteConfig } from './src/config/site';
 
 /**
@@ -205,7 +206,7 @@ export default defineConfig(async () => {
     preview: {
       headers: vercelSiteHeaders(),
     },
-    plugins: [react(), siteConfigHtml(), previewRouting(), ...analyze],
+    plugins: [react(), tailwindcss(), siteConfigHtml(), previewRouting(), ...analyze],
     define: appVersionDefine(),
     build: {
       rolldownOptions: {

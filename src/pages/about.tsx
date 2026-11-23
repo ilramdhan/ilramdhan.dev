@@ -65,7 +65,7 @@ function AboutContent() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-on-dark transition-colors duration-300">
       <Seo
         title="About"
         description="Learn more about Ilham Ramadhan — experience, education, certifications, and coding activity."
@@ -74,7 +74,7 @@ function AboutContent() {
       <div className="pt-32 pb-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row gap-12 items-start mb-20">
           <div className="w-full md:w-1/3 shrink-0">
-            <div className="aspect-square rounded-2xl overflow-hidden border-4 border-white dark:border-slate-800 shadow-xl relative mb-6">
+            <div className="aspect-square rounded-2xl overflow-hidden border-4 border-on-dark dark:border-slate-800 shadow-xl relative mb-6">
               <div className="absolute inset-0 bg-indigo-500/10 mix-blend-overlay" />
               <Img
                 src={profile?.avatar_url || ''}
@@ -83,7 +83,7 @@ function AboutContent() {
                 height={512}
                 priority
                 sizes="(min-width: 768px) 33vw, 100vw"
-                className="w-full h-full object-cover bg-white dark:bg-slate-900"
+                className="w-full h-full object-cover bg-on-dark dark:bg-slate-900"
               />
             </div>
 
@@ -108,7 +108,7 @@ function AboutContent() {
                 href={resumeUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-8 w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-medium transition-all shadow-lg shadow-indigo-500/20"
+                className="mt-8 w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-on-dark py-3 rounded-lg font-medium transition-all shadow-lg shadow-indigo-500/20"
               >
                 <Download className="h-5 w-5" /> Download CV
               </a>
@@ -134,8 +134,10 @@ function AboutContent() {
             <div className="space-y-8 border-l-2 border-slate-200 dark:border-slate-800 ml-3 pl-8 relative">
               {experience?.map((exp, idx) => (
                 <Reveal key={exp.id} from="left" index={idx} className="relative">
-                  <span className="absolute -left-[41px] top-1 w-5 h-5 rounded-full border-4 border-white dark:border-slate-950 bg-indigo-500" />
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">{exp.title}</h3>
+                  <span className="absolute left-[-41px] top-1 w-5 h-5 rounded-full border-4 border-on-dark dark:border-slate-950 bg-indigo-500" />
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-on-dark">
+                    {exp.title}
+                  </h3>
                   <div className="text-indigo-600 dark:text-indigo-400 font-medium mb-2">
                     {exp.institution}
                   </div>
@@ -158,8 +160,10 @@ function AboutContent() {
             <div className="space-y-8 border-l-2 border-slate-200 dark:border-slate-800 ml-3 pl-8 relative">
               {education?.map((edu, idx) => (
                 <Reveal key={edu.id} from="left" index={idx} className="relative">
-                  <span className="absolute -left-[41px] top-1 w-5 h-5 rounded-full border-4 border-white dark:border-slate-950 bg-purple-500" />
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">{edu.title}</h3>
+                  <span className="absolute left-[-41px] top-1 w-5 h-5 rounded-full border-4 border-on-dark dark:border-slate-950 bg-purple-500" />
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-on-dark">
+                    {edu.title}
+                  </h3>
                   <div className="text-purple-600 dark:text-purple-400 font-medium mb-1">
                     {edu.institution}
                   </div>
@@ -199,8 +203,8 @@ function AboutContent() {
           </div>
         )}
 
-        <div className="border-t border-slate-200 dark:border-white/10 pt-16">
-          <h2 className="text-2xl font-bold mb-8 text-center text-slate-900 dark:text-white">
+        <div className="border-t border-slate-200 dark:border-on-dark/10 pt-16">
+          <h2 className="text-2xl font-bold mb-8 text-center text-slate-900 dark:text-on-dark">
             Coding Activity
           </h2>
 
@@ -208,8 +212,8 @@ function AboutContent() {
           {!isWakatimeError && !isLoadingWakatime && wakatime?.data && (
             <div className="space-y-8 max-w-4xl mx-auto mb-12">
               {/* Custom Top Languages Visualization */}
-              <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-white/5">
-                <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-white">
+              <div className="bg-on-dark dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-on-dark/5">
+                <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-on-dark">
                   Languages (Last 7 Days)
                 </h3>
                 <div className="space-y-4">
@@ -240,7 +244,7 @@ function AboutContent() {
                   fallback={
                     <div
                       aria-hidden="true"
-                      className="h-[396px] rounded-xl border border-slate-200 bg-white dark:bg-slate-900/50 dark:border-white/5"
+                      className="h-[396px] rounded-xl border border-slate-200 bg-on-dark dark:bg-slate-900/50 dark:border-on-dark/5"
                     />
                   }
                 >
@@ -260,7 +264,7 @@ function AboutContent() {
                     height={420}
                     src={`https://github-act-graph.rodriaum.com/graph?username=${username}&${theme === 'dark' ? 'bg_color=09090B&color=FAFAFA&line=FAFAFA&point=FAFAFA' : 'bg_color=FFFFFF&color=09090B&line=09090B&point=09090B'}&area=true&hide_border=true`}
                     alt={`${username}'s GitHub activity graph`}
-                    className="rounded-xl border border-slate-200 dark:border-white/10 shadow-lg w-full h-auto"
+                    className="rounded-xl border border-slate-200 dark:border-on-dark/10 shadow-lg w-full h-auto"
                   />
                 </a>
               </div>

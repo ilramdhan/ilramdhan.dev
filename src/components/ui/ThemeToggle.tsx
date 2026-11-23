@@ -1,18 +1,26 @@
 import { flushSync } from 'react-dom';
-import { Moon, Sun } from 'lucide-react';
-import { useTheme } from '@/app/ThemeContext';
+import { Moon, Sun, SunMoon } from 'lucide-react';
+import { useTheme, type ThemePreference } from '@/app/ThemeContext';
+
+/** What a click switches to (ThemeContext cycles dark -> light -> auto). */
+const NEXT: Record<ThemePreference, { label: string; Icon: typeof Sun }> = {
+  dark: { label: 'Switch to light theme', Icon: Sun },
+  light: { label: 'Switch to automatic theme (follows the system)', Icon: SunMoon },
+  system: { label: 'Switch to dark theme', Icon: Moon },
+};
 
 type ViewTransitionDoc = Document & {
   startViewTransition?: (cb: () => void) => { ready: Promise<void> };
 };
 
 /**
- * Theme button. Where the View Transitions API exists and motion is allowed, the new
+ * Theme button: cycles Dark -> Light -> Auto (the icon shows what a click selects). Where the View Transitions API exists and motion is allowed, the new
  * theme is revealed as a circle growing from the button; otherwise it switches instantly.
  * The icon rotates (CSS, motion-safe) on every change.
  */
 export function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
+  const { preference, toggleTheme } = useTheme();
+  const { label, Icon } = NEXT[preference];
 
   const onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     const doc = document as ViewTransitionDoc;
@@ -40,11 +48,11 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={onClick}
-      aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
-      className="p-2 rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors active:scale-[0.96]"
+      aria-label={label}
+      className="p-2 rounded-full text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-on-dark/5 transition-colors active:scale-[0.96]"
     >
-      <span key={theme} className="block motion-safe:animate-icon-spin">
-        {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+      <span key={preference} className="block motion-safe:animate-icon-spin">
+        <Icon className="h-5 w-5" />
       </span>
     </button>
   );

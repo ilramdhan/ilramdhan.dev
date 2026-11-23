@@ -64,10 +64,10 @@ export default function Page() {
         {/* Sections render their shell straight away with skeletons of the final size,
             so content arriving later never pushes the page down (T-26). */}
         {(isPendingServices || (services && services.length > 0)) && (
-          <section className="py-20 bg-slate-50 dark:bg-slate-900/30 border-y border-slate-200 dark:border-white/5">
+          <section className="py-20 bg-slate-50 dark:bg-slate-900/30 border-y border-slate-200 dark:border-on-dark/5">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
+                <h2 className="text-3xl font-bold text-slate-900 dark:text-on-dark mb-4">
                   What I Do
                 </h2>
                 <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
@@ -80,11 +80,11 @@ export default function Page() {
                     <div
                       key={i}
                       aria-hidden="true"
-                      className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 p-8 rounded-2xl flex flex-col items-center"
+                      className="bg-on-dark border border-slate-200 dark:bg-slate-900/50 dark:border-on-dark/5 p-8 rounded-2xl flex flex-col items-center"
                     >
                       <div className="h-14 w-14 rounded-full bg-indigo-50 dark:bg-slate-800 mb-6" />
-                      <div className="h-7 w-1/2 mb-3 rounded bg-slate-200 dark:bg-slate-800" />
-                      <div className="h-[46px] w-full rounded bg-slate-100 dark:bg-slate-800/60" />
+                      <div className="h-7 w-1/2 mb-3 rounded-sm bg-slate-200 dark:bg-slate-800" />
+                      <div className="h-[46px] w-full rounded-sm bg-slate-100 dark:bg-slate-800/60" />
                     </div>
                   ))}
                 {services?.map((service, idx) => {
@@ -93,12 +93,12 @@ export default function Page() {
                     <Reveal
                       key={service.id}
                       index={idx}
-                      className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 p-8 rounded-2xl flex flex-col items-center text-center hover:border-indigo-500/30 transition-[transform,box-shadow,border-color] motion-safe:hover:-translate-y-0.5 hover:shadow-md shadow-sm dark:shadow-none group"
+                      className="bg-on-dark border border-slate-200 dark:bg-slate-900/50 dark:border-on-dark/5 p-8 rounded-2xl flex flex-col items-center text-center hover:border-indigo-500/30 transition-[transform,box-shadow,border-color] motion-safe:hover:-translate-y-0.5 hover:shadow-md shadow-xs dark:shadow-none group"
                     >
-                      <div className="h-14 w-14 bg-indigo-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-6 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                      <div className="h-14 w-14 bg-indigo-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-6 group-hover:bg-indigo-600 group-hover:text-on-dark transition-colors">
                         <Icon className="h-7 w-7" />
                       </div>
-                      <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-white">
+                      <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-on-dark">
                         {service.title}
                       </h3>
                       <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed prose prose-sm dark:prose-invert">
@@ -113,7 +113,7 @@ export default function Page() {
         )}
 
         {/* Tech Stack Marquee */}
-        <section className="py-12 bg-white border-y border-slate-200 dark:bg-slate-900/50 dark:border-white/5 overflow-hidden backdrop-blur-sm transition-colors">
+        <section className="py-12 bg-on-dark border-y border-slate-200 dark:bg-slate-900/50 dark:border-on-dark/5 overflow-hidden backdrop-blur-xs transition-colors">
           <div className="max-w-7xl mx-auto px-4 mb-8">
             <p className="text-center text-slate-500 text-sm font-semibold uppercase tracking-wider">
               Technologies I work with
@@ -128,15 +128,15 @@ export default function Page() {
                 'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)',
             }}
           >
-            <div className="marquee-track flex whitespace-nowrap min-h-[4.25rem]">
-              <div className="flex-shrink-0 flex items-center justify-center gap-24 py-4 px-6">
+            <div className="marquee-track flex whitespace-nowrap min-h-17">
+              <div className="shrink-0 flex items-center justify-center gap-24 py-4 px-6">
                 {techStack?.map((tech, i) => (
                   <TechBadge key={`tech-a-${i}`} name={tech.name} iconUrl={tech.icon_url} />
                 ))}
               </div>
               <div
                 aria-hidden="true"
-                className="flex-shrink-0 flex items-center justify-center gap-24 py-4 px-6"
+                className="shrink-0 flex items-center justify-center gap-24 py-4 px-6"
               >
                 {techStack?.map((tech, i) => (
                   <TechBadge key={`tech-b-${i}`} name={tech.name} iconUrl={tech.icon_url} />
@@ -151,7 +151,7 @@ export default function Page() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
               <div>
-                <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+                <h2 className="text-3xl font-bold text-slate-900 dark:text-on-dark mb-2">
                   Featured Projects
                 </h2>
                 <p className="text-slate-600 dark:text-slate-400">Some of my recent work</p>
@@ -197,12 +197,12 @@ export default function Page() {
         {/* Latest Blog Section */}
         <section
           id="blog"
-          className="py-20 bg-slate-50 border-y border-slate-200 dark:bg-slate-900/30 dark:border-white/5 backdrop-blur-sm transition-colors"
+          className="py-20 bg-slate-50 border-y border-slate-200 dark:bg-slate-900/30 dark:border-on-dark/5 backdrop-blur-xs transition-colors"
         >
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
               <div>
-                <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">
+                <h2 className="text-3xl font-bold text-slate-900 dark:text-on-dark mb-2">
                   Featured Articles
                 </h2>
                 <p className="text-slate-600 dark:text-slate-400">
@@ -246,7 +246,7 @@ export default function Page() {
           <div className="relative z-10 py-20">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="max-w-xl mx-auto text-center mb-12">
-                <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">
+                <h2 className="text-3xl font-bold text-slate-900 dark:text-on-dark mb-4">
                   Get In Touch
                 </h2>
                 <p className="text-slate-600 dark:text-slate-400">
@@ -255,7 +255,7 @@ export default function Page() {
                 </p>
               </div>
 
-              <div className="bg-white/80 border border-slate-200 dark:bg-slate-900/80 dark:border-white/5 backdrop-blur-sm rounded-2xl p-8 max-w-xl mx-auto shadow-lg dark:shadow-none">
+              <div className="bg-on-dark/80 border border-slate-200 dark:bg-slate-900/80 dark:border-on-dark/5 backdrop-blur-xs rounded-2xl p-8 max-w-xl mx-auto shadow-lg dark:shadow-none">
                 <ContactForm />
               </div>
             </div>

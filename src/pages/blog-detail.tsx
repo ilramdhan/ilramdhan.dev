@@ -99,7 +99,7 @@ export default function BlogDetailPage() {
 
   if (isError && !blog && !isNotFoundError(error)) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white px-4 text-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-on-dark px-4 text-center">
         <h1 className="text-2xl font-bold mb-2">Couldn&apos;t load this article</h1>
         <p className="text-slate-500 dark:text-slate-400 mb-6">
           Check your connection and try again.
@@ -107,7 +107,7 @@ export default function BlogDetailPage() {
         <div className="flex items-center gap-6">
           <button
             onClick={() => void refetch()}
-            className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+            className="px-4 py-2 rounded-lg bg-indigo-600 text-on-dark hover:bg-indigo-700 transition-colors"
           >
             Try again
           </button>
@@ -139,7 +139,7 @@ export default function BlogDetailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-on-dark transition-colors">
       <Seo
         title={blog.title}
         description={blog.excerpt || undefined}
@@ -178,7 +178,7 @@ export default function BlogDetailPage() {
             </nav>
             <TagLinks tags={blog.tags ?? []} className="mb-4" />
             <h1
-              className="mb-4 text-3xl font-bold leading-tight tracking-tight text-slate-900 dark:text-white break-words md:text-5xl"
+              className="mb-4 text-3xl font-bold leading-tight tracking-tight text-slate-900 dark:text-on-dark wrap-break-word md:text-5xl"
               style={BALANCE}
             >
               {blog.title}
@@ -251,7 +251,7 @@ export default function BlogDetailPage() {
           </div>
 
           {/* Full frame width, below the body grid: same right edge as the header. */}
-          <div className="mt-10 space-y-6 border-t border-slate-200 py-6 dark:border-white/10">
+          <div className="mt-10 space-y-6 border-t border-slate-200 py-6 dark:border-on-dark/10">
             <TagLinks tags={blog.tags ?? []} />
             <ShareBar title={blog.title} url={absoluteUrl(`/blog/${blog.slug ?? slug}`)} />
           </div>
@@ -265,7 +265,7 @@ export default function BlogDetailPage() {
         <section aria-labelledby="comments-heading">
           <h2
             id="comments-heading"
-            className="mb-6 flex items-center gap-2 text-2xl font-bold text-slate-900 dark:text-white"
+            className="mb-6 flex items-center gap-2 text-2xl font-bold text-slate-900 dark:text-on-dark"
           >
             <MessageSquare className="h-6 w-6" aria-hidden="true" /> Comments (
             {comments?.length || 0})
@@ -275,7 +275,7 @@ export default function BlogDetailPage() {
           <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-12">
             <form
               onSubmit={handleCommentSubmit}
-              className="relative space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-slate-900"
+              className="relative space-y-4 rounded-2xl border border-slate-200 bg-on-dark p-6 shadow-xs dark:border-on-dark/10 dark:bg-slate-900"
             >
               {/* Honeypot */}
               <div
@@ -347,10 +347,10 @@ export default function BlogDetailPage() {
                   {comments?.map((comment) => (
                     <li
                       key={comment.id}
-                      className="rounded-xl border border-slate-200 bg-white p-5 dark:border-white/10 dark:bg-slate-900/50"
+                      className="rounded-xl border border-slate-200 bg-on-dark p-5 dark:border-on-dark/10 dark:bg-slate-900/50"
                     >
                       <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-                        <h3 className="font-semibold text-slate-900 dark:text-white">
+                        <h3 className="font-semibold text-slate-900 dark:text-on-dark">
                           {comment.name}
                         </h3>
                         <time
@@ -360,7 +360,7 @@ export default function BlogDetailPage() {
                           {formatDate(comment.created_at)}
                         </time>
                       </div>
-                      <p className="whitespace-pre-wrap break-words text-sm text-slate-700 dark:text-slate-300">
+                      <p className="whitespace-pre-wrap wrap-break-word text-sm text-slate-700 dark:text-slate-300">
                         {comment.content}
                       </p>
                     </li>

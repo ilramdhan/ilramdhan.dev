@@ -49,7 +49,7 @@ export function ProjectGallery({ images, alt }: ProjectGalleryProps) {
                 opened.current = i;
                 setOpen(i);
               }}
-              className="group/thumb relative block aspect-video w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:border-white/10 dark:bg-slate-900"
+              className="group/thumb relative block aspect-video w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-100 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:border-on-dark/10 dark:bg-slate-900"
             >
               <Img
                 src={src}
@@ -59,7 +59,7 @@ export function ProjectGallery({ images, alt }: ProjectGalleryProps) {
                 sizes="(min-width: 640px) 10rem, 25vw"
                 className="h-full w-full object-cover transition-opacity group-hover/thumb:opacity-80"
               />
-              <span className="absolute right-1 top-1 rounded bg-black/50 p-0.5 text-white opacity-0 transition-opacity group-hover/thumb:opacity-100 group-focus-visible/thumb:opacity-100">
+              <span className="absolute right-1 top-1 rounded-sm bg-black/50 p-0.5 text-on-dark opacity-0 transition-opacity group-hover/thumb:opacity-100 group-focus-visible/thumb:opacity-100">
                 <Maximize2 className="h-3 w-3" aria-hidden="true" />
               </span>
             </button>

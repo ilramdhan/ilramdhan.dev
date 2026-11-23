@@ -93,7 +93,7 @@ function ProjectsContent() {
       <Navbar />
       <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="mb-12">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-4">All Projects</h1>
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-on-dark mb-4">All Projects</h1>
           <p className="text-slate-600 dark:text-slate-400 max-w-2xl">
             A collection of applications, tools, and experiments.
           </p>
@@ -115,14 +115,14 @@ function ProjectsContent() {
                 placeholder="Search projects..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
-                className="w-full bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 rounded-full py-3 pl-12 pr-12 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none backdrop-blur-sm shadow-sm"
+                className="w-full bg-on-dark dark:bg-slate-900/80 border border-slate-200 dark:border-on-dark/10 rounded-full py-3 pl-12 pr-12 text-slate-900 dark:text-on-dark focus:ring-2 focus:ring-indigo-500 outline-hidden backdrop-blur-xs shadow-xs"
               />
               {searchInput && (
                 <button
                   type="button"
                   aria-label="Clear search"
                   onClick={() => setSearchInput('')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white focus-visible:ring-2 focus-visible:ring-indigo-500 outline-none"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-on-dark focus-visible:ring-2 focus-visible:ring-indigo-500 outline-hidden"
                 >
                   <X className="h-4 w-4" aria-hidden="true" />
                 </button>
@@ -136,7 +136,7 @@ function ProjectsContent() {
                 id="project-sort"
                 value={sort}
                 onChange={(e) => setSort(e.target.value === 'oldest' ? 'oldest' : 'newest')}
-                className="w-full sm:w-auto bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 appearance-none rounded-full py-3 pl-5 pr-11 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none shadow-sm"
+                className="w-full sm:w-auto bg-on-dark dark:bg-slate-900/80 border border-slate-200 dark:border-on-dark/10 appearance-none rounded-full py-3 pl-5 pr-11 text-slate-900 dark:text-on-dark focus:ring-2 focus:ring-indigo-500 outline-hidden shadow-xs"
               >
                 <option value="newest">Newest first</option>
                 <option value="oldest">Oldest first</option>
@@ -172,7 +172,7 @@ function ProjectsContent() {
               <button
                 type="button"
                 onClick={clearFilters}
-                className="rounded-full px-3 py-1 font-medium text-indigo-600 dark:text-indigo-400 hover:underline focus-visible:ring-2 focus-visible:ring-indigo-500 outline-none"
+                className="rounded-full px-3 py-1 font-medium text-indigo-600 dark:text-indigo-400 hover:underline focus-visible:ring-2 focus-visible:ring-indigo-500 outline-hidden"
               >
                 Clear filters
               </button>
@@ -216,7 +216,7 @@ function ProjectsContent() {
                 <button
                   type="button"
                   onClick={clearFilters}
-                  className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 outline-none"
+                  className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-on-dark hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 outline-hidden"
                 >
                   Clear filters
                 </button>

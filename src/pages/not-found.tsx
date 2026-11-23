@@ -12,7 +12,7 @@ const LINKS = [
 /** 404 page: rendered for unknown URLs and for unknown project/blog slugs. */
 export default function NotFoundPage() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-on-dark transition-colors">
       <Seo title="Page not found" noindex />
       <Navbar />
       <main className="min-h-screen flex flex-col items-center justify-center px-4">
@@ -26,7 +26,7 @@ export default function NotFoundPage() {
             <Link
               key={l.to}
               to={l.to}
-              className="px-4 py-2 rounded-lg border border-slate-200 dark:border-white/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-white/5 transition-colors"
+              className="px-4 py-2 rounded-lg border border-slate-200 dark:border-on-dark/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-on-dark/5 transition-colors"
             >
               {l.label}
             </Link>

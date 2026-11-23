@@ -15,7 +15,7 @@ export function CertificateCard({ cert, index }: CertificateCardProps) {
   return (
     <Reveal
       index={index}
-      className="bg-white border border-slate-200 dark:bg-slate-900/50 dark:border-white/5 rounded-xl overflow-hidden hover:border-indigo-500/30 transition-[transform,box-shadow,border-color] motion-safe:hover:-translate-y-0.5 hover:shadow-md shadow-sm dark:shadow-none group flex flex-col"
+      className="bg-on-dark border border-slate-200 dark:bg-slate-900/50 dark:border-on-dark/5 rounded-xl overflow-hidden hover:border-indigo-500/30 transition-[transform,box-shadow,border-color] motion-safe:hover:-translate-y-0.5 hover:shadow-md shadow-xs dark:shadow-none group flex flex-col"
     >
       {cert.file_url ? (
         <div className="h-48 bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
@@ -34,7 +34,7 @@ export function CertificateCard({ cert, index }: CertificateCardProps) {
         </div>
       )}
       <div className="p-6 flex-1 flex flex-col">
-        <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-white">{cert.title}</h3>
+        <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-on-dark">{cert.title}</h3>
         <p className="text-sm text-indigo-600 dark:text-indigo-400 mb-2">{cert.issued_by}</p>
         <p className="text-xs text-slate-500 mb-4">
           {formatDate(cert.issued_date)}

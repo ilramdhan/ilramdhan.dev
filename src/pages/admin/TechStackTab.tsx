@@ -21,7 +21,7 @@ export function TechStackTab() {
               className="h-10 w-10 object-contain mb-2 dark:invert"
             />
           ) : (
-            <div className="h-10 w-10 bg-slate-100 dark:bg-slate-800 rounded flex items-center justify-center mb-2">
+            <div className="h-10 w-10 bg-slate-100 dark:bg-slate-800 rounded-sm flex items-center justify-center mb-2">
               <Layers className="h-5 w-5 text-slate-400" aria-hidden />
             </div>
           )}
@@ -41,7 +41,7 @@ export function TechStackTab() {
 
 function IconPreview({ url }: { url: string | null }) {
   return (
-    <div className="flex items-center gap-4 mt-2 p-4 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-white/10">
+    <div className="flex items-center gap-4 mt-2 p-4 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-on-dark/10">
       <span className="text-sm font-medium">Icon Preview:</span>
       {url ? (
         <div className="flex items-center gap-2">

@@ -9,19 +9,19 @@ export function BlogTab() {
       heading="Manage Articles"
       addLabel="Write Article"
       addButtonClassName="btn-primary"
-      formClassName="mb-8 p-6 bg-white dark:bg-slate-900 border rounded-xl space-y-4"
+      formClassName="mb-8 p-6 bg-on-dark dark:bg-slate-900 border rounded-xl space-y-4"
       formTitle={(editing) => (editing ? 'Edit Article' : 'Create Article')}
       listClassName="grid gap-4"
       renderRow={(blog, actions) => (
         <div
           key={blog.id}
-          className="flex items-center justify-between p-4 bg-white dark:bg-slate-900 border rounded-lg group"
+          className="flex items-center justify-between p-4 bg-on-dark dark:bg-slate-900 border rounded-lg group"
         >
           <div className="flex items-center gap-4">
             {blog.images?.[0] ? (
-              <img src={blog.images[0]} alt="" className="h-10 w-16 object-cover rounded" />
+              <img src={blog.images[0]} alt="" className="h-10 w-16 object-cover rounded-sm" />
             ) : (
-              <div className="h-10 w-16 bg-slate-100 dark:bg-slate-800 rounded flex items-center justify-center text-slate-400">
+              <div className="h-10 w-16 bg-slate-100 dark:bg-slate-800 rounded-sm flex items-center justify-center text-slate-400">
                 <Image aria-hidden />
               </div>
             )}

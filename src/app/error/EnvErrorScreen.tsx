@@ -9,7 +9,7 @@ export function EnvErrorScreen({ errors }: EnvErrorScreenProps) {
       role="alert"
       className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 text-slate-800 dark:text-slate-100"
     >
-      <div className="w-full max-w-lg rounded-2xl border border-slate-200 dark:border-white/10 bg-white dark:bg-slate-900 p-6 shadow-lg">
+      <div className="w-full max-w-lg rounded-2xl border border-slate-200 dark:border-on-dark/10 bg-on-dark dark:bg-slate-900 p-6 shadow-lg">
         <h1 className="text-xl font-bold">Site configuration error</h1>
         <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
           The site could not start because required environment variables are missing or invalid.

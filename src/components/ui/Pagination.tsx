@@ -7,7 +7,7 @@ interface PaginationProps {
 }
 
 const NAV_BTN =
-  'p-2 rounded-lg border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed';
+  'p-2 rounded-lg border border-slate-200 dark:border-on-dark/10 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-on-dark/5 disabled:opacity-50 disabled:cursor-not-allowed';
 
 /** Page numbers to render; `null` marks an ellipsis. Short ranges are listed in full. */
 function getPageItems(current: number, total: number): (number | null)[] {
@@ -49,8 +49,8 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
             onClick={() => onPageChange(page)}
             className={`w-10 h-10 rounded-lg font-medium transition-colors ${
               currentPage === page
-                ? 'bg-indigo-600 text-white'
-                : 'border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
+                ? 'bg-indigo-600 text-on-dark'
+                : 'border border-slate-200 dark:border-on-dark/10 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-on-dark/5'
             }`}
           >
             {page}

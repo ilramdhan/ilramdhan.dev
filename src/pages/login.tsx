@@ -29,8 +29,8 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center px-4 transition-colors">
       <Seo title="Admin login" noindex />
-      <div className="w-full max-w-sm bg-white border border-slate-200 dark:bg-slate-900 dark:border-white/10 rounded-2xl p-8 shadow-lg dark:shadow-none">
-        <h1 className="text-3xl font-bold text-center text-slate-900 dark:text-white mb-4">
+      <div className="w-full max-w-sm bg-on-dark border border-slate-200 dark:bg-slate-900 dark:border-on-dark/10 rounded-2xl p-8 shadow-lg dark:shadow-none">
+        <h1 className="text-3xl font-bold text-center text-slate-900 dark:text-on-dark mb-4">
           Admin login
         </h1>
         <p className="text-center text-slate-600 dark:text-slate-400 mb-8 text-sm">
@@ -40,7 +40,7 @@ export default function LoginPage() {
         <button
           onClick={() => void handleLogin()}
           disabled={isLoading}
-          className="w-full py-3 bg-slate-800 hover:bg-slate-950 text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200 rounded-lg font-semibold flex justify-center items-center gap-2 transition-colors"
+          className="w-full py-3 bg-slate-800 hover:bg-slate-950 text-on-dark dark:bg-on-dark dark:text-slate-900 dark:hover:bg-slate-200 rounded-lg font-semibold flex justify-center items-center gap-2 transition-colors"
         >
           {isLoading ? (
             <Loader2 className="motion-safe:animate-spin h-5 w-5" />
@@ -54,7 +54,7 @@ export default function LoginPage() {
         <div className="mt-8 text-center">
           <Link
             to="/"
-            className="text-sm text-slate-500 hover:text-slate-900 dark:hover:text-white"
+            className="text-sm text-slate-500 hover:text-slate-900 dark:hover:text-on-dark"
           >
             Back to Home
           </Link>

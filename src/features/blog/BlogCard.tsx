@@ -36,7 +36,7 @@ export function BlogCard({
   return (
     <article
       className={cn(
-        'group relative flex h-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-[box-shadow,border-color,transform] hover:border-indigo-500/40 hover:shadow-lg motion-safe:hover:-translate-y-0.5 focus-within:ring-2 focus-within:ring-indigo-500 dark:border-white/10 dark:bg-slate-900',
+        'group relative flex h-full overflow-hidden rounded-2xl border border-slate-200 bg-on-dark shadow-xs transition-[box-shadow,border-color,transform] hover:border-indigo-500/40 hover:shadow-lg motion-safe:hover:-translate-y-0.5 focus-within:ring-2 focus-within:ring-indigo-500 dark:border-on-dark/10 dark:bg-slate-900',
         feature ? 'flex-col md:flex-row' : 'flex-col',
         className,
       )}
@@ -59,7 +59,7 @@ export function BlogCard({
         ) : (
           <div
             aria-hidden="true"
-            className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-500/15 via-slate-100 to-sky-500/15 text-indigo-400 dark:via-slate-900"
+            className="flex h-full w-full items-center justify-center bg-linear-to-br from-indigo-500/15 via-slate-100 to-sky-500/15 text-indigo-400 dark:via-slate-900"
           >
             <FileText className="h-10 w-10" />
           </div>
@@ -82,7 +82,7 @@ export function BlogCard({
                 </li>
               ))}
               {tags.length > MAX_TAGS && (
-                <li className="rounded-full bg-slate-100 px-2 py-0.5 text-slate-600 dark:bg-white/5 dark:text-slate-400">
+                <li className="rounded-full bg-slate-100 px-2 py-0.5 text-slate-600 dark:bg-on-dark/5 dark:text-slate-400">
                   +{tags.length - MAX_TAGS}
                 </li>
               )}
@@ -91,14 +91,14 @@ export function BlogCard({
         </div>
         <Heading
           className={cn(
-            'mb-2 font-bold text-slate-900 transition-colors group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400 break-words',
+            'mb-2 font-bold text-slate-900 transition-colors group-hover:text-indigo-600 dark:text-on-dark dark:group-hover:text-indigo-400 wrap-break-word',
             feature ? 'text-2xl md:text-3xl line-clamp-3' : 'text-lg line-clamp-2',
           )}
         >
           {post.slug ? (
             <Link
               to={`/blog/${post.slug}`}
-              className="outline-none after:absolute after:inset-0 after:content-['']"
+              className="outline-hidden after:absolute after:inset-0 after:content-['']"
             >
               {post.title}
             </Link>
@@ -128,7 +128,7 @@ export function BlogCardSkeleton({ variant = 'default' }: { variant?: 'default' 
     <div
       aria-hidden="true"
       className={cn(
-        'flex overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-white/10 dark:bg-slate-900',
+        'flex overflow-hidden rounded-2xl border border-slate-200 bg-on-dark dark:border-on-dark/10 dark:bg-slate-900',
         feature ? 'flex-col md:flex-row' : 'flex-col',
       )}
     >
@@ -139,9 +139,9 @@ export function BlogCardSkeleton({ variant = 'default' }: { variant?: 'default' 
         )}
       />
       <div className="flex-1 space-y-3 p-5">
-        <div className="h-3 w-32 rounded bg-slate-100 dark:bg-slate-800" />
-        <div className="h-6 w-4/5 rounded bg-slate-200 dark:bg-slate-800" />
-        <div className="h-14 w-full rounded bg-slate-100 dark:bg-slate-800/60" />
+        <div className="h-3 w-32 rounded-sm bg-slate-100 dark:bg-slate-800" />
+        <div className="h-6 w-4/5 rounded-sm bg-slate-200 dark:bg-slate-800" />
+        <div className="h-14 w-full rounded-sm bg-slate-100 dark:bg-slate-800/60" />
       </div>
     </div>
   );
