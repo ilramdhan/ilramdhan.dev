@@ -34,7 +34,7 @@
     "framer-motion": "^10.16.4",
     "highlight.js": "11.12.0",
     "lowlight": "3.3.0",
-    "lucide-react": "^0.577.0",
+    "lucide-react": "^1.78.0",
     "meshline": "^3.1.6",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
@@ -42,7 +42,7 @@
     "react-router": "^8.5.2",
     "recharts": "^3.10.1",
     "remark-gfm": "^4.0.1",
-    "sonner": "^1.2.4",
+    "sonner": "^2.0.8",
     "tailwind-merge": "^2.6.1",
     "three": "^0.187.0",
     "zod": "4.6.6"
@@ -50,10 +50,10 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.14.0",
     "@eslint/js": "^10.0.1",
-    "@playwright/test": "1.56.1",
+    "@playwright/test": "1.65.1",
     "@tailwindcss/typography": "^0.5.10",
     "@testing-library/dom": "^10.4.2",
-    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/jest-dom": "^8.0.0",
     "@testing-library/react": "^16.3.3",
     "@testing-library/user-event": "^14.6.8",
     "@types/node": "^22.19.0",
@@ -64,7 +64,7 @@
     "eslint": "^10.15.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.5",
-    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-import-x": "^4.18.1",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.7",
@@ -80,16 +80,13 @@
     "vitest": "^5.1.1"
   },
   "overrides": {
-    "playwright-core": "1.56.1",
+    "playwright-core": "1.65.1",
     "postcss-selector-parser": "7.1.6",
     "framer-motion": {
       "react": "$react",
       "react-dom": "$react-dom"
     },
     "eslint-plugin-jsx-a11y": {
-      "eslint": "$eslint"
-    },
-    "eslint-plugin-import": {
       "eslint": "$eslint"
     }
   }

@@ -1,6 +1,7 @@
 import React from 'react';
-import { ExternalLink, FolderGit2, Github } from 'lucide-react';
+import { ExternalLink, FolderGit2 } from 'lucide-react';
 import { Link } from 'react-router';
+import { Github } from '@/components/ui/brand-icons';
 import { Reveal } from '@/components/motion';
 import type { Tables } from '@/types';
 import { cn, ensureFullUrl } from '@/lib/utils';

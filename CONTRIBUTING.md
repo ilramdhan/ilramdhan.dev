@@ -84,7 +84,7 @@ npx playwright show-report                  # HTML report of the last run
 ```
 
 - The app is built with `VITE_SUPABASE_URL=https://mock.supabase.co` (`npm run build:e2e`) and **every** Supabase request is answered in-browser by `e2e/fixtures/supabase-mock.ts` from the dataset in `e2e/fixtures/dataset.ts`. All other third-party requests (images, fonts, WakaTime, GitHub) are stubbed, so tests never touch the network or a real database. No `.env` is needed.
-- `@playwright/test` is pinned (currently `1.56.1`); bump it together with the browsers (`npx playwright install`). To use an already-installed Chromium, set `CHROMIUM_PATH=/path/to/chrome`.
+- `@playwright/test` is pinned (currently `1.65.1`, together with the `playwright-core` override in `package.json`); bump both together with the browsers (`npx playwright install chromium`). To use an already-installed Chromium, set `CHROMIUM_PATH=/path/to/chrome`.
 - Locally an already running server on port 4173 is reused (start it yourself with `npm run build:e2e && npx vite preview --outDir dist-e2e --port 4173` to iterate faster).
 - **Projects** (`playwright.config.ts`): `w320` … `w2560` (responsive matrix) plus `reduced-motion` and `light` run `e2e/smoke.spec.ts` only; `mobile` (360), `tablet` (768) and `desktop` (1280) run every other spec.
 - Always import `test`/`expect` from `e2e/fixtures/test.ts`: it installs the Supabase mock, sets the theme and collects console errors (`consoleErrors` fixture). The `supabase` fixture exposes `db` (mutate it to change responses) and `requests` (assert what the app sent).
