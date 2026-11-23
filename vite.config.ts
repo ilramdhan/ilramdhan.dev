@@ -151,6 +151,18 @@ const VENDOR_CHUNKS: [name: string, pattern: RegExp][] = [
   ['classnames', /[\\/]node_modules[\\/](tailwind-merge|clsx)[\\/]/],
 ];
 
+const CHUNK_ORDER = [
+  'react',
+  'classnames',
+  'router-query',
+  'supabase',
+  'markdown',
+  'markdown-gfm',
+  'highlight',
+  'charts',
+  'three',
+];
+
 export function vendorChunk(id: string): string | undefined {
   // Rollup/Vite runtime helpers (dynamic-import preloader, CJS interop) are shared by
   // every chunk; pin them to the always-loaded `react` chunk, otherwise Rollup may hoist
@@ -194,8 +206,19 @@ export default defineConfig(async () => {
     plugins: [react(), siteConfigHtml(), previewRouting(), ...analyze],
     define: appVersionDefine(),
     build: {
-      rollupOptions: {
-        output: { manualChunks: vendorChunk },
+      rolldownOptions: {
+        output: {
+          // One group per chunk name, earlier = higher priority. Rolldown pulls a group's
+          // dependencies into it; listing the always-loaded chunks (react, …) first keeps
+          // e.g. React out of `charts`, so heavy chunks never get dragged into the entry.
+          codeSplitting: {
+            groups: CHUNK_ORDER.map((name, i) => ({
+              name,
+              priority: CHUNK_ORDER.length - i,
+              test: (id: string) => vendorChunk(id) === name,
+            })),
+          },
+        },
       },
     },
     resolve: {
