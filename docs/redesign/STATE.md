@@ -26,7 +26,7 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 | --- | ------ | ---- | ------------------------------------------------------------------------------------------------------------------------ |
 | R0  | ✅     |      | baseline.md, inventory.md, screens/before (40), screens/reference (32); 404 not Lighthouse-measurable                    |
 | R1a | ✅     | #163 | React 19, R3F 9, Vite 8, Vitest 5, ESLint 10, router 8, Playwright 1.65, TS 6; holds below; CI green (735 e2e)           |
-| R1b | 🟡     |      | branch redesign/R1b-foundation: TW 4.3 (@tailwindcss/vite), MG tokens/type/dark/Auto, Inter self-hosted, CSS budget 19.5 |
+| R1b | ✅     | #164 | TW 4.3 (@tailwindcss/vite), MG tokens/type/dark/Auto, Inter self-hosted, CSS budget 19.5; CI green |
 | R2  | ⬜     |      |                                                                                                                          |
 | I1  | ⬜     |      |                                                                                                                          |
 | R3  | ⬜     |      |                                                                                                                          |
@@ -58,3 +58,4 @@ Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified 
 - 2026-11-23 R1a: deps upgraded on redesign/R1a-deps (React 19, R3F 9, Vite 8, Vitest 5, ESLint 10, router 8, Playwright 1.65, TS 6); holds recorded; PR into redesign/apple-clean, awaiting orchestrator verify.
 - 2026-11-23 R1a ✅ merged #163 (verified by orchestrator: npm ci on npm 10, gates green, CI green); also charts chunk kept off home + cached Intl formatter. Next: R1b.
 - 2026-11-23 R1b on redesign/R1b-foundation: Tailwind 4 + mutugading tokens verbatim, `white` = page surface (literal whites → `on-dark`), Light/Dark/Auto via data-theme + no-flash script (CSP hash updated), tailwind-merge 3, .site-glow removed; screens/R1b; awaiting orchestrator verify.
+- 2026-11-23 R1b ✅ merged #164 (verified by orchestrator: gates green, screens/R1b checked, CI green incl. full e2e). Deferred to R2–R4: MG CSS for Disclosure/footer/scroll-fill/settle/stagger/inset/view transitions/brand collapse. Next: R2 + I1 in parallel.
