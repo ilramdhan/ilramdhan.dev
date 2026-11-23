@@ -146,7 +146,9 @@ const VENDOR_CHUNKS: [name: string, pattern: RegExp][] = [
   // loads its animation features through a dynamic import, which a manual chunk would defeat.
   ['supabase', /[\\/]node_modules[\\/](@supabase|tslib|ws|iceberg-js)[\\/]/],
   ['router-query', /[\\/]node_modules[\\/](react-router|@tanstack)[\\/]/],
-  ['react', /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/],
+  // use-sync-external-store: shared by recharts and zustand (R3F); without the pin it lands in
+  // `charts` and the 3D card loads the whole charts chunk for it.
+  ['react', /[\\/]node_modules[\\/](react|react-dom|scheduler|use-sync-external-store)[\\/]/],
   // `cn()` is used by most components; keep it out of heavy chunks Rollup might hoist it into.
   ['classnames', /[\\/]node_modules[\\/](tailwind-merge|clsx)[\\/]/],
 ];
