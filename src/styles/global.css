@@ -579,6 +579,70 @@
   }
 }
 
+/* Chrome breakpoint (mutugading P12.2): the nav sheet and the footer disclosures switch at 834px (`nav:` / `max-nav:`). */
+@theme {
+  --breakpoint-nav: 52.125rem;
+}
+
+/*
+ * Disclosure (components/tile/Disclosure.tsx, ported from mutugading): the panel animates grid rows 0fr <-> 1fr (both
+ * ways, 300ms, ease-apple) and its content fades. Before hydration (or without JS) a closed panel is invisible to
+ * assistive tech and the tab order via `visibility` (delayed so closing still animates); once hydrated, a closed
+ * panel's content is `hidden="until-found"` (find-in-page opens it). Reduced motion: instant (global rule at the end).
+ */
+[data-disclosure-panel] {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 300ms var(--ease-out-apple);
+}
+[data-disclosure-panel][data-open] {
+  grid-template-rows: 1fr;
+}
+[data-disclosure-panel] > [data-disclosure-clip] {
+  min-height: 0;
+  overflow: hidden;
+}
+[data-disclosure-panel] [data-disclosure-content] {
+  opacity: 0;
+  transition: opacity 160ms var(--ease-out-apple);
+}
+[data-disclosure-panel][data-open] [data-disclosure-content] {
+  opacity: 1;
+  transition: opacity 300ms var(--ease-out-apple) 60ms;
+}
+[data-disclosure-panel]:not([data-open]):not([data-hydrated]) > [data-disclosure-clip] {
+  visibility: hidden;
+  transition: visibility 0s linear 300ms;
+}
+/* `staticFrom="nav"` (footer columns): plain, always-open columns from 834px; disclosures below it. A static group
+   never uses until-found (it would hide the desktop columns), so below 834px a closed panel is kept out of the tab
+   order with `visibility` (delayed, so closing still animates). */
+@media (max-width: 52.124rem) {
+  [data-disclosure-static='nav'] [data-disclosure-panel]:not([data-open]) > [data-disclosure-clip] {
+    visibility: hidden;
+    transition: visibility 0s linear 300ms;
+  }
+}
+@media (min-width: 52.125rem) {
+  [data-disclosure-static='nav'] [data-disclosure-panel],
+  [data-disclosure-static='nav'] [data-disclosure-panel]:not([data-open]) {
+    grid-template-rows: 1fr;
+    transition: none;
+  }
+  [data-disclosure-static='nav'] [data-disclosure-panel] > [data-disclosure-clip],
+  [data-disclosure-static='nav']
+    [data-disclosure-panel]:not([data-open]):not([data-hydrated])
+    > [data-disclosure-clip] {
+    visibility: visible;
+    overflow: visible;
+    transition: none;
+  }
+  [data-disclosure-static='nav'] [data-disclosure-panel] [data-disclosure-content] {
+    opacity: 1;
+    transition: none;
+  }
+}
+
 /* Markdown content must never widen the page: wide code scrolls, tables scroll. Unlayered on purpose: it must beat
    @tailwindcss/typography, which lives in the utilities layer in Tailwind 4. */
 .prose {
