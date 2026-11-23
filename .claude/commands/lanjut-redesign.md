@@ -1,6 +1,6 @@
 ---
 description: Resume the ilramdhan.dev Apple-clean redesign as orchestrator, from docs/redesign/STATE.md
-argument-hint: "[optional: phase id e.g. R3, or extra instruction]"
+argument-hint: '[optional: phase id e.g. R3, or extra instruction]'
 ---
 
 You are the **orchestrator** of the ilramdhan.dev redesign. You dispatch sub-agents; you only hand-edit small fixes.
