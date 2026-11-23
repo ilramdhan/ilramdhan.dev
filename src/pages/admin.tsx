@@ -82,26 +82,26 @@ export default function AdminPage() {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isMobileMenuOpen}
-            className="p-2 bg-white dark:bg-slate-900 rounded-lg shadow-md border border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-300"
+            className="p-2 bg-on-dark dark:bg-slate-900 rounded-lg shadow-md border border-slate-200 dark:border-on-dark/10 text-slate-600 dark:text-slate-300"
           >
             {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
         </div>
 
         {/* Sidebar (Desktop) */}
-        <aside className="w-64 border-r border-slate-200 dark:border-white/5 bg-white dark:bg-slate-900/50 hidden md:block fixed h-full overflow-y-auto pb-20 transition-colors z-40">
+        <aside className="w-64 border-r border-slate-200 dark:border-on-dark/5 bg-on-dark dark:bg-slate-900/50 hidden md:block fixed h-full overflow-y-auto pb-20 transition-colors z-40">
           <div className="p-6">
             <div className="flex items-center gap-2 mb-8 px-2">
-              <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white">
+              <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-on-dark">
                 A
               </div>
-              <span className="font-bold text-slate-900 dark:text-white">Admin Panel</span>
+              <span className="font-bold text-slate-900 dark:text-on-dark">Admin Panel</span>
             </div>
 
             <div className="space-y-1">
               <Link
                 to="/"
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-colors mb-4 border border-slate-200 dark:border-white/5 bg-white dark:bg-transparent"
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-on-dark hover:bg-slate-100 dark:hover:bg-on-dark/5 transition-colors mb-4 border border-slate-200 dark:border-on-dark/5 bg-on-dark dark:bg-transparent"
               >
                 <ExternalLink className="h-4 w-4" /> Back to Website
               </Link>
@@ -110,7 +110,7 @@ export default function AdminPage() {
                 <button
                   key={t.id}
                   onClick={() => setActiveTab(t.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === t.id ? 'bg-indigo-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'}`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === t.id ? 'bg-indigo-600 text-on-dark' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-on-dark/5'}`}
                 >
                   <t.icon className="h-4 w-4" />
                   <span>{t.label}</span>
@@ -136,22 +136,22 @@ export default function AdminPage() {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="md:hidden fixed inset-0 bg-black/50 z-40 backdrop-blur-sm"
+                className="md:hidden fixed inset-0 bg-black/50 z-40 backdrop-blur-xs"
               />
               <m.aside
                 initial={{ x: '-100%' }}
                 animate={{ x: 0 }}
                 exit={{ x: '-100%' }}
                 transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                className="md:hidden fixed top-0 left-0 h-full w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-white/10 z-50 overflow-y-auto pb-20"
+                className="md:hidden fixed top-0 left-0 h-full w-64 bg-on-dark dark:bg-slate-900 border-r border-slate-200 dark:border-on-dark/10 z-50 overflow-y-auto pb-20"
               >
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-8 px-2">
                     <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white">
+                      <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-on-dark">
                         A
                       </div>
-                      <span className="font-bold text-slate-900 dark:text-white">Admin</span>
+                      <span className="font-bold text-slate-900 dark:text-on-dark">Admin</span>
                     </div>
                     <button onClick={() => setIsMobileMenuOpen(false)} className="text-slate-500">
                       <X className="h-6 w-6" />
@@ -161,7 +161,7 @@ export default function AdminPage() {
                   <div className="space-y-1">
                     <Link
                       to="/"
-                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-colors mb-4 border border-slate-200 dark:border-white/5 bg-white dark:bg-transparent"
+                      className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-on-dark hover:bg-slate-100 dark:hover:bg-on-dark/5 transition-colors mb-4 border border-slate-200 dark:border-on-dark/5 bg-on-dark dark:bg-transparent"
                     >
                       <ExternalLink className="h-4 w-4" /> Back to Website
                     </Link>
@@ -173,7 +173,7 @@ export default function AdminPage() {
                           setActiveTab(t.id);
                           setIsMobileMenuOpen(false);
                         }}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === t.id ? 'bg-indigo-600 text-white' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'}`}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === t.id ? 'bg-indigo-600 text-on-dark' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-on-dark/5'}`}
                       >
                         <t.icon className="h-4 w-4" />
                         <span>{t.label}</span>

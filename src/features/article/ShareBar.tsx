@@ -11,7 +11,7 @@ interface ShareBarProps {
 }
 
 const button =
-  'inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-indigo-500/50 hover:text-indigo-600 outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-white/10 dark:bg-slate-900 dark:text-slate-200 dark:hover:text-indigo-400';
+  'inline-flex items-center gap-2 rounded-full border border-slate-200 bg-on-dark px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:border-indigo-500/50 hover:text-indigo-600 outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-on-dark/10 dark:bg-slate-900 dark:text-slate-200 dark:hover:text-indigo-400';
 
 /**
  * Share actions: the system share sheet where the Web Share API exists (decided after
@@ -43,7 +43,7 @@ export function ShareBar({ title, url }: ShareBarProps) {
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <span className="text-sm font-semibold text-slate-900 dark:text-white">Share</span>
+      <span className="text-sm font-semibold text-slate-900 dark:text-on-dark">Share</span>
       {canShare && (
         <button type="button" onClick={share} className={button}>
           <Share2 className="h-4 w-4" aria-hidden="true" /> Share…

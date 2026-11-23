@@ -29,7 +29,7 @@ export function ScrollToTop() {
         <button
           type="button"
           onClick={scrollToTop}
-          className="motion-safe:animate-pop-in fixed bottom-8 right-8 z-50 p-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg border border-white/10 transition-colors"
+          className="motion-safe:animate-pop-in fixed bottom-8 right-8 z-50 p-3 bg-indigo-600 hover:bg-indigo-700 text-on-dark rounded-full shadow-lg border border-on-dark/10 transition-colors"
           aria-label="Back to top"
         >
           <ArrowUp className="h-6 w-6" />

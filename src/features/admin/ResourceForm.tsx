@@ -52,7 +52,7 @@ export function ResourceForm<V extends FormValues>({
       {title && <h3 className="text-lg font-bold mb-4">{title}</h3>}
       {sections.map((section, i) => (
         <div key={i} className="space-y-4">
-          {section.divider && <hr className="border-slate-200 dark:border-white/10" />}
+          {section.divider && <hr className="border-slate-200 dark:border-on-dark/10" />}
           {section.title && <h2 className="text-xl font-bold">{section.title}</h2>}
           <div className={GRID[section.columns ?? 1]}>
             {section.fields.map((field) => (
@@ -188,13 +188,13 @@ function FormField<V extends FormValues>({
                   <img
                     src={url}
                     alt={`${field.label} ${media.urls.indexOf(url) + 1}`}
-                    className="h-16 w-16 object-cover rounded"
+                    className="h-16 w-16 object-cover rounded-sm"
                   />
                   <button
                     type="button"
                     aria-label="Remove image"
                     onClick={() => set({ ...media, urls: media.urls.filter((u) => u !== url) })}
-                    className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full p-0.5"
+                    className="absolute -top-1 -right-1 bg-red-500 text-on-dark rounded-full p-0.5"
                   >
                     <Trash className="h-3 w-3" />
                   </button>

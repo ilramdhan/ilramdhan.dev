@@ -28,7 +28,7 @@ export function RelatedPosts({ posts }: { posts: BlogCardData[] | undefined }) {
   if (!posts?.length) return null;
   return (
     <section aria-labelledby="related-heading">
-      <h2 id="related-heading" className="mb-6 text-2xl font-bold text-slate-900 dark:text-white">
+      <h2 id="related-heading" className="mb-6 text-2xl font-bold text-slate-900 dark:text-on-dark">
         Related articles
       </h2>
       <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

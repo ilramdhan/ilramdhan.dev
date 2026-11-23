@@ -33,7 +33,9 @@ export class RouteErrorBoundary extends Component<Props, State> {
         role="alert"
         className="min-h-screen flex flex-col items-center justify-center px-4 bg-slate-50 dark:bg-slate-950"
       >
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Something went wrong</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-on-dark">
+          Something went wrong
+        </h1>
         <ErrorState onRetry={() => this.setState({ error: null })}>
           An unexpected error occurred.{' '}
           <a href="/" className="underline">

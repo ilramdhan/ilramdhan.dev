@@ -49,7 +49,7 @@ function CertificatesContent() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-on-dark transition-colors duration-300">
       <Seo
         title="Certificates"
         description="Browse all professional certifications and achievements."
@@ -73,7 +73,7 @@ function CertificatesContent() {
               placeholder="Search certificates..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 rounded-full py-3 pl-12 pr-6 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none backdrop-blur-sm shadow-sm"
+              className="w-full bg-on-dark dark:bg-slate-900/80 border border-slate-200 dark:border-on-dark/10 rounded-full py-3 pl-12 pr-6 text-slate-900 dark:text-on-dark focus:ring-2 focus:ring-indigo-500 outline-hidden backdrop-blur-xs shadow-xs"
             />
           </div>
 
@@ -94,7 +94,7 @@ function CertificatesContent() {
             Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-xl bg-slate-200 dark:bg-slate-800/50 aspect-[4/3] motion-safe:animate-pulse"
+                className="rounded-xl bg-slate-200 dark:bg-slate-800/50 aspect-4/3 motion-safe:animate-pulse"
               />
             ))}
           {isError && !certData && (

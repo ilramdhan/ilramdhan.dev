@@ -22,7 +22,7 @@ interface ProjectCardProps {
 }
 
 const ACTION_CLASS =
-  'flex h-9 w-9 items-center justify-center rounded-full shadow-md transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500';
+  'flex h-9 w-9 items-center justify-center rounded-full shadow-md transition-colors focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500';
 
 /**
  * Project card (home, /projects, related projects): screenshot carousel or placeholder, demo/repo
@@ -46,7 +46,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
     <Reveal
       index={index}
       className={cn(
-        'group relative flex flex-col rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-white/10 overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-[transform,box-shadow,border-color] motion-safe:hover:-translate-y-0.5 hover:shadow-lg focus-within:ring-2 focus-within:ring-indigo-500',
+        'group relative flex flex-col rounded-xl bg-on-dark border border-slate-200 shadow-xs dark:bg-slate-900 dark:border-on-dark/10 overflow-hidden hover:border-indigo-500/50 dark:hover:border-indigo-500/50 transition-[transform,box-shadow,border-color] motion-safe:hover:-translate-y-0.5 hover:shadow-lg focus-within:ring-2 focus-within:ring-indigo-500',
         className,
       )}
     >
@@ -60,7 +60,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         ) : (
           <div
             aria-hidden="true"
-            className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-500/15 via-slate-100 to-sky-500/15 text-indigo-400 dark:via-slate-900"
+            className="flex h-full w-full items-center justify-center bg-linear-to-br from-indigo-500/15 via-slate-100 to-sky-500/15 text-indigo-400 dark:via-slate-900"
           >
             <FolderGit2 className="h-10 w-10" />
           </div>
@@ -76,7 +76,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 rel="noreferrer"
                 aria-label={`Live demo of ${title}`}
                 title="Live demo"
-                className={cn(ACTION_CLASS, 'bg-white text-slate-900 hover:bg-indigo-400')}
+                className={cn(ACTION_CLASS, 'bg-on-dark text-slate-900 hover:bg-indigo-400')}
               >
                 <ExternalLink className="h-4 w-4" aria-hidden="true" />
               </a>
@@ -90,7 +90,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 title="Source code"
                 className={cn(
                   ACTION_CLASS,
-                  'bg-slate-900 border border-white/20 text-white hover:bg-indigo-600',
+                  'bg-slate-900 border border-on-dark/20 text-on-dark hover:bg-indigo-600',
                 )}
               >
                 <Github className="h-4 w-4" aria-hidden="true" />
@@ -112,17 +112,17 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
               </li>
             ))}
             {tech.length > MAX_TECH && (
-              <li className="px-2 py-1 text-xs rounded-md bg-slate-100 text-slate-600 border border-slate-200 dark:bg-white/5 dark:text-slate-400 dark:border-white/10">
+              <li className="px-2 py-1 text-xs rounded-md bg-slate-100 text-slate-600 border border-slate-200 dark:bg-on-dark/5 dark:text-slate-400 dark:border-on-dark/10">
                 +{tech.length - MAX_TECH}
               </li>
             )}
           </ul>
         )}
-        <Heading className="text-xl font-bold text-slate-900 dark:text-white mb-2 line-clamp-2 break-words group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+        <Heading className="text-xl font-bold text-slate-900 dark:text-on-dark mb-2 line-clamp-2 wrap-break-word group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
           {project.slug ? (
             <Link
               to={`/projects/${project.slug}`}
-              className="outline-none after:absolute after:inset-0 after:content-['']"
+              className="outline-hidden after:absolute after:inset-0 after:content-['']"
             >
               {project.title}
             </Link>
@@ -145,7 +145,7 @@ export function ProjectCardSkeleton() {
   return (
     <div
       aria-hidden="true"
-      className="flex flex-col rounded-xl bg-white border border-slate-200 shadow-sm dark:bg-slate-900 dark:border-white/10 overflow-hidden"
+      className="flex flex-col rounded-xl bg-on-dark border border-slate-200 shadow-xs dark:bg-slate-900 dark:border-on-dark/10 overflow-hidden"
     >
       <div className="aspect-video w-full bg-slate-100 dark:bg-slate-800 motion-safe:animate-pulse" />
       <div className="p-6">
@@ -153,8 +153,8 @@ export function ProjectCardSkeleton() {
           <span className="h-[26px] w-14 rounded-md bg-slate-100 dark:bg-slate-800" />
           <span className="h-[26px] w-16 rounded-md bg-slate-100 dark:bg-slate-800" />
         </div>
-        <div className="h-7 w-2/3 mb-2 rounded bg-slate-200 dark:bg-slate-800" />
-        <div className="h-10 w-full rounded bg-slate-100 dark:bg-slate-800/60" />
+        <div className="h-7 w-2/3 mb-2 rounded-sm bg-slate-200 dark:bg-slate-800" />
+        <div className="h-10 w-full rounded-sm bg-slate-100 dark:bg-slate-800/60" />
       </div>
     </div>
   );

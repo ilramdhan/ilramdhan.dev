@@ -13,7 +13,7 @@ export function CertificatesTab() {
       renderRow={(cert, actions) => (
         <div key={cert.id} className="item-card group">
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded text-yellow-600 dark:text-yellow-400">
+            <div className="p-2 bg-yellow-100 dark:bg-yellow-900/30 rounded-sm text-yellow-600 dark:text-yellow-400">
               <FileText className="h-5 w-5" aria-hidden />
             </div>
             <div>

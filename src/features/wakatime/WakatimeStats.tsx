@@ -27,8 +27,8 @@ const WakatimeStats: React.FC<WakatimeStatsProps> = ({ data }) => {
   const gridColor = theme === 'dark' ? '#334155' : '#e2e8f0';
 
   return (
-    <div className="bg-white dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-white/5">
-      <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-white">
+    <div className="bg-on-dark dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-on-dark/5">
+      <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-on-dark">
         Coding Activity (Last 30 Days)
       </h3>
       <div style={{ width: '100%', height: 300 }}>

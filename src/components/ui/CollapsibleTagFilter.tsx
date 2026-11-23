@@ -44,7 +44,7 @@ export function CollapsibleTagFilter({
       {selectedTag && (
         <button
           onClick={() => onTagClick(null)}
-          className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700 transition-colors"
+          className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-indigo-600 text-on-dark text-sm font-medium hover:bg-indigo-700 transition-colors"
         >
           <X className="h-3 w-3" /> Clear
         </button>
@@ -55,8 +55,8 @@ export function CollapsibleTagFilter({
           onClick={() => onTagClick(tag === selectedTag ? null : tag)}
           className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-colors ${
             tag === selectedTag
-              ? 'bg-indigo-600 text-white border-indigo-600'
-              : 'bg-white dark:bg-slate-900/50 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/10 hover:border-indigo-500 hover:text-indigo-500'
+              ? 'bg-indigo-600 text-on-dark border-indigo-600'
+              : 'bg-on-dark dark:bg-slate-900/50 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-on-dark/10 hover:border-indigo-500 hover:text-indigo-500'
           }`}
         >
           {prefix}
@@ -66,7 +66,7 @@ export function CollapsibleTagFilter({
       {hasOverflow && (
         <button
           onClick={() => setExpanded(!expanded)}
-          className="flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium text-slate-500 dark:text-slate-400 border border-dashed border-slate-300 dark:border-white/10 hover:border-indigo-500 hover:text-indigo-500 transition-colors"
+          className="flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium text-slate-500 dark:text-slate-400 border border-dashed border-slate-300 dark:border-on-dark/10 hover:border-indigo-500 hover:text-indigo-500 transition-colors"
         >
           {expanded ? (
             <>

@@ -14,4 +14,4 @@ export const BODY_GRID = 'mt-10 lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:ga
  * prose-lg text: with the TOC the grid track (41rem at 1280 px) is narrower, so the column
  * fills it; without a TOC it keeps the measure instead of stretching to the frame.
  */
-export const BODY_COLUMN = 'min-w-0 max-w-[44rem]';
+export const BODY_COLUMN = 'min-w-0 max-w-176';

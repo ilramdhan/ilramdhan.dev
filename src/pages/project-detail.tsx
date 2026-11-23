@@ -41,7 +41,7 @@ function RelatedProjects({ projects }: { projects: ProjectCardData[] | undefined
     <section aria-labelledby="related-projects-heading" className="mt-16">
       <h2
         id="related-projects-heading"
-        className="mb-6 text-2xl font-bold text-slate-900 dark:text-white"
+        className="mb-6 text-2xl font-bold text-slate-900 dark:text-on-dark"
       >
         Related projects
       </h2>
@@ -89,7 +89,7 @@ export default function ProjectDetailPage() {
 
   if (isError && !project && !isNotFoundError(error)) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-white px-4 text-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-on-dark px-4 text-center">
         <h1 className="text-2xl font-bold mb-2">Couldn&apos;t load this project</h1>
         <p className="text-slate-500 dark:text-slate-400 mb-6">
           Check your connection and try again.
@@ -97,7 +97,7 @@ export default function ProjectDetailPage() {
         <div className="flex items-center gap-6">
           <button
             onClick={() => void refetch()}
-            className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors"
+            className="px-4 py-2 rounded-lg bg-indigo-600 text-on-dark hover:bg-indigo-700 transition-colors"
           >
             Try again
           </button>
@@ -118,7 +118,7 @@ export default function ProjectDetailPage() {
   const showToc = headings.length >= TOC_MIN_HEADINGS;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-on-dark transition-colors">
       <Seo
         title={project.title}
         description={project.short_description || undefined}
@@ -157,7 +157,7 @@ export default function ProjectDetailPage() {
             </nav>
             <TagLinks tags={tags} basePath="/projects" className="mb-4" />
             <h1
-              className="mb-4 text-3xl font-bold leading-tight tracking-tight text-slate-900 dark:text-white break-words hyphens-auto md:text-5xl"
+              className="mb-4 text-3xl font-bold leading-tight tracking-tight text-slate-900 dark:text-on-dark wrap-break-word hyphens-auto md:text-5xl"
               style={BALANCE}
             >
               {project.title}
@@ -189,7 +189,7 @@ export default function ProjectDetailPage() {
                     {techStack.map((tech) => (
                       <li
                         key={tech}
-                        className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-white/5"
+                        className="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-sm text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-on-dark/5"
                       >
                         {tech}
                       </li>
@@ -203,7 +203,7 @@ export default function ProjectDetailPage() {
                         href={ensureFullUrl(project.demo_url)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors shadow-lg shadow-indigo-500/20"
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-on-dark rounded-lg font-medium transition-colors shadow-lg shadow-indigo-500/20"
                       >
                         <ExternalLink className="h-4 w-4" aria-hidden="true" /> Live Demo
                       </a>
@@ -213,7 +213,7 @@ export default function ProjectDetailPage() {
                         href={ensureFullUrl(project.repo_url)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700 dark:border-white/10 rounded-lg font-medium transition-colors"
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 bg-on-dark text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-on-dark dark:hover:bg-slate-700 dark:border-on-dark/10 rounded-lg font-medium transition-colors"
                       >
                         <Github className="h-4 w-4" aria-hidden="true" /> View Source
                       </a>
@@ -225,7 +225,7 @@ export default function ProjectDetailPage() {
           </header>
 
           <div className="mt-8 space-y-3">
-            <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-2xl">
+            <div className="rounded-2xl overflow-hidden border border-slate-200 dark:border-on-dark/10 shadow-2xl">
               <ImageCarousel
                 images={images}
                 alt={alt}
@@ -253,7 +253,7 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* Full frame width, below the body grid: same right edge as the header. */}
-          <div className="mt-10 space-y-6 border-t border-slate-200 py-6 dark:border-white/10">
+          <div className="mt-10 space-y-6 border-t border-slate-200 py-6 dark:border-on-dark/10">
             <TagLinks tags={tags} basePath="/projects" />
             <ShareBar
               title={project.title}

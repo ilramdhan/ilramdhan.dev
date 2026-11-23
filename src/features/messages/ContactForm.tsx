@@ -99,7 +99,7 @@ export function ContactForm() {
           type="text"
           id="name"
           name="name"
-          className="w-full px-4 py-3 rounded-lg bg-white border border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-white/10 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+          className="w-full px-4 py-3 rounded-lg bg-on-dark border border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-on-dark/10 dark:text-on-dark placeholder-slate-400 dark:placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
           placeholder="John Doe"
           maxLength={100}
           disabled={addMessageMutation.isPending}
@@ -120,7 +120,7 @@ export function ContactForm() {
           type="email"
           id="email"
           name="email"
-          className="w-full px-4 py-3 rounded-lg bg-white border border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-white/10 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+          className="w-full px-4 py-3 rounded-lg bg-on-dark border border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-on-dark/10 dark:text-on-dark placeholder-slate-400 dark:placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
           placeholder="john@example.com"
           maxLength={320}
           disabled={addMessageMutation.isPending}
@@ -141,7 +141,7 @@ export function ContactForm() {
           id="message"
           name="message"
           rows={4}
-          className="w-full px-4 py-3 rounded-lg bg-white border border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-white/10 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
+          className="w-full px-4 py-3 rounded-lg bg-on-dark border border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-on-dark/10 dark:text-on-dark placeholder-slate-400 dark:placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
           placeholder="Tell me about your project..."
           maxLength={5000}
           disabled={addMessageMutation.isPending}
@@ -154,7 +154,7 @@ export function ContactForm() {
       <button
         type="submit"
         disabled={addMessageMutation.isPending || cooldown > 0}
-        className="w-full px-8 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full px-8 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-on-dark font-semibold transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {addMessageMutation.isPending ? (
           <>

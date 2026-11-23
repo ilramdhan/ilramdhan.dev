@@ -62,7 +62,7 @@ export function MessagesTab() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-on-dark">
           Inbox ({messages?.length || 0})
         </h1>
         <div className="flex gap-2">
@@ -87,7 +87,7 @@ export function MessagesTab() {
           {paginatedMessages.map((msg) => (
             <div
               key={msg.id}
-              className={`p-4 rounded-lg border ${msg.is_read ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-white/5' : 'bg-indigo-50 dark:bg-indigo-900/10 border-indigo-200 dark:border-indigo-500/30'}`}
+              className={`p-4 rounded-lg border ${msg.is_read ? 'bg-on-dark dark:bg-slate-900 border-slate-200 dark:border-on-dark/5' : 'bg-indigo-50 dark:bg-indigo-900/10 border-indigo-200 dark:border-indigo-500/30'}`}
             >
               <div className="flex justify-between items-start mb-2">
                 <div className="flex items-center gap-3">
@@ -97,7 +97,7 @@ export function MessagesTab() {
                     onChange={() => handleSelect(msg.id)}
                   />
                   <div>
-                    <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <h4 className="font-bold text-slate-900 dark:text-on-dark flex items-center gap-2">
                       {msg.name}
                       {!msg.is_read && <span className="w-2 h-2 rounded-full bg-indigo-500"></span>}
                     </h4>
@@ -112,7 +112,7 @@ export function MessagesTab() {
                     <button
                       onClick={() => markReadMutation.mutate(msg.id)}
                       title="Mark as Read"
-                      className="p-1 text-indigo-500 hover:bg-indigo-100 dark:hover:bg-indigo-500/10 rounded"
+                      className="p-1 text-indigo-500 hover:bg-indigo-100 dark:hover:bg-indigo-500/10 rounded-sm"
                     >
                       <MailOpen className="h-4 w-4" />
                     </button>
@@ -120,7 +120,7 @@ export function MessagesTab() {
                   <button
                     onClick={() => deleteMutation.mutate(msg.id)}
                     title="Delete"
-                    className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded"
+                    className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-sm"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>
@@ -139,7 +139,7 @@ export function MessagesTab() {
           <button
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded disabled:opacity-50"
+            className="p-2 bg-on-dark dark:bg-slate-900 border border-slate-200 dark:border-on-dark/10 rounded-sm disabled:opacity-50"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -149,7 +149,7 @@ export function MessagesTab() {
           <button
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded disabled:opacity-50"
+            className="p-2 bg-on-dark dark:bg-slate-900 border border-slate-200 dark:border-on-dark/10 rounded-sm disabled:opacity-50"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
