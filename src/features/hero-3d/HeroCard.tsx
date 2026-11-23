@@ -51,6 +51,10 @@ const segmentProps = {
   linearDamping: 2,
 } as const;
 
+function setRepeatWrapping(texture: THREE.Texture) {
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+}
+
 // Shape of /models/card.glb (the nodes/materials this component uses).
 type CardGLTF = {
   nodes: { card: THREE.Mesh; clip: THREE.Mesh; clamp: THREE.Mesh };
@@ -74,17 +78,16 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
 
   // Load GLTF and Textures
   const { nodes, materials } = useGLTF(CARD_MODEL) as unknown as CardGLTF;
-  const texture = useTexture(BAND_TEXTURE);
+  const texture = useTexture(BAND_TEXTURE, setRepeatWrapping);
   const { width, height } = useThree((state) => state.size);
 
   const [curve] = useState(
     () =>
-      new THREE.CatmullRomCurve3([
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-        new THREE.Vector3(),
-      ]),
+      new THREE.CatmullRomCurve3(
+        [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()],
+        false,
+        'chordal',
+      ),
   );
 
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
@@ -157,9 +160,6 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
       card.current.setAngvel({ x: ang.x, y: ang.y - rot.y * 0.25, z: ang.z }, true);
     }
   });
-
-  curve.curveType = 'chordal';
-  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 
   // Responsive Position
   const isMobile = width < 10;

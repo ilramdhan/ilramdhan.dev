@@ -101,9 +101,12 @@ export async function render(url: string, withContent: boolean): Promise<RenderR
   const client = createQueryClient();
   client.setDefaultOptions({ queries: { ...QUERY_DEFAULTS, retry: false } });
   const collector: { current: HeadDescriptor | null } = { current: null };
+  const collect = (head: HeadDescriptor) => {
+    collector.current = head;
+  };
   const app = () => (
     <StrictMode>
-      <HeadCollectorContext.Provider value={collector}>
+      <HeadCollectorContext.Provider value={collect}>
         <Providers client={client}>
           <StaticRouter location={url}>
             <GuardedRoutes />

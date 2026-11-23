@@ -4,14 +4,14 @@ import { useReducedMotion } from '@/lib/hooks';
 /** True once the element has been at least 30% visible; never flips back (animate once). */
 function useSeenOnce<T extends Element>() {
   const ref = useRef<T>(null);
-  const [seen, setSeen] = useState(false);
+  // No IntersectionObserver (old browsers, jsdom): treat as seen. Server renders `false`;
+  // every browser that hydrates prerendered HTML has IntersectionObserver.
+  const [seen, setSeen] = useState(
+    () => typeof window !== 'undefined' && typeof IntersectionObserver === 'undefined',
+  );
   useEffect(() => {
     const el = ref.current;
     if (!el || seen) return;
-    if (typeof IntersectionObserver === 'undefined') {
-      setSeen(true);
-      return;
-    }
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry?.isIntersecting) {
@@ -61,14 +61,10 @@ export function CountUp({
 }) {
   const reduced = useReducedMotion();
   const { ref, seen } = useSeenOnce<HTMLSpanElement>();
-  const [current, setCurrent] = useState(reduced ? value : 0);
+  const [current, setCurrent] = useState(0);
 
   useEffect(() => {
-    if (reduced) {
-      setCurrent(value);
-      return;
-    }
-    if (!seen) return;
+    if (reduced || !seen) return;
     const start = performance.now();
     const total = 900;
     let raf = 0;
@@ -83,7 +79,7 @@ export function CountUp({
 
   return (
     <span ref={ref} className="tabular-nums">
-      {current.toFixed(decimals)}
+      {(reduced ? value : current).toFixed(decimals)}
       {suffix}
     </span>
   );

@@ -55,7 +55,7 @@ export function Seo(props: SeoProps) {
   const { pathname } = useLocation();
   const { title, description, path, image, type, noindex } = props;
   const collector = useContext(HeadCollectorContext);
-  if (collector) collector.current = buildHead(props, pathname);
+  collector?.(buildHead(props, pathname));
 
   useEffect(() => {
     apply(buildHead({ title, description, path, image, type, noindex }, pathname));
