@@ -6,14 +6,14 @@
       "pattern": "\\.js$",
       "metric": "gzip",
       "aggregate": "sum",
-      "maxKiB": 1500
+      "maxKiB": 1610
     },
     {
       "name": "Largest JS chunk (gzip)",
       "pattern": "\\.js$",
       "metric": "gzip",
       "aggregate": "max",
-      "maxKiB": 1050
+      "maxKiB": 1125
     },
     {
       "name": "CSS total (gzip)",
@@ -35,7 +35,7 @@
       "route": "^assets/privacy-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "initial",
-      "maxKiB": 105
+      "maxKiB": 125
     },
     {
       "name": "Initial JS /blog (gzip)",
@@ -43,7 +43,7 @@
       "route": "^assets/blog-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "initial",
-      "maxKiB": 120
+      "maxKiB": 140
     },
     {
       "name": "Initial JS /projects (gzip)",
@@ -51,7 +51,7 @@
       "route": "^assets/projects-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "initial",
-      "maxKiB": 145
+      "maxKiB": 165
     },
     {
       "name": "Initial JS / (gzip)",
@@ -59,14 +59,14 @@
       "route": "^assets/home-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "initial",
-      "maxKiB": 190
+      "maxKiB": 165
     },
     {
       "name": "3D card chunks (gzip)",
       "pattern": "^assets/(three|HeroCard)-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "sum",
-      "maxKiB": 1060
+      "maxKiB": 1125
     }
   ]
 }

@@ -86,7 +86,7 @@ export function useReducedMotion(): boolean {
 }
 
 /** Whether the element is (partly) in the viewport; `true` where IntersectionObserver is missing. */
-export function useInView(ref: RefObject<Element>, rootMargin = '0px'): boolean {
+export function useInView(ref: RefObject<Element | null>, rootMargin = '0px'): boolean {
   const [inView, setInView] = useState(true);
   useEffect(() => {
     const el = ref.current;
