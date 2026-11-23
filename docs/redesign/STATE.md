@@ -22,7 +22,7 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 | ID  | Status | PR  | Notes                                                                                                 |
 | --- | ------ | --- | ----------------------------------------------------------------------------------------------------- |
 | R0  | ✅     |     | baseline.md, inventory.md, screens/before (40), screens/reference (32); 404 not Lighthouse-measurable |
-| R1a | ⬜     |     |                                                                                                       |
+| R1a | 🟡     |     | branch redesign/R1a-deps; step 1 (patch/minor) done                                                   |
 | R1b | ⬜     |     |                                                                                                       |
 | R2  | ⬜     |     |                                                                                                       |
 | I1  | ⬜     |     |                                                                                                       |
