@@ -22,24 +22,24 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 
 ## Phases
 
-| ID  | Status | PR   | Notes                                                                                                                    |
-| --- | ------ | ---- | ------------------------------------------------------------------------------------------------------------------------ |
-| R0  | ✅     |      | baseline.md, inventory.md, screens/before (40), screens/reference (32); 404 not Lighthouse-measurable                    |
-| R1a | ✅     | #163 | React 19, R3F 9, Vite 8, Vitest 5, ESLint 10, router 8, Playwright 1.65, TS 6; holds below; CI green (735 e2e)           |
-| R1b | ✅     | #164 | TW 4.3 (@tailwindcss/vite), MG tokens/type/dark/Auto, Inter self-hosted, CSS budget 19.5; CI green |
-| R2  | ⬜     |      |                                                                                                                          |
-| I1  | ⬜     |      |                                                                                                                          |
-| R3  | ⬜     |      |                                                                                                                          |
-| R4  | ⬜     |      |                                                                                                                          |
-| R5  | ⬜     |      |                                                                                                                          |
-| I2  | ⬜     |      |                                                                                                                          |
-| R6a | ⬜     |      |                                                                                                                          |
-| R6b | ⬜     |      |                                                                                                                          |
-| R6c | ⬜     |      |                                                                                                                          |
-| R6d | ⬜     |      |                                                                                                                          |
-| R7  | ⬜     |      |                                                                                                                          |
-| R8  | ⬜     |      |                                                                                                                          |
-| R9  | ⬜     |      |                                                                                                                          |
+| ID  | Status | PR   | Notes                                                                                                          |
+| --- | ------ | ---- | -------------------------------------------------------------------------------------------------------------- |
+| R0  | ✅     |      | baseline.md, inventory.md, screens/before (40), screens/reference (32); 404 not Lighthouse-measurable          |
+| R1a | ✅     | #163 | React 19, R3F 9, Vite 8, Vitest 5, ESLint 10, router 8, Playwright 1.65, TS 6; holds below; CI green (735 e2e) |
+| R1b | ✅     | #164 | TW 4.3 (@tailwindcss/vite), MG tokens/type/dark/Auto, Inter self-hosted, CSS budget 19.5; CI green             |
+| R2  | ⬜     |      |                                                                                                                |
+| I1  | ⬜     |      |                                                                                                                |
+| R3  | ⬜     |      |                                                                                                                |
+| R4  | ⬜     |      |                                                                                                                |
+| R5  | ⬜     |      |                                                                                                                |
+| I2  | ⬜     |      |                                                                                                                |
+| R6a | ⬜     |      |                                                                                                                |
+| R6b | ⬜     |      |                                                                                                                |
+| R6c | ⬜     |      |                                                                                                                |
+| R6d | ⬜     |      |                                                                                                                |
+| R7  | ⬜     |      |                                                                                                                |
+| R8  | ⬜     |      |                                                                                                                |
+| R9  | ⬜     |      |                                                                                                                |
 
 Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified by orchestrator.
 
