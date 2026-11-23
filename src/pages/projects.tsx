@@ -9,6 +9,7 @@ import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
 import { projectQueries } from '@/features/projects/queries';
 import { useListParams } from '@/lib/useListParams';
 import { Seo } from '@/components/seo/Seo';
+import { useT } from '@/i18n';
 import { MotionScope } from '@/components/motion';
 import motionFeatures from '@/components/motion/features';
 
@@ -27,6 +28,7 @@ function ProjectsContent() {
     setFilter,
     setPage,
   } = useListParams('tag');
+  const t = useT();
   const [params, setParams] = useSearchParams();
   const sort: Sort = params.get('sort') === 'oldest' ? 'oldest' : 'newest';
   const listTop = React.useRef<HTMLDivElement>(null);
@@ -82,28 +84,25 @@ function ProjectsContent() {
     );
   };
 
-  const resultLine = `${totalProjects} ${totalProjects === 1 ? 'project' : 'projects'}`;
+  const resultLine = t.projects.count(totalProjects);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
-      <Seo
-        title="Projects"
-        description="A collection of applications, tools, and experiments by Ilham Ramadhan."
-      />
+      <Seo title={t.seo.projects} description={t.seo.projectsDescription} />
       <Navbar />
       <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="mb-12">
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-on-dark mb-4">All Projects</h1>
-          <p className="text-slate-600 dark:text-slate-400 max-w-2xl">
-            A collection of applications, tools, and experiments.
-          </p>
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-on-dark mb-4">
+            {t.projects.heading}
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400 max-w-2xl">{t.projects.lead}</p>
         </div>
 
         <div ref={listTop} className="scroll-mt-24 mb-8 space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row">
             <div className="relative flex-1">
               <label htmlFor="project-search" className="sr-only">
-                Search projects
+                {t.projects.searchLabel}
               </label>
               <Search
                 className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500"
@@ -112,7 +111,7 @@ function ProjectsContent() {
               <input
                 id="project-search"
                 type="text"
-                placeholder="Search projects..."
+                placeholder={t.projects.searchPlaceholder}
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 className="w-full bg-on-dark dark:bg-slate-900/80 border border-slate-200 dark:border-on-dark/10 rounded-full py-3 pl-12 pr-12 text-slate-900 dark:text-on-dark focus:ring-2 focus:ring-indigo-500 outline-hidden backdrop-blur-xs shadow-xs"
@@ -120,7 +119,7 @@ function ProjectsContent() {
               {searchInput && (
                 <button
                   type="button"
-                  aria-label="Clear search"
+                  aria-label={t.list.clearSearch}
                   onClick={() => setSearchInput('')}
                   className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-on-dark focus-visible:ring-2 focus-visible:ring-indigo-500 outline-hidden"
                 >
@@ -130,7 +129,7 @@ function ProjectsContent() {
             </div>
             <div className="relative flex items-center gap-2">
               <label htmlFor="project-sort" className="sr-only">
-                Sort projects
+                {t.projects.sortLabel}
               </label>
               <select
                 id="project-sort"
@@ -138,8 +137,8 @@ function ProjectsContent() {
                 onChange={(e) => setSort(e.target.value === 'oldest' ? 'oldest' : 'newest')}
                 className="w-full sm:w-auto bg-on-dark dark:bg-slate-900/80 border border-slate-200 dark:border-on-dark/10 appearance-none rounded-full py-3 pl-5 pr-11 text-slate-900 dark:text-on-dark focus:ring-2 focus:ring-indigo-500 outline-hidden shadow-xs"
               >
-                <option value="newest">Newest first</option>
-                <option value="oldest">Oldest first</option>
+                <option value="newest">{t.list.sortNewest}</option>
+                <option value="oldest">{t.list.sortOldest}</option>
               </select>
               <ChevronDown
                 aria-hidden="true"
@@ -163,8 +162,8 @@ function ProjectsContent() {
               {!isLoadingProjects && (
                 <>
                   {resultLine}
-                  {searchQuery && <> for &ldquo;{searchQuery}&rdquo;</>}
-                  {selectedTag && <> tagged {selectedTag}</>}
+                  {searchQuery && t.list.forQuery(searchQuery)}
+                  {selectedTag && t.list.tagged(selectedTag)}
                 </>
               )}
             </p>
@@ -174,7 +173,7 @@ function ProjectsContent() {
                 onClick={clearFilters}
                 className="rounded-full px-3 py-1 font-medium text-indigo-600 dark:text-indigo-400 hover:underline focus-visible:ring-2 focus-visible:ring-indigo-500 outline-hidden"
               >
-                Clear filters
+                {t.list.clearFilters}
               </button>
             )}
           </div>
@@ -184,7 +183,7 @@ function ProjectsContent() {
           {isLoadingProjects && (
             <>
               <span role="status" className="sr-only">
-                Loading projects…
+                {t.projects.loading}
               </span>
               {Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
                 <ProjectCardSkeleton key={i} />
@@ -192,9 +191,7 @@ function ProjectsContent() {
             </>
           )}
           {isErrorProjects && !projectData && (
-            <div className="col-span-full py-10 text-center text-red-500">
-              Error loading projects.
-            </div>
+            <div className="col-span-full py-10 text-center text-red-500">{t.projects.error}</div>
           )}
           {currentProjects.map((project, index) => (
             <ProjectCard
@@ -207,18 +204,14 @@ function ProjectsContent() {
           ))}
           {currentProjects.length === 0 && !isLoadingProjects && !isErrorProjects && (
             <div className="col-span-full text-center text-slate-500 py-10 space-y-4">
-              <p>
-                {filtersActive
-                  ? 'No projects match your filters. Try a different search or tag.'
-                  : 'No projects yet.'}
-              </p>
+              <p>{filtersActive ? t.projects.noMatch : t.projects.none}</p>
               {filtersActive && (
                 <button
                   type="button"
                   onClick={clearFilters}
                   className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-on-dark hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 outline-hidden"
                 >
-                  Clear filters
+                  {t.list.clearFilters}
                 </button>
               )}
             </div>

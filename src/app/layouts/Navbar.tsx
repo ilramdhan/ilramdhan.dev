@@ -1,7 +1,10 @@
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Menu, X } from 'lucide-react';
-import { Link, useLocation } from 'react-router';
+import { useLocation } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from '@/i18n/Link';
+import { useT } from '@/i18n';
+import { splitLocale } from '@/i18n/locale';
 import { useIsAdmin } from '@/lib/useIsAdmin';
 import { profileQueries } from '@/features/profile/queries';
 import { prefetchRoute } from '@/app/prefetch';
@@ -11,7 +14,8 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
-  const path = location.pathname;
+  const path = splitLocale(location.pathname).path;
+  const t = useT();
   const { isAdmin } = useIsAdmin();
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery(profileQueries.detail());
@@ -70,12 +74,12 @@ export function Navbar() {
   const isActive = (linkPath: string) => (linkPath.includes('#') ? false : path === linkPath);
 
   const navLinks = [
-    { name: 'Home', path: '/' },
-    { name: 'About', path: '/about' },
-    { name: 'Certificates', path: '/certificates' },
-    { name: 'Projects', path: '/projects' },
-    { name: 'Blog', path: '/blog' },
-    { name: 'Contact', path: '/#contact' },
+    { name: t.nav.home, path: '/' },
+    { name: t.nav.about, path: '/about' },
+    { name: t.nav.certificates, path: '/certificates' },
+    { name: t.nav.projects, path: '/projects' },
+    { name: t.nav.blog, path: '/blog' },
+    { name: t.nav.contact, path: '/#contact' },
   ];
 
   return (
@@ -91,13 +95,18 @@ export function Navbar() {
         <div
           className={`flex items-center justify-between motion-safe:transition-[height] duration-200 ${scrolled ? 'h-14' : 'h-16'}`}
         >
-          <Link to="/" aria-label="Home" className="shrink-0" onClick={() => setIsOpen(false)}>
+          <Link
+            to="/"
+            aria-label={t.nav.homeLabel}
+            className="shrink-0"
+            onClick={() => setIsOpen(false)}
+          >
             {isLoadingProfile ? (
               <div className="h-8 w-28 bg-slate-200 dark:bg-slate-800 rounded-sm motion-safe:animate-pulse" />
             ) : profile?.logo_url ? (
               <Img
                 src={profile.logo_url}
-                alt={profile.logo_text || 'Home'}
+                alt={profile.logo_text || t.nav.homeLabel}
                 width={128}
                 height={32}
                 priority
@@ -154,7 +163,7 @@ export function Navbar() {
                   onFocus={() => prefetchRoute('/admin')}
                   className="bg-indigo-600 hover:bg-indigo-700 text-on-dark px-4 py-2 rounded-md text-sm font-medium transition-colors"
                 >
-                  Dashboard
+                  {t.nav.dashboard}
                 </Link>
               )}
             </div>
@@ -164,6 +173,8 @@ export function Navbar() {
             <ThemeToggle />
             <button
               onClick={() => setIsOpen(!isOpen)}
+              aria-label={isOpen ? t.nav.closeMenu : t.nav.openMenu}
+              aria-expanded={isOpen}
               className="inline-flex items-center justify-center p-2 rounded-md text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-on-dark hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-hidden"
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -193,7 +204,7 @@ export function Navbar() {
                 onClick={() => setIsOpen(false)}
                 className="text-left text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 block px-3 py-2 rounded-md text-base font-medium"
               >
-                Dashboard
+                {t.nav.dashboard}
               </Link>
             )}
           </div>

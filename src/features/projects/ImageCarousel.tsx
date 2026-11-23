@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Img } from '@/components/ui/Img';
+import { useT } from '@/i18n';
 import { useSwipe } from './use-swipe';
 
 interface ImageCarouselProps {
@@ -20,6 +21,7 @@ export function ImageCarousel({
   priority = false,
   sizes,
 }: ImageCarouselProps) {
+  const t = useT();
   const [currentIndex, setCurrentIndex] = useState(0);
   const count = images?.length ?? 0;
   const go = (delta: number) => setCurrentIndex((curr) => (curr + delta + count) % count);
@@ -73,7 +75,7 @@ export function ImageCarousel({
       <Img
         key={currentIndex}
         src={images[currentIndex]!}
-        alt={count > 1 ? `${alt}: image ${currentIndex + 1} of ${count}` : alt}
+        alt={count > 1 ? t.gallery.imageOf(alt, currentIndex + 1, count) : alt}
         width={1600}
         height={900}
         priority={priority && currentIndex === 0}
@@ -88,7 +90,7 @@ export function ImageCarousel({
             <button
               type="button"
               onClick={prev}
-              aria-label="Previous image"
+              aria-label={t.gallery.prev}
               className="pointer-events-auto p-1 rounded-full bg-black/50 text-on-dark hover:bg-black/70 backdrop-blur-xs"
             >
               <ChevronLeft className="h-5 w-5" />
@@ -96,7 +98,7 @@ export function ImageCarousel({
             <button
               type="button"
               onClick={next}
-              aria-label="Next image"
+              aria-label={t.gallery.next}
               className="pointer-events-auto p-1 rounded-full bg-black/50 text-on-dark hover:bg-black/70 backdrop-blur-xs"
             >
               <ChevronRight className="h-5 w-5" />
@@ -108,7 +110,7 @@ export function ImageCarousel({
               <button
                 key={idx}
                 type="button"
-                aria-label={`Show image ${idx + 1} of ${count}`}
+                aria-label={t.gallery.showImage(idx + 1, count)}
                 aria-current={idx === currentIndex}
                 onClick={(e) => {
                   e.stopPropagation();

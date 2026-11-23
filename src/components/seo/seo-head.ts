@@ -1,5 +1,6 @@
 // Relative on purpose: also bundled into the Vercel function (api/), which ignores tsconfig paths.
 import { absoluteUrl, siteConfig } from '../../config/site';
+import { alternatesFor, OG_LOCALE, splitLocale } from '../../i18n/locale';
 
 export interface SeoProps {
   /** Page title; rendered as `<title> | <site name>`. Omit for the site default title. */
@@ -26,6 +27,10 @@ export interface HeadDescriptor {
   meta: Array<['name' | 'property', string, string]>;
   /** Canonical URL, or `null` for no canonical. */
   canonical: string | null;
+  /** `<link rel="alternate" hreflang>` targets (every language version + x-default). */
+  alternates: Array<{ hreflang: string; href: string }>;
+  /** `<html lang>`. */
+  lang: string;
 }
 
 export function buildHead(props: SeoProps, pathname: string): HeadDescriptor {
@@ -47,8 +52,19 @@ export function buildHead(props: SeoProps, pathname: string): HeadDescriptor {
     ['name', 'twitter:description', description],
     ['name', 'twitter:image', image],
   ];
+  const { locale } = splitLocale(pathname);
+  meta.push(['property', 'og:locale', OG_LOCALE[locale]]);
+  for (const other of ['en', 'id'] as const) {
+    if (other !== locale) meta.push(['property', 'og:locale:alternate', OG_LOCALE[other]]);
+  }
   if (canonical) {
     meta.push(['property', 'og:url', canonical], ['name', 'twitter:url', canonical]);
   }
-  return { title, meta, canonical };
+  const alternates = props.noindex
+    ? []
+    : alternatesFor(props.path ?? pathname).map((a) => ({
+        hreflang: a.hreflang,
+        href: absoluteUrl(a.path),
+      }));
+  return { title, meta, canonical, alternates, lang: locale };
 }

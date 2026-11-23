@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import { cn } from '@/lib/utils';
+import { useT } from '@/i18n';
 import type { TocHeading } from './toc';
 
 /**
@@ -64,10 +65,9 @@ function TocList({ headings, active }: { headings: TocHeading[]; active?: string
 export const TOC_ASIDE_CLASS =
   'hidden lg:block w-64 shrink-0 self-start sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto';
 
-const TITLE = 'On this page';
-
 /** Sticky "On this page" sidebar (lg+), with the heading being read highlighted. */
 export function TocSidebar({ headings }: { headings: TocHeading[] }) {
+  const TITLE = useT().article.onThisPage;
   const active = useActiveHeading(headings.map((h) => h.id).join('\n'));
   return (
     <nav aria-label={TITLE} className="w-full">
@@ -81,6 +81,7 @@ export function TocSidebar({ headings }: { headings: TocHeading[] }) {
 
 /** Collapsible "On this page" list above the article (below lg). */
 export function TocDisclosure({ headings }: { headings: TocHeading[] }) {
+  const TITLE = useT().article.onThisPage;
   return (
     <details className="mb-8 rounded-xl border border-slate-200 bg-on-dark p-4 dark:border-on-dark/10 dark:bg-slate-900 lg:hidden">
       <summary className="font-semibold">{TITLE}</summary>

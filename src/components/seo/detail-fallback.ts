@@ -1,4 +1,5 @@
 // Relative imports on purpose: bundled into the Vercel function (api/), which ignores tsconfig paths.
+import { localePath, type Locale } from '../../i18n/locale';
 import { applyHeadToHtml } from './head-html';
 import { buildHead, type SeoProps } from './seo-head';
 
@@ -32,7 +33,7 @@ export function detailParams(url: URL): { kind: string | null; slug: string | nu
   const kind = url.searchParams.get('kind');
   const slug = url.searchParams.get('slug');
   if (kind && slug) return { kind, slug };
-  const match = /^\/(blog|projects)\/([^/]+)$/.exec(url.pathname);
+  const match = /^(?:\/id)?\/(blog|projects)\/([^/]+)$/.exec(url.pathname);
   if (!match?.[1] || !match[2]) return { kind: null, slug: null };
   try {
     return { kind: match[1] === 'blog' ? 'blog' : 'project', slug: decodeURIComponent(match[2]) };
@@ -74,6 +75,7 @@ export function buildDetailHtml(
   kind: DetailKind,
   slug: string,
   row: DetailRow | null,
+  locale: Locale = 'en',
 ): string | null {
   if (!row) return null;
   const props: SeoProps = {
@@ -84,6 +86,6 @@ export function buildDetailHtml(
   };
   return applyHeadToHtml(
     template,
-    buildHead(props, `${SOURCES[kind].path}${encodeURIComponent(slug)}`),
+    buildHead(props, localePath(`${SOURCES[kind].path}${encodeURIComponent(slug)}`, locale)),
   );
 }

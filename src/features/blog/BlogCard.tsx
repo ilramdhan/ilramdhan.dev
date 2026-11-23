@@ -1,8 +1,9 @@
-import { Link } from 'react-router';
 import { Calendar, FileText } from 'lucide-react';
+import { Link } from '@/i18n/Link';
 import { Img } from '@/components/ui/Img';
 import { formatDate } from '@/lib/date';
 import { cn } from '@/lib/utils';
+import { useLocale, useT } from '@/i18n';
 import type { BlogCard as BlogCardData } from './api';
 
 const MAX_TAGS = 2;
@@ -29,6 +30,8 @@ export function BlogCard({
   sizes = '(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw',
   className,
 }: BlogCardProps) {
+  const t = useT();
+  const locale = useLocale();
   const feature = variant === 'feature';
   const tags = post.tags ?? [];
   const cover = post.images?.[0];
@@ -69,10 +72,12 @@ export function BlogCard({
         <div className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-slate-500 dark:text-slate-400">
           <span className="flex items-center gap-1">
             <Calendar className="h-3 w-3" aria-hidden="true" />
-            <time dateTime={post.published_at ?? undefined}>{formatDate(post.published_at)}</time>
+            <time dateTime={post.published_at ?? undefined}>
+              {formatDate(post.published_at, locale)}
+            </time>
           </span>
           {tags.length > 0 && (
-            <ul className="flex flex-wrap gap-1.5" aria-label="Tags">
+            <ul className="flex flex-wrap gap-1.5" aria-label={t.common.tags}>
               {tags.slice(0, MAX_TAGS).map((tag) => (
                 <li
                   key={tag}

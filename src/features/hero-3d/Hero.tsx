@@ -1,11 +1,12 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { m } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from '@/i18n/Link';
 import { useIsPrerendered, useMediaQuery } from '@/lib/hooks';
 import { SocialLinks } from '@/components/ui/SocialLinks';
 import { profileQueries } from '@/features/profile/queries';
+import { useT } from '@/i18n';
 
 // three.js, Rapier and the model live in this chunk; it is only imported when
 // `useHeroCard` allows it (T-25), so mobile and reduced-motion visitors never fetch it.
@@ -92,6 +93,7 @@ export function Hero() {
   const desktop = useMediaQuery('(min-width: 1024px)');
   const card = useHeroCard();
   const prerendered = useIsPrerendered();
+  const t = useT();
 
   const { data: profile, isLoading } = useQuery(profileQueries.detail());
 
@@ -164,13 +166,13 @@ export function Hero() {
                 to="/projects"
                 className="w-full sm:w-auto px-8 py-3 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-on-dark font-semibold transition-all active:scale-[0.98] flex items-center justify-center gap-2"
               >
-                View Projects <ArrowRight className="h-4 w-4" />
+                {t.hero.viewProjects} <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/#contact"
                 className="w-full sm:w-auto px-8 py-3 text-center rounded-lg bg-on-dark border border-slate-200 text-slate-700 hover:bg-slate-50 dark:bg-on-dark/5 dark:hover:bg-on-dark/10 dark:border-on-dark/10 dark:text-on-dark font-semibold transition-all active:scale-[0.98]"
               >
-                Contact Me
+                {t.hero.contactMe}
               </Link>
             </div>
 
@@ -189,7 +191,7 @@ export function Hero() {
             {desktop && !card.enabled && (
               <img
                 src="/models/card-poster.webp"
-                alt="Ilham Ramadhan's ID card"
+                alt={t.hero.cardAlt(profile?.display_name ?? 'Ilham Ramadhan')}
                 width={476}
                 height={720}
                 decoding="async"

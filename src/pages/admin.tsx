@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import {
   FolderKanban,
   Mail,
@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { m, AnimatePresence } from 'framer-motion';
+import { Link } from '@/i18n/Link';
 import { Seo } from '@/components/seo/Seo';
 import { MotionScope } from '@/components/motion';
 import { useAuth } from '@/app/auth';

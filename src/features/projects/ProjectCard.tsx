@@ -1,10 +1,11 @@
 import React from 'react';
 import { ExternalLink, FolderGit2 } from 'lucide-react';
-import { Link } from 'react-router';
+import { Link } from '@/i18n/Link';
 import { Github } from '@/components/ui/brand-icons';
 import { Reveal } from '@/components/motion';
 import type { Tables } from '@/types';
 import { cn, ensureFullUrl } from '@/lib/utils';
+import { useT } from '@/i18n';
 import { ImageCarousel } from './ImageCarousel';
 
 type Project = Tables<'projects'>;
@@ -36,11 +37,12 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
   sizes = '(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw',
   className,
 }) => {
+  const t = useT();
   const tech = project.tech_stack ?? [];
   const images = project.images ?? [];
   const demo = ensureFullUrl(project.demo_url);
   const repo = ensureFullUrl(project.repo_url);
-  const title = project.title ?? 'project';
+  const title = project.title ?? t.projects.fallbackTitle;
 
   return (
     <Reveal
@@ -54,7 +56,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
         {images.length > 0 ? (
           <ImageCarousel
             images={images}
-            alt={project.title ? `Screenshot of ${project.title}` : 'Project screenshot'}
+            alt={project.title ? t.projects.screenshotOf(project.title) : t.projects.screenshot}
             sizes={sizes}
           />
         ) : (
@@ -74,8 +76,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 href={demo}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={`Live demo of ${title}`}
-                title="Live demo"
+                aria-label={t.projects.liveDemoOf(title)}
+                title={t.projects.liveDemo}
                 className={cn(ACTION_CLASS, 'bg-on-dark text-slate-900 hover:bg-indigo-400')}
               >
                 <ExternalLink className="h-4 w-4" aria-hidden="true" />
@@ -86,8 +88,8 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
                 href={repo}
                 target="_blank"
                 rel="noreferrer"
-                aria-label={`Source code of ${title}`}
-                title="Source code"
+                aria-label={t.projects.sourceOf(title)}
+                title={t.projects.sourceCode}
                 className={cn(
                   ACTION_CLASS,
                   'bg-slate-900 border border-on-dark/20 text-on-dark hover:bg-indigo-600',
@@ -102,7 +104,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({
 
       <div className="flex flex-1 flex-col p-6">
         {tech.length > 0 && (
-          <ul className="flex flex-wrap gap-2 mb-4" aria-label="Tech stack">
+          <ul className="flex flex-wrap gap-2 mb-4" aria-label={t.common.techStack}>
             {tech.slice(0, MAX_TECH).map((t) => (
               <li
                 key={t}

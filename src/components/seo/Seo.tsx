@@ -30,6 +30,15 @@ function apply(head: HeadDescriptor) {
     const attr = key.startsWith('og:') ? 'property' : 'name';
     if (!keep.has(`${attr}:${key}`)) removeMeta(attr, key);
   }
+  document.head.querySelectorAll('link[rel="alternate"][hreflang]').forEach((el) => el.remove());
+  for (const a of head.alternates) {
+    const el = document.createElement('link');
+    el.rel = 'alternate';
+    el.hreflang = a.hreflang;
+    el.href = a.href;
+    document.head.appendChild(el);
+  }
+  document.documentElement.lang = head.lang;
   let link = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
   if (head.canonical) {
     if (!link) {
@@ -63,7 +72,12 @@ export function Seo(props: SeoProps) {
 
   useEffect(
     () => () => {
-      apply({ ...buildHead({}, '/'), canonical: null });
+      apply({
+        ...buildHead({}, '/'),
+        canonical: null,
+        alternates: [],
+        lang: document.documentElement.lang, // keep the locale until the next page's <Seo> applies its own
+      });
     },
     [],
   );

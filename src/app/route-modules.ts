@@ -1,3 +1,5 @@
+import { splitLocale } from '@/i18n/locale';
+
 /**
  * Lazy page modules (T-24). Every page is its own chunk so a visitor only downloads
  * the code of the route they open; `loadRouteChunk` warms a chunk on link hover/focus
@@ -22,7 +24,7 @@ export type PageKey = keyof typeof pageLoaders;
 
 /** Maps a pathname (or `/#section` link) to the page chunk that renders it. */
 export function pageForPath(path: string): PageKey {
-  const pathname = path.split(/[?#]/)[0] || '/';
+  const pathname = splitLocale(path.split(/[?#]/)[0] || '/').path;
   if (pathname === '/') return 'home';
   const [first, second] = pathname.split('/').filter(Boolean);
   switch (first) {

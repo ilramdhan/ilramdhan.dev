@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Send } from 'lucide-react';
 import { toast } from 'sonner';
+import { useT } from '@/i18n';
 import { addMessage } from './api';
 import { messageKeys } from './queries';
 import type { ContactState } from './contact-validation';
@@ -9,6 +10,7 @@ import type { ContactState } from './contact-validation';
 const COOLDOWN_SECONDS = 60;
 
 export function ContactForm() {
+  const t = useT();
   const queryClient = useQueryClient();
   const [state, setState] = useState<ContactState>({});
   const [cooldown, setCooldown] = useState(0);
@@ -42,7 +44,7 @@ export function ContactForm() {
       void queryClient.invalidateQueries({ queryKey: messageKeys.all });
     },
     onError: () => {
-      toast.error('Something went wrong. Please try again.');
+      toast.error(t.contact.error);
     },
   });
 
@@ -55,18 +57,18 @@ export function ContactForm() {
     if (formData.get('website')) return;
 
     if (cooldown > 0) {
-      toast.error(`Please wait ${cooldown}s before sending another message.`);
+      toast.error(t.contact.waitToast(cooldown));
       return;
     }
 
     // Loaded on submit, so zod stays out of the home page's initial JS.
     const { validateContactForm } = await import('./contact-validation');
-    const validation = validateContactForm(formData);
+    const validation = validateContactForm(formData, t.contact.validation);
 
     if (!validation.success) {
       setState({
         errors: validation.error,
-        message: 'Missing Fields',
+        message: t.contact.missingFields,
         success: false,
       });
       return;
@@ -74,9 +76,9 @@ export function ContactForm() {
 
     addMessageMutation.mutate(validation.data, {
       onSuccess: () => {
-        toast.success("Message sent! We'll get back to you soon.");
+        toast.success(t.contact.sentToast);
         form.reset();
-        setState({ success: true, message: 'Message sent successfully!' });
+        setState({ success: true, message: t.contact.sentState });
         startCooldown();
       },
     });
@@ -93,14 +95,14 @@ export function ContactForm() {
           htmlFor="name"
           className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
         >
-          Name
+          {t.contact.name}
         </label>
         <input
           type="text"
           id="name"
           name="name"
           className="w-full px-4 py-3 rounded-lg bg-on-dark border border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-on-dark/10 dark:text-on-dark placeholder-slate-400 dark:placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-          placeholder="John Doe"
+          placeholder={t.contact.namePlaceholder}
           maxLength={100}
           disabled={addMessageMutation.isPending}
         />
@@ -114,14 +116,14 @@ export function ContactForm() {
           htmlFor="email"
           className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
         >
-          Email
+          {t.contact.email}
         </label>
         <input
           type="email"
           id="email"
           name="email"
           className="w-full px-4 py-3 rounded-lg bg-on-dark border border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-on-dark/10 dark:text-on-dark placeholder-slate-400 dark:placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-          placeholder="john@example.com"
+          placeholder={t.contact.emailPlaceholder}
           maxLength={320}
           disabled={addMessageMutation.isPending}
         />
@@ -135,14 +137,14 @@ export function ContactForm() {
           htmlFor="message"
           className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2"
         >
-          Message
+          {t.contact.message}
         </label>
         <textarea
           id="message"
           name="message"
           rows={4}
           className="w-full px-4 py-3 rounded-lg bg-on-dark border border-slate-300 text-slate-900 dark:bg-slate-900 dark:border-on-dark/10 dark:text-on-dark placeholder-slate-400 dark:placeholder-slate-500 focus:outline-hidden focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all resize-none"
-          placeholder="Tell me about your project..."
+          placeholder={t.contact.messagePlaceholder}
           maxLength={5000}
           disabled={addMessageMutation.isPending}
         />
@@ -158,13 +160,13 @@ export function ContactForm() {
       >
         {addMessageMutation.isPending ? (
           <>
-            <Loader2 className="h-4 w-4 motion-safe:animate-spin" /> Sending...
+            <Loader2 className="h-4 w-4 motion-safe:animate-spin" /> {t.contact.sending}
           </>
         ) : cooldown > 0 ? (
-          <>Please wait {cooldown}s</>
+          <>{t.contact.wait(cooldown)}</>
         ) : (
           <>
-            Send Message <Send className="h-4 w-4" />
+            {t.contact.send} <Send className="h-4 w-4" />
           </>
         )}
       </button>

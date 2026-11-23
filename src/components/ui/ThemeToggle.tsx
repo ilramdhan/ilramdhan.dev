@@ -1,12 +1,16 @@
 import { flushSync } from 'react-dom';
 import { Moon, Sun, SunMoon } from 'lucide-react';
 import { useTheme, type ThemePreference } from '@/app/ThemeContext';
+import { useT } from '@/i18n';
 
 /** What a click switches to (ThemeContext cycles dark -> light -> auto). */
-const NEXT: Record<ThemePreference, { label: string; Icon: typeof Sun }> = {
-  dark: { label: 'Switch to light theme', Icon: Sun },
-  light: { label: 'Switch to automatic theme (follows the system)', Icon: SunMoon },
-  system: { label: 'Switch to dark theme', Icon: Moon },
+const NEXT: Record<
+  ThemePreference,
+  { label: 'toLight' | 'toSystem' | 'toDark'; Icon: typeof Sun }
+> = {
+  dark: { label: 'toLight', Icon: Sun },
+  light: { label: 'toSystem', Icon: SunMoon },
+  system: { label: 'toDark', Icon: Moon },
 };
 
 type ViewTransitionDoc = Document & {
@@ -20,7 +24,9 @@ type ViewTransitionDoc = Document & {
  */
 export function ThemeToggle() {
   const { preference, toggleTheme } = useTheme();
-  const { label, Icon } = NEXT[preference];
+  const t = useT();
+  const { label: labelKey, Icon } = NEXT[preference];
+  const label = t.theme[labelKey];
 
   const onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     const doc = document as ViewTransitionDoc;

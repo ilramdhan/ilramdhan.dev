@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback, useId, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import { Calendar, Clock, MessageSquare, Send } from 'lucide-react';
 import { toast } from 'sonner';
+import { Link } from '@/i18n/Link';
 import { Markdown } from '@/components/ui/Markdown';
 import NotFoundPage from '@/pages/not-found';
 import { Navbar } from '@/app/layouts/Navbar';
@@ -20,6 +21,7 @@ import { ShareBar } from '@/features/blog/ShareBar';
 import { TOC_ASIDE_CLASS, TocDisclosure, TocSidebar } from '@/features/blog/TableOfContents';
 import { extractHeadings } from '@/features/blog/toc';
 import { formatDate } from '@/lib/date';
+import { useLocale, useT } from '@/i18n';
 import { ArticleSkeleton } from '@/features/article/ArticleSkeleton';
 import {
   BALANCE,
@@ -33,6 +35,8 @@ const COMMENT_COOLDOWN = 30;
 
 export default function BlogDetailPage() {
   const { slug } = useParams<{ slug: string }>();
+  const t = useT();
+  const locale = useLocale();
   const queryClient = useQueryClient();
 
   const {
@@ -58,14 +62,14 @@ export default function BlogDetailPage() {
   const { mutate: addComment, isPending: isAddingComment } = useMutation({
     mutationFn: addCommentAPI,
     onSuccess: () => {
-      toast.success('Comment added!');
+      toast.success(t.post.added);
       void queryClient.invalidateQueries({ queryKey: blogKeys.comments(blog?.id) });
       setCommentName('');
       setCommentText('');
       startCooldown();
     },
     onError: (error) => {
-      toast.error(`Failed to add comment: ${error.message}`);
+      toast.error(t.post.addFailed(error.message));
     },
   });
 
@@ -95,24 +99,22 @@ export default function BlogDetailPage() {
     }, 1000);
   }, []);
 
-  if (isLoading) return <ArticleSkeleton label="Loading article..." />;
+  if (isLoading) return <ArticleSkeleton label={t.post.loading} />;
 
   if (isError && !blog && !isNotFoundError(error)) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-on-dark px-4 text-center">
-        <h1 className="text-2xl font-bold mb-2">Couldn&apos;t load this article</h1>
-        <p className="text-slate-500 dark:text-slate-400 mb-6">
-          Check your connection and try again.
-        </p>
+        <h1 className="text-2xl font-bold mb-2">{t.post.loadError}</h1>
+        <p className="text-slate-500 dark:text-slate-400 mb-6">{t.post.loadErrorHint}</p>
         <div className="flex items-center gap-6">
           <button
             onClick={() => void refetch()}
             className="px-4 py-2 rounded-lg bg-indigo-600 text-on-dark hover:bg-indigo-700 transition-colors"
           >
-            Try again
+            {t.common.tryAgain}
           </button>
           <Link to="/blog" className="text-indigo-600 dark:text-indigo-400 hover:underline">
-            Back to Blog
+            {t.post.backToBlog}
           </Link>
         </div>
       </div>
@@ -130,7 +132,7 @@ export default function BlogDetailPage() {
     // Honeypot
     if (commentHoneypot) return;
     if (cooldown > 0) {
-      toast.error(`Please wait ${cooldown}s before posting again.`);
+      toast.error(t.post.waitToast(cooldown));
       return;
     }
     if (!commentName.trim() || !commentText.trim() || !blog.id) return;
@@ -153,19 +155,19 @@ export default function BlogDetailPage() {
         <article ref={articleRef}>
           <header>
             <nav
-              aria-label="Breadcrumb"
+              aria-label={t.article.breadcrumb}
               className="mb-6 text-sm text-slate-600 dark:text-slate-400"
             >
               <ol className="flex min-w-0 items-center gap-1">
                 <li className="shrink-0">
                   <Link to="/" className="hover:text-indigo-600 dark:hover:text-indigo-400">
-                    Home
+                    {t.article.home}
                   </Link>
                 </li>
                 <li className="flex shrink-0 items-center gap-1">
                   <span aria-hidden="true">/</span>
                   <Link to="/blog" className="hover:text-indigo-600 dark:hover:text-indigo-400">
-                    Blog
+                    {t.nav.blog}
                   </Link>
                 </li>
                 <li className="flex min-w-0 items-center gap-1">
@@ -193,12 +195,12 @@ export default function BlogDetailPage() {
               {blog.published_at && (
                 <span className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" aria-hidden="true" />
-                  <time dateTime={blog.published_at}>{formatDate(blog.published_at)}</time>
+                  <time dateTime={blog.published_at}>{formatDate(blog.published_at, locale)}</time>
                 </span>
               )}
               <span className="flex items-center gap-2">
                 <Clock className="h-4 w-4" aria-hidden="true" />
-                {minutes} min read
+                {t.common.minRead(minutes)}
               </span>
             </p>
           </header>
@@ -207,7 +209,7 @@ export default function BlogDetailPage() {
             <figure className="mt-8 aspect-video overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-900">
               <Img
                 src={cover}
-                alt={blog.title ? `Cover image for “${blog.title}”` : 'Blog post cover'}
+                alt={blog.title ? t.post.coverAlt(blog.title) : t.post.coverFallback}
                 width={1600}
                 height={900}
                 priority
@@ -224,7 +226,7 @@ export default function BlogDetailPage() {
                 <Markdown components={components}>{content}</Markdown>
               </div>
               {gallery.length > 0 && (
-                <ul className="mt-10 grid grid-cols-2 gap-4" aria-label="More images">
+                <ul className="mt-10 grid grid-cols-2 gap-4" aria-label={t.post.moreImages}>
                   {gallery.map((src, i) => (
                     <li
                       key={src}
@@ -232,7 +234,7 @@ export default function BlogDetailPage() {
                     >
                       <Img
                         src={src}
-                        alt={`Image ${i + 2} for “${blog.title}”`}
+                        alt={t.post.imageAlt(i + 2, blog.title)}
                         width={1600}
                         height={900}
                         sizes="(min-width: 768px) 384px, 50vw"
@@ -267,7 +269,7 @@ export default function BlogDetailPage() {
             id="comments-heading"
             className="mb-6 flex items-center gap-2 text-2xl font-bold text-slate-900 dark:text-on-dark"
           >
-            <MessageSquare className="h-6 w-6" aria-hidden="true" /> Comments (
+            <MessageSquare className="h-6 w-6" aria-hidden="true" /> {t.post.comments} (
             {comments?.length || 0})
           </h2>
 
@@ -293,7 +295,7 @@ export default function BlogDetailPage() {
               </div>
               <div>
                 <label htmlFor={nameId} className="mb-1 block text-sm font-medium">
-                  Name
+                  {t.post.name}
                 </label>
                 <input
                   id={nameId}
@@ -301,7 +303,7 @@ export default function BlogDetailPage() {
                   value={commentName}
                   onChange={(e) => setCommentName(e.target.value)}
                   className="input focus:ring-2"
-                  placeholder="Your Name"
+                  placeholder={t.post.namePlaceholder}
                   autoComplete="name"
                   maxLength={100}
                   required
@@ -309,14 +311,14 @@ export default function BlogDetailPage() {
               </div>
               <div>
                 <label htmlFor={commentId} className="mb-1 block text-sm font-medium">
-                  Comment
+                  {t.post.comment}
                 </label>
                 <textarea
                   id={commentId}
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
                   className="input focus:ring-2"
-                  placeholder="Share your thoughts..."
+                  placeholder={t.post.commentPlaceholder}
                   rows={4}
                   maxLength={2000}
                   required
@@ -328,12 +330,12 @@ export default function BlogDetailPage() {
                 className="btn-primary px-6"
               >
                 {isAddingComment ? (
-                  'Posting...'
+                  t.post.posting
                 ) : cooldown > 0 ? (
-                  `Wait ${cooldown}s`
+                  t.post.wait(cooldown)
                 ) : (
                   <>
-                    <Send className="h-4 w-4" aria-hidden="true" /> Post Comment
+                    <Send className="h-4 w-4" aria-hidden="true" /> {t.post.post}
                   </>
                 )}
               </button>
@@ -341,7 +343,7 @@ export default function BlogDetailPage() {
 
             <div className="space-y-4">
               {isLoadingComments ? (
-                <p className="text-slate-600 dark:text-slate-400">Loading comments...</p>
+                <p className="text-slate-600 dark:text-slate-400">{t.post.loadingComments}</p>
               ) : (
                 <ul className="space-y-4">
                   {comments?.map((comment) => (
@@ -357,7 +359,7 @@ export default function BlogDetailPage() {
                           dateTime={comment.created_at}
                           className="text-xs text-slate-600 dark:text-slate-400"
                         >
-                          {formatDate(comment.created_at)}
+                          {formatDate(comment.created_at, locale)}
                         </time>
                       </div>
                       <p className="whitespace-pre-wrap wrap-break-word text-sm text-slate-700 dark:text-slate-300">
@@ -368,9 +370,7 @@ export default function BlogDetailPage() {
                 </ul>
               )}
               {comments?.length === 0 && (
-                <p className="text-slate-600 dark:text-slate-400">
-                  No comments yet. Be the first to share your thoughts!
-                </p>
+                <p className="text-slate-600 dark:text-slate-400">{t.post.noComments}</p>
               )}
             </div>
           </div>

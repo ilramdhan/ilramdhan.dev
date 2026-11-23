@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { validateContactForm } from './contact-validation';
+import { en } from '@/i18n/messages/en';
+import { id } from '@/i18n/messages/id';
+import { validateContactForm as validate } from './contact-validation';
+
+const validateContactForm = (data: FormData) => validate(data, en.contact.validation);
 
 function form(fields: Record<string, string>) {
   const data = new FormData();
@@ -25,5 +29,14 @@ describe('validateContactForm', () => {
     expect(result.error.name?.[0]).toMatch(/at least 2/);
     expect(result.error.email?.[0]).toMatch(/valid email/);
     expect(result.error.message?.[0]).toMatch(/at least 10/);
+  });
+
+  it('uses the supplied locale for error messages', () => {
+    const result = validate(
+      form({ name: 'V', email: 'nope', message: 'short' }),
+      id.contact.validation,
+    );
+    if (result.success) throw new Error('expected failure');
+    expect(result.error.name?.[0]).toBe(id.contact.validation.name);
   });
 });

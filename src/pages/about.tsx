@@ -1,7 +1,7 @@
 import React, { lazy, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router';
 import { Download, MapPin, Briefcase, GraduationCap, ArrowRight, Award } from 'lucide-react';
+import { Link } from '@/i18n/Link';
 import { Markdown } from '@/components/ui/Markdown';
 import { CountUp, GrowBar, MotionScope, Reveal } from '@/components/motion';
 import { CertificateCard } from '@/components/ui/CertificateCard';
@@ -17,11 +17,13 @@ import { ensureFullUrl } from '@/lib/utils';
 import { Seo } from '@/components/seo/Seo';
 import { Img } from '@/components/ui/Img';
 import motionFeatures from '@/components/motion/features';
+import { useT } from '@/i18n';
 
 // recharts (~100 KB gzip) is only needed for this one chart (T-24).
 const WakatimeStats = lazy(() => import('@/features/wakatime/WakatimeStats'));
 
 function AboutContent() {
+  const t = useT();
   const { theme } = useTheme();
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery(profileQueries.detail());
@@ -59,17 +61,14 @@ function AboutContent() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
-        <p>Loading...</p>
+        <p>{t.about.loading}</p>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-on-dark transition-colors duration-300">
-      <Seo
-        title="About"
-        description="Learn more about Ilham Ramadhan — experience, education, certifications, and coding activity."
-      />
+      <Seo title={t.seo.about} description={t.seo.aboutDescription} />
       <Navbar />
       <div className="pt-32 pb-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row gap-12 items-start mb-20">
@@ -78,7 +77,11 @@ function AboutContent() {
               <div className="absolute inset-0 bg-indigo-500/10 mix-blend-overlay" />
               <Img
                 src={profile?.avatar_url || ''}
-                alt={profile?.display_name ? `Portrait of ${profile.display_name}` : 'Portrait'}
+                alt={
+                  profile?.display_name
+                    ? t.about.portraitOf(profile.display_name)
+                    : t.about.portrait
+                }
                 width={512}
                 height={512}
                 priority
@@ -110,13 +113,15 @@ function AboutContent() {
                 rel="noopener noreferrer"
                 className="mt-8 w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-on-dark py-3 rounded-lg font-medium transition-all shadow-lg shadow-indigo-500/20"
               >
-                <Download className="h-5 w-5" /> Download CV
+                <Download className="h-5 w-5" /> {t.about.downloadCv}
               </a>
             )}
           </div>
 
           <div className="flex-1">
-            <h1 className="text-4xl font-bold mb-6">{profile?.display_name || 'About Me'}</h1>
+            <h1 className="text-4xl font-bold mb-6">
+              {profile?.display_name || t.about.fallbackHeading}
+            </h1>
             <div className="prose prose-lg prose-slate dark:prose-invert">
               <Markdown components={{ h1: 'h2' }}>{profile?.detailed_bio || ''}</Markdown>
             </div>
@@ -129,7 +134,7 @@ function AboutContent() {
               <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400">
                 <Briefcase className="h-6 w-6" />
               </div>
-              Experience
+              {t.about.experience}
             </h2>
             <div className="space-y-8 border-l-2 border-slate-200 dark:border-slate-800 ml-3 pl-8 relative">
               {experience?.map((exp, idx) => (
@@ -155,7 +160,7 @@ function AboutContent() {
               <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-400">
                 <GraduationCap className="h-6 w-6" />
               </div>
-              Education
+              {t.about.education}
             </h2>
             <div className="space-y-8 border-l-2 border-slate-200 dark:border-slate-800 ml-3 pl-8 relative">
               {education?.map((edu, idx) => (
@@ -184,14 +189,14 @@ function AboutContent() {
                 <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600 dark:text-green-400">
                   <Award className="h-6 w-6" />
                 </div>
-                Certificates
+                {t.about.certificates}
               </h2>
               {certificates.length > 3 && (
                 <Link
                   to="/certificates"
                   className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium text-sm flex items-center gap-1"
                 >
-                  View All Certificates <ArrowRight className="h-4 w-4" />
+                  {t.about.viewAllCertificates} <ArrowRight className="h-4 w-4" />
                 </Link>
               )}
             </div>
@@ -205,7 +210,7 @@ function AboutContent() {
 
         <div className="border-t border-slate-200 dark:border-on-dark/10 pt-16">
           <h2 className="text-2xl font-bold mb-8 text-center text-slate-900 dark:text-on-dark">
-            Coding Activity
+            {t.about.codingActivity}
           </h2>
 
           {/* Wakatime Stats - Using Public JSON Data */}
@@ -214,7 +219,7 @@ function AboutContent() {
               {/* Custom Top Languages Visualization */}
               <div className="bg-on-dark dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-on-dark/5">
                 <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-on-dark">
-                  Languages (Last 7 Days)
+                  {t.about.languagesWeek}
                 </h3>
                 <div className="space-y-4">
                   {wakatime.data.slice(0, 5).map((lang) => (
@@ -263,7 +268,7 @@ function AboutContent() {
                     width={1200}
                     height={420}
                     src={`https://github-act-graph.rodriaum.com/graph?username=${username}&${theme === 'dark' ? 'bg_color=09090B&color=FAFAFA&line=FAFAFA&point=FAFAFA' : 'bg_color=FFFFFF&color=09090B&line=09090B&point=09090B'}&area=true&hide_border=true`}
-                    alt={`${username}'s GitHub activity graph`}
+                    alt={t.about.githubGraph(username)}
                     className="rounded-xl border border-slate-200 dark:border-on-dark/10 shadow-lg w-full h-auto"
                   />
                 </a>
@@ -273,7 +278,7 @@ function AboutContent() {
                   width={880}
                   height={192}
                   src={`https://raw.githubusercontent.com/${siteConfig.githubUsername}/Snake-in-Contribution-Grid/output/github-contribution-grid-snake.svg`}
-                  alt="GitHub Contribution Grid Snake"
+                  alt={t.about.githubSnake}
                   className="max-w-full h-auto"
                 />
               </div>

@@ -5,6 +5,8 @@ describe('pageForPath', () => {
   it.each([
     ['/', 'home'],
     ['/#contact', 'home'],
+    ['/id', 'home'],
+    ['/id/blog/a-post', 'blogDetail'],
     ['/about', 'about'],
     ['/projects', 'projects'],
     ['/projects/some-slug', 'projectDetail'],

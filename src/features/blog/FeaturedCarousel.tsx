@@ -1,4 +1,5 @@
 import { Carousel, CarouselSkeleton, CAROUSEL_MIN_ITEMS } from '@/components/ui/Carousel';
+import { useT } from '@/i18n';
 import { BlogCard, BlogCardSkeleton } from './BlogCard';
 import type { BlogCard as BlogCardData } from './api';
 
@@ -14,14 +15,15 @@ export function FeaturedCarouselSkeleton() {
 
 /** Featured posts on the home page: the generic `Carousel` with blog cards (#113). */
 export function FeaturedCarousel({ posts }: { posts: BlogCardData[] }) {
+  const t = useT();
   return (
     <Carousel
       items={posts}
       getKey={(post) => post.id}
       renderItem={(post, { sizes }) => <BlogCard post={post} headingLevel="h3" sizes={sizes} />}
-      label="Featured articles"
-      prevLabel="Previous articles"
-      nextLabel="Next articles"
+      label={t.home.carouselArticles}
+      prevLabel={t.home.prevArticles}
+      nextLabel={t.home.nextArticles}
       trackTestId="featured-track"
     />
   );

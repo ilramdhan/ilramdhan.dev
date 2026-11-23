@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { Link2, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useT } from '@/i18n';
 
 const noSubscribe = () => () => {};
 
@@ -18,6 +19,7 @@ const button =
  * mount, so the prerendered markup never depends on the browser), copy link, X, LinkedIn.
  */
 export function ShareBar({ title, url }: ShareBarProps) {
+  const t = useT();
   const canShare = useSyncExternalStore(
     noSubscribe,
     () => typeof navigator.share === 'function',
@@ -31,33 +33,35 @@ export function ShareBar({ title, url }: ShareBarProps) {
   };
   const copy = () => {
     if (!navigator.clipboard) {
-      toast.error('Copying is not supported in this browser.');
+      toast.error(t.article.copyUnsupported);
       return;
     }
     navigator.clipboard.writeText(url).then(
-      () => toast.success('Link copied to clipboard'),
-      () => toast.error('Could not copy the link.'),
+      () => toast.success(t.article.copied),
+      () => toast.error(t.article.copyFailed),
     );
   };
   const enc = encodeURIComponent;
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <span className="text-sm font-semibold text-slate-900 dark:text-on-dark">Share</span>
+      <span className="text-sm font-semibold text-slate-900 dark:text-on-dark">
+        {t.article.share}
+      </span>
       {canShare && (
         <button type="button" onClick={share} className={button}>
-          <Share2 className="h-4 w-4" aria-hidden="true" /> Share…
+          <Share2 className="h-4 w-4" aria-hidden="true" /> {t.article.shareMore}
         </button>
       )}
       <button type="button" onClick={copy} className={button}>
-        <Link2 className="h-4 w-4" aria-hidden="true" /> Copy link
+        <Link2 className="h-4 w-4" aria-hidden="true" /> {t.article.copyLink}
       </button>
       <a
         href={`https://twitter.com/intent/tweet?text=${enc(title)}&url=${enc(url)}`}
         target="_blank"
         rel="noopener noreferrer"
         className={button}
-        aria-label="Share on X (opens in a new tab)"
+        aria-label={t.article.shareOnX}
       >
         X
       </a>
@@ -66,7 +70,7 @@ export function ShareBar({ title, url }: ShareBarProps) {
         target="_blank"
         rel="noopener noreferrer"
         className={button}
-        aria-label="Share on LinkedIn (opens in a new tab)"
+        aria-label={t.article.shareOnLinkedIn}
       >
         LinkedIn
       </a>

@@ -9,6 +9,7 @@ import { BlogCard, BlogCardSkeleton } from '@/features/blog/BlogCard';
 import { blogQueries } from '@/features/blog/queries';
 import { useListParams } from '@/lib/useListParams';
 import { Seo } from '@/components/seo/Seo';
+import { useT } from '@/i18n';
 
 const ITEMS_PER_PAGE = 9;
 
@@ -24,6 +25,7 @@ export default function BlogPage() {
     setFilter,
     setPage,
   } = useListParams('tag');
+  const t = useT();
   const [params, setParams] = useSearchParams();
   const sort: Sort = params.get('sort') === 'oldest' ? 'oldest' : 'newest';
   const listTop = React.useRef<HTMLDivElement>(null);
@@ -81,28 +83,23 @@ export default function BlogPage() {
     );
   };
 
-  const resultLine = `${totalBlogs} ${totalBlogs === 1 ? 'article' : 'articles'}`;
+  const resultLine = t.blog.count(totalBlogs);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-on-dark transition-colors duration-300">
-      <Seo
-        title="Blog"
-        description="Insights, thoughts, and tutorials on web development, design, and technology."
-      />
+      <Seo title={t.seo.blog} description={t.seo.blogDescription} />
       <Navbar />
       <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Writings</h1>
-          <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-            Insights, thoughts, and tutorials on web development, design, and technology.
-          </p>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">{t.blog.heading}</h1>
+          <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">{t.blog.lead}</p>
         </div>
 
         <div ref={listTop} className="scroll-mt-24 mb-8 space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row">
             <div className="relative flex-1">
               <label htmlFor="blog-search" className="sr-only">
-                Search articles
+                {t.blog.searchLabel}
               </label>
               <Search
                 className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500"
@@ -111,7 +108,7 @@ export default function BlogPage() {
               <input
                 id="blog-search"
                 type="text"
-                placeholder="Search articles..."
+                placeholder={t.blog.searchPlaceholder}
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 className="w-full bg-on-dark dark:bg-slate-900/80 border border-slate-200 dark:border-on-dark/10 rounded-full py-3 pl-12 pr-12 text-slate-900 dark:text-on-dark focus:ring-2 focus:ring-indigo-500 outline-hidden backdrop-blur-xs shadow-xs"
@@ -119,7 +116,7 @@ export default function BlogPage() {
               {searchInput && (
                 <button
                   type="button"
-                  aria-label="Clear search"
+                  aria-label={t.list.clearSearch}
                   onClick={() => setSearchInput('')}
                   className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-on-dark focus-visible:ring-2 focus-visible:ring-indigo-500 outline-hidden"
                 >
@@ -129,7 +126,7 @@ export default function BlogPage() {
             </div>
             <div className="relative flex items-center gap-2">
               <label htmlFor="blog-sort" className="sr-only">
-                Sort articles
+                {t.blog.sortLabel}
               </label>
               <select
                 id="blog-sort"
@@ -137,8 +134,8 @@ export default function BlogPage() {
                 onChange={(e) => setSort(e.target.value === 'oldest' ? 'oldest' : 'newest')}
                 className="w-full sm:w-auto bg-on-dark dark:bg-slate-900/80 border border-slate-200 dark:border-on-dark/10 appearance-none rounded-full py-3 pl-5 pr-11 text-slate-900 dark:text-on-dark focus:ring-2 focus:ring-indigo-500 outline-hidden shadow-xs"
               >
-                <option value="newest">Newest first</option>
-                <option value="oldest">Oldest first</option>
+                <option value="newest">{t.list.sortNewest}</option>
+                <option value="oldest">{t.list.sortOldest}</option>
               </select>
               <ChevronDown
                 aria-hidden="true"
@@ -163,8 +160,8 @@ export default function BlogPage() {
               {!isLoadingBlogs && (
                 <>
                   {resultLine}
-                  {searchQuery && <> for &ldquo;{searchQuery}&rdquo;</>}
-                  {selectedTag && <> tagged #{selectedTag}</>}
+                  {searchQuery && t.list.forQuery(searchQuery)}
+                  {selectedTag && t.list.tagged(`#${selectedTag}`)}
                 </>
               )}
             </p>
@@ -174,7 +171,7 @@ export default function BlogPage() {
                 onClick={clearFilters}
                 className="rounded-full px-3 py-1 font-medium text-indigo-600 dark:text-indigo-400 hover:underline focus-visible:ring-2 focus-visible:ring-indigo-500 outline-hidden"
               >
-                Clear filters
+                {t.list.clearFilters}
               </button>
             )}
           </div>
@@ -184,7 +181,7 @@ export default function BlogPage() {
           {isLoadingBlogs && (
             <>
               <span role="status" className="sr-only">
-                Loading articles…
+                {t.blog.loading}
               </span>
               {showFeature && <BlogCardSkeleton variant="feature" />}
               {Array.from({ length: showFeature ? ITEMS_PER_PAGE - 1 : ITEMS_PER_PAGE }).map(
@@ -195,9 +192,7 @@ export default function BlogPage() {
             </>
           )}
           {isErrorBlogs && !blogData && (
-            <div className="col-span-full text-center text-red-500 py-10">
-              Error loading articles.
-            </div>
+            <div className="col-span-full text-center text-red-500 py-10">{t.blog.error}</div>
           )}
           {showFeature && feature && (
             <BlogCard post={feature} variant="feature" className="sm:col-span-2 lg:col-span-3" />
@@ -207,18 +202,14 @@ export default function BlogPage() {
           ))}
           {currentBlogs.length === 0 && !isLoadingBlogs && !isErrorBlogs && (
             <div className="col-span-full text-center text-slate-500 py-10 space-y-4">
-              <p>
-                {filtersActive
-                  ? 'No articles match your filters. Try a different search or tag.'
-                  : 'No articles yet.'}
-              </p>
+              <p>{filtersActive ? t.blog.noMatch : t.blog.none}</p>
               {filtersActive && (
                 <button
                   type="button"
                   onClick={clearFilters}
                   className="rounded-full bg-indigo-600 px-4 py-2 text-sm font-medium text-on-dark hover:bg-indigo-700 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 outline-hidden"
                 >
-                  Clear filters
+                  {t.list.clearFilters}
                 </button>
               )}
             </div>

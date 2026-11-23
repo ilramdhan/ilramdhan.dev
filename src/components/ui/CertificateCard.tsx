@@ -4,6 +4,7 @@ import { Reveal } from '@/components/motion';
 import type { Certificate } from '@/features/certificates/api';
 import { formatDate } from '@/lib/date';
 import { Img } from '@/components/ui/Img';
+import { useLocale, useT } from '@/i18n';
 
 interface CertificateCardProps {
   cert: Certificate;
@@ -12,6 +13,8 @@ interface CertificateCardProps {
 }
 
 export function CertificateCard({ cert, index }: CertificateCardProps) {
+  const t = useT();
+  const locale = useLocale();
   return (
     <Reveal
       index={index}
@@ -21,7 +24,7 @@ export function CertificateCard({ cert, index }: CertificateCardProps) {
         <div className="h-48 bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
           <Img
             src={cert.file_url}
-            alt={`${cert.title} certificate${cert.issued_by ? ` issued by ${cert.issued_by}` : ''}`}
+            alt={t.certificates.alt(cert.title, cert.issued_by)}
             width={1600}
             height={1200}
             sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
@@ -37,8 +40,8 @@ export function CertificateCard({ cert, index }: CertificateCardProps) {
         <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-on-dark">{cert.title}</h3>
         <p className="text-sm text-indigo-600 dark:text-indigo-400 mb-2">{cert.issued_by}</p>
         <p className="text-xs text-slate-500 mb-4">
-          {formatDate(cert.issued_date)}
-          {cert.expiry_date ? ` - ${formatDate(cert.expiry_date)}` : ''}
+          {formatDate(cert.issued_date, locale)}
+          {cert.expiry_date ? ` - ${formatDate(cert.expiry_date, locale)}` : ''}
         </p>
         <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4 flex-1 prose prose-sm dark:prose-invert line-clamp-3">
           <Markdown>{cert.description || ''}</Markdown>
@@ -50,7 +53,7 @@ export function CertificateCard({ cert, index }: CertificateCardProps) {
             rel="noopener noreferrer"
             className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline mt-auto"
           >
-            View Credential &rarr;
+            {t.certificates.viewCredential} &rarr;
           </a>
         )}
       </div>
