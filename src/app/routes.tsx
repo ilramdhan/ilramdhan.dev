@@ -1,4 +1,4 @@
-import { lazy, useEffect, useRef, type ComponentType } from 'react';
+import { lazy, useEffect, useState, type ComponentType } from 'react';
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router';
 import { AdminRoute } from '@/app/AdminRoute';
 import { RouteErrorBoundary } from '@/app/error/RouteError';
@@ -53,10 +53,10 @@ setRoutePrefetcher(loadRouteChunk);
 /** The route tree; rendered inside `BrowserRouter` (client) or `StaticRouter` (prerender). */
 export function GuardedRoutes() {
   const { pathname } = useLocation();
-  const firstPath = useRef(pathname);
+  const [firstPath] = useState(pathname);
   // During render (idempotent), not in an effect: the next page's components read the
   // flag while they render, before any effect would run.
-  if (pathname !== firstPath.current) endPrerenderedView();
+  if (pathname !== firstPath) endPrerenderedView();
   // Interactive from here on (prerendered pages: hydrated). Read by the e2e suite.
   useEffect(() => document.documentElement.setAttribute('data-hydrated', ''), []);
   return (

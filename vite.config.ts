@@ -146,9 +146,23 @@ const VENDOR_CHUNKS: [name: string, pattern: RegExp][] = [
   // loads its animation features through a dynamic import, which a manual chunk would defeat.
   ['supabase', /[\\/]node_modules[\\/](@supabase|tslib|ws|iceberg-js)[\\/]/],
   ['router-query', /[\\/]node_modules[\\/](react-router|@tanstack)[\\/]/],
-  ['react', /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/],
+  // use-sync-external-store: shared by recharts and zustand (R3F); without the pin it lands in
+  // `charts` and the 3D card loads the whole charts chunk for it.
+  ['react', /[\\/]node_modules[\\/](react|react-dom|scheduler|use-sync-external-store)[\\/]/],
   // `cn()` is used by most components; keep it out of heavy chunks Rollup might hoist it into.
   ['classnames', /[\\/]node_modules[\\/](tailwind-merge|clsx)[\\/]/],
+];
+
+const CHUNK_ORDER = [
+  'react',
+  'classnames',
+  'router-query',
+  'supabase',
+  'markdown',
+  'markdown-gfm',
+  'highlight',
+  'charts',
+  'three',
 ];
 
 export function vendorChunk(id: string): string | undefined {
@@ -194,8 +208,19 @@ export default defineConfig(async () => {
     plugins: [react(), siteConfigHtml(), previewRouting(), ...analyze],
     define: appVersionDefine(),
     build: {
-      rollupOptions: {
-        output: { manualChunks: vendorChunk },
+      rolldownOptions: {
+        output: {
+          // One group per chunk name, earlier = higher priority. Rolldown pulls a group's
+          // dependencies into it; listing the always-loaded chunks (react, …) first keeps
+          // e.g. React out of `charts`, so heavy chunks never get dragged into the entry.
+          codeSplitting: {
+            groups: CHUNK_ORDER.map((name, i) => ({
+              name,
+              priority: CHUNK_ORDER.length - i,
+              test: (id: string) => vendorChunk(id) === name,
+            })),
+          },
+        },
       },
     },
     resolve: {

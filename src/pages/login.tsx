@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { Github, Loader2 } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Github } from '@/components/ui/brand-icons';
 import { useAuth } from '@/app/auth';
 import { Seo } from '@/components/seo/Seo';
 

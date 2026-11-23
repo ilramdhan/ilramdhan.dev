@@ -6,7 +6,7 @@ import { useEffect, useRef, type RefObject } from 'react';
  * mount by writing the transform directly (no re-render per frame). The width change is
  * never animated, so it also suits reduced motion.
  */
-export function ReadingProgress({ target }: { target: RefObject<HTMLElement> }) {
+export function ReadingProgress({ target }: { target: RefObject<HTMLElement | null> }) {
   const bar = useRef<HTMLDivElement>(null);
   useEffect(() => {
     let frame = 0;

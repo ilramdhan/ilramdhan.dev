@@ -24,8 +24,18 @@ export function formatDate(
   const dateOnly = typeof date === 'string' && DATE_ONLY.test(date);
   const value = date instanceof Date ? date : new Date(date);
   if (Number.isNaN(value.getTime())) return typeof date === 'string' ? date : '';
-  return new Intl.DateTimeFormat(locale, {
-    ...OPTIONS[style],
-    ...(dateOnly ? { timeZone: 'UTC' } : {}),
-  }).format(value);
+  return formatter(locale, style, dateOnly).format(value);
+}
+
+// Constructing an Intl.DateTimeFormat costs far more than formatting with one; a list
+// of cards would otherwise build one per date during hydration (a long task).
+const formatters = new Map<string, Intl.DateTimeFormat>();
+function formatter(locale: string, style: DateStyle, utc: boolean): Intl.DateTimeFormat {
+  const key = `${locale}|${style}|${utc}`;
+  let f = formatters.get(key);
+  if (!f) {
+    f = new Intl.DateTimeFormat(locale, { ...OPTIONS[style], ...(utc ? { timeZone: 'UTC' } : {}) });
+    formatters.set(key, f);
+  }
+  return f;
 }

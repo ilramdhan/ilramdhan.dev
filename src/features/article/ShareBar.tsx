@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 import { Link2, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
+
+const noSubscribe = () => () => {};
 
 interface ShareBarProps {
   title: string;
@@ -16,8 +18,11 @@ const button =
  * mount, so the prerendered markup never depends on the browser), copy link, X, LinkedIn.
  */
 export function ShareBar({ title, url }: ShareBarProps) {
-  const [canShare, setCanShare] = useState(false);
-  useEffect(() => setCanShare(typeof navigator.share === 'function'), []);
+  const canShare = useSyncExternalStore(
+    noSubscribe,
+    () => typeof navigator.share === 'function',
+    () => false,
+  );
 
   const share = () => {
     navigator.share({ title, url }).catch(() => {

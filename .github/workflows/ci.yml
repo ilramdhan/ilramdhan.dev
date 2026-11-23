@@ -104,7 +104,7 @@ jobs:
 
   e2e:
     name: E2E (Playwright)
-    runs-on: ubuntu-24.04 # ponytail: ubuntu-latest is 26.04 and this Playwright has no chromium for it; unpin after R1a upgrades Playwright
+    runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7

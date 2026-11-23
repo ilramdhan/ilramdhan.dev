@@ -7,9 +7,8 @@
  * are skipped stay pending, so the page shows its normal loading state and the browser
  * fetches them after hydration.
  */
-import { Writable } from 'node:stream';
 import { StrictMode, type ReactElement } from 'react';
-import { renderToPipeableStream } from 'react-dom/server';
+import { prerenderToNodeStream } from 'react-dom/static';
 import { StaticRouter } from 'react-router';
 import type { Query, QueryClient } from '@tanstack/react-query';
 import { Providers } from '@/app/providers';
@@ -56,27 +55,19 @@ export async function prerenderRoutes(withContent: boolean): Promise<string[]> {
   ];
 }
 
-function toHtml(element: ReactElement): Promise<string> {
-  return new Promise((resolve, reject) => {
-    let html = '';
-    const sink = new Writable({
-      write(chunk: Buffer, _encoding, callback) {
-        html += chunk.toString();
-        callback();
-      },
-      final(callback) {
-        resolve(html);
-        callback();
-      },
-    });
-    // Piped only once everything (lazy pages included) is ready: complete markup, no
-    // streaming placeholders or inline scripts (CSP).
-    const stream = renderToPipeableStream(element, {
-      onAllReady: () => stream.pipe(sink),
-      onShellError: reject,
-      onError: reject,
-    });
+// Resolves once everything (lazy pages and Suspense boundaries included) is ready:
+// complete markup, no streaming placeholders or inline scripts (CSP).
+async function toHtml(element: ReactElement): Promise<string> {
+  const { prelude } = await prerenderToNodeStream(element, {
+    // React 19 outlines large completed boundaries (inline `$RC` reveal scripts); never do.
+    progressiveChunkSize: Infinity,
+    onError: (error) => {
+      throw error;
+    },
   });
+  let html = '';
+  for await (const chunk of prelude) html += String(chunk);
+  return html;
 }
 
 const isEnabled = (query: Query) => {
@@ -110,9 +101,12 @@ export async function render(url: string, withContent: boolean): Promise<RenderR
   const client = createQueryClient();
   client.setDefaultOptions({ queries: { ...QUERY_DEFAULTS, retry: false } });
   const collector: { current: HeadDescriptor | null } = { current: null };
+  const collect = (head: HeadDescriptor) => {
+    collector.current = head;
+  };
   const app = () => (
     <StrictMode>
-      <HeadCollectorContext.Provider value={collector}>
+      <HeadCollectorContext.Provider value={collect}>
         <Providers client={client}>
           <StaticRouter location={url}>
             <GuardedRoutes />

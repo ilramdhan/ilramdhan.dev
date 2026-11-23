@@ -1,5 +1,6 @@
 import type { ElementType } from 'react';
-import { Gamepad2, Github, Instagram, Linkedin, Mail, Phone, Twitter, Youtube } from 'lucide-react';
+import { Gamepad2, Mail, Phone } from 'lucide-react';
+import { Github, Instagram, Linkedin, Twitter, Youtube } from '@/components/ui/brand-icons';
 import { ensureFullUrl } from '@/lib/utils';
 
 /** The single source of truth for supported social platforms. */
