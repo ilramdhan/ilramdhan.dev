@@ -5,13 +5,13 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 
 ## Decisions (PLAN §2, answered by owner 2026-11-23)
 
-| ID | Answer |
-|---|---|
-| D1 | Exact 1:1 match with mutugading (tokens, type, layout, UI/UX, motion, accent) |
-| D2 | Lanyard 3D live on desktop only (≥1024, fine pointer, motion ok); mobile: not rendered, not downloaded |
-| D3 | Branch `redesign/apple-clean` from origin/main 7f7c54e (created locally, not pushed yet) |
-| D4 | Tailwind latest (4.x) + all deps latest where reasonable (R1a); holds recorded below |
-| D5 | EN + ID (T-40 #55, T-41 #56) via phases I1, I2 |
+| ID  | Answer                                                                                                 |
+| --- | ------------------------------------------------------------------------------------------------------ |
+| D1  | Exact 1:1 match with mutugading (tokens, type, layout, UI/UX, motion, accent)                          |
+| D2  | Lanyard 3D live on desktop only (≥1024, fine pointer, motion ok); mobile: not rendered, not downloaded |
+| D3  | Branch `redesign/apple-clean` from origin/main 7f7c54e (created locally, not pushed yet)               |
+| D4  | Tailwind latest (4.x) + all deps latest where reasonable (R1a); holds recorded below                   |
+| D5  | EN + ID (T-40 #55, T-41 #56) via phases I1, I2                                                         |
 
 ## Holds (deps not upgraded, with reason)
 
@@ -19,24 +19,24 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 
 ## Phases
 
-| ID | Status | PR | Notes |
-|---|---|---|---|
-| R0 | ⬜ | | |
-| R1a | ⬜ | | |
-| R1b | ⬜ | | |
-| R2 | ⬜ | | |
-| I1 | ⬜ | | |
-| R3 | ⬜ | | |
-| R4 | ⬜ | | |
-| R5 | ⬜ | | |
-| I2 | ⬜ | | |
-| R6a | ⬜ | | |
-| R6b | ⬜ | | |
-| R6c | ⬜ | | |
-| R6d | ⬜ | | |
-| R7 | ⬜ | | |
-| R8 | ⬜ | | |
-| R9 | ⬜ | | |
+| ID  | Status | PR  | Notes                                                                                                 |
+| --- | ------ | --- | ----------------------------------------------------------------------------------------------------- |
+| R0  | ✅     |     | baseline.md, inventory.md, screens/before (40), screens/reference (32); 404 not Lighthouse-measurable |
+| R1a | ⬜     |     |                                                                                                       |
+| R1b | ⬜     |     |                                                                                                       |
+| R2  | ⬜     |     |                                                                                                       |
+| I1  | ⬜     |     |                                                                                                       |
+| R3  | ⬜     |     |                                                                                                       |
+| R4  | ⬜     |     |                                                                                                       |
+| R5  | ⬜     |     |                                                                                                       |
+| I2  | ⬜     |     |                                                                                                       |
+| R6a | ⬜     |     |                                                                                                       |
+| R6b | ⬜     |     |                                                                                                       |
+| R6c | ⬜     |     |                                                                                                       |
+| R6d | ⬜     |     |                                                                                                       |
+| R7  | ⬜     |     |                                                                                                       |
+| R8  | ⬜     |     |                                                                                                       |
+| R9  | ⬜     |     |                                                                                                       |
 
 Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified by orchestrator.
 
@@ -49,3 +49,4 @@ Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified 
 
 - 2026-11-23 Plan written (analysis of both repos). Waiting for D1–D5.
 - 2026-11-23 D1–D5 answered; branch redesign/apple-clean created; plan updated (R1 split into R1a deps + R1b foundation, i18n phases I1/I2 added). Next: R0.
+- 2026-11-23 R0 done: baseline captured (home perf 61 / LCP 5.5s is the weak spot), verified by orchestrator. Next: R1a.
