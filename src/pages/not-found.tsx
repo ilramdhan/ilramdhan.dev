@@ -18,6 +18,17 @@ export default function NotFoundPage() {
           >
             {t.common.backToHome}
           </Link>
+          <nav aria-label={t.notFound.title} className="mt-4 flex gap-6">
+            {(['projects', 'blog'] as const).map((key) => (
+              <Link
+                key={key}
+                to={`/${key}`}
+                className="inline-flex min-h-11 items-center text-body text-action underline-offset-4 hover:underline"
+              >
+                {t.nav[key]}
+              </Link>
+            ))}
+          </nav>
         </div>
       </section>
     </>
