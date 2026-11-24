@@ -2,7 +2,7 @@ import React from 'react';
 import { ExternalLink, FolderGit2 } from 'lucide-react';
 import { Link } from '@/i18n/Link';
 import { Github } from '@/components/ui/brand-icons';
-import { Reveal } from '@/components/motion';
+import { Reveal } from '@/components/motion/Reveal';
 import type { Tables } from '@/types';
 import { cn, ensureFullUrl } from '@/lib/utils';
 import { useT } from '@/i18n';

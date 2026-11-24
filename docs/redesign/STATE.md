@@ -31,8 +31,8 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 | I1  | ✅     | #166 | typed en/id dicts, /id routes + prerender + hreflang + sitemap, banner; id dict lazy; CI green                        |
 | R3  | ✅     | #167 | GSAP 3.15 + Lenis lazy (48.4 KiB), ViewTransition route fade, /__motion dev-only; CI green                            |
 | R4  | ✅     | #168 | 44px nav + brand collapse, sheet (trap, Lenis stop), doormat + wordmark rise (P17), skip link, Lenis scroll; CI green |
-| R5  | ⬜     |      |                                                                                                                       |
-| I2  | ⬜     |      |                                                                                                                       |
+| R5  | ✅     | #170 | home tiles + D2 lanyard gate (idle boot, long tasks 3), ContactForm focus-visible; home 143 KiB; JS total 1640        |     |
+| I2  | ✅     | #169 | translations jsonb (owner SQL pending), localize(), admin EN/ID tabs, lazy api.ts; works pre/post migration           |     |
 | R6a | ⬜     |      |                                                                                                                       |
 | R6b | ⬜     |      |                                                                                                                       |
 | R6c | ⬜     |      |                                                                                                                       |
@@ -48,7 +48,9 @@ Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified 
 - mutugading's taste checkers crash the dev server if the Chrome profile is inside the repo: use `/tmp`.
 - Footer wordmark rise needs ScrollTrigger refresh after late layout (mutugading P17).
 
-- Home long tasks at 4x CPU throttle: 4 after R1a vs 2 before (3D card + rapier start-up split into separate tasks; TBT unchanged ~705 ms). CI limit is 5, so a slow runner may flake `performance.spec.ts:126`; fix in R5 when the hero/lanyard mount is rebuilt (D2).
+- Home long tasks at 4x CPU: fixed in R5 (3D card boots after load + idle): 3 in 9/10 runs, limit 5.
+- **Import partials by module, not the barrel** (`@/components/tile/X`, `@/components/motion/X`) from anything in the entry chunk (chrome, shared cards): a barrel import there hoists every partial into `index.js` for all routes (R5: privacy +3.6 KiB).
+- Feature `queries.ts` lazy-import their `api.ts` (I2) to keep localize/translations retry out of initial JS.
 
 ### CI failures (read before opening a PR)
 
@@ -72,3 +74,4 @@ Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified 
 - 2026-11-24 R3 ✅ merged #167 (verified by orchestrator: gates green, screens/R3 checked vs reference home, full e2e 789 local, CI green). Budgets JS 1630 / CSS 21.5 / projects 161. Fixed: SSR ViewTransition CSP inline scripts, Lenis keyboard focus. Next: R4.
 - 2026-11-24 R4 on redesign/R4-chrome: mutugading chrome ported (44px nav + brand collapse, no flyouts, Light/Dark/Auto menu, EN/ID same-page switch, mobile sheet w/ focus trap + Lenis stop, parchment doormat + reveal curtain + lazy wordmark rise w/ P17 refresh, skip link, ScrollManager on Lenis, Pagination labels via t()); nav/main moved into PublicLayout; Dialog portalled to body; budgets CSS 22.5 / privacy 132 / blog 138 / projects 164 / home 157; screens/R4; awaiting orchestrator verify.
 - 2026-11-24 R4 ✅ merged #168 (verified by orchestrator: gates green, full e2e 820 local, screens/R4 nav 1440 + footer 375 checked vs reference, CI green). Budgets CSS 22.5 / home 157 / privacy 132 / blog 138 / projects 164. Fixed along: AdminRoute non-admin redirect, Lenis hash scroll cut short, locale link hash after hydration. Left for R5: ContactForm focus ring; R6d: admin .btn-secondary gray-on-color (impeccable). Local `npm test`/format pick up untracked `.claude/worktrees/`: exclude or delete them. Next: R5 + I2 in parallel.
+- 2026-11-24 I2 ✅ merged #169 (verified by orchestrator: gates, e2e 182 desktop+tablet, CI green; fixed a pre-migration e2e race + /projects budget via lazy api.ts). **Owner: run `supabase/migrations/20261124000000_translations_jsonb.sql` in the SQL Editor, then record the version.** R5 ✅ #170 (verified: gates, full e2e desktop+tablet 373, screens/R5 1440+375 vs reference; Footer barrel import fixed, JS total 1630→1640 for lazy motion engines only; TOC e2e now measures the nav). Follow-ups: R4 footer curtain slows footer-link clicks from scrolled pages (~10s in Playwright); indigo classes in ArticleFooter/ShareBar/Carousel/LocaleBanner (R6). Next: R6a–R6d in parallel.

@@ -1,4 +1,4 @@
-import type { Page } from '@playwright/test';
+import type { BrowserContextOptions, Page } from '@playwright/test';
 import { expect, test } from './fixtures/test';
 import { installSupabaseMock } from './fixtures/supabase-mock';
 
@@ -102,22 +102,49 @@ test.describe('3D card & Vanta (T-25)', () => {
     } else {
       expect(assets.filter(isModel), `models on ${testInfo.project.name}`).toEqual([]);
       expect(chunk(assets, 'three'), 'three chunk').toEqual([]);
+      expect(chunk(assets, 'HeroCard'), 'hero-3d chunk').toEqual([]);
       await expect(page.locator('canvas')).toHaveCount(0);
     }
   });
 
-  test('home under reduced motion: static poster, no WebGL', async ({ browser }, testInfo) => {
-    const context = await browser.newContext({
-      reducedMotion: 'reduce',
-      viewport: { width: 1280, height: 900 },
+  // D2: no poster any more; the lanyard is neither rendered nor downloaded unless the desktop query matches.
+  const noLanyard: [name: string, options: BrowserContextOptions][] = [
+    ['375 phone', { viewport: { width: 375, height: 812 }, hasTouch: true, isMobile: true }],
+    ['1280 reduced motion', { viewport: { width: 1280, height: 900 }, reducedMotion: 'reduce' }],
+  ];
+  for (const [name, options] of noLanyard) {
+    test(`home at ${name}: no .glb, no hero-3d chunk, no canvas, no poster`, async ({
+      browser,
+    }) => {
+      const context = await browser.newContext(options);
+      const page = await context.newPage();
+      await installSupabaseMock(page);
+      const assets = trackAssets(page);
+      await page.goto('/');
+      await expect(page.getByRole('heading', { level: 1 })).toHaveText('Dummy Dev');
+      await page.waitForLoadState('networkidle');
+      // Give the idle mount a chance to (wrongly) start.
+      await page.waitForTimeout(1500);
+      expect(assets.filter(isModel)).toEqual([]);
+      expect(chunk(assets, 'HeroCard'), 'hero-3d chunk').toEqual([]);
+      expect(chunk(assets, 'three'), 'three chunk').toEqual([]);
+      await expect(page.locator('canvas')).toHaveCount(0);
+      await expect(page.locator('img[src*="card-poster"]')).toHaveCount(0);
+      await context.close();
     });
+  }
+
+  test('home at 1440: the canvas mounts, and unmounts when the window narrows', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
     const page = await context.newPage();
     await installSupabaseMock(page);
     const assets = trackAssets(page);
     await page.goto('/');
-    await expect(page.getByTestId('hero-card-poster')).toBeVisible();
-    await page.waitForLoadState('networkidle');
-    expect(assets.filter(isModel), `models on ${testInfo.project.name}`).toEqual([]);
+    await expect(page.getByTestId('hero-card-canvas').locator('canvas')).toBeVisible();
+    expect(chunk(assets, 'HeroCard')).toHaveLength(1);
+    await page.setViewportSize({ width: 900, height: 900 });
     await expect(page.locator('canvas')).toHaveCount(0);
     await context.close();
   });
@@ -171,20 +198,39 @@ test.describe('decorative layers & fonts (T-28)', () => {
     ).toBe(0);
   });
 
-  test('tech marquee pauses off-screen and is static under reduced motion', async ({ page }) => {
-    await page.goto('/');
-    const marquee = page.locator('.marquee');
-    await expect(marquee.locator('.marquee-track > *').first()).toBeAttached();
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-    await expect(marquee).toHaveAttribute('data-paused', 'true');
-    await marquee.scrollIntoViewIfNeeded();
-    await expect(marquee).toHaveAttribute('data-paused', 'false');
+  // R5: the CSS marquee became the plain-text GSAP Marquee (lazy engine, visitor pause, still under reduced motion).
+  const trackX = (page: Page) =>
+    page
+      .locator('[data-marquee] [data-track]')
+      .evaluate((el) => new DOMMatrix(getComputedStyle(el).transform).m41);
 
-    await page.emulateMedia({ reducedMotion: 'reduce' });
-    const running = await marquee
-      .locator('.marquee-track > *')
-      .first()
-      .evaluate((el) => el.getAnimations().length);
-    expect(running, 'marquee animations under reduced motion').toBe(0);
+  test('tech marquee: lazy loop that moves in view and holds on Pause', async ({ page }) => {
+    await page.goto('/');
+    const marquee = page.locator('[data-marquee]');
+    await expect(marquee).not.toHaveAttribute('data-animated');
+    await marquee.scrollIntoViewIfNeeded();
+    await expect(marquee).toHaveAttribute('data-animated', 'true');
+    const x0 = await trackX(page);
+    await expect.poll(() => trackX(page)).not.toBe(x0);
+    await page.getByRole('button', { name: 'Pause the moving list' }).click();
+    await page.mouse.move(0, 0); // hover also pauses; take the pointer away to see the visitor's hold alone
+    await page.waitForTimeout(200);
+    const held = await trackX(page);
+    await page.waitForTimeout(500);
+    expect(await trackX(page)).toBe(held);
+  });
+
+  test.describe('reduced motion', () => {
+    test.use({ contextOptions: { reducedMotion: 'reduce' } });
+    test('tech marquee is one still line with every name and no copies', async ({ page }) => {
+      await page.goto('/');
+      const marquee = page.locator('[data-marquee]');
+      await marquee.scrollIntoViewIfNeeded();
+      await page.waitForTimeout(500);
+      await expect(marquee).not.toHaveAttribute('data-animated');
+      await expect(marquee.locator('[data-marquee-copy]').first()).toBeHidden();
+      await expect(marquee.locator('ul').first().locator('li')).toHaveCount(5);
+      await expect(page.getByRole('button', { name: 'Pause the moving list' })).toBeHidden();
+    });
   });
 });

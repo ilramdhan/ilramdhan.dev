@@ -9,7 +9,7 @@ import { projectQueries } from '@/features/projects/queries';
 import { useListParams } from '@/lib/useListParams';
 import { Seo } from '@/components/seo/Seo';
 import { useLocale, useT } from '@/i18n';
-import { MotionScope } from '@/components/motion';
+import { MotionScope } from '@/components/motion/MotionScope';
 import motionFeatures from '@/components/motion/features';
 
 /** Keep below the fixture count (9) so e2e has a second page (`url-state.spec.ts`). */

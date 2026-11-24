@@ -44,44 +44,56 @@ test('reveal animates once: scrolling away and back does not re-hide items', asy
   await expect(wrapper).toHaveCSS('opacity', '1');
 });
 
-// T-31 (#46): static H1 with the owner's name + accessible rotating role line.
+// T-31 (#46): static H1 with the owner's name. R5 (PLAN §3): one lead line replaces the rotating roles; the hero
+// enters once (h1 rises without fading so the LCP text paints at once, the rest rises 120ms later).
 test.describe('hero', () => {
-  test('H1 is the static owner name; roles are announced once and rotate visually', async ({
+  test('H1 is the static owner name; one lead line; the entrance plays once and settles', async ({
     page,
   }) => {
     await page.goto('/');
     const h1 = page.getByRole('heading', { level: 1 });
     await expect(h1).toHaveText('Dummy Dev');
-    const roles = page.getByTestId('hero-roles');
-    await expect(roles).toContainText('Web Developer, Backend Engineer, Open Source');
-    // Visual rotation is hidden from assistive tech; the H1 text never changes.
-    await expect(page.getByTestId('hero-role-current')).toHaveAttribute('aria-hidden', 'true');
-    const first = await page.getByTestId('hero-role-current').textContent();
+    const hero = page.locator('section[data-enter]');
+    await expect(hero.getByText('I build fast web apps.')).toBeVisible();
+    expect(await h1.evaluate((el) => getComputedStyle(el).animationName)).toBe('rise-still');
+    // Ends at rest, fully visible, and stays there.
     await expect
-      .poll(() => page.getByTestId('hero-role-current').textContent(), { timeout: 8000 })
-      .not.toBe(first);
-    await expect(h1).toHaveText('Dummy Dev');
+      .poll(
+        () =>
+          h1.evaluate((el) => el.getAnimations().filter((a) => a.playState === 'running').length),
+        { timeout: 4000 },
+      )
+      .toBe(0);
+    const before = await h1.boundingBox();
+    await page.waitForTimeout(1500);
+    expect(await h1.boundingBox()).toEqual(before);
+    await expect(hero.getByText('I build fast web apps.')).toHaveCSS('opacity', '1');
   });
 
-  test('rotating line causes no layout shift', async ({ page }) => {
+  test('the contact pill and the projects chevron link lead where they say', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Dummy Dev');
-    await page.waitForTimeout(800); // let the hero entrance finish
-    const before = await page.getByTestId('hero-roles').boundingBox();
-    await page.waitForTimeout(3200);
-    const after = await page.getByTestId('hero-roles').boundingBox();
-    expect(after).toEqual(before);
+    const hero = page.locator('section[data-enter]');
+    await expect(hero.getByRole('link', { name: 'Contact Me' })).toHaveAttribute(
+      'href',
+      '/#contact',
+    );
+    await expect(hero.getByRole('link', { name: 'View Projects' })).toHaveAttribute(
+      'href',
+      '/projects',
+    );
   });
 
-  test.describe('reduced motion', () => {
-    test.use({ contextOptions: { reducedMotion: 'reduce' } });
-    test('role line is static (first role only)', async ({ page }) => {
-      await page.goto('/');
-      const current = page.getByTestId('hero-role-current');
-      await expect(current).toHaveText('Web Developer');
-      await page.waitForTimeout(3200);
-      await expect(current).toHaveText('Web Developer');
-    });
+  test('statement fills on scroll; services and tools render as plain text', async ({ page }) => {
+    await page.goto('/');
+    const fill = page.locator('[data-scroll-fill]');
+    await expect(fill).toHaveText('This is dummy bio.');
+    await expect(page.getByRole('heading', { level: 3, name: 'Service 1' })).toBeAttached();
+    const tools = page.getByRole('region', { name: 'Technology names' });
+    await tools.scrollIntoViewIfNeeded();
+    // The loop runs once near the viewport, with the visitor's pause control (WCAG 2.2.2).
+    await expect(tools).toHaveAttribute('data-animated', 'true');
+    await page.getByRole('button', { name: 'Pause the moving list' }).click();
+    await expect(tools).toHaveAttribute('data-held', 'true');
   });
 });
 
@@ -106,7 +118,8 @@ test.describe('micro-interactions', () => {
   });
 
   test('carousel: keyboard and dot buttons change the slide', async ({ page }) => {
-    await page.goto('/');
+    // R5: the home rows have no image carousels any more; project cards on /projects still do (R6a).
+    await page.goto('/projects');
     const carousel = page.getByRole('group', { name: /Screenshot of/ }).first();
     await expect(carousel).toBeVisible();
     const img = carousel.locator('img').first();
@@ -164,7 +177,9 @@ test.describe('motion layer', () => {
     const urls: string[] = [];
     page.on('request', (r) => {
       if (
-        /\/assets\/(gsap|ScrollTrigger|lenis|SplitText|Flip|[\w-]*-engine)[\w-]*\.js$/.test(r.url())
+        /\/assets\/(gsap|ScrollTrigger|lenis|SplitText|Flip(?!Group)|[\w-]*-engine)[\w-]*\.js$/.test(
+          r.url(),
+        )
       )
         urls.push(r.url());
     });
@@ -178,7 +193,7 @@ test.describe('motion layer', () => {
       const html = await (await request.get(path)).text();
       expect(html).toMatch(/<script type="module"/);
       expect(html).not.toMatch(
-        /assets\/(gsap|lenis|ScrollTrigger|SplitText|Flip|[\w-]*-engine)[\w-]*\.js/,
+        /assets\/(gsap|lenis|ScrollTrigger|SplitText|Flip(?!Group)|[\w-]*-engine)[\w-]*\.js/,
       );
     }
   });

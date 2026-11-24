@@ -114,6 +114,16 @@ export const id: Messages = {
     contactTitle: 'Hubungi Saya',
     contactLead:
       'Punya proyek di benak atau sekadar ingin ngobrol? Silakan kirim pesan. Saat ini saya terbuka untuk peluang baru.',
+    specProjects: 'proyek dibangun',
+    specPosts: 'artikel ditulis',
+    specCertificates: 'sertifikat diraih',
+    specTech: 'teknologi dipakai',
+    loadingServices: 'Memuat layanan...',
+    viewProject: 'Lihat proyek',
+    readPost: 'Baca artikel',
+    techLabel: 'Nama teknologi',
+    statementHeading: 'Tentang saya',
+    moreAboutMe: 'Selengkapnya tentang saya',
   },
   hero: {
     viewProjects: 'Lihat Proyek',

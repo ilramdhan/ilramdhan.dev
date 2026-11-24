@@ -117,6 +117,16 @@ export const en = {
     contactTitle: 'Get In Touch',
     contactLead:
       "Have a project in mind or just want to chat? Feel free to send me a message. I'm currently open for new opportunities.",
+    specProjects: 'projects built',
+    specPosts: 'articles written',
+    specCertificates: 'certificates earned',
+    specTech: 'technologies in use',
+    loadingServices: 'Loading services...',
+    viewProject: 'View project',
+    readPost: 'Read article',
+    techLabel: 'Technology names',
+    statementHeading: 'About me',
+    moreAboutMe: 'More about me',
   },
   hero: {
     viewProjects: 'View Projects',

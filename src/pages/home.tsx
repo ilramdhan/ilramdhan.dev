@@ -1,262 +1,226 @@
-import React, { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Code, Smartphone, Cloud, Terminal, Layout, Database } from 'lucide-react';
-import { Link } from '@/i18n/Link';
-import { Markdown } from '@/components/ui/Markdown';
-import { MotionScope, Reveal } from '@/components/motion';
+// Direct module imports, not the barrels: the footer (entry chunk) imports the tile barrel, and through it Rollup
+// would hoist every home-only partial into the entry that every route downloads.
+import { FeatureColumns } from '@/components/tile/FeatureColumns';
+import type { LinkedItem } from '@/components/tile/LinkedGroup';
+import { LinkChevron } from '@/components/tile/LinkChevron';
+import { SpecRow, type SpecItem } from '@/components/tile/SpecRow';
+import { Tile } from '@/components/tile/Tile';
+import { TileHeading } from '@/components/tile/TileHeading';
+import { Marquee } from '@/components/motion/Marquee';
+import { ScrollFill } from '@/components/motion/ScrollFill';
 import { Hero } from '@/features/hero-3d/Hero';
-import { ProjectCard, ProjectCardSkeleton } from '@/features/projects/ProjectCard';
 import { ContactForm } from '@/features/messages/ContactForm';
-import { TechBadge } from '@/components/ui/TechBadge';
+import { LinkedRowOrNote, LinkedRowSkeleton } from '@/features/home/HomeRows';
+import { firstParagraph, plainText } from '@/features/home/home-text';
 import { profileQueries } from '@/features/profile/queries';
 import { projectQueries } from '@/features/projects/queries';
 import { blogQueries } from '@/features/blog/queries';
-import { FeaturedCarousel, FeaturedCarouselSkeleton } from '@/features/blog/FeaturedCarousel';
-import { Carousel, CarouselSkeleton } from '@/components/ui/Carousel';
+import { certificateQueries } from '@/features/certificates/queries';
 import { techStackQueries } from '@/features/tech-stack/queries';
 import { serviceQueries } from '@/features/services/queries';
 import { Seo } from '@/components/seo/Seo';
-import { useInView } from '@/lib/hooks';
-import { useT } from '@/i18n';
+import { useLocale, useLocalePath, useT } from '@/i18n';
 
-const renderProjectSkeleton = () => <ProjectCardSkeleton />;
+// Intrinsic ratio for photos whose URL carries no size (Img reads `_<w>x<h>` from uploads first).
+const PHOTO = { width: 1600, height: 1200 };
+// Hash targets (/#projects, /#blog, /#contact): html's scroll-padding already clears the nav; the tile's own
+// scroll-margin would add a second 44px gap.
+const ANCHOR = 'scroll-mt-0';
+// One row is enough for a total: the count header comes back with it.
+const COUNT = { page: 1, limit: 1 } as const;
 
-const IconMap: { [key: string]: React.ElementType } = {
-  code: Code,
-  smartphone: Smartphone,
-  cloud: Cloud,
-  terminal: Terminal,
-  layout: Layout,
-  database: Database,
-};
-
+/**
+ * Home (PLAN §3, mutugading home): hero with real counts, featured projects as a row of linked groups, services as
+ * quiet text columns, the tools as a plain-text marquee, featured articles, one scroll-filled statement from the
+ * profile, and a closing night tile with the contact form. Every figure and line comes from the database; anything
+ * missing is hidden, never invented.
+ */
 export default function Page() {
   const t = useT();
-  const marqueeRef = useRef<HTMLDivElement>(null);
-  const marqueeInView = useInView(marqueeRef);
+  const lp = useLocalePath();
+  const locale = useLocale();
 
-  // Not read here, but keeps the shared ['profile'] query subscribed on the home page.
-  useQuery(profileQueries.detail());
-
-  const {
-    data: featuredProjects,
-    isLoading: isLoadingProjects,
-    isError: isErrorProjects,
-  } = useQuery(projectQueries.featured());
-
-  const {
-    data: featuredBlogs,
-    isLoading: isLoadingBlogs,
-    isError: isErrorBlogs,
-  } = useQuery(blogQueries.featured());
-
+  const { data: profile } = useQuery(profileQueries.detail(locale));
+  const projects = useQuery(projectQueries.featured(locale));
+  const posts = useQuery(blogQueries.featured(locale));
   const { data: techStack } = useQuery(techStackQueries.list());
+  const services = useQuery(serviceQueries.list(locale));
+  const projectCount = useQuery(projectQueries.list(COUNT, locale));
+  const postCount = useQuery(blogQueries.list(COUNT, locale));
+  const certCount = useQuery(certificateQueries.list(COUNT, locale));
+  const projectTotal = projectCount.data;
+  const postTotal = postCount.data;
+  const certTotal = certCount.data;
+  const countsPending = projectCount.isPending || postCount.isPending || certCount.isPending;
 
-  const { data: services, isPending: isPendingServices } = useQuery(serviceQueries.list());
+  // Zero or unknown = hidden (a "0 articles" figure says nothing).
+  const count = (n: number | undefined) => (n ? n : null);
+  const specs: SpecItem[] = [
+    { value: count(projectTotal?.count), label: t.home.specProjects },
+    { value: count(postTotal?.count), label: t.home.specPosts },
+    { value: count(certTotal?.count), label: t.home.specCertificates },
+    { value: count(techStack?.length), label: t.home.specTech },
+  ];
+
+  const projectItems: LinkedItem[] | undefined = projects.data?.map((p) => ({
+    id: String(p.id),
+    title: p.title ?? '',
+    line: p.short_description ?? undefined,
+    href: lp(`/projects/${encodeURIComponent(p.slug ?? '')}`),
+    image: p.images?.[0]
+      ? {
+          src: p.images[0],
+          alt: p.title ? t.projects.screenshotOf(p.title) : t.projects.screenshot,
+          ...PHOTO,
+        }
+      : null,
+  }));
+  const postItems: LinkedItem[] | undefined = posts.data?.map((p) => ({
+    id: String(p.id),
+    title: p.title ?? '',
+    line: p.excerpt ?? undefined,
+    href: lp(`/blog/${encodeURIComponent(p.slug ?? '')}`),
+    // The title under the photo names the post: the photo itself is decorative here.
+    image: p.images?.[0] ? { src: p.images[0], alt: '', ...PHOTO } : null,
+  }));
+
+  const statement = firstParagraph(profile?.detailed_bio);
+  const tools = techStack?.map((s) => s.name).filter(Boolean) ?? [];
 
   return (
-    <MotionScope>
+    <div>
       <Seo description={t.seo.homeDescription} />
-      <div className="min-h-screen">
-        <Hero />
 
-        {/* Services Section */}
-        {/* Sections render their shell straight away with skeletons of the final size,
-            so content arriving later never pushes the page down (T-26). */}
-        {(isPendingServices || (services && services.length > 0)) && (
-          <section className="py-20 bg-slate-50 dark:bg-slate-900/30 border-y border-slate-200 dark:border-on-dark/5">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold text-slate-900 dark:text-on-dark mb-4">
-                  {t.home.whatIDo}
-                </h2>
-                <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-                  {t.home.whatIDoLead}
-                </p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {isPendingServices &&
-                  [0, 1, 2].map((i) => (
-                    <div
-                      key={i}
-                      aria-hidden="true"
-                      className="bg-on-dark border border-slate-200 dark:bg-slate-900/50 dark:border-on-dark/5 p-8 rounded-2xl flex flex-col items-center"
-                    >
-                      <div className="h-14 w-14 rounded-full bg-indigo-50 dark:bg-slate-800 mb-6" />
-                      <div className="h-7 w-1/2 mb-3 rounded-sm bg-slate-200 dark:bg-slate-800" />
-                      <div className="h-[46px] w-full rounded-sm bg-slate-100 dark:bg-slate-800/60" />
-                    </div>
-                  ))}
-                {services?.map((service, idx) => {
-                  const Icon = service.icon_name ? IconMap[service.icon_name] || Code : Code;
-                  return (
-                    <Reveal
-                      key={service.id}
-                      index={idx}
-                      className="bg-on-dark border border-slate-200 dark:bg-slate-900/50 dark:border-on-dark/5 p-8 rounded-2xl flex flex-col items-center text-center hover:border-indigo-500/30 transition-[transform,box-shadow,border-color] motion-safe:hover:-translate-y-0.5 hover:shadow-md shadow-xs dark:shadow-none group"
-                    >
-                      <div className="h-14 w-14 bg-indigo-50 dark:bg-slate-800 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400 mb-6 group-hover:bg-indigo-600 group-hover:text-on-dark transition-colors">
-                        <Icon className="h-7 w-7" />
-                      </div>
-                      <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-on-dark">
-                        {service.title}
-                      </h3>
-                      <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed prose prose-sm dark:prose-invert">
-                        <Markdown>{service.description || ''}</Markdown>
-                      </div>
-                    </Reveal>
-                  );
-                })}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Tech Stack Marquee */}
-        <section className="py-12 bg-on-dark border-y border-slate-200 dark:bg-slate-900/50 dark:border-on-dark/5 overflow-hidden backdrop-blur-xs transition-colors">
-          <div className="max-w-7xl mx-auto px-4 mb-8">
-            <p className="text-center text-slate-500 text-sm font-semibold uppercase tracking-wider">
-              {t.home.techHeading}
-            </p>
-          </div>
-          <div
-            ref={marqueeRef}
-            data-paused={!marqueeInView}
-            className="marquee relative flex overflow-x-hidden"
-            style={{
-              maskImage:
-                'linear-gradient(to right, transparent 0%, black 10%, black 90%, transparent 100%)',
-            }}
-          >
-            <div className="marquee-track flex whitespace-nowrap min-h-17">
-              <div className="shrink-0 flex items-center justify-center gap-24 py-4 px-6">
-                {techStack?.map((tech, i) => (
-                  <TechBadge key={`tech-a-${i}`} name={tech.name} iconUrl={tech.icon_url} />
-                ))}
-              </div>
-              <div
-                aria-hidden="true"
-                className="shrink-0 flex items-center justify-center gap-24 py-4 px-6"
-              >
-                {techStack?.map((tech, i) => (
-                  <TechBadge key={`tech-b-${i}`} name={tech.name} iconUrl={tech.icon_url} />
-                ))}
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Featured Projects Section */}
-        <section id="projects" className="py-20 relative">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-              <div>
-                <h2 className="text-3xl font-bold text-slate-900 dark:text-on-dark mb-2">
-                  {t.home.featuredProjects}
-                </h2>
-                <p className="text-slate-600 dark:text-slate-400">{t.home.featuredProjectsLead}</p>
-              </div>
-              <Link
-                to="/projects"
-                className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium text-sm flex items-center gap-1"
-              >
-                {t.home.viewAllProjects} &rarr;
-              </Link>
-            </div>
-
-            {isLoadingProjects && (
-              <>
-                <span className="sr-only" role="status">
-                  {t.home.loadingProjects}
-                </span>
-                <CarouselSkeleton renderSkeleton={renderProjectSkeleton} />
-              </>
-            )}
-            {isErrorProjects && !featuredProjects && (
-              <p className="text-red-500 text-center py-10">{t.home.errorProjects}</p>
-            )}
-            {featuredProjects && featuredProjects.length > 0 && (
-              <Carousel
-                items={featuredProjects}
-                getKey={(project) => project.id}
-                renderItem={(project, { sizes, index }) => (
-                  <ProjectCard project={project} index={index} sizes={sizes} className="h-full" />
-                )}
-                label={t.home.carouselProjects}
-                prevLabel={t.home.prevProjects}
-                nextLabel={t.home.nextProjects}
-                trackTestId="featured-projects-track"
+      <Hero
+        specs={
+          countsPending ? (
+            // Same row, invisible, while the counts load (a client-side visit): the hero never shifts.
+            <div aria-hidden="true" className="invisible mt-stack w-full">
+              <SpecRow
+                items={specs.map((s) => ({ ...s, value: '0' }))}
+                countUp={false}
+                stagger={false}
               />
-            )}
-            {featuredProjects?.length === 0 && !isLoadingProjects && (
-              <p className="text-slate-500 text-center py-10">{t.home.noFeaturedProjects}</p>
-            )}
-          </div>
-        </section>
-
-        {/* Latest Blog Section */}
-        <section
-          id="blog"
-          className="py-20 bg-slate-50 border-y border-slate-200 dark:bg-slate-900/30 dark:border-on-dark/5 backdrop-blur-xs transition-colors"
-        >
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-              <div>
-                <h2 className="text-3xl font-bold text-slate-900 dark:text-on-dark mb-2">
-                  {t.home.featuredArticles}
-                </h2>
-                <p className="text-slate-600 dark:text-slate-400">{t.home.featuredArticlesLead}</p>
-              </div>
-              <Link
-                to="/blog"
-                className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium text-sm flex items-center gap-1"
-              >
-                {t.home.readBlog} &rarr;
-              </Link>
             </div>
+          ) : (
+            <SpecRow items={specs} stagger={false} className="mt-stack" />
+          )
+        }
+      />
 
-            {isLoadingBlogs && (
+      <Tile id="projects" labelledBy="home-projects-h" tone="parchment" className={ANCHOR}>
+        <TileHeading
+          id="home-projects-h"
+          title={t.home.featuredProjects}
+          lead={t.home.featuredProjectsLead}
+          links={<LinkChevron href={lp('/projects')}>{t.home.viewAllProjects}</LinkChevron>}
+        />
+        <div className="mt-stack w-full">
+          {projects.isPending ? (
+            <LinkedRowSkeleton label={t.home.loadingProjects} />
+          ) : (
+            <LinkedRowOrNote
+              items={projectItems}
+              moreLabel={t.home.viewProject}
+              note={t.home.noFeaturedProjects}
+              error={projects.isError && !projects.data && t.home.errorProjects}
+            />
+          )}
+        </div>
+      </Tile>
+
+      {services.isPending || (services.data && services.data.length > 0) ? (
+        <Tile labelledBy="home-services-h">
+          <TileHeading id="home-services-h" title={t.home.whatIDo} lead={t.home.whatIDoLead} />
+          <div className="mt-stack w-full">
+            {services.data ? (
+              <FeatureColumns
+                items={services.data.map((s) => ({
+                  key: String(s.id),
+                  title: s.title ?? '',
+                  body: plainText(s.description) || undefined,
+                }))}
+              />
+            ) : (
               <>
                 <span className="sr-only" role="status">
-                  {t.home.loadingPosts}
+                  {t.home.loadingServices}
                 </span>
-                <FeaturedCarouselSkeleton />
+                <ul
+                  aria-hidden="true"
+                  className="grid w-full gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-3"
+                >
+                  {[0, 1, 2].map((i) => (
+                    <li key={i} className="flex flex-col items-start">
+                      <div className="h-[1.2em] w-1/2 rounded-sm bg-tile-frame text-title" />
+                      <div className="mt-2 h-[2.9em] w-full rounded-sm bg-tile-frame text-body" />
+                    </li>
+                  ))}
+                </ul>
               </>
             )}
-            {isErrorBlogs && !featuredBlogs && (
-              <p className="text-red-500 text-center py-10">{t.home.errorPosts}</p>
-            )}
-            {featuredBlogs && featuredBlogs.length > 0 && (
-              <FeaturedCarousel posts={featuredBlogs} />
-            )}
-            {featuredBlogs?.length === 0 && !isLoadingBlogs && (
-              <p className="text-slate-500 text-center py-10">{t.home.noFeaturedPosts}</p>
-            )}
           </div>
-        </section>
+        </Tile>
+      ) : null}
 
-        {/* Contact Section */}
-        {/* Static CSS mesh gradient (replaces the Vanta WebGL globe, T-25). */}
-        <section
-          id="contact"
-          className="relative overflow-hidden bg-slate-50 dark:bg-slate-900 bg-[radial-gradient(ellipse_60%_50%_at_20%_30%,rgba(89,155,250,0.18),transparent),radial-gradient(ellipse_50%_60%_at_80%_70%,rgba(42,109,170,0.18),transparent)] dark:bg-[radial-gradient(ellipse_60%_50%_at_20%_30%,rgba(89,155,250,0.16),transparent),radial-gradient(ellipse_50%_60%_at_80%_70%,rgba(42,109,170,0.22),transparent)]"
-        >
-          <div className="relative z-10 py-20">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="max-w-xl mx-auto text-center mb-12">
-                <h2 className="text-3xl font-bold text-slate-900 dark:text-on-dark mb-4">
-                  {t.home.contactTitle}
-                </h2>
-                <p className="text-slate-600 dark:text-slate-400">{t.home.contactLead}</p>
-              </div>
-
-              <div className="bg-on-dark/80 border border-slate-200 dark:bg-slate-900/80 dark:border-on-dark/5 backdrop-blur-xs rounded-2xl p-8 max-w-xl mx-auto shadow-lg dark:shadow-none">
-                <ContactForm />
-              </div>
-            </div>
+      {tools.length > 0 ? (
+        <Tile labelledBy="home-tech-h" tone="parchment">
+          <TileHeading id="home-tech-h" size="section" title={t.home.techHeading} />
+          <div className="mt-stack w-full">
+            <Marquee
+              items={tools}
+              label={t.home.techLabel}
+              pauseLabel={t.motion.pauseList}
+              playLabel={t.motion.playList}
+              itemClassName="text-title text-tile-muted"
+            />
           </div>
-        </section>
-      </div>
-    </MotionScope>
+        </Tile>
+      ) : null}
+
+      <Tile id="blog" labelledBy="home-blog-h" className={ANCHOR}>
+        <TileHeading
+          id="home-blog-h"
+          title={t.home.featuredArticles}
+          lead={t.home.featuredArticlesLead}
+          links={<LinkChevron href={lp('/blog')}>{t.home.readBlog}</LinkChevron>}
+        />
+        <div className="mt-stack w-full">
+          {posts.isPending ? (
+            <LinkedRowSkeleton label={t.home.loadingPosts} />
+          ) : (
+            <LinkedRowOrNote
+              items={postItems}
+              moreLabel={t.home.readPost}
+              note={t.home.noFeaturedPosts}
+              error={posts.isError && !posts.data && t.home.errorPosts}
+            />
+          )}
+        </div>
+      </Tile>
+
+      {statement ? (
+        <Tile labelledBy="home-statement-h" tone="parchment" size="roomy">
+          <h2 id="home-statement-h" className="sr-only">
+            {t.home.statementHeading}
+          </h2>
+          <ScrollFill
+            className="max-w-[28ch] text-tile text-balance text-tile-ink"
+            text={statement}
+          />
+          <LinkChevron href={lp('/about')} className="mt-8">
+            {t.home.moreAboutMe}
+          </LinkChevron>
+        </Tile>
+      ) : null}
+
+      <Tile id="contact" labelledBy="home-contact-h" tone="dark" size="roomy" className={ANCHOR}>
+        <TileHeading id="home-contact-h" title={t.home.contactTitle} lead={t.home.contactLead} />
+        <div className="mt-stack w-full max-w-xl text-left">
+          <ContactForm />
+        </div>
+      </Tile>
+    </div>
   );
 }
