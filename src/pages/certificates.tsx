@@ -8,12 +8,14 @@ import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
 import { certificateQueries } from '@/features/certificates/queries';
 import { useListParams } from '@/lib/useListParams';
 import { Seo } from '@/components/seo/Seo';
+import { useT } from '@/i18n';
 import { MotionScope } from '@/components/motion';
 import motionFeatures from '@/components/motion/features';
 
 const ITEMS_PER_PAGE = 9;
 
 function CertificatesContent() {
+  const t = useT();
   const {
     input: searchInput,
     setInput: setSearchInput,
@@ -50,17 +52,14 @@ function CertificatesContent() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-on-dark transition-colors duration-300">
-      <Seo
-        title="Certificates"
-        description="Browse all professional certifications and achievements."
-      />
+      <Seo title={t.seo.certificates} description={t.seo.certificatesDescription} />
       <Navbar />
       <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Certificates</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">{t.certificates.heading}</h1>
           <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-            Professional certifications, achievements, and credentials.
+            {t.certificates.lead}
           </p>
         </div>
 
@@ -70,7 +69,8 @@ function CertificatesContent() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
             <input
               type="text"
-              placeholder="Search certificates..."
+              placeholder={t.certificates.searchPlaceholder}
+              aria-label={t.certificates.searchPlaceholder}
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               className="w-full bg-on-dark dark:bg-slate-900/80 border border-slate-200 dark:border-on-dark/10 rounded-full py-3 pl-12 pr-6 text-slate-900 dark:text-on-dark focus:ring-2 focus:ring-indigo-500 outline-hidden backdrop-blur-xs shadow-xs"
@@ -99,7 +99,7 @@ function CertificatesContent() {
             ))}
           {isError && !certData && (
             <div className="col-span-full py-20 text-center text-red-500">
-              Error loading certificates.
+              {t.certificates.error}
             </div>
           )}
           {certificates.map((cert, idx) => (
@@ -107,7 +107,7 @@ function CertificatesContent() {
           ))}
           {certificates.length === 0 && !isLoadingCerts && (
             <div className="col-span-full py-20 text-center text-slate-500">
-              No certificates found matching your criteria.
+              {t.certificates.none}
             </div>
           )}
         </div>

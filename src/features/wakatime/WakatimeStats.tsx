@@ -1,6 +1,7 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useTheme } from '@/app/ThemeContext';
+import { useLocale, useT } from '@/i18n';
 
 interface WakatimeDailyData {
   date: string;
@@ -17,9 +18,11 @@ interface WakatimeStatsProps {
 
 const WakatimeStats: React.FC<WakatimeStatsProps> = ({ data }) => {
   const { theme } = useTheme();
+  const t = useT();
+  const locale = useLocale();
 
   const chartData = data.map((day) => ({
-    date: new Date(day.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+    date: new Date(day.date).toLocaleDateString(locale, { month: 'short', day: 'numeric' }),
     Coding: day.total / 3600, // Convert seconds to hours
   }));
 
@@ -29,7 +32,7 @@ const WakatimeStats: React.FC<WakatimeStatsProps> = ({ data }) => {
   return (
     <div className="bg-on-dark dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-on-dark/5">
       <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-on-dark">
-        Coding Activity (Last 30 Days)
+        {t.about.activityMonth}
       </h3>
       <div style={{ width: '100%', height: 300 }}>
         <ResponsiveContainer>
@@ -44,7 +47,7 @@ const WakatimeStats: React.FC<WakatimeStatsProps> = ({ data }) => {
                 color: theme === 'dark' ? '#f8fafc' : '#0f172a',
               }}
               labelStyle={{ fontWeight: 'bold' }}
-              formatter={(value) => [`${Number(value).toFixed(2)} hrs`, 'Time']}
+              formatter={(value) => [t.about.hours(Number(value).toFixed(2)), t.about.time]}
             />
             <Bar dataKey="Coding" fill="#4f46e5" radius={[4, 4, 0, 0]} />
           </BarChart>

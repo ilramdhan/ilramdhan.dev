@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router';
 import { Code, Smartphone, Cloud, Terminal, Layout, Database } from 'lucide-react';
+import { Link } from '@/i18n/Link';
 import { Markdown } from '@/components/ui/Markdown';
 import { MotionScope, Reveal } from '@/components/motion';
 import { Hero } from '@/features/hero-3d/Hero';
@@ -18,6 +18,7 @@ import { techStackQueries } from '@/features/tech-stack/queries';
 import { serviceQueries } from '@/features/services/queries';
 import { Seo } from '@/components/seo/Seo';
 import { useInView } from '@/lib/hooks';
+import { useT } from '@/i18n';
 
 const renderProjectSkeleton = () => <ProjectCardSkeleton />;
 
@@ -31,6 +32,7 @@ const IconMap: { [key: string]: React.ElementType } = {
 };
 
 export default function Page() {
+  const t = useT();
   const marqueeRef = useRef<HTMLDivElement>(null);
   const marqueeInView = useInView(marqueeRef);
 
@@ -55,7 +57,7 @@ export default function Page() {
 
   return (
     <MotionScope>
-      <Seo description="Ilham Ramadhan's personal portfolio — showcasing projects, skills, certifications, and blog posts." />
+      <Seo description={t.seo.homeDescription} />
       <Navbar />
       <main className="min-h-screen">
         <Hero />
@@ -68,10 +70,10 @@ export default function Page() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="text-center mb-12">
                 <h2 className="text-3xl font-bold text-slate-900 dark:text-on-dark mb-4">
-                  What I Do
+                  {t.home.whatIDo}
                 </h2>
                 <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-                  I offer a range of services to help you build your next digital product.
+                  {t.home.whatIDoLead}
                 </p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -116,7 +118,7 @@ export default function Page() {
         <section className="py-12 bg-on-dark border-y border-slate-200 dark:bg-slate-900/50 dark:border-on-dark/5 overflow-hidden backdrop-blur-xs transition-colors">
           <div className="max-w-7xl mx-auto px-4 mb-8">
             <p className="text-center text-slate-500 text-sm font-semibold uppercase tracking-wider">
-              Technologies I work with
+              {t.home.techHeading}
             </p>
           </div>
           <div
@@ -152,28 +154,28 @@ export default function Page() {
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
               <div>
                 <h2 className="text-3xl font-bold text-slate-900 dark:text-on-dark mb-2">
-                  Featured Projects
+                  {t.home.featuredProjects}
                 </h2>
-                <p className="text-slate-600 dark:text-slate-400">Some of my recent work</p>
+                <p className="text-slate-600 dark:text-slate-400">{t.home.featuredProjectsLead}</p>
               </div>
               <Link
                 to="/projects"
                 className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium text-sm flex items-center gap-1"
               >
-                View All Projects &rarr;
+                {t.home.viewAllProjects} &rarr;
               </Link>
             </div>
 
             {isLoadingProjects && (
               <>
                 <span className="sr-only" role="status">
-                  Loading projects...
+                  {t.home.loadingProjects}
                 </span>
                 <CarouselSkeleton renderSkeleton={renderProjectSkeleton} />
               </>
             )}
             {isErrorProjects && !featuredProjects && (
-              <p className="text-red-500 text-center py-10">Error loading projects.</p>
+              <p className="text-red-500 text-center py-10">{t.home.errorProjects}</p>
             )}
             {featuredProjects && featuredProjects.length > 0 && (
               <Carousel
@@ -182,14 +184,14 @@ export default function Page() {
                 renderItem={(project, { sizes, index }) => (
                   <ProjectCard project={project} index={index} sizes={sizes} className="h-full" />
                 )}
-                label="Featured projects"
-                prevLabel="Previous projects"
-                nextLabel="Next projects"
+                label={t.home.carouselProjects}
+                prevLabel={t.home.prevProjects}
+                nextLabel={t.home.nextProjects}
                 trackTestId="featured-projects-track"
               />
             )}
             {featuredProjects?.length === 0 && !isLoadingProjects && (
-              <p className="text-slate-500 text-center py-10">No featured projects yet.</p>
+              <p className="text-slate-500 text-center py-10">{t.home.noFeaturedProjects}</p>
             )}
           </div>
         </section>
@@ -203,36 +205,34 @@ export default function Page() {
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
               <div>
                 <h2 className="text-3xl font-bold text-slate-900 dark:text-on-dark mb-2">
-                  Featured Articles
+                  {t.home.featuredArticles}
                 </h2>
-                <p className="text-slate-600 dark:text-slate-400">
-                  Thoughts on development and tech
-                </p>
+                <p className="text-slate-600 dark:text-slate-400">{t.home.featuredArticlesLead}</p>
               </div>
               <Link
                 to="/blog"
                 className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium text-sm flex items-center gap-1"
               >
-                Read Blog &rarr;
+                {t.home.readBlog} &rarr;
               </Link>
             </div>
 
             {isLoadingBlogs && (
               <>
                 <span className="sr-only" role="status">
-                  Loading posts...
+                  {t.home.loadingPosts}
                 </span>
                 <FeaturedCarouselSkeleton />
               </>
             )}
             {isErrorBlogs && !featuredBlogs && (
-              <p className="text-red-500 text-center py-10">Error loading posts.</p>
+              <p className="text-red-500 text-center py-10">{t.home.errorPosts}</p>
             )}
             {featuredBlogs && featuredBlogs.length > 0 && (
               <FeaturedCarousel posts={featuredBlogs} />
             )}
             {featuredBlogs?.length === 0 && !isLoadingBlogs && (
-              <p className="text-slate-500 text-center py-10">No featured blog posts.</p>
+              <p className="text-slate-500 text-center py-10">{t.home.noFeaturedPosts}</p>
             )}
           </div>
         </section>
@@ -247,12 +247,9 @@ export default function Page() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="max-w-xl mx-auto text-center mb-12">
                 <h2 className="text-3xl font-bold text-slate-900 dark:text-on-dark mb-4">
-                  Get In Touch
+                  {t.home.contactTitle}
                 </h2>
-                <p className="text-slate-600 dark:text-slate-400">
-                  Have a project in mind or just want to chat? Feel free to send me a message. I'm
-                  currently open for new opportunities.
-                </p>
+                <p className="text-slate-600 dark:text-slate-400">{t.home.contactLead}</p>
               </div>
 
               <div className="bg-on-dark/80 border border-slate-200 dark:bg-slate-900/80 dark:border-on-dark/5 backdrop-blur-xs rounded-2xl p-8 max-w-xl mx-auto shadow-lg dark:shadow-none">

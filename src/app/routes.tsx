@@ -1,10 +1,12 @@
 import { lazy, useEffect, useState, type ComponentType } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router';
+import { BrowserRouter, useLocation, useRoutes, type RouteObject } from 'react-router';
 import { AdminRoute } from '@/app/AdminRoute';
 import { RouteErrorBoundary } from '@/app/error/RouteError';
 import PublicLayout from '@/app/layouts/PublicLayout';
 import { setRoutePrefetcher } from '@/app/prefetch';
 import { endPrerenderedView } from '@/lib/hooks';
+import { LocaleContext, loadLocale } from '@/i18n';
+import { splitLocale, type Locale } from '@/i18n/locale';
 import { loadRouteChunk, pageForPath, pageLoaders, type PageKey } from '@/app/route-modules';
 
 // Every page is its own chunk (T-24); admin-only code (dashboard, CRUD forms) stays
@@ -32,7 +34,8 @@ function page(key: PageKey): ComponentType {
 // eslint-disable-next-line react-refresh/only-export-components -- shares the page registry with the route tree
 export async function preloadPage(path: string): Promise<void> {
   const key = pageForPath(path);
-  loaded[key] = (await pageLoaders[key]()).default;
+  const [mod] = await Promise.all([pageLoaders[key](), loadLocale(splitLocale(path).locale)]);
+  loaded[key] = mod.default;
 }
 
 const HomePage = page('home');
@@ -50,41 +53,61 @@ const NotFoundPage = page('notFound');
 
 setRoutePrefetcher(loadRouteChunk);
 
+/** Public pages, identical in every locale (slugs are shared). */
+function publicChildren(locale: Locale): RouteObject[] {
+  const children: RouteObject[] = [
+    { index: true, element: <HomePage /> },
+    { path: 'about', element: <AboutPage /> },
+    { path: 'certificates', element: <CertificatesPage /> },
+    { path: 'projects', element: <ProjectsPage /> },
+    { path: 'projects/:slug', element: <ProjectDetailPage /> },
+    { path: 'blog', element: <BlogPage /> },
+    { path: 'blog/:slug', element: <BlogDetailPage /> },
+    { path: 'privacy', element: <PrivacyPage /> },
+    { path: 'terms', element: <TermsPage /> },
+  ];
+  // Admin stays English-only: no /id/login, no /id/admin.
+  if (locale === 'en') {
+    children.push(
+      { path: 'login', element: <LoginPage /> },
+      {
+        path: 'admin',
+        element: (
+          <AdminRoute>
+            <AdminPage />
+          </AdminRoute>
+        ),
+      },
+    );
+  }
+  children.push({ path: '*', element: <NotFoundPage /> });
+  return children;
+}
+
+/** One route object per locale: `/...` for `en`, `/id/...` for `id`. */
+const ROUTES: RouteObject[] = [
+  { path: '/', element: <PublicLayout />, children: publicChildren('en') },
+  { path: '/id', element: <PublicLayout />, children: publicChildren('id') },
+];
+
 /** The route tree; rendered inside `BrowserRouter` (client) or `StaticRouter` (prerender). */
 export function GuardedRoutes() {
   const { pathname } = useLocation();
   const [firstPath] = useState(pathname);
+  const { locale } = splitLocale(pathname);
   // During render (idempotent), not in an effect: the next page's components read the
   // flag while they render, before any effect would run.
   if (pathname !== firstPath) endPrerenderedView();
   // Interactive from here on (prerendered pages: hydrated). Read by the e2e suite.
   useEffect(() => document.documentElement.setAttribute('data-hydrated', ''), []);
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
+  const routes = useRoutes(ROUTES);
   return (
-    <RouteErrorBoundary resetKey={pathname}>
-      <Routes>
-        <Route path="/" element={<PublicLayout />}>
-          <Route index element={<HomePage />} />
-          <Route path="about" element={<AboutPage />} />
-          <Route path="certificates" element={<CertificatesPage />} />
-          <Route path="projects" element={<ProjectsPage />} />
-          <Route path="projects/:slug" element={<ProjectDetailPage />} />
-          <Route path="blog" element={<BlogPage />} />
-          <Route path="blog/:slug" element={<BlogDetailPage />} />
-          <Route path="privacy" element={<PrivacyPage />} />
-          <Route path="terms" element={<TermsPage />} />
-          <Route path="login" element={<LoginPage />} />
-          <Route
-            path="admin"
-            element={
-              <AdminRoute>
-                <AdminPage />
-              </AdminRoute>
-            }
-          />
-          <Route path="*" element={<NotFoundPage />} />
-        </Route>
-      </Routes>
-    </RouteErrorBoundary>
+    <LocaleContext.Provider value={locale}>
+      <RouteErrorBoundary resetKey={pathname}>{routes}</RouteErrorBoundary>
+    </LocaleContext.Provider>
   );
 }
 

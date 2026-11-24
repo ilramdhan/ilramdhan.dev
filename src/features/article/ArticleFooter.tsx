@@ -1,5 +1,6 @@
-import { Link } from 'react-router';
+import { Link } from '@/i18n/Link';
 import { cn } from '@/lib/utils';
+import { useT } from '@/i18n';
 
 /** Tag chips linking to the list at `basePath`, filtered by that tag. */
 export function TagLinks({
@@ -12,9 +13,10 @@ export function TagLinks({
   basePath: string;
   className?: string;
 }) {
+  const t = useT();
   if (!tags.length) return null;
   return (
-    <ul className={cn('flex flex-wrap gap-2', className)} aria-label="Tags">
+    <ul className={cn('flex flex-wrap gap-2', className)} aria-label={t.common.tags}>
       {tags.map((tag) => (
         <li key={tag}>
           <Link

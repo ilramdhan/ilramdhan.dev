@@ -12,13 +12,21 @@ export function EmptyState({
 }
 
 /** Grid-spanning error message with an optional retry action. */
-export function ErrorState({ children, onRetry }: { children: ReactNode; onRetry?: () => void }) {
+export function ErrorState({
+  children,
+  onRetry,
+  retryLabel = 'Retry',
+}: {
+  children: ReactNode;
+  onRetry?: () => void;
+  retryLabel?: string;
+}) {
   return (
     <div className="col-span-full py-20 text-center text-red-500">
       {children}
       {onRetry && (
         <button type="button" onClick={onRetry} className="ml-3 underline">
-          Retry
+          {retryLabel}
         </button>
       )}
     </div>

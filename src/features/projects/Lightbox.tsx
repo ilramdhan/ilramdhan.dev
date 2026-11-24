@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Dialog } from '@/components/ui/Dialog';
 import { Img } from '@/components/ui/Img';
+import { useT } from '@/i18n';
 import { useSwipe } from './use-swipe';
 
 export interface LightboxProps {
@@ -34,6 +35,7 @@ const NAV_BUTTON =
  * image's alt text. Esc, focus trap and focus return come from `Dialog`.
  */
 export default function Lightbox({ images, alt, index, onIndexChange, onClose }: LightboxProps) {
+  const t = useT();
   const count = images.length;
   const go = (delta: number) => onIndexChange((index + delta + count) % count);
   const swipe = useSwipe((direction) => {
@@ -52,13 +54,13 @@ export default function Lightbox({ images, alt, index, onIndexChange, onClose }:
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [count, index, onIndexChange]);
 
-  const label = count > 1 ? `${alt}: image ${index + 1} of ${count}` : alt;
+  const label = count > 1 ? t.gallery.imageOf(alt, index + 1, count) : alt;
 
   return (
     <Dialog
       open
       onClose={onClose}
-      title="Image viewer"
+      title={t.gallery.viewer}
       overlayClassName="fixed inset-0 z-60 bg-slate-950/95 motion-safe:animate-page-in"
       className="flex h-full w-full flex-col text-on-dark outline-hidden"
     >
@@ -69,7 +71,7 @@ export default function Lightbox({ images, alt, index, onIndexChange, onClose }:
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close image viewer"
+          aria-label={t.gallery.closeViewer}
           className={NAV_BUTTON}
         >
           <X className="h-5 w-5" aria-hidden="true" />
@@ -98,7 +100,7 @@ export default function Lightbox({ images, alt, index, onIndexChange, onClose }:
               <button
                 type="button"
                 onClick={() => go(-1)}
-                aria-label="Previous image"
+                aria-label={t.gallery.prev}
                 className={`${NAV_BUTTON} absolute left-2 top-1/2 -translate-y-1/2 sm:left-4`}
               >
                 <ChevronLeft className="h-6 w-6" aria-hidden="true" />
@@ -106,7 +108,7 @@ export default function Lightbox({ images, alt, index, onIndexChange, onClose }:
               <button
                 type="button"
                 onClick={() => go(1)}
-                aria-label="Next image"
+                aria-label={t.gallery.next}
                 className={`${NAV_BUTTON} absolute right-2 top-1/2 -translate-y-1/2 sm:right-4`}
               >
                 <ChevronRight className="h-6 w-6" aria-hidden="true" />

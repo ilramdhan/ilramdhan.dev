@@ -1,10 +1,18 @@
 import { z } from 'zod';
 
-const ContactSchema = z.object({
-  name: z.string().min(2, { error: 'Name must be at least 2 characters.' }),
-  email: z.email({ error: 'Please enter a valid email.' }),
-  message: z.string().min(10, { error: 'Message must be at least 10 characters.' }),
-});
+/** Field error messages, supplied by the caller from the active locale's dictionary. */
+export interface ContactMessages {
+  name: string;
+  email: string;
+  message: string;
+}
+
+const contactSchema = (m: ContactMessages) =>
+  z.object({
+    name: z.string().min(2, { error: m.name }),
+    email: z.email({ error: m.email }),
+    message: z.string().min(10, { error: m.message }),
+  });
 
 export type ContactState = {
   errors?: {
@@ -16,15 +24,18 @@ export type ContactState = {
   success?: boolean;
 };
 
-export type ContactFields = z.infer<typeof ContactSchema>;
+export type ContactFields = z.infer<ReturnType<typeof contactSchema>>;
 
 export type ContactValidation =
   | { success: true; data: ContactFields }
   | { success: false; error: NonNullable<ContactState['errors']> };
 
 // Client-side validation of the contact form.
-export function validateContactForm(formData: FormData): ContactValidation {
-  const validatedFields = ContactSchema.safeParse({
+export function validateContactForm(
+  formData: FormData,
+  messages: ContactMessages,
+): ContactValidation {
+  const validatedFields = contactSchema(messages).safeParse({
     name: formData.get('name'),
     email: formData.get('email'),
     message: formData.get('message'),

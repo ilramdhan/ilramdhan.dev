@@ -17,6 +17,10 @@ export function applyHeadToHtml(html: string, head: HeadDescriptor): string {
     out = out.replace(pattern, '');
     tags.push(`<meta ${attr}="${key}" content="${escapeAttr(content)}" />`);
   }
+  for (const a of head.alternates) {
+    tags.push(`<link rel="alternate" hreflang="${a.hreflang}" href="${escapeAttr(a.href)}" />`);
+  }
   if (head.canonical) tags.push(`<link rel="canonical" href="${escapeAttr(head.canonical)}" />`);
+  out = out.replace(/<html lang="[^"]*"/, `<html lang="${head.lang}"`);
   return out.replace('</head>', `    ${tags.join('\n    ')}\n  </head>`);
 }

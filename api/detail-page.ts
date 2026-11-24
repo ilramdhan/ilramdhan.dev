@@ -46,7 +46,8 @@ export async function GET(request: Request): Promise<Response> {
       fetchDetailRow(kind, slug, { url: supabaseUrl, anonKey }),
       staticPage(url.origin, 'spa'),
     ]);
-    const page = buildDetailHtml(template, kind, slug, row);
+    const locale = url.searchParams.get('locale') === 'id' ? 'id' : 'en';
+    const page = buildDetailHtml(template, kind, slug, row, locale);
     // A short CDN cache: the next deploy prerenders the page and takes over anyway.
     if (page) return html(page, 200, 'public, s-maxage=300, stale-while-revalidate=3600');
     return notFound(url.origin, 'public, s-maxage=60');

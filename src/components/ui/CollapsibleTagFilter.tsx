@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, ChevronDown, ChevronUp } from 'lucide-react';
+import { useT } from '@/i18n';
 
 interface CollapsibleTagFilterProps {
   tags: string[];
@@ -18,6 +19,7 @@ export function CollapsibleTagFilter({
   isLoading = false,
   prefix = '',
 }: CollapsibleTagFilterProps) {
+  const t = useT();
   const [expanded, setExpanded] = useState(false);
 
   if (isLoading) {
@@ -46,7 +48,7 @@ export function CollapsibleTagFilter({
           onClick={() => onTagClick(null)}
           className="flex items-center gap-1 px-3 py-1.5 rounded-full bg-indigo-600 text-on-dark text-sm font-medium hover:bg-indigo-700 transition-colors"
         >
-          <X className="h-3 w-3" /> Clear
+          <X className="h-3 w-3" /> {t.common.clear}
         </button>
       )}
       {visibleTags.map((tag) => (
@@ -70,11 +72,11 @@ export function CollapsibleTagFilter({
         >
           {expanded ? (
             <>
-              <ChevronUp className="h-3 w-3" /> Show less
+              <ChevronUp className="h-3 w-3" /> {t.common.showLess}
             </>
           ) : (
             <>
-              <ChevronDown className="h-3 w-3" /> +{hiddenCount} more
+              <ChevronDown className="h-3 w-3" /> {t.common.more(hiddenCount)}
             </>
           )}
         </button>

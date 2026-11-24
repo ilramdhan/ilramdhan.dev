@@ -1,6 +1,7 @@
 import { lazy, Suspense, useCallback, useRef, useState } from 'react';
 import { Maximize2 } from 'lucide-react';
 import { Img } from '@/components/ui/Img';
+import { useT } from '@/i18n';
 
 const loadLightbox = () => import('./Lightbox');
 /** Client-only and loaded on first open, so it isn't in the route's initial JS. */
@@ -18,6 +19,7 @@ interface ProjectGalleryProps {
  * markup and the hydrated markup are the same.
  */
 export function ProjectGallery({ images, alt }: ProjectGalleryProps) {
+  const t = useT();
   const [open, setOpen] = useState<number | null>(null);
   const triggers = useRef<(HTMLButtonElement | null)[]>([]);
   const opened = useRef<number>(0);
@@ -33,7 +35,7 @@ export function ProjectGallery({ images, alt }: ProjectGalleryProps) {
 
   return (
     <>
-      <ul aria-label="Gallery" className="grid grid-cols-4 gap-2 sm:grid-cols-6 sm:gap-3">
+      <ul aria-label={t.gallery.label} className="grid grid-cols-4 gap-2 sm:grid-cols-6 sm:gap-3">
         {images.map((src, i) => (
           <li key={`${i}-${src}`}>
             <button
@@ -41,7 +43,7 @@ export function ProjectGallery({ images, alt }: ProjectGalleryProps) {
               ref={(el) => {
                 triggers.current[i] = el;
               }}
-              aria-label={`Open image ${i + 1} of ${count} full screen`}
+              aria-label={t.gallery.openImage(i + 1, count)}
               aria-haspopup="dialog"
               onPointerEnter={() => void loadLightbox()}
               onFocus={() => void loadLightbox()}

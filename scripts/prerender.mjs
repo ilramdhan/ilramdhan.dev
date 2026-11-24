@@ -5,6 +5,7 @@
 // - Each route is rendered by src/entry-server.tsx (loaded through Vite, so aliases, env
 //   and `define` match the client build) and written as `<route>.html` (`/` -> index.html),
 //   with its head tags and the query data the browser hydrates from.
+// - Every public page is rendered for `en` (`/about`) and `id` (`/id/about`); sitemap.xml lists both.
 // - `spa.html` (empty shell) serves `/admin*`; `404.html` is the prerendered not-found page.
 // - Without Supabase env vars the build stays a plain SPA (shell copied to spa/404.html):
 //   `npm run build` works anywhere. If Supabase is configured but unreachable the build
@@ -46,6 +47,11 @@ try {
   const { envErrors } = await vite.ssrLoadModule('/src/lib/env.ts');
   if (envErrors.length > 0) {
     write('404.html', template);
+    const { buildSitemap } = await vite.ssrLoadModule('/src/i18n/sitemap.ts');
+    write(
+      'sitemap.xml',
+      buildSitemap(['/', '/about', '/certificates', '/projects', '/blog', '/privacy', '/terms']),
+    );
     console.warn(`[prerender] skipped (${envErrors.join('; ')}): the build is a plain SPA.`);
   } else {
     const entry = await vite.ssrLoadModule('/src/entry-server.tsx');
@@ -68,6 +74,8 @@ try {
       write(file, await page(url, true));
     }
     write('404.html', await page('/404', false));
+    // Both locales, with hreflang alternates (replaces the static public/sitemap.xml).
+    write('sitemap.xml', entry.buildSitemap(await entry.contentPaths(true)));
     console.log(`[prerender] ${routes.length} routes + 404.html -> ${path.relative(root, outDir)}`);
   }
 } finally {

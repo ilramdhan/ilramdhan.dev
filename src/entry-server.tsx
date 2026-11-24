@@ -18,10 +18,13 @@ import { HeadCollectorContext } from '@/components/seo/head-collector';
 import type { HeadDescriptor } from '@/components/seo/seo-head';
 import { supabase } from '@/lib/supabase/client';
 import type { PrerenderedQuery } from '@/lib/prerendered-data';
+import { loadLocale } from '@/i18n';
+import { localePath, splitLocale } from '@/i18n/locale';
+import { buildSitemap } from '@/i18n/sitemap';
 
 export { applyHeadToHtml } from '@/components/seo/head-html';
 
-/** Public routes without parameters; `login` is prerendered too (noindex). */
+/** Public routes without parameters, locale-free (each is prerendered for `en` and `id`). */
 export const STATIC_ROUTES = [
   '/',
   '/about',
@@ -30,8 +33,12 @@ export const STATIC_ROUTES = [
   '/blog',
   '/privacy',
   '/terms',
-  '/login',
 ];
+
+/** English-only: admin stays out of the locale routes; `login` is prerendered (noindex). */
+const EN_ONLY_ROUTES = ['/login'];
+
+export { buildSitemap };
 
 /** Query keys never fetched at build time (third-party, per-visitor). */
 const CLIENT_ONLY_KEYS = new Set(['wakatime', 'is-admin']);
@@ -44,8 +51,8 @@ async function slugs(table: 'projects' | 'blogs'): Promise<string[]> {
   return (data ?? []).flatMap((row) => (row.slug ? [row.slug] : []));
 }
 
-/** Every route to prerender: static pages plus each published project and post. */
-export async function prerenderRoutes(withContent: boolean): Promise<string[]> {
+/** Locale-free paths of every indexable page: static pages plus each published project and post. */
+export async function contentPaths(withContent: boolean): Promise<string[]> {
   if (!withContent) return STATIC_ROUTES;
   const [projects, blogs] = await Promise.all([slugs('projects'), slugs('blogs')]);
   return [
@@ -53,6 +60,12 @@ export async function prerenderRoutes(withContent: boolean): Promise<string[]> {
     ...projects.map((s) => `/projects/${encodeURIComponent(s)}`),
     ...blogs.map((s) => `/blog/${encodeURIComponent(s)}`),
   ];
+}
+
+/** Every URL to prerender, both locales (`/about`, `/id/about`, ...). */
+export async function prerenderRoutes(withContent: boolean): Promise<string[]> {
+  const paths = await contentPaths(withContent);
+  return [...paths, ...EN_ONLY_ROUTES, ...paths.map((p) => localePath(p, 'id'))];
 }
 
 // Resolves once everything (lazy pages and Suspense boundaries included) is ready:
@@ -98,6 +111,7 @@ export interface RenderResult {
 }
 
 export async function render(url: string, withContent: boolean): Promise<RenderResult> {
+  await loadLocale(splitLocale(url).locale);
   const client = createQueryClient();
   client.setDefaultOptions({ queries: { ...QUERY_DEFAULTS, retry: false } });
   const collector: { current: HeadDescriptor | null } = { current: null };

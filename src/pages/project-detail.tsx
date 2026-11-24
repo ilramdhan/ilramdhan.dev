@@ -1,7 +1,8 @@
 import React, { useMemo, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link, useParams } from 'react-router';
+import { useParams } from 'react-router';
 import { ExternalLink, Calendar, Clock } from 'lucide-react';
+import { Link } from '@/i18n/Link';
 import { Github } from '@/components/ui/brand-icons';
 import { Markdown } from '@/components/ui/Markdown';
 import NotFoundPage from '@/pages/not-found';
@@ -30,12 +31,12 @@ import { TOC_ASIDE_CLASS, TocDisclosure, TocSidebar } from '@/features/article/T
 import { extractHeadings } from '@/features/article/toc';
 import { formatDate } from '@/lib/date';
 import { ensureFullUrl } from '@/lib/utils';
+import { useLocale, useT } from '@/i18n';
 import type { ProjectCard as ProjectCardData } from '@/features/projects/api';
-
-const NO_CONTENT = 'No detailed content available for this project.';
 
 /** "Related projects": up to three cards sharing a tag, topped up with the latest. */
 function RelatedProjects({ projects }: { projects: ProjectCardData[] | undefined }) {
+  const t = useT();
   if (!projects?.length) return null;
   return (
     <section aria-labelledby="related-projects-heading" className="mt-16">
@@ -43,7 +44,7 @@ function RelatedProjects({ projects }: { projects: ProjectCardData[] | undefined
         id="related-projects-heading"
         className="mb-6 text-2xl font-bold text-slate-900 dark:text-on-dark"
       >
-        Related projects
+        {t.project.related}
       </h2>
       <ul className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {projects.map((p, i) => (
@@ -58,6 +59,8 @@ function RelatedProjects({ projects }: { projects: ProjectCardData[] | undefined
 
 export default function ProjectDetailPage() {
   const { slug } = useParams<{ slug: string }>();
+  const t = useT();
+  const locale = useLocale();
 
   const {
     data: project,
@@ -69,7 +72,7 @@ export default function ProjectDetailPage() {
   const { data: adjacent } = useQuery(projectQueries.adjacent(project?.id, project?.created_at));
   const { data: related } = useQuery(projectQueries.related(project?.id, project?.tags ?? []));
 
-  const content = project?.content || NO_CONTENT;
+  const content = project?.content || t.project.noContent;
   const headings = useMemo(() => extractHeadings(content), [content]);
   const components = useMemo(() => articleHeadingComponents(headings), [headings]);
   const minutes = useMemo(() => readingTime(project?.content), [project?.content]);
@@ -78,7 +81,7 @@ export default function ProjectDetailPage() {
   if (isLoading) {
     return (
       <ArticleSkeleton
-        label="Loading project..."
+        label={t.project.loading}
         header={
           <div className="mt-6 h-11 w-72 max-w-full rounded-lg bg-slate-100 dark:bg-slate-800/60" />
         }
@@ -90,19 +93,17 @@ export default function ProjectDetailPage() {
   if (isError && !project && !isNotFoundError(error)) {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center text-slate-900 dark:text-on-dark px-4 text-center">
-        <h1 className="text-2xl font-bold mb-2">Couldn&apos;t load this project</h1>
-        <p className="text-slate-500 dark:text-slate-400 mb-6">
-          Check your connection and try again.
-        </p>
+        <h1 className="text-2xl font-bold mb-2">{t.project.loadError}</h1>
+        <p className="text-slate-500 dark:text-slate-400 mb-6">{t.post.loadErrorHint}</p>
         <div className="flex items-center gap-6">
           <button
             onClick={() => void refetch()}
             className="px-4 py-2 rounded-lg bg-indigo-600 text-on-dark hover:bg-indigo-700 transition-colors"
           >
-            Try again
+            {t.common.tryAgain}
           </button>
           <Link to="/projects" className="text-indigo-600 dark:text-indigo-400 hover:underline">
-            Back to Projects
+            {t.project.backToProjects}
           </Link>
         </div>
       </div>
@@ -112,7 +113,7 @@ export default function ProjectDetailPage() {
   if (!project) return <NotFoundPage />;
 
   const images = project.images ?? [];
-  const alt = project.title ? `Screenshot of ${project.title}` : 'Project screenshot';
+  const alt = project.title ? t.projects.screenshotOf(project.title) : t.projects.screenshot;
   const tags = project.tags ?? [];
   const techStack = project.tech_stack ?? [];
   const showToc = headings.length >= TOC_MIN_HEADINGS;
@@ -132,19 +133,19 @@ export default function ProjectDetailPage() {
         <article ref={articleRef}>
           <header>
             <nav
-              aria-label="Breadcrumb"
+              aria-label={t.article.breadcrumb}
               className="mb-6 text-sm text-slate-600 dark:text-slate-400"
             >
               <ol className="flex min-w-0 items-center gap-1">
                 <li className="shrink-0">
                   <Link to="/" className="hover:text-indigo-600 dark:hover:text-indigo-400">
-                    Home
+                    {t.article.home}
                   </Link>
                 </li>
                 <li className="flex shrink-0 items-center gap-1">
                   <span aria-hidden="true">/</span>
                   <Link to="/projects" className="hover:text-indigo-600 dark:hover:text-indigo-400">
-                    Projects
+                    {t.nav.projects}
                   </Link>
                 </li>
                 <li className="flex min-w-0 items-center gap-1">
@@ -170,22 +171,22 @@ export default function ProjectDetailPage() {
             <p className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-600 dark:text-slate-400">
               <span className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" aria-hidden="true" />
-                <time dateTime={project.created_at}>{formatDate(project.created_at)}</time>
+                <time dateTime={project.created_at}>{formatDate(project.created_at, locale)}</time>
               </span>
               <span className="flex items-center gap-2">
                 <Clock className="h-4 w-4" aria-hidden="true" />
-                {minutes} min read
+                {t.common.minRead(minutes)}
               </span>
               {project.is_featured && (
                 <span className="px-2 py-0.5 bg-indigo-100 text-indigo-700 dark:bg-indigo-500/20 dark:text-indigo-300 rounded-full border border-indigo-200 dark:border-indigo-500/30">
-                  Featured
+                  {t.project.featured}
                 </span>
               )}
             </p>
             {(techStack.length > 0 || project.demo_url || project.repo_url) && (
               <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-4">
                 {techStack.length > 0 && (
-                  <ul aria-label="Tech stack" className="flex flex-wrap gap-2">
+                  <ul aria-label={t.common.techStack} className="flex flex-wrap gap-2">
                     {techStack.map((tech) => (
                       <li
                         key={tech}
@@ -205,7 +206,7 @@ export default function ProjectDetailPage() {
                         rel="noopener noreferrer"
                         className="flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-on-dark rounded-lg font-medium transition-colors shadow-lg shadow-indigo-500/20"
                       >
-                        <ExternalLink className="h-4 w-4" aria-hidden="true" /> Live Demo
+                        <ExternalLink className="h-4 w-4" aria-hidden="true" /> {t.project.liveDemo}
                       </a>
                     )}
                     {project.repo_url && (
@@ -215,7 +216,7 @@ export default function ProjectDetailPage() {
                         rel="noopener noreferrer"
                         className="flex items-center justify-center gap-2 px-4 py-2.5 bg-on-dark text-slate-700 border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:text-on-dark dark:hover:bg-slate-700 dark:border-on-dark/10 rounded-lg font-medium transition-colors"
                       >
-                        <Github className="h-4 w-4" aria-hidden="true" /> View Source
+                        <Github className="h-4 w-4" aria-hidden="true" /> {t.project.viewSource}
                       </a>
                     )}
                   </div>
@@ -241,7 +242,7 @@ export default function ProjectDetailPage() {
             <div className={BODY_COLUMN}>
               {showToc && <TocDisclosure headings={headings} />}
               <div className="prose prose-lg prose-slate dark:prose-invert max-w-none">
-                <h2>About this project</h2>
+                <h2>{t.project.about}</h2>
                 <Markdown components={components}>{content}</Markdown>
               </div>
             </div>
@@ -266,9 +267,9 @@ export default function ProjectDetailPage() {
           <PostNavigation
             adjacent={adjacent}
             basePath="/projects"
-            label="More projects"
-            olderText="Older project"
-            newerText="Newer project"
+            label={t.project.more}
+            olderText={t.project.older}
+            newerText={t.project.newer}
           />
         </div>
 

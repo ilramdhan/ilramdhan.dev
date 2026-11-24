@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type Key, type ReactNode } from 'react';
 import { ChevronRight } from 'lucide-react';
 import { useReducedMotion } from '@/lib/hooks';
+import { useT } from '@/i18n';
 
 /** Up to `minForCarousel - 1` items are shown as a plain grid instead of a carousel. */
 export const CAROUSEL_MIN_ITEMS = 4;
@@ -63,6 +64,7 @@ export function Carousel<T>({
   minForCarousel = CAROUSEL_MIN_ITEMS,
   trackTestId,
 }: CarouselProps<T>) {
+  const t = useT();
   const track = useRef<HTMLUListElement>(null);
   const reducedMotion = useReducedMotion();
   const [edges, setEdges] = useState({ start: true, end: false });
@@ -139,7 +141,7 @@ export function Carousel<T>({
             key={getKey(item)}
             className={SLIDE}
             aria-roledescription="slide"
-            aria-label={`${index + 1} of ${items.length}`}
+            aria-label={t.carousel.slide(index + 1, items.length)}
           >
             {renderItem(item, { sizes: CARD_SIZES, index })}
           </li>

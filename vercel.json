@@ -11,6 +11,14 @@
       "destination": "/spa.html"
     },
     {
+      "source": "/id/blog/:slug",
+      "destination": "/api/detail-page?kind=blog&slug=:slug&locale=id"
+    },
+    {
+      "source": "/id/projects/:slug",
+      "destination": "/api/detail-page?kind=project&slug=:slug&locale=id"
+    },
+    {
       "source": "/blog/:slug",
       "destination": "/api/detail-page?kind=blog&slug=:slug"
     },

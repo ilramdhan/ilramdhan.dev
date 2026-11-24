@@ -4,6 +4,8 @@ import { EnvErrorScreen } from '@/app/error/EnvErrorScreen';
 import { Providers } from '@/app/providers';
 import { createQueryClient } from '@/app/query-client';
 import { AppRoutes, preloadPage } from '@/app/routes';
+import { loadLocale } from '@/i18n';
+import { splitLocale } from '@/i18n/locale';
 import { envErrors } from '@/lib/env';
 import { beginHydration } from '@/lib/hooks';
 import { seedPrerenderedData } from '@/lib/prerendered-data';
@@ -41,5 +43,8 @@ if (prerendered && envErrors.length === 0) {
     .catch(() => undefined)
     .then(() => ReactDOM.hydrateRoot(rootElement, app));
 } else {
-  ReactDOM.createRoot(rootElement).render(app);
+  // Not prerendered for this URL (e.g. `/id/blog?tag=x`): still load its dictionary first.
+  void loadLocale(splitLocale(window.location.pathname).locale)
+    .catch(() => undefined)
+    .then(() => ReactDOM.createRoot(rootElement).render(app));
 }

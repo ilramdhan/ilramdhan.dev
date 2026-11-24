@@ -27,8 +27,8 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 | R0  | ✅     |      | baseline.md, inventory.md, screens/before (40), screens/reference (32); 404 not Lighthouse-measurable          |
 | R1a | ✅     | #163 | React 19, R3F 9, Vite 8, Vitest 5, ESLint 10, router 8, Playwright 1.65, TS 6; holds below; CI green (735 e2e) |
 | R1b | ✅     | #164 | TW 4.3 (@tailwindcss/vite), MG tokens/type/dark/Auto, Inter self-hosted, CSS budget 19.5; CI green             |
-| R2  | ⬜     |      |                                                                                                                |
-| I1  | ⬜     |      |                                                                                                                |
+| R2  | ✅     | #165 | tile partials (static, R3 hooks as data-*), Field/Dialog/Pagination restyled; CSS budget 20.5; CI green        |
+| I1  | ✅     | #166 | typed en/id dicts, /id routes + prerender + hreflang + sitemap, banner; id dict lazy; CI green                 |
 | R3  | ⬜     |      |                                                                                                                |
 | R4  | ⬜     |      |                                                                                                                |
 | R5  | ⬜     |      |                                                                                                                |
@@ -50,6 +50,15 @@ Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified 
 
 - Home long tasks at 4x CPU throttle: 4 after R1a vs 2 before (3D card + rapier start-up split into separate tasks; TBT unchanged ~705 ms). CI limit is 5, so a slow runner may flake `performance.spec.ts:126`; fix in R5 when the hero/lanyard mount is rebuilt (D2).
 
+### CI failures (read before opening a PR)
+
+- **Time-dependent e2e: local green ≠ CI green.** CI builds `dist-e2e` once and the matrix runs ~9–11 min, so prerendered data is older than React Query `staleTime` (5 min) for later specs; locally the build is seconds old. Anything that depends on data age (refetch on mount, idle refresh in `src/lib/prerendered-data.ts`) only breaks in CI. I1 hit this: stale seed → mount refetch + idle `invalidateQueries` cancelled it and fetched again → `data-layer.spec.ts` "profile is fetched once" saw 2 requests (fixed: refresh only queries still holding build data, `cancelRefetch: false`). To reproduce locally, make the seed stale (e.g. `vi.useFakeTimers` in a unit test, or wait > 5 min after `npm run test:e2e` builds before rerunning with `--no-deps`/reuse).
+- **Don't dismiss an e2e failure as a flake** because it passes alone. A failure that also fails its retry (`retry #1`) in CI is real. Sub-agents must report it, not label it timing.
+- **Run touched specs on `desktop` and `tablet` projects**, not only `desktop`; CI runs the full width matrix.
+- **Merge `origin/redesign/apple-clean` into the phase branch before the PR** when a parallel phase merged first (R2+I1 pattern), then rerun gates.
+- **Read real exit codes.** `cmd | tail` returns tail's exit code; check `N failed` in the output, or redirect to a file and `echo exit=$?`. `npm test` can print `Errors N` under load while still exiting 0 through a pipe: rerun alone.
+- **`gh pr merge` can hang** waiting on stdin in this harness: run it with `</dev/null`, then confirm with `gh pr view N --json state`.
+
 ## Log (one line per event, newest last)
 
 - 2026-11-23 Plan written (analysis of both repos). Waiting for D1–D5.
@@ -59,3 +68,4 @@ Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified 
 - 2026-11-23 R1a ✅ merged #163 (verified by orchestrator: npm ci on npm 10, gates green, CI green); also charts chunk kept off home + cached Intl formatter. Next: R1b.
 - 2026-11-23 R1b on redesign/R1b-foundation: Tailwind 4 + mutugading tokens verbatim, `white` = page surface (literal whites → `on-dark`), Light/Dark/Auto via data-theme + no-flash script (CSP hash updated), tailwind-merge 3, .site-glow removed; screens/R1b; awaiting orchestrator verify.
 - 2026-11-23 R1b ✅ merged #164 (verified by orchestrator: gates green, screens/R1b checked, CI green incl. full e2e). Deferred to R2–R4: MG CSS for Disclosure/footer/scroll-fill/settle/stagger/inset/view transitions/brand collapse. Next: R2 + I1 in parallel.
+- 2026-11-24 R2 ✅ merged #165 (verified by orchestrator: gates green, screens/R2 checked, CI green; CSS budget 19.5 → 20.5 KiB). I1 ✅ #166 (verified: gates, e2e i18n/prerender/seo/data-layer; CI e2e failed once on a stale-seed double profile fetch, fixed in prerendered-data.ts, see Gotchas). Follow-up: Pagination aria-labels to messages. Next: R3.
