@@ -1,6 +1,6 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Disclosure, DisclosureGroup } from '@/components/tile';
+import { Disclosure, DisclosureGroup } from '@/components/tile/Disclosure';
 import { motionOk } from '@/components/motion/near';
 import { profileQueries } from '@/features/profile/queries';
 import { socialEntries } from '@/lib/social';
