@@ -4,10 +4,13 @@ import { Markdown } from '@/components/ui/Markdown';
 import { profileQueries } from '@/features/profile/queries';
 import { formatDate } from '@/lib/date';
 import { Seo } from '@/components/seo/Seo';
+import { Link } from '@/i18n/Link';
 import { useLocale, useT } from '@/i18n';
-import { Tile } from '@/components/tile/Tile';
-import { TileHeading } from '@/components/tile/TileHeading';
-import { LinkChevron } from '@/components/tile/LinkChevron';
+
+// Same classes as privacy.tsx (inlined to keep tile partials out of the entry chunk).
+const section =
+  'w-full scroll-mt-(--nav-h) bg-white text-ink flex min-h-svh flex-col justify-center py-section';
+const wrap = 'wrap flex flex-col items-center text-center';
 
 export default function TermsPage() {
   const t = useT();
@@ -16,30 +19,38 @@ export default function TermsPage() {
 
   if (isLoading) {
     return (
-      <Tile labelledBy="legal-h" size="screen">
-        <p>{t.legal.loadingTerms}</p>
-      </Tile>
+      <section className={section}>
+        <div className={wrap}>
+          <p>{t.legal.loadingTerms}</p>
+        </div>
+      </section>
     );
   }
 
   return (
     <>
       <Seo title={t.seo.terms} description={t.seo.termsDescription} />
-      <Tile labelledBy="legal-h" size="screen">
-        <TileHeading
-          id="legal-h"
-          as="h1"
-          title={t.seo.terms}
-          align="center"
-          links={<LinkChevron href="/">{t.common.backToHome}</LinkChevron>}
-        />
-        <article className="mx-auto mt-10 max-w-[68ch]">
-          <p className="mb-8 text-caption text-ink-muted">
-            {t.legal.lastUpdated(formatDate(new Date(), locale))}
-          </p>
-          <Markdown components={{ h1: 'h2' }}>{profile?.terms_content || t.legal.noTerms}</Markdown>
-        </article>
-      </Tile>
+      <section aria-labelledby="legal-h" className={section}>
+        <div className={wrap}>
+          <h1 id="legal-h" className="text-tile max-w-[20ch] text-tile-ink">
+            {t.seo.terms}
+          </h1>
+          <Link
+            to="/"
+            className="mt-6 inline-flex min-h-11 items-center gap-1.5 text-body text-action underline-offset-4 hover:underline"
+          >
+            {t.common.backToHome}
+          </Link>
+          <article className="mx-auto mt-10 max-w-[68ch] text-left">
+            <p className="mb-8 text-caption text-ink-muted">
+              {t.legal.lastUpdated(formatDate(new Date(), locale))}
+            </p>
+            <Markdown components={{ h1: 'h2' }}>
+              {profile?.terms_content || t.legal.noTerms}
+            </Markdown>
+          </article>
+        </div>
+      </section>
     </>
   );
 }

@@ -4,10 +4,14 @@ import { Markdown } from '@/components/ui/Markdown';
 import { profileQueries } from '@/features/profile/queries';
 import { formatDate } from '@/lib/date';
 import { Seo } from '@/components/seo/Seo';
+import { Link } from '@/i18n/Link';
 import { useLocale, useT } from '@/i18n';
-import { Tile } from '@/components/tile/Tile';
-import { TileHeading } from '@/components/tile/TileHeading';
-import { LinkChevron } from '@/components/tile/LinkChevron';
+
+// Same classes as the tile partials (white tile, screen size, centered wrap). Inlined: this page is in the entry
+// chunk's budget, and importing Tile/TileHeading/LinkChevron would add their motion code to it.
+const section =
+  'w-full scroll-mt-(--nav-h) bg-white text-ink flex min-h-svh flex-col justify-center py-section';
+const wrap = 'wrap flex flex-col items-center text-center';
 
 export default function PrivacyPage() {
   const t = useT();
@@ -16,32 +20,38 @@ export default function PrivacyPage() {
 
   if (isLoading) {
     return (
-      <Tile labelledBy="legal-h" size="screen">
-        <p>{t.legal.loadingPrivacy}</p>
-      </Tile>
+      <section className={section}>
+        <div className={wrap}>
+          <p>{t.legal.loadingPrivacy}</p>
+        </div>
+      </section>
     );
   }
 
   return (
     <>
       <Seo title={t.seo.privacy} description={t.seo.privacyDescription} />
-      <Tile labelledBy="legal-h" size="screen">
-        <TileHeading
-          id="legal-h"
-          as="h1"
-          title={t.seo.privacy}
-          align="center"
-          links={<LinkChevron href="/">{t.common.backToHome}</LinkChevron>}
-        />
-        <article className="mx-auto mt-10 max-w-[68ch]">
-          <p className="mb-8 text-caption text-ink-muted">
-            {t.legal.lastUpdated(formatDate(new Date(), locale))}
-          </p>
-          <Markdown components={{ h1: 'h2' }}>
-            {profile?.privacy_content || t.legal.noPrivacy}
-          </Markdown>
-        </article>
-      </Tile>
+      <section aria-labelledby="legal-h" className={section}>
+        <div className={wrap}>
+          <h1 id="legal-h" className="text-tile max-w-[20ch] text-tile-ink">
+            {t.seo.privacy}
+          </h1>
+          <Link
+            to="/"
+            className="mt-6 inline-flex min-h-11 items-center gap-1.5 text-body text-action underline-offset-4 hover:underline"
+          >
+            {t.common.backToHome}
+          </Link>
+          <article className="mx-auto mt-10 max-w-[68ch] text-left">
+            <p className="mb-8 text-caption text-ink-muted">
+              {t.legal.lastUpdated(formatDate(new Date(), locale))}
+            </p>
+            <Markdown components={{ h1: 'h2' }}>
+              {profile?.privacy_content || t.legal.noPrivacy}
+            </Markdown>
+          </article>
+        </div>
+      </section>
     </>
   );
 }
