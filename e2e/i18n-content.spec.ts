@@ -68,12 +68,15 @@ test('before the migration (no translations column) /id still renders English wi
   await page.goto('/id/blog/blog-post-2');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Blog Post 2');
   await expect(page.getByTestId('not-translated')).toContainText(NOTE);
-  // Asked for the column, got the 400, retried without it.
-  const selects = supabase.requests
-    .filter((r) => r.path.startsWith('/rest/v1/blogs') && r.path.includes('slug=eq.blog-post-2'))
-    .map((r) => r.url.searchParams.get('select') ?? '');
-  expect(selects.some((s) => s.includes('translations'))).toBe(true);
-  expect(selects.some((s) => !s.includes('translations'))).toBe(true);
+  // Asked for the column, got the 400, retried without it. The prerendered seed paints the page first;
+  // the requests come from the later idle refresh, so poll instead of reading them once.
+  const selects = () =>
+    supabase.requests
+      .filter((r) => r.path.startsWith('/rest/v1/blogs') && r.path.includes('slug=eq.blog-post-2'))
+      .map((r) => r.url.searchParams.get('select') ?? '');
+  await expect.poll(() => selects().some((s) => s.includes('translations'))).toBe(true);
+  await expect.poll(() => selects().some((s) => !s.includes('translations'))).toBe(true);
+  await expect(page.getByTestId('not-translated')).toContainText(NOTE);
 });
 
 async function openProjectEditor(page: Page, name: string) {
