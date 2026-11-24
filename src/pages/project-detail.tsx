@@ -29,6 +29,7 @@ import { readingTime } from '@/features/article/reading';
 import { ShareBar } from '@/features/article/ShareBar';
 import { TOC_ASIDE_CLASS, TocDisclosure, TocSidebar } from '@/features/article/TableOfContents';
 import { extractHeadings } from '@/features/article/toc';
+import { projectJsonLd } from '@/components/seo/json-ld';
 import { ensureFullUrl } from '@/lib/utils';
 import { useLocale, useLocalePath, useT } from '@/i18n';
 import { NotTranslated } from '@/i18n/NotTranslated';
@@ -133,6 +134,26 @@ export default function ProjectDetailPage() {
         description={project.short_description || undefined}
         image={project.images?.[0] || undefined}
         type="article"
+        // Prerender only: crawlers read the static HTML, so the builders stay out of the client bundle.
+        jsonLd={
+          import.meta.env.SSR
+            ? projectJsonLd({
+                locale,
+                path: lp(`/projects/${slug}`),
+                title: project.title,
+                description: project.short_description,
+                images: project.images,
+                tags: project.tags,
+                created: project.created_at,
+                repo,
+                crumbs: [
+                  { name: t.article.home, path: lp('/') },
+                  { name: t.nav.projects, path: lp('/projects') },
+                  { name: project.title, path: lp(`/projects/${slug}`) },
+                ],
+              })
+            : undefined
+        }
       />
       {showToc && <ReadingProgress target={articleRef} />}
 

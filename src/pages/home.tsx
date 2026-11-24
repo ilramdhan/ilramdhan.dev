@@ -13,6 +13,7 @@ import { Hero } from '@/features/hero-3d/Hero';
 import { ContactForm } from '@/features/messages/ContactForm';
 import { LinkedRowOrNote, LinkedRowSkeleton } from '@/features/home/HomeRows';
 import { firstParagraph, plainText } from '@/features/home/home-text';
+import { homeJsonLd } from '@/components/seo/json-ld';
 import { profileQueries } from '@/features/profile/queries';
 import { projectQueries } from '@/features/projects/queries';
 import { blogQueries } from '@/features/blog/queries';
@@ -90,7 +91,17 @@ export default function Page() {
 
   return (
     <div>
-      <Seo description={t.seo.homeDescription} />
+      <Seo
+        description={t.seo.homeDescription}
+        jsonLd={
+          import.meta.env.SSR
+            ? homeJsonLd(locale, {
+                description: t.seo.homeDescription,
+                image: '/logo.png',
+              })
+            : undefined
+        }
+      />
 
       <Hero
         specs={

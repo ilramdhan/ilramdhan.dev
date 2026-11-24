@@ -17,6 +17,7 @@ import { pillClass } from '@/components/tile/pill';
 import { morphName } from '@/components/motion/Morph';
 import { absoluteUrl } from '@/config/site';
 import { articleHeadingComponents } from '@/features/blog/article-headings';
+import { blogPostingJsonLd } from '@/components/seo/json-ld';
 import { PostNavigation, RelatedPosts, TagLinks } from '@/features/blog/ArticleFooter';
 import { ReadingProgress } from '@/features/blog/ReadingProgress';
 import { readingTime } from '@/features/blog/reading';
@@ -24,7 +25,7 @@ import { ShareBar } from '@/features/blog/ShareBar';
 import { TocDisclosure, TocSidebar } from '@/features/blog/TableOfContents';
 import { extractHeadings } from '@/features/blog/toc';
 import { formatDate } from '@/lib/date';
-import { useLocale, useT } from '@/i18n';
+import { useLocale, useLocalePath, useT } from '@/i18n';
 import { NotTranslated } from '@/i18n/NotTranslated';
 import { ArticleSkeleton } from '@/features/article/ArticleSkeleton';
 import { ARTICLE_COLUMN, ARTICLE_GRID, TOC_MIN_HEADINGS } from '@/features/article/layout';
@@ -35,6 +36,7 @@ export default function BlogDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const t = useT();
   const locale = useLocale();
+  const lp = useLocalePath();
   const queryClient = useQueryClient();
 
   const {
@@ -150,6 +152,25 @@ export default function BlogDetailPage() {
         description={blog.excerpt || undefined}
         image={blog.images?.[0] || undefined}
         type="article"
+        // Prerender only: crawlers read the static HTML, so the builders stay out of the client bundle.
+        jsonLd={
+          import.meta.env.SSR
+            ? blogPostingJsonLd({
+                locale,
+                path: lp(`/blog/${slug}`),
+                title: blog.title,
+                description: blog.excerpt,
+                images: blog.images,
+                tags: blog.tags,
+                published: blog.published_at,
+                crumbs: [
+                  { name: t.article.home, path: lp('/') },
+                  { name: t.nav.blog, path: lp('/blog') },
+                  { name: blog.title, path: lp(`/blog/${slug}`) },
+                ],
+              })
+            : undefined
+        }
       />
       <ReadingProgress target={articleRef} />
 

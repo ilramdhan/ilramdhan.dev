@@ -26,7 +26,7 @@ describe('buildHead', () => {
   });
 
   it('makes images absolute', () => {
-    expect(meta(buildHead({}, '/'), 'og:image')).toBe('https://ilramdhan.dev/logo.png');
+    expect(meta(buildHead({}, '/'), 'og:image')).toBe('https://ilramdhan.dev/og.png');
     expect(meta(buildHead({ image: 'https://cdn.x/a.png' }, '/'), 'og:image')).toBe(
       'https://cdn.x/a.png',
     );
@@ -57,5 +57,25 @@ describe('applyHeadToHtml', () => {
     const html = applyHeadToHtml(template, buildHead({ noindex: true }, '/login'));
     expect(html).not.toContain('rel="canonical"');
     expect(html).toContain('content="noindex, nofollow"');
+  });
+});
+
+describe('og image + json-ld', () => {
+  it('declares size only for the default 1200x630 image, plus alt', () => {
+    const html = (props: Parameters<typeof buildHead>[0]) =>
+      applyHeadToHtml('<html><head></head></html>', buildHead(props, '/about'));
+    const d = html({ title: 'A' });
+    expect(d).toContain('og:image:width" content="1200"');
+    expect(d).toContain('og:image:height" content="630"');
+    expect(d).toContain('og:image:alt" content="A | Ilham Ramadhan"');
+    expect(html({ image: '/x.png' })).not.toContain('og:image:width');
+  });
+
+  it('writes json-ld into prerendered html, replacing old blocks', () => {
+    const node = { '@context': 'https://schema.org', '@type': 'Person', name: '</script>' };
+    const tpl = '<html><head><script type="application/ld+json">{}</script></head></html>';
+    const html = applyHeadToHtml(tpl, { ...buildHead({}, '/'), jsonLd: [node] });
+    expect(html.match(/ld\+json/g)).toHaveLength(1);
+    expect(html).not.toContain('</script>"');
   });
 });
