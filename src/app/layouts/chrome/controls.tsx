@@ -82,7 +82,10 @@ export function LocaleSwitcher({
       } catch {
         // storage unavailable: the banner may ask again next visit
       }
-      void loadLocale(l).then(() => navigate(href));
+      loadLocale(l).then(
+        () => navigate(href),
+        () => window.location.assign(href),
+      );
     };
     items.push(
       <a

@@ -70,7 +70,10 @@ export function LocaleBanner() {
             save('id');
             setShow(false);
             const target = `${localePath(splitLocale(pathname).path, 'id')}${search}${hash}`;
-            void loadLocale('id').then(() => navigate(target));
+            loadLocale('id').then(
+              () => navigate(target),
+              () => window.location.assign(target),
+            );
           }}
           className={`${button} rounded-full bg-tile-pill font-medium text-tile-pill-ink hover:bg-tile-pill-hover`}
         >
