@@ -98,7 +98,7 @@ export function Hero({ specs }: { specs?: ReactNode }) {
     <section
       aria-labelledby="home-hero-h"
       data-enter=""
-      className="relative isolate -mt-(--nav-h) flex min-h-svh w-full flex-col bg-white text-ink"
+      className="relative isolate -mt-(--nav-h) flex min-h-[min(74svh,48rem)] w-full flex-col bg-white text-ink"
     >
       {lanyard ? (
         <Suspense fallback={null}>
