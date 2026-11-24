@@ -27,7 +27,10 @@ export function ProjectGallery({ images, alt }: ProjectGalleryProps) {
   const close = useCallback(() => {
     setOpen(null);
     // Dialog restores focus too; this covers browsers that don't focus a clicked button.
-    requestAnimationFrame(() => triggers.current[opened.current]?.focus());
+    // Late rAF must not steal focus the user already moved.
+    requestAnimationFrame(
+      () => document.activeElement === document.body && triggers.current[opened.current]?.focus(),
+    );
   }, []);
 
   if (count === 0) return null;

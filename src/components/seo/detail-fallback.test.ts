@@ -37,7 +37,7 @@ describe('buildDetailHtml', () => {
       images: [],
     });
     expect(html).toContain('<link rel="canonical" href="https://ilramdhan.dev/projects/app" />');
-    expect(html).toContain('<meta property="og:image" content="https://ilramdhan.dev/logo.png" />');
+    expect(html).toContain('<meta property="og:image" content="https://ilramdhan.dev/og.png" />');
     expect(html).toContain(`<meta name="description" content="${siteConfig.metaDescription}" />`);
   });
 

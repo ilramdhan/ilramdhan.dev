@@ -72,6 +72,8 @@ export function Seo(props: SeoProps) {
 
   useEffect(
     () => () => {
+      // JSON-LD is prerender-only: drop it on route change.
+      document.querySelector('script[type="application/ld+json"]')?.remove();
       apply({
         ...buildHead({}, '/'),
         canonical: null,

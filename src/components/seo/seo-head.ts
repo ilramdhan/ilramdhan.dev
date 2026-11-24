@@ -2,6 +2,8 @@
 import { absoluteUrl, siteConfig } from '../../config/site';
 import { alternatesFor, OG_LOCALE, splitLocale } from '../../i18n/locale';
 
+export type JsonLdNode = Record<string, unknown>;
+
 export interface SeoProps {
   /** Page title; rendered as `<title> | <site name>`. Omit for the site default title. */
   title?: string;
@@ -14,6 +16,8 @@ export interface SeoProps {
   type?: 'website' | 'article';
   /** Adds `noindex` and drops the canonical (login, admin, 404). */
   noindex?: boolean;
+  /** Structured data (schema.org) for the page; built by `json-ld.ts`. */
+  jsonLd?: JsonLdNode[];
 }
 
 /**
@@ -31,6 +35,8 @@ export interface HeadDescriptor {
   alternates: Array<{ hreflang: string; href: string }>;
   /** `<html lang>`. */
   lang: string;
+  /** `<script type="application/ld+json">` payloads. */
+  jsonLd: JsonLdNode[];
 }
 
 export function buildHead(props: SeoProps, pathname: string): HeadDescriptor {
@@ -66,5 +72,12 @@ export function buildHead(props: SeoProps, pathname: string): HeadDescriptor {
         hreflang: a.hreflang,
         href: absoluteUrl(a.path),
       }));
-  return { title, meta, canonical, alternates, lang: locale };
+  return {
+    title,
+    meta,
+    canonical,
+    alternates,
+    lang: locale,
+    jsonLd: import.meta.env.SSR ? (props.jsonLd ?? []) : [],
+  };
 }

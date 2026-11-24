@@ -70,7 +70,7 @@ const escapeHtml = (value: string) =>
 
 /**
  * Injects values from `src/config/site.ts` into `index.html`:
- * replaces `%SITE_*%` placeholders and adds the JSON-LD `Person` block.
+ * replaces `%SITE_*%` placeholders and (JSON-LD is per page: `<Seo jsonLd>`).
  */
 function siteConfigHtml(): Plugin {
   const replacements: Record<string, string> = {
@@ -81,37 +81,15 @@ function siteConfigHtml(): Plugin {
     SITE_URL: absoluteUrl('/'),
     SITE_OG_IMAGE: absoluteUrl(siteConfig.ogDefaultImage),
   };
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: siteConfig.name,
-    url: siteConfig.url,
-    jobTitle: siteConfig.jobTitle,
-    sameAs: [siteConfig.social.github, siteConfig.social.linkedin],
-    image: absoluteUrl(siteConfig.ogDefaultImage),
-    description: siteConfig.jsonLdDescription,
-  };
-
   return {
     name: 'site-config-html',
     transformIndexHtml: {
       order: 'pre',
-      handler(html) {
-        return {
-          html: html.replace(/%(SITE_[A-Z_]+)%/g, (match, key: string) => {
-            const value = replacements[key];
-            return value === undefined ? match : escapeHtml(value);
-          }),
-          tags: [
-            {
-              tag: 'script',
-              attrs: { type: 'application/ld+json' },
-              children: JSON.stringify(jsonLd, null, 2).replace(/</g, '\\u003c'),
-              injectTo: 'head',
-            },
-          ],
-        };
-      },
+      handler: (html) =>
+        html.replace(/%(SITE_[A-Z_]+)%/g, (match, key: string) => {
+          const value = replacements[key];
+          return value === undefined ? match : escapeHtml(value);
+        }),
     },
   };
 }
