@@ -20,7 +20,7 @@ import { certificateQueries } from '@/features/certificates/queries';
 import { techStackQueries } from '@/features/tech-stack/queries';
 import { serviceQueries } from '@/features/services/queries';
 import { Seo } from '@/components/seo/Seo';
-import { useLocalePath, useT } from '@/i18n';
+import { useLocale, useLocalePath, useT } from '@/i18n';
 
 // Intrinsic ratio for photos whose URL carries no size (Img reads `_<w>x<h>` from uploads first).
 const PHOTO = { width: 1600, height: 1200 };
@@ -39,15 +39,16 @@ const COUNT = { page: 1, limit: 1 } as const;
 export default function Page() {
   const t = useT();
   const lp = useLocalePath();
+  const locale = useLocale();
 
-  const { data: profile } = useQuery(profileQueries.detail());
-  const projects = useQuery(projectQueries.featured());
-  const posts = useQuery(blogQueries.featured());
+  const { data: profile } = useQuery(profileQueries.detail(locale));
+  const projects = useQuery(projectQueries.featured(locale));
+  const posts = useQuery(blogQueries.featured(locale));
   const { data: techStack } = useQuery(techStackQueries.list());
-  const services = useQuery(serviceQueries.list());
-  const projectCount = useQuery(projectQueries.list(COUNT));
-  const postCount = useQuery(blogQueries.list(COUNT));
-  const certCount = useQuery(certificateQueries.list(COUNT));
+  const services = useQuery(serviceQueries.list(locale));
+  const projectCount = useQuery(projectQueries.list(COUNT, locale));
+  const postCount = useQuery(blogQueries.list(COUNT, locale));
+  const certCount = useQuery(certificateQueries.list(COUNT, locale));
   const projectTotal = projectCount.data;
   const postTotal = postCount.data;
   const certTotal = certCount.data;

@@ -4,7 +4,7 @@ import { PillButton } from '@/components/tile';
 import { useMediaQuery } from '@/lib/hooks';
 import { cn } from '@/lib/utils';
 import { profileQueries } from '@/features/profile/queries';
-import { useLocalePath, useT } from '@/i18n';
+import { useLocale, useLocalePath, useT } from '@/i18n';
 
 // three.js, Rapier and the model live in this chunk. It is imported only when `useLanyard` allows it (D2), so phones,
 // tablets, coarse pointers and reduced-motion visitors never download it.
@@ -90,8 +90,9 @@ function Bar({ className }: { className: string }) {
 export function Hero({ specs }: { specs?: ReactNode }) {
   const t = useT();
   const lp = useLocalePath();
+  const locale = useLocale();
   const lanyard = useLanyard();
-  const { data: profile, isPending } = useQuery(profileQueries.detail());
+  const { data: profile, isPending } = useQuery(profileQueries.detail(locale));
 
   return (
     <section
