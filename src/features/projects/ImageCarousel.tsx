@@ -1,25 +1,42 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { InsetReveal } from '@/components/motion/InsetReveal';
+import { Morph } from '@/components/motion/Morph';
 import { Img } from '@/components/ui/Img';
 import { useT } from '@/i18n';
+import { cn } from '@/lib/utils';
 import { useSwipe } from './use-swipe';
 
 interface ImageCarouselProps {
   images: string[];
   alt: string;
-  aspectRatio?: string; // e.g., 'aspect-video', 'aspect-square'
+  /** Aspect classes of the frame; phones get the taller crop. */
+  aspectRatio?: string;
   /** Above-the-fold hero image (detail pages): eager + high fetch priority. */
   priority?: boolean;
   /** `sizes` hint for the rendered width. */
   sizes?: string;
+  /** View-transition name (`morphName`): the frame morphs from the list card's photo. */
+  morph?: string;
+  /** Inset clip reveal once in view; only takes effect when the frame starts below the fold. */
+  reveal?: boolean;
 }
 
+const ARROW =
+  'pointer-events-auto grid size-11 place-items-center rounded-full bg-white/80 text-ink backdrop-blur-md transition-[background-color,scale] duration-200 ease-apple hover:bg-white active:scale-[0.96] motion-reduce:transition-none';
+
+/**
+ * Screenshot carousel on a MediaFrame-style frame (18px corners, frame grey): arrows on the photo, dots below it.
+ * The photo never zooms on hover (it is not a link). Arrow keys and swipe change the slide.
+ */
 export function ImageCarousel({
   images,
   alt,
-  aspectRatio = 'aspect-video',
+  aspectRatio = 'aspect-[4/3] sm:aspect-video',
   priority = false,
   sizes,
+  morph,
+  reveal,
 }: ImageCarouselProps) {
   const t = useT();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -29,25 +46,7 @@ export function ImageCarousel({
     if (count > 1) go(direction);
   });
 
-  // If no images, show placeholder
-  if (!images || images.length === 0) {
-    return (
-      <div
-        className={`w-full ${aspectRatio} bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-500`}
-      >
-        No Image
-      </div>
-    );
-  }
-
-  const prev = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    go(-1);
-  };
-  const next = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    go(1);
-  };
+  if (count === 0) return null;
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (count < 2) return;
@@ -60,17 +59,12 @@ export function ImageCarousel({
     }
   };
 
-  return (
-    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- carousel region is keyboard operable (arrow keys)
+  const frame = (
     <div
-      role="group"
-      aria-roledescription="carousel"
-      aria-label={alt}
-      tabIndex={count > 1 ? 0 : undefined}
-      onKeyDown={onKeyDown}
       {...swipe}
       style={{ touchAction: 'pan-y' }}
-      className={`w-full ${aspectRatio} relative overflow-hidden group bg-slate-100 dark:bg-slate-900 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-indigo-500`}
+      data-inset={reveal ? '' : undefined}
+      className={cn('relative w-full overflow-hidden rounded-lg bg-tile-frame', aspectRatio)}
     >
       <Img
         key={currentIndex}
@@ -80,47 +74,58 @@ export function ImageCarousel({
         height={900}
         priority={priority && currentIndex === 0}
         sizes={sizes}
-        className="w-full h-full object-cover motion-safe:animate-page-in transition-transform duration-500 group-hover:scale-105"
+        className="absolute inset-0 h-full w-full object-cover motion-safe:animate-page-in"
       />
-
       {count > 1 && (
-        <>
-          {/* Visible on touch/coarse pointers and keyboard focus; hover-only elsewhere. */}
-          <div className="absolute inset-0 z-10 flex items-center justify-between p-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 [@media(hover:none)]:opacity-100 transition-opacity pointer-events-none">
-            <button
-              type="button"
-              onClick={prev}
-              aria-label={t.gallery.prev}
-              className="pointer-events-auto p-1 rounded-full bg-black/50 text-on-dark hover:bg-black/70 backdrop-blur-xs"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button
-              type="button"
-              onClick={next}
-              aria-label={t.gallery.next}
-              className="pointer-events-auto p-1 rounded-full bg-black/50 text-on-dark hover:bg-black/70 backdrop-blur-xs"
-            >
-              <ChevronRight className="h-5 w-5" />
-            </button>
-          </div>
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-between p-3">
+          <button
+            type="button"
+            onClick={() => go(-1)}
+            aria-label={t.gallery.prev}
+            className={ARROW}
+          >
+            <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+          </button>
+          <button type="button" onClick={() => go(1)} aria-label={t.gallery.next} className={ARROW}>
+            <ChevronRight className="h-5 w-5" aria-hidden="true" />
+          </button>
+        </div>
+      )}
+      {reveal ? <InsetReveal /> : null}
+    </div>
+  );
 
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-            {images.map((_, idx) => (
-              <button
-                key={idx}
-                type="button"
-                aria-label={t.gallery.showImage(idx + 1, count)}
-                aria-current={idx === currentIndex}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setCurrentIndex(idx);
-                }}
-                className={`w-1.5 h-1.5 rounded-full transition-colors ${idx === currentIndex ? 'bg-on-dark' : 'bg-on-dark/40 hover:bg-on-dark/70'}`}
+  return (
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- carousel region is keyboard operable (arrow keys)
+    <div
+      role="group"
+      aria-roledescription="carousel"
+      aria-label={alt}
+      tabIndex={count > 1 ? 0 : undefined}
+      onKeyDown={onKeyDown}
+      className="w-full"
+    >
+      {morph ? <Morph name={morph}>{frame}</Morph> : frame}
+      {count > 1 && (
+        <div className="mt-1 flex justify-center">
+          {images.map((_, idx) => (
+            <button
+              key={idx}
+              type="button"
+              aria-label={t.gallery.showImage(idx + 1, count)}
+              aria-current={idx === currentIndex}
+              onClick={() => setCurrentIndex(idx)}
+              className="group/dot grid size-11 place-items-center"
+            >
+              <span
+                className={cn(
+                  'size-2 rounded-full transition-colors duration-200 motion-reduce:transition-none',
+                  idx === currentIndex ? 'bg-ink' : 'bg-ink-muted/40 group-hover/dot:bg-ink-muted',
+                )}
               />
-            ))}
-          </div>
-        </>
+            </button>
+          ))}
+        </div>
       )}
     </div>
   );
