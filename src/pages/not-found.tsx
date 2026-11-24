@@ -1,36 +1,36 @@
-import { Link } from '@/i18n/Link';
-import { EmptyState } from '@/components/ui/PageState';
 import { Seo } from '@/components/seo/Seo';
+import { Link } from '@/i18n/Link';
 import { useT } from '@/i18n';
-
-const LINKS = [
-  { to: '/', key: 'home' },
-  { to: '/projects', key: 'projects' },
-  { to: '/blog', key: 'blog' },
-] as const;
 
 /** 404 page: rendered for unknown URLs and for unknown project/blog slugs. */
 export default function NotFoundPage() {
   const t = useT();
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-on-dark transition-colors">
+    <>
       <Seo title={t.seo.notFound} noindex />
-      <div className="min-h-screen flex flex-col items-center justify-center px-4">
-        <p className="text-sm font-mono text-indigo-600 dark:text-indigo-400">404</p>
-        <h1 className="text-3xl md:text-4xl font-bold mt-2">{t.notFound.title}</h1>
-        <EmptyState className="py-6">{t.notFound.body}</EmptyState>
-        <div className="flex flex-wrap items-center justify-center gap-4">
-          {LINKS.map((l) => (
-            <Link
-              key={l.to}
-              to={l.to}
-              className="px-4 py-2 rounded-lg border border-slate-200 dark:border-on-dark/10 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-on-dark/5 transition-colors"
-            >
-              {t.nav[l.key]}
-            </Link>
-          ))}
+      <section className="w-full bg-white text-ink flex min-h-svh flex-col justify-center py-section">
+        <div className="wrap flex flex-col items-center text-center">
+          <h1 className="text-hero max-w-[14ch] text-tile-ink">{t.notFound.title}</h1>
+          <p className="mt-4 max-w-[48ch] text-body text-tile-muted">{t.notFound.body}</p>
+          <Link
+            to="/"
+            className="mt-8 inline-flex min-h-11 items-center justify-center rounded-full bg-tile-pill px-[22px] py-[11px] text-body text-tile-pill-ink transition-[background-color,scale] duration-200 ease-apple hover:bg-tile-pill-hover active:scale-[0.98] motion-reduce:transition-none"
+          >
+            {t.common.backToHome}
+          </Link>
+          <nav aria-label={t.notFound.title} className="mt-4 flex gap-6">
+            {(['projects', 'blog'] as const).map((key) => (
+              <Link
+                key={key}
+                to={`/${key}`}
+                className="inline-flex min-h-11 items-center text-body text-action underline-offset-4 hover:underline"
+              >
+                {t.nav[key]}
+              </Link>
+            ))}
+          </nav>
         </div>
-      </div>
-    </div>
+      </section>
+    </>
   );
 }

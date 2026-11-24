@@ -134,6 +134,23 @@ test('footer: doormat with real links only, and the wordmark rises while the cur
   }
 });
 
+// Footer reveal: a footer link is only clickable once the curtain has lifted off it. Scrolling to the bottom (the
+// user's path) lifts it, so a click on a footer link from a long page must be quick. Scrolling only part way leaves
+// the link under the curtain and Playwright waits for the lift (~6 s): that is the reveal, not a bug. The timeout
+// is tight so a regression (a curtain that never lifts, or a covered footer) fails fast.
+test('footer link clicks from the bottom of a long page are quick', async ({ page }) => {
+  await page.goto('/blog');
+  await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+  await page.evaluate(() =>
+    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' }),
+  );
+  await page
+    .getByRole('contentinfo')
+    .getByRole('link', { name: 'Privacy Policy' })
+    .click({ timeout: 3000 });
+  await expect(page).toHaveURL(/\/privacy$/, { timeout: 3000 });
+});
+
 test.describe('reduced motion', () => {
   test.use({ contextOptions: { reducedMotion: 'reduce' } });
 

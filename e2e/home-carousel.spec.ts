@@ -26,13 +26,13 @@ test('two featured posts are a row of two', async ({ page, supabase }) => {
   for (const blog of supabase.db.blogs ?? []) blog.is_featured = blog.id === 1 || blog.id === 2;
   // Client-side render (the prerendered home has the full dataset): go via another page.
   await page.goto('/no-such-page');
-  await page.getByRole('main').getByRole('link', { name: 'Home', exact: true }).click();
+  await page.getByRole('main').getByRole('link', { name: 'Back to Home' }).click();
   await expect(page.locator('#blog ul > li > a')).toHaveCount(2);
 });
 
 test('no featured posts shows the empty message', async ({ page, supabase }) => {
   for (const blog of supabase.db.blogs ?? []) blog.is_featured = false;
   await page.goto('/no-such-page');
-  await page.getByRole('main').getByRole('link', { name: 'Home', exact: true }).click();
+  await page.getByRole('main').getByRole('link', { name: 'Back to Home' }).click();
   await expect(page.getByText('No featured blog posts.')).toBeVisible();
 });
