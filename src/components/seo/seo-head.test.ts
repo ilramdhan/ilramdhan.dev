@@ -68,6 +68,7 @@ describe('og image + json-ld', () => {
     expect(d).toContain('og:image:width" content="1200"');
     expect(d).toContain('og:image:height" content="630"');
     expect(d).toContain('og:image:alt" content="A | Ilham Ramadhan"');
+    expect(d).toContain('twitter:image:alt" content="A | Ilham Ramadhan"');
     expect(html({ image: '/x.png' })).not.toContain('og:image:width');
   });
 

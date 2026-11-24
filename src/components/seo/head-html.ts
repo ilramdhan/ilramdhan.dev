@@ -16,7 +16,10 @@ export function applyHeadToHtml(html: string, head: HeadDescriptor): string {
   const tags: string[] = [];
   // Crawler-only extras (kept out of the client bundle): image alt, and size for the default 1200x630 image.
   const image = head.meta.find(([, k]) => k === 'og:image')?.[2];
-  const extra: HeadDescriptor['meta'] = [['property', 'og:image:alt', head.title]];
+  const extra: HeadDescriptor['meta'] = [
+    ['property', 'og:image:alt', head.title],
+    ['name', 'twitter:image:alt', head.title],
+  ];
   if (image === absoluteUrl(siteConfig.ogDefaultImage)) {
     extra.push(['property', 'og:image:width', '1200'], ['property', 'og:image:height', '630']);
   }
