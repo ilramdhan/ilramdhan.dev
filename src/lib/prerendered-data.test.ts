@@ -1,5 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   PRERENDERED_DATA_ID,
   seedPrerenderedData,
@@ -32,5 +32,25 @@ describe('prerendered data', () => {
     seedPrerenderedData(client, document.implementation.createHTMLDocument());
     seedPrerenderedData(client, docWith('{not json'));
     expect(client.getQueryCache().getAll()).toHaveLength(0);
+  });
+
+  it('idle refresh skips queries already refetched since the build (no double fetch)', () => {
+    vi.useFakeTimers();
+    try {
+      const client = new QueryClient();
+      const json = serializePrerenderedData([
+        { key: ['profile'], data: 'build', updatedAt: 1 },
+        { key: ['blogs'], data: 'build', updatedAt: 1 },
+      ]);
+      const invalidate = vi.spyOn(client, 'invalidateQueries');
+      seedPrerenderedData(client, docWith(json));
+      // The build is older than staleTime, so the mount already refetched the profile.
+      client.setQueryData(['profile'], 'fresh');
+      window.dispatchEvent(new Event('load'));
+      vi.runAllTimers();
+      expect(invalidate.mock.calls.map(([filters]) => filters?.queryKey)).toEqual([['blogs']]);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
