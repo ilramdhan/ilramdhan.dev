@@ -297,4 +297,13 @@ export const id: Messages = {
     pauseList: 'Jeda daftar yang bergerak',
     playList: 'Putar daftar yang bergerak',
   },
+  content: {
+    notTranslated: 'Belum diterjemahkan: menampilkan teks asli berbahasa Inggris.',
+  },
+  admin: {
+    tabsLabel: 'Bahasa konten',
+    tabEn: 'EN',
+    tabId: 'ID',
+    translationHint: 'Kosongkan untuk menampilkan teks Inggris di situs berbahasa Indonesia.',
+  },
 };

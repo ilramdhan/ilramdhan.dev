@@ -1,5 +1,7 @@
 import { keepPreviousData, queryOptions } from '@tanstack/react-query';
+import type { Locale } from '@/i18n/locale';
 import {
+  getAdminCertificates,
   getCertificateIssuers,
   getCertificates,
   getCertificatesPaginated,
@@ -9,12 +11,14 @@ import {
 export const certificateKeys = {
   all: ['certificates'] as const,
   /** Every certificate (About page, admin). */
-  full: () => [...certificateKeys.all, 'all'] as const,
+  full: (locale: Locale = 'en') => [...certificateKeys.all, 'all', locale] as const,
+  admin: () => [...certificateKeys.all, 'admin'] as const,
   lists: () => [...certificateKeys.all, 'list'] as const,
-  list: (params: CertificateListParams) =>
+  list: (params: CertificateListParams, locale: Locale = 'en') =>
     [
       ...certificateKeys.lists(),
       {
+        locale,
         page: params.page,
         limit: params.limit,
         issuer: params.issuer ?? null,
@@ -25,11 +29,16 @@ export const certificateKeys = {
 };
 
 export const certificateQueries = {
-  all: () => queryOptions({ queryKey: certificateKeys.full(), queryFn: getCertificates }),
-  list: (params: CertificateListParams) =>
+  all: (locale: Locale = 'en') =>
     queryOptions({
-      queryKey: certificateKeys.list(params),
-      queryFn: () => getCertificatesPaginated(params),
+      queryKey: certificateKeys.full(locale),
+      queryFn: () => getCertificates(locale),
+    }),
+  admin: () => queryOptions({ queryKey: certificateKeys.admin(), queryFn: getAdminCertificates }),
+  list: (params: CertificateListParams, locale: Locale = 'en') =>
+    queryOptions({
+      queryKey: certificateKeys.list(params, locale),
+      queryFn: () => getCertificatesPaginated(params, locale),
       placeholderData: keepPreviousData,
     }),
   issuers: () =>

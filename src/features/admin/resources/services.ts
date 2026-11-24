@@ -16,11 +16,12 @@ type Values = z.infer<typeof schema>;
 
 export const servicesResource = defineResource({
   label: 'Service',
-  listKey: serviceKeys.list(),
-  fetchList: api.getServices,
+  listKey: serviceKeys.admin(),
+  fetchList: api.getAdminServices,
   invalidate: serviceKeys.all,
   api: { create: api.addService, update: api.updateService, remove: api.deleteService },
   schema,
+  translatable: ['title', 'description'],
   sections: [
     {
       fields: [

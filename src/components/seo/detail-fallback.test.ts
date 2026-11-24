@@ -79,6 +79,28 @@ describe('fetchDetailRow', () => {
     expect(fetchFn.mock.calls[0]![0]).toContain('/rest/v1/projects?');
   });
 
+  it('serves the id translation, per field, and asks for the column only for id', async () => {
+    const fetchFn = respond([
+      { title: 'T', excerpt: 'E', images: null, translations: { id: { title: 'Judul' } } },
+    ]);
+    await expect(fetchDetailRow('blog', 'a', supabase, fetchFn, 'id')).resolves.toEqual({
+      title: 'Judul',
+      description: 'E',
+      images: null,
+    });
+    expect(fetchFn.mock.calls[0]![0]).toContain('excerpt%2Ctranslations');
+  });
+
+  it('falls back to the English row when the translations column does not exist yet', async () => {
+    const fetchFn = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(new Response('{}', { status: 400 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify([{ title: 'T', excerpt: 'E' }])));
+    const row = await fetchDetailRow('blog', 'a', supabase, fetchFn, 'id');
+    expect(row?.title).toBe('T');
+    expect(fetchFn.mock.calls[1]![0]).not.toContain('translations');
+  });
+
   it('returns null when no published row matches', async () => {
     await expect(fetchDetailRow('blog', 'gone', supabase, respond([]))).resolves.toBeNull();
   });

@@ -397,12 +397,15 @@ describe('ResourceForm', () => {
     );
     await userEvent.click(screen.getByRole('button', { name: 'Remove image' }));
     await userEvent.click(screen.getByRole('button', { name: 'Update' }));
-    expect(onSubmit).toHaveBeenCalledWith({
-      title: 'First',
-      site_url: 'https://a.example',
-      tags: 'x',
-      images: { urls: [], files: [] },
-    });
+    expect(onSubmit).toHaveBeenCalledWith(
+      {
+        title: 'First',
+        site_url: 'https://a.example',
+        tags: 'x',
+        images: { urls: [], files: [] },
+      },
+      {},
+    );
   });
 });
 

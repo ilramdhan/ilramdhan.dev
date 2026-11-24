@@ -11,7 +11,7 @@ import { useLocale, useT } from '@/i18n';
 export default function TermsPage() {
   const t = useT();
   const locale = useLocale();
-  const { data: profile, isLoading } = useQuery(profileQueries.detail());
+  const { data: profile, isLoading } = useQuery(profileQueries.detail(locale));
 
   if (isLoading) {
     return (

@@ -5,7 +5,7 @@ import { motionOk } from '@/components/motion/near';
 import { profileQueries } from '@/features/profile/queries';
 import { socialEntries } from '@/lib/social';
 import { Link } from '@/i18n/Link';
-import { useT } from '@/i18n';
+import { useLocale, useT } from '@/i18n';
 import { APP_COMMIT, releaseUrl, versionLabel } from '@/lib/version';
 import { BRAND_NAME, type NavItem } from './nav-items';
 import { BrandMark } from './Brand';
@@ -87,7 +87,8 @@ function Wordmark() {
  */
 export function Footer({ items }: { items: NavItem[] }) {
   const t = useT();
-  const { data: profile } = useQuery(profileQueries.detail());
+  const locale = useLocale();
+  const { data: profile } = useQuery(profileQueries.detail(locale));
   const socials = socialEntries(profile?.social_links);
   const columns: Array<{ id: string; heading: string; links: ReactNode[] }> = [
     {

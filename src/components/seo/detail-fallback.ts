@@ -42,28 +42,48 @@ export function detailParams(url: URL): { kind: string | null; slug: string | nu
   }
 }
 
-/** Fetches the row through Supabase REST; RLS only returns published rows to the anon key. */
+/** The `translations.<locale>` text for `key`, when it is a non-empty string. */
+function translated(row: Record<string, unknown>, locale: Locale, key: string): string | null {
+  const all = row.translations;
+  if (typeof all !== 'object' || all === null) return null;
+  const mine = (all as Record<string, unknown>)[locale];
+  if (typeof mine !== 'object' || mine === null) return null;
+  const value = (mine as Record<string, unknown>)[key];
+  return typeof value === 'string' && value.trim() !== '' ? value : null;
+}
+
+/**
+ * Fetches the row through Supabase REST; RLS only returns published rows to the anon key.
+ * For a non-default `locale` the `translations` column is requested too (title and
+ * description come back translated when present); if the column does not exist yet
+ * (T-41 migration not applied: HTTP 400) the English row is fetched instead.
+ */
 export async function fetchDetailRow(
   kind: DetailKind,
   slug: string,
   supabase: { url: string; anonKey: string },
   fetchFn: typeof fetch = fetch,
+  locale: Locale = 'en',
 ): Promise<DetailRow | null> {
   const source = SOURCES[kind];
-  const query = new URLSearchParams({
-    select: `title,images,${source.description}`,
-    slug: `eq.${slug}`,
-    limit: '1',
-  });
-  const res = await fetchFn(`${supabase.url.replace(/\/$/, '')}/rest/v1/${source.table}?${query}`, {
-    headers: { apikey: supabase.anonKey, Authorization: `Bearer ${supabase.anonKey}` },
-  });
+  const request = (withTranslations: boolean) => {
+    const query = new URLSearchParams({
+      select: `title,images,${source.description}${withTranslations ? ',translations' : ''}`,
+      slug: `eq.${slug}`,
+      limit: '1',
+    });
+    return fetchFn(`${supabase.url.replace(/\/$/, '')}/rest/v1/${source.table}?${query}`, {
+      headers: { apikey: supabase.anonKey, Authorization: `Bearer ${supabase.anonKey}` },
+    });
+  };
+  let res = await request(locale !== 'en');
+  if (!res.ok && res.status === 400 && locale !== 'en') res = await request(false);
   if (!res.ok) throw new Error(`Supabase ${source.table}: HTTP ${res.status}`);
   const [row] = (await res.json()) as Array<Record<string, unknown>>;
   if (!row || typeof row.title !== 'string') return null;
-  const description = row[source.description];
+  const description = translated(row, locale, source.description) ?? row[source.description];
   return {
-    title: row.title,
+    title: translated(row, locale, 'title') ?? row.title,
     description: typeof description === 'string' ? description : null,
     images: Array.isArray(row.images) ? row.images.filter((i) => typeof i === 'string') : null,
   };

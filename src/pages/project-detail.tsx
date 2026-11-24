@@ -31,6 +31,7 @@ import { extractHeadings } from '@/features/article/toc';
 import { formatDate } from '@/lib/date';
 import { ensureFullUrl } from '@/lib/utils';
 import { useLocale, useT } from '@/i18n';
+import { NotTranslated } from '@/i18n/NotTranslated';
 import type { ProjectCard as ProjectCardData } from '@/features/projects/api';
 
 /** "Related projects": up to three cards sharing a tag, topped up with the latest. */
@@ -67,9 +68,13 @@ export default function ProjectDetailPage() {
     isError,
     error,
     refetch,
-  } = useQuery(projectQueries.detail(slug ?? ''));
-  const { data: adjacent } = useQuery(projectQueries.adjacent(project?.id, project?.created_at));
-  const { data: related } = useQuery(projectQueries.related(project?.id, project?.tags ?? []));
+  } = useQuery(projectQueries.detail(slug ?? '', locale));
+  const { data: adjacent } = useQuery(
+    projectQueries.adjacent(project?.id, project?.created_at, locale),
+  );
+  const { data: related } = useQuery(
+    projectQueries.related(project?.id, project?.tags ?? [], locale),
+  );
 
   const content = project?.content || t.project.noContent;
   const headings = useMemo(() => extractHeadings(content), [content]);
@@ -155,6 +160,7 @@ export default function ProjectDetailPage() {
               </ol>
             </nav>
             <TagLinks tags={tags} basePath="/projects" className="mb-4" />
+            <NotTranslated item={project} />
             <h1
               className="mb-4 text-3xl font-bold leading-tight tracking-tight text-slate-900 dark:text-on-dark wrap-break-word hyphens-auto md:text-5xl"
               style={BALANCE}

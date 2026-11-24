@@ -21,6 +21,7 @@ import { TOC_ASIDE_CLASS, TocDisclosure, TocSidebar } from '@/features/blog/Tabl
 import { extractHeadings } from '@/features/blog/toc';
 import { formatDate } from '@/lib/date';
 import { useLocale, useT } from '@/i18n';
+import { NotTranslated } from '@/i18n/NotTranslated';
 import { ArticleSkeleton } from '@/features/article/ArticleSkeleton';
 import {
   BALANCE,
@@ -44,11 +45,11 @@ export default function BlogDetailPage() {
     isError,
     error,
     refetch,
-  } = useQuery(blogQueries.detail(slug ?? ''));
+  } = useQuery(blogQueries.detail(slug ?? '', locale));
 
   const { data: comments, isLoading: isLoadingComments } = useQuery(blogQueries.comments(blog?.id));
-  const { data: adjacent } = useQuery(blogQueries.adjacent(blog?.id, blog?.published_at));
-  const { data: related } = useQuery(blogQueries.related(blog?.id, blog?.tags ?? []));
+  const { data: adjacent } = useQuery(blogQueries.adjacent(blog?.id, blog?.published_at, locale));
+  const { data: related } = useQuery(blogQueries.related(blog?.id, blog?.tags ?? [], locale));
 
   const content = blog?.content ?? '';
   const headings = useMemo(() => extractHeadings(content), [content]);
@@ -177,6 +178,7 @@ export default function BlogDetailPage() {
               </ol>
             </nav>
             <TagLinks tags={blog.tags ?? []} className="mb-4" />
+            <NotTranslated item={blog} />
             <h1
               className="mb-4 text-3xl font-bold leading-tight tracking-tight text-slate-900 dark:text-on-dark wrap-break-word md:text-5xl"
               style={BALANCE}

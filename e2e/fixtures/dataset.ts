@@ -79,6 +79,9 @@ export function createDataset(): Record<string, Row[]> {
       demo_url: 'https://example.com',
       repo_url: 'github.com/x/y',
       is_featured: i < 4,
+      // Only project 4 has an Indonesian translation (T-41); the others fall back to English.
+      translations:
+        i === 3 ? { id: { title: 'Proyek Empat', short_description: 'Deskripsi proyek.' } } : {},
     })).concat({
       id: 99,
       user_id: 'u1',
@@ -93,6 +96,7 @@ export function createDataset(): Record<string, Row[]> {
       demo_url: 'https://example.com',
       repo_url: 'github.com/x/y',
       is_featured: false,
+      translations: {},
     }),
     // Post 1 is the newest, then one day older per post (prev/next navigation, sort).
     blogs: Array.from({ length: 7 }, (_, i) => ({
@@ -116,6 +120,8 @@ export function createDataset(): Record<string, Row[]> {
       tags: [i % 2 ? 'react' : 'go'],
       // Four featured posts: the home page shows them as a carousel (grid up to three).
       is_featured: i < 4,
+      // Only post 4 has an Indonesian translation (T-41); the others fall back to English.
+      translations: i === 3 ? { id: { title: 'Pos Blog Empat', excerpt: 'Ringkasan pos.' } } : {},
     })).concat({
       id: 99,
       user_id: 'u1',
@@ -128,6 +134,7 @@ export function createDataset(): Record<string, Row[]> {
       images: [img('long')],
       tags: ['go'],
       is_featured: false,
+      translations: {},
     }),
     services: [1, 2, 3].map((i) => ({
       id: i,

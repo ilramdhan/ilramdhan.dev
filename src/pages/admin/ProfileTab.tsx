@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import * as api from '@/features/profile/api';
+import { PROFILE_TRANSLATED_FIELDS } from '@/features/profile/api';
 import { profileKeys, profileQueries } from '@/features/profile/queries';
 import { ResourceForm } from '@/features/admin';
 import { changedFields } from '@/features/admin/diff';
+import { idTranslation, mergeTranslations, type Translation } from '@/features/admin/translations';
 import { resolveUploads } from '@/features/admin/uploads';
 import {
   profileSchema,
@@ -15,13 +17,26 @@ import {
 
 export function ProfileTab() {
   const queryClient = useQueryClient();
-  const { data: profile, isLoading } = useQuery(profileQueries.detail());
+  const { data: profile, isLoading } = useQuery(profileQueries.admin());
 
   const save = useMutation({
-    mutationFn: async (values: ProfileValues) => {
+    mutationFn: async ({
+      values,
+      translation,
+    }: {
+      values: ProfileValues;
+      translation: Translation;
+    }) => {
       if (!profile) return;
       const uploaded = await resolveUploads(profileSections, values);
-      const patch = changedFields(profileToPayload(uploaded, profile), profile);
+      const payload: Record<string, unknown> = { ...profileToPayload(uploaded, profile) };
+      const merged = mergeTranslations(
+        profile.translations,
+        translation,
+        'translations' in profile,
+      );
+      if (merged) payload.translations = merged;
+      const patch = changedFields(payload, profile as Record<string, unknown>);
       if (Object.keys(patch).length > 0) await api.updateProfile(patch);
     },
     onSuccess: () => {
@@ -46,7 +61,9 @@ export function ProfileTab() {
           defaultValues={profileToValues(profile)}
           isPending={save.isPending}
           submitLabel="Save Changes"
-          onSubmit={(values) => save.mutate(values)}
+          translatable={PROFILE_TRANSLATED_FIELDS}
+          defaultTranslation={idTranslation(profile.translations)}
+          onSubmit={(values, translation) => save.mutate({ values, translation })}
         />
       )}
     </div>
