@@ -27,7 +27,7 @@ function useScrollLock() {
 }
 
 const NAV_BUTTON =
-  'rounded-full bg-on-dark/10 p-2 text-on-dark hover:bg-on-dark/20 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-on-dark';
+  'grid size-11 place-items-center rounded-full bg-on-dark/10 text-on-dark transition-[background-color,scale] duration-200 ease-apple hover:bg-on-dark/20 active:scale-[0.96] motion-reduce:transition-none focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-on-dark';
 
 /**
  * Full-screen image viewer (T-52), loaded lazily by `ProjectGallery` on first open: the
@@ -61,11 +61,15 @@ export default function Lightbox({ images, alt, index, onIndexChange, onClose }:
       open
       onClose={onClose}
       title={t.gallery.viewer}
-      overlayClassName="fixed inset-0 z-60 bg-slate-950/95 motion-safe:animate-page-in"
+      overlayClassName="fixed inset-0 z-60 bg-night/95 motion-safe:animate-page-in"
       className="flex h-full w-full flex-col text-on-dark outline-hidden"
     >
       <div className="flex items-center justify-between gap-4 p-3 sm:p-4">
-        <p className="text-sm tabular-nums text-on-dark/80" aria-live="polite" aria-atomic="true">
+        <p
+          className="text-sm tabular-nums text-on-dark-muted"
+          aria-live="polite"
+          aria-atomic="true"
+        >
           {index + 1} / {count}
         </p>
         <button
@@ -116,7 +120,7 @@ export default function Lightbox({ images, alt, index, onIndexChange, onClose }:
             </>
           )}
         </div>
-        <figcaption className="wrap-break-word p-3 text-center text-sm text-on-dark/80 sm:p-4">
+        <figcaption className="wrap-break-word p-3 text-center text-sm text-on-dark-muted sm:p-4">
           {label}
         </figcaption>
       </figure>
