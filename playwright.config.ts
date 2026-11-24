@@ -13,7 +13,7 @@ import type { Theme } from './e2e/fixtures/test';
  *
  * Run one project: `npm run test:e2e -- --project=w320`.
  */
-const PORT = 4173;
+const PORT = Number(process.env.E2E_PORT ?? 4173);
 const BASE_URL = `http://127.0.0.1:${PORT}`;
 const MATRIX = [320, 360, 390, 414, 768, 1024, 1280, 1440, 1920, 2560] as const;
 
