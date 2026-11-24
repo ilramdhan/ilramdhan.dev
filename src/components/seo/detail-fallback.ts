@@ -1,6 +1,9 @@
 // Relative imports on purpose: bundled into the Vercel function (api/), which ignores tsconfig paths.
 import { localePath, type Locale } from '../../i18n/locale';
+import { en } from '../../i18n/messages/en';
+import { id } from '../../i18n/messages/id';
 import { applyHeadToHtml } from './head-html';
+import { blogPostingJsonLd, projectJsonLd } from './json-ld';
 import { buildHead, type SeoProps } from './seo-head';
 
 /**
@@ -15,11 +18,21 @@ export interface DetailRow {
   /** `blogs.excerpt` or `projects.short_description`. */
   description: string | null;
   images: string[] | null;
+  tags?: string[] | null;
+  /** `blogs.published_at` or `projects.created_at`. */
+  date?: string | null;
+  /** `projects.repo_url`. */
+  repo?: string | null;
 }
 
 const SOURCES = {
-  blog: { table: 'blogs', description: 'excerpt', path: '/blog/' },
-  project: { table: 'projects', description: 'short_description', path: '/projects/' },
+  blog: { table: 'blogs', description: 'excerpt', path: '/blog/', extra: 'tags,published_at' },
+  project: {
+    table: 'projects',
+    description: 'short_description',
+    path: '/projects/',
+    extra: 'tags,created_at,repo_url',
+  },
 } as const;
 
 export const isDetailKind = (value: unknown): value is DetailKind =>
@@ -52,6 +65,14 @@ function translated(row: Record<string, unknown>, locale: Locale, key: string): 
   return typeof value === 'string' && value.trim() !== '' ? value : null;
 }
 
+const str = (v: unknown) => (typeof v === 'string' && v !== '' ? v : null);
+const strings = (v: unknown) =>
+  Array.isArray(v) ? v.filter((i): i is string => typeof i === 'string') : null;
+
+/** `https://` added to a bare host, as `ensureFullUrl` does on the project page. */
+const fullUrl = (url: string | null | undefined) =>
+  url ? (/^https?:\/\//.test(url) ? url : `https://${url}`) : null;
+
 /**
  * Fetches the row through Supabase REST; RLS only returns published rows to the anon key.
  * For a non-default `locale` the `translations` column is requested too (title and
@@ -68,7 +89,7 @@ export async function fetchDetailRow(
   const source = SOURCES[kind];
   const request = (withTranslations: boolean) => {
     const query = new URLSearchParams({
-      select: `title,images,${source.description}${withTranslations ? ',translations' : ''}`,
+      select: `title,images,${source.description},${source.extra}${withTranslations ? ',translations' : ''}`,
       slug: `eq.${slug}`,
       limit: '1',
     });
@@ -85,7 +106,10 @@ export async function fetchDetailRow(
   return {
     title: translated(row, locale, 'title') ?? row.title,
     description: typeof description === 'string' ? description : null,
-    images: Array.isArray(row.images) ? row.images.filter((i) => typeof i === 'string') : null,
+    images: strings(row.images),
+    tags: strings(row.tags),
+    date: str(row.published_at ?? row.created_at),
+    repo: str(row.repo_url),
   };
 }
 
@@ -98,14 +122,34 @@ export function buildDetailHtml(
   locale: Locale = 'en',
 ): string | null {
   if (!row) return null;
+  const path = localePath(`${SOURCES[kind].path}${encodeURIComponent(slug)}`, locale);
+  const t = locale === 'id' ? id : en;
+  // Same JSON-LD as the prerendered detail pages (pages/blog-detail.tsx, project-detail.tsx).
+  const detail = {
+    locale,
+    path,
+    title: row.title,
+    description: row.description,
+    images: row.images,
+    tags: row.tags,
+    crumbs: [
+      { name: t.article.home, path: localePath('/', locale) },
+      {
+        name: kind === 'blog' ? t.nav.blog : t.nav.projects,
+        path: localePath(kind === 'blog' ? '/blog' : '/projects', locale),
+      },
+      { name: row.title, path },
+    ],
+  };
   const props: SeoProps = {
     title: row.title,
     description: row.description || undefined,
     image: row.images?.[0] || undefined,
     type: 'article',
+    jsonLd:
+      kind === 'blog'
+        ? blogPostingJsonLd({ ...detail, published: row.date })
+        : projectJsonLd({ ...detail, created: row.date, repo: fullUrl(row.repo) }),
   };
-  return applyHeadToHtml(
-    template,
-    buildHead(props, localePath(`${SOURCES[kind].path}${encodeURIComponent(slug)}`, locale)),
-  );
+  return applyHeadToHtml(template, buildHead(props, path));
 }

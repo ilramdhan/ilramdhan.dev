@@ -52,6 +52,56 @@ describe('buildDetailHtml', () => {
     expect(html).toContain('content="&quot;quoted&quot; &lt;b&gt;"');
   });
 
+  const jsonLd = (html: string | null) =>
+    [...(html ?? '').matchAll(/<script type="application\/ld\+json">(.*?)<\/script>/g)].map(
+      (m) => JSON.parse(m[1]!) as Record<string, unknown>,
+    );
+
+  it('writes BlogPosting + BreadcrumbList JSON-LD like the prerendered page', () => {
+    const [post, crumbs] = jsonLd(
+      buildDetailHtml(
+        template,
+        'blog',
+        'my-post',
+        {
+          title: 'Judul',
+          description: 'E',
+          images: ['https://cdn.x/c.png'],
+          tags: ['go', 'react'],
+          date: '2026-01-02T00:00:00Z',
+        },
+        'id',
+      ),
+    );
+    expect(post).toMatchObject({
+      '@type': 'BlogPosting',
+      headline: 'Judul',
+      inLanguage: 'id',
+      datePublished: '2026-01-02T00:00:00Z',
+      keywords: 'go, react',
+      url: 'https://ilramdhan.dev/id/blog/my-post',
+    });
+    expect(crumbs).toMatchObject({ '@type': 'BreadcrumbList' });
+    expect(
+      (crumbs!.itemListElement as Array<{ name: string; item: string }>).map((i) => i.item),
+    ).toEqual([
+      'https://ilramdhan.dev/id',
+      'https://ilramdhan.dev/id/blog',
+      'https://ilramdhan.dev/id/blog/my-post',
+    ]);
+  });
+
+  it('writes CreativeWork, or SoftwareSourceCode when the project has a repo', () => {
+    const row = { title: 'App', description: null, images: null };
+    expect(jsonLd(buildDetailHtml(template, 'project', 'app', row))[0]).toMatchObject({
+      '@type': 'CreativeWork',
+      inLanguage: 'en',
+    });
+    expect(
+      jsonLd(buildDetailHtml(template, 'project', 'app', { ...row, repo: 'github.com/x/app' }))[0],
+    ).toMatchObject({ '@type': 'SoftwareSourceCode', codeRepository: 'https://github.com/x/app' });
+  });
+
   it('returns null for a missing row', () => {
     expect(buildDetailHtml(template, 'blog', 'gone', null)).toBeNull();
   });
@@ -60,22 +110,31 @@ describe('buildDetailHtml', () => {
 describe('fetchDetailRow', () => {
   it('queries the published row by slug with the anon key', async () => {
     const fetchFn = respond([{ title: 'T', excerpt: 'E', images: ['a.png'] }]);
-    await expect(fetchDetailRow('blog', 'a b', supabase, fetchFn)).resolves.toEqual({
+    await expect(fetchDetailRow('blog', 'a b', supabase, fetchFn)).resolves.toMatchObject({
       title: 'T',
       description: 'E',
       images: ['a.png'],
     });
     const [url, init] = fetchFn.mock.calls[0]!;
     expect(url).toBe(
-      'https://ref.supabase.co/rest/v1/blogs?select=title%2Cimages%2Cexcerpt&slug=eq.a+b&limit=1',
+      'https://ref.supabase.co/rest/v1/blogs?select=title%2Cimages%2Cexcerpt%2Ctags%2Cpublished_at&slug=eq.a+b&limit=1',
     );
     expect(init?.headers).toMatchObject({ apikey: 'anon', Authorization: 'Bearer anon' });
   });
 
   it('maps a project short_description', async () => {
-    const fetchFn = respond([{ title: 'P', short_description: 'S', images: null }]);
+    const fetchFn = respond([
+      { title: 'P', short_description: 'S', images: null, created_at: 'D', repo_url: 'r' },
+    ]);
     const row = await fetchDetailRow('project', 'p', supabase, fetchFn);
-    expect(row).toEqual({ title: 'P', description: 'S', images: null });
+    expect(row).toEqual({
+      title: 'P',
+      description: 'S',
+      images: null,
+      tags: null,
+      date: 'D',
+      repo: 'r',
+    });
     expect(fetchFn.mock.calls[0]![0]).toContain('/rest/v1/projects?');
   });
 
@@ -83,12 +142,12 @@ describe('fetchDetailRow', () => {
     const fetchFn = respond([
       { title: 'T', excerpt: 'E', images: null, translations: { id: { title: 'Judul' } } },
     ]);
-    await expect(fetchDetailRow('blog', 'a', supabase, fetchFn, 'id')).resolves.toEqual({
+    await expect(fetchDetailRow('blog', 'a', supabase, fetchFn, 'id')).resolves.toMatchObject({
       title: 'Judul',
       description: 'E',
       images: null,
     });
-    expect(fetchFn.mock.calls[0]![0]).toContain('excerpt%2Ctranslations');
+    expect(fetchFn.mock.calls[0]![0]).toContain('published_at%2Ctranslations');
   });
 
   it('falls back to the English row when the translations column does not exist yet', async () => {

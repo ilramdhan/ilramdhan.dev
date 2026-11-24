@@ -78,6 +78,8 @@ export function buildHead(props: SeoProps, pathname: string): HeadDescriptor {
     canonical,
     alternates,
     lang: locale,
-    jsonLd: import.meta.env.SSR ? (props.jsonLd ?? []) : [],
+    // Pages pass jsonLd only under import.meta.env.SSR, so the builders stay out of client JS.
+    // No env check here: this also runs in the Vercel function (api/), where import.meta.env is undefined.
+    jsonLd: props.jsonLd ?? [],
   };
 }
