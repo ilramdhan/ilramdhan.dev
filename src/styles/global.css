@@ -318,9 +318,7 @@
 /* CSS replacements for framer-motion enter animations in always-loaded chrome (T-24); restyled in R3/R4. */
 @theme {
   --animate-menu-in: menu-in 200ms ease-out;
-  --animate-pop-in: pop-in 200ms ease-out;
   --animate-page-in: page-in 180ms ease-out;
-  --animate-icon-spin: icon-spin 400ms ease-out;
   --animate-shimmer: shimmer 1.6s ease-in-out infinite;
 
   @keyframes menu-in {
@@ -341,29 +339,9 @@
       opacity: 1;
     }
   }
-  @keyframes icon-spin {
-    0% {
-      opacity: 0;
-      transform: rotate(-90deg) scale(0.6);
-    }
-    100% {
-      opacity: 1;
-      transform: rotate(0) scale(1);
-    }
-  }
   @keyframes shimmer {
     100% {
       transform: translateX(100%);
-    }
-  }
-  @keyframes pop-in {
-    0% {
-      opacity: 0;
-      transform: scale(0.5);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1);
     }
   }
 }
@@ -466,9 +444,9 @@
   [role='button']:not(:disabled) {
     cursor: pointer;
   }
-  /* Anchor targets clear the fixed 64px navbar (T-30); switches to --nav-h with the new nav (R4). */
-  [id] {
-    scroll-margin-top: 5rem;
+  /* Anchors and focused targets clear the fixed 44px nav (native scroll and Lenis both read this). */
+  html {
+    scroll-padding-top: calc(var(--nav-h) + 8px);
   }
   @media (prefers-reduced-motion: no-preference) {
     html {
@@ -694,8 +672,9 @@ html.lenis body {
   transition-duration: 1ms;
   transition-behavior: allow-discrete;
 }
-/* Lenis owns the easing; native smooth scrolling on top of it would fight it. */
-html.lenis-on {
+/* Lenis owns the easing; native smooth scrolling on top of it would fight it. (`has-lenis`, not `lenis-*`: Lenis
+   strips every `lenis-*` class from <html> whenever it updates its own.) */
+html.has-lenis {
   scroll-behavior: auto;
 }
 
@@ -873,6 +852,122 @@ html.lenis-on {
   .nav-glass {
     background: var(--surface-white) !important;
     backdrop-filter: none !important;
+  }
+}
+
+/*
+ * Chrome (R4, ported from mutugading globals.css: P15d footer reveal, P16 brand collapse, P13 theme cross-fade).
+ */
+
+/* Footer reveal: the curtain (page) sits above (z 2) a footer that sticks to the viewport bottom (z 1) in the same
+ * stage, so scrolling the curtain away uncovers it. No JS for the reveal, no position:fixed. Only from 834px wide and
+ * 760px tall, motion allowed, on screen, and while the footer fits (the guard sets data-reveal="static" otherwise). The
+ * curtain ends on rounded bottom corners; the stage shows the footer's parchment in them. */
+.reveal-stage {
+  background-color: var(--surface-parchment);
+}
+.reveal-curtain {
+  position: relative;
+  z-index: 2;
+  background-color: var(--surface-white);
+  overflow: clip;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+@media screen and (min-width: 52.125rem) {
+  .reveal-curtain {
+    border-bottom-left-radius: 32px;
+    border-bottom-right-radius: 32px;
+  }
+}
+@media print {
+  .reveal-curtain {
+    border-radius: 0;
+  }
+  .footer-wordmark-box {
+    display: none;
+  }
+}
+@media screen and (min-width: 52.125rem) and (min-height: 47.5rem) and (prefers-reduced-motion: no-preference) {
+  .reveal-stage:not([data-reveal='static']) > .reveal-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 1;
+  }
+}
+/* The footer wordmark: edge to edge, tonal (decorative), cropped by the bottom edge and faded out downward. The one
+ * approved gradient exception in mutugading: a mask only, never a fill or a border. */
+.footer-wordmark-box {
+  position: relative;
+  overflow: clip;
+  aspect-ratio: 1400 / 120;
+  -webkit-mask-image: linear-gradient(#000 45%, #0000 95%);
+  mask-image: linear-gradient(#000 45%, #0000 95%);
+}
+.footer-wordmark {
+  display: block;
+  width: 100%;
+  height: auto;
+  translate: 0 6%;
+  color: color-mix(in oklab, var(--ink) 7%, var(--surface-parchment));
+}
+
+/* Smooth Light <-> Dark switch: the theme controls add .theme-switching for ~400ms; colours cross-fade, nothing moves.
+   Not on first paint or OS-driven changes. Reduced motion: instant. */
+@media (prefers-reduced-motion: no-preference) {
+  html.theme-switching,
+  html.theme-switching *,
+  html.theme-switching *::before,
+  html.theme-switching *::after {
+    transition-property:
+      background-color, color, border-color, outline-color, fill, stroke, text-decoration-color !important;
+    transition-duration: 350ms !important;
+    transition-timing-function: var(--ease-out-apple) !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Nav brand collapse: the name keeps its full box (CLS 0, nothing else moves); only the track inside slides left under
+   a clip whose left edge is the mark's right edge while each letter fades with a small stagger, so the name retracts
+   into the mark. `data-brand-collapsed` is set on the header past 48px of scroll. Reduced motion: never collapses. */
+.brand-name {
+  display: inline-block;
+  padding-left: 8px;
+  font-size: 0.9375rem;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  color: var(--ink);
+  /* clip only on the left (the mark side); generous elsewhere so descenders and focus never crop */
+  clip-path: inset(-0.4em -0.4em -0.4em 8px);
+}
+.brand-name-track,
+.brand-letter {
+  display: inline-block;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .brand-name-track {
+    transition: transform 420ms var(--ease-out-apple);
+  }
+  .brand-letter {
+    /* expanding: letters come back from the mark edge outward */
+    transition: opacity 320ms var(--ease-out-apple) calc(var(--r) * 12ms);
+  }
+  [data-brand-collapsed] .brand-name-track {
+    transform: translateX(calc(-100% - 2px));
+  }
+  [data-brand-collapsed] .brand-letter {
+    opacity: 0;
+    /* collapsing: each letter dims a beat after it starts sliding, first letter first */
+    transition: opacity 300ms var(--ease-out-apple) calc(60ms + var(--i) * 16ms);
+  }
+  /* a keyboard user landing on the home link always sees the full name */
+  [data-brand-collapsed] a:focus-visible .brand-name-track {
+    transform: none;
+  }
+  [data-brand-collapsed] a:focus-visible .brand-letter {
+    opacity: 1;
   }
 }
 

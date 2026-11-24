@@ -10,6 +10,19 @@ const dataTheme = (page: Page) =>
 const pageSurface = (page: Page) =>
   page.evaluate(() => getComputedStyle(document.body).backgroundColor);
 
+/** Picks Light / Dark / Auto in the chrome: the nav menu (>= 834px) or the mobile sheet's radio group. */
+async function pickTheme(page: Page, name: 'Light' | 'Dark' | 'Auto') {
+  const menuButton = page.locator('[data-theme-toggle]');
+  if (await menuButton.isVisible()) {
+    await menuButton.click();
+    await page.getByRole('menuitemradio', { name }).click();
+    return;
+  }
+  await page.getByRole('button', { name: 'Open menu' }).click();
+  await page.getByRole('dialog', { name: 'Menu' }).getByRole('radio', { name }).click();
+  await page.keyboard.press('Escape');
+}
+
 test.describe('theme (T-20)', () => {
   test('the saved theme is applied before the app boots (no flash)', async ({ page }) => {
     for (const saved of ['light', 'dark'] as const) {
@@ -45,22 +58,21 @@ test.describe('theme (T-20)', () => {
     await expect.poll(() => pageSurface(page)).toBe('rgb(0, 0, 0)');
   });
 
-  test('the toggle cycles Dark -> Light -> Auto and Auto follows the OS', async ({ page }) => {
+  test('Light / Dark / Auto: the choice applies, persists, and Auto follows the OS', async ({
+    page,
+  }) => {
     await page.addInitScript(() => localStorage.setItem('theme', 'dark'));
     await page.emulateMedia({ colorScheme: 'dark' });
     await page.goto('/privacy');
-    const toggle = page
-      .getByRole('button', { name: /^Switch to / })
-      .filter({ visible: true })
-      .first();
-    await expect(toggle).toHaveAccessibleName('Switch to light theme');
-    await toggle.click();
+    await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+
+    await pickTheme(page, 'Light');
     await expect.poll(() => dataTheme(page)).toBe('light');
     expect(await isDark(page)).toBe(false);
-    expect(await pageSurface(page)).toBe('rgb(255, 255, 255)');
+    await expect.poll(() => pageSurface(page)).toBe('rgb(255, 255, 255)');
+    expect(await page.evaluate(() => localStorage.getItem('theme'))).toBe('light');
 
-    await expect(toggle).toHaveAccessibleName(/automatic theme/);
-    await toggle.click();
+    await pickTheme(page, 'Auto');
     await expect.poll(() => dataTheme(page)).toBeNull();
     expect(await page.evaluate(() => localStorage.getItem('theme'))).toBe('system');
     await expect.poll(() => isDark(page)).toBe(true);
@@ -69,7 +81,40 @@ test.describe('theme (T-20)', () => {
     await expect.poll(() => isDark(page)).toBe(false);
     await expect.poll(() => pageSurface(page)).toBe('rgb(255, 255, 255)');
 
-    await expect(toggle).toHaveAccessibleName('Switch to dark theme');
+    await pickTheme(page, 'Dark');
+    await expect.poll(() => dataTheme(page)).toBe('dark');
+    await expect.poll(() => pageSurface(page)).toBe('rgb(0, 0, 0)');
+    await page.reload();
+    expect(await dataTheme(page)).toBe('dark');
+  });
+
+  test('the nav theme menu is keyboard operable and names the current choice', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'the menu button is >= 834px only');
+    await page.addInitScript(() => localStorage.setItem('theme', 'light'));
+    await page.goto('/privacy');
+    const button = page.locator('[data-theme-toggle]');
+    await expect(button).toHaveAccessibleName('Appearance: Light');
+    await button.focus();
+    await page.keyboard.press('ArrowDown');
+    const menu = page.getByRole('menu', { name: 'Appearance' });
+    await expect(menu).toBeVisible();
+    await expect(menu.getByRole('menuitemradio', { name: 'Light' })).toBeFocused();
+    await expect(menu.getByRole('menuitemradio', { name: 'Light' })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    );
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Enter');
+    await expect(menu).toBeHidden();
+    await expect(button).toBeFocused();
+    await expect(button).toHaveAccessibleName('Appearance: Dark');
+    await expect.poll(() => dataTheme(page)).toBe('dark');
+    await button.click();
+    await page.keyboard.press('Escape');
+    await expect(menu).toBeHidden();
+    await expect(button).toBeFocused();
   });
 
   test('the 404 page respects the saved theme', async ({ page }) => {

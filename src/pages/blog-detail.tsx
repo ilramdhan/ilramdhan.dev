@@ -6,7 +6,6 @@ import { toast } from 'sonner';
 import { Link } from '@/i18n/Link';
 import { Markdown } from '@/components/ui/Markdown';
 import NotFoundPage from '@/pages/not-found';
-import { Navbar } from '@/app/layouts/Navbar';
 import { addComment as addCommentAPI } from '@/features/blog/api';
 import { blogKeys, blogQueries } from '@/features/blog/queries';
 import { isNotFoundError } from '@/lib/errors';
@@ -148,10 +147,9 @@ export default function BlogDetailPage() {
         image={blog.images?.[0] || undefined}
         type="article"
       />
-      <Navbar />
       <ReadingProgress target={articleRef} />
 
-      <main className={`${CONTAINER} pt-24 pb-20`}>
+      <div className={`${CONTAINER} pt-12 pb-20`}>
         <article ref={articleRef}>
           <header>
             <nav
@@ -375,7 +373,7 @@ export default function BlogDetailPage() {
             </div>
           </div>
         </section>
-      </main>
+      </div>
     </div>
   );
 }

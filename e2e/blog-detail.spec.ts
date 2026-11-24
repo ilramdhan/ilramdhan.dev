@@ -98,9 +98,13 @@ test("posts sharing a publish date are still each other's neighbours", async ({
   const two = supabase.db.blogs!.find((b) => b.id === 2)!;
   supabase.db.blogs!.find((b) => b.id === 3)!.published_at = two.published_at;
   await page.goto('/blog/blog-post-2');
-  await page.getByRole('link', { name: /Newer post/ }).click();
+  // The prerendered page was built from the untied data: wait for the live neighbours before clicking.
+  const newer = page.getByRole('link', { name: /Newer post/ });
+  await expect(newer).toHaveAttribute('href', '/blog/blog-post-3');
+  await newer.click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Blog Post 3');
-  await page.getByRole('link', { name: /Newer post/ }).click();
+  await expect(newer).toHaveAttribute('href', '/blog/blog-post-1');
+  await newer.click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Blog Post 1');
 });
 
@@ -146,7 +150,12 @@ test.describe('layout frame (#122)', () => {
       expect(b, name).not.toBeNull();
       return { name, left: b!.x, right: b!.x + b!.width };
     };
-    const header = await box('header', page.locator('main > article > header'));
+    const header = await box(
+      'header',
+      page
+        .locator('main article > header')
+        .filter({ has: page.getByRole('heading', { level: 1 }) }),
+    );
     const cover = await box(
       'cover',
       page.locator('figure').filter({ has: page.getByRole('img', { name: /^Cover image/ }) }),
@@ -177,7 +186,10 @@ test.describe('layout frame (#122)', () => {
     await page.waitForLoadState('networkidle');
     const aside = page.getByRole('complementary');
     await expect(aside.getByRole('navigation', { name: 'On this page' })).toBeVisible();
-    const article = (await page.locator('main > article').boundingBox())!;
+    const article = (await page
+      .locator('main article')
+      .filter({ has: page.getByRole('heading', { level: 1 }) })
+      .boundingBox())!;
     const viewport = page.viewportSize()!;
     // Long enough for the sticky aside to actually move.
     expect(article.height).toBeGreaterThan(viewport.height * 2.5);

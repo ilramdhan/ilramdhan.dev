@@ -105,7 +105,7 @@ export function Hero() {
     : [];
 
   return (
-    <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+    <section className="relative pt-20 pb-20 lg:pt-36 lg:pb-32 overflow-hidden">
       {/* 3D card layer: desktop only. It sits under the content layer, whose
           pointer-transparent spacer lets the card be grabbed and dragged. */}
       {card.ready && (

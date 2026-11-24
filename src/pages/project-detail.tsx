@@ -6,7 +6,6 @@ import { Link } from '@/i18n/Link';
 import { Github } from '@/components/ui/brand-icons';
 import { Markdown } from '@/components/ui/Markdown';
 import NotFoundPage from '@/pages/not-found';
-import { Navbar } from '@/app/layouts/Navbar';
 import { projectQueries } from '@/features/projects/queries';
 import { isNotFoundError } from '@/lib/errors';
 import { Seo } from '@/components/seo/Seo';
@@ -126,10 +125,9 @@ export default function ProjectDetailPage() {
         image={project.images?.[0] || undefined}
         type="article"
       />
-      <Navbar />
       {showToc && <ReadingProgress target={articleRef} />}
 
-      <main className={`${CONTAINER} pt-24 pb-20`}>
+      <div className={`${CONTAINER} pt-12 pb-20`}>
         <article ref={articleRef}>
           <header>
             <nav
@@ -274,7 +272,7 @@ export default function ProjectDetailPage() {
         </div>
 
         <RelatedProjects projects={related} />
-      </main>
+      </div>
     </div>
   );
 }

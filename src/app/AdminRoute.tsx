@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Navigate } from 'react-router';
 import { toast } from 'sonner';
 import { useIsAdmin } from '@/lib/useIsAdmin';
@@ -16,6 +16,10 @@ export function AdminRoute({ children }: { children: ReactNode }) {
   const { isAdmin, isDenied, isLoading, isError, retry } = useIsAdmin();
 
   const signedOut = useRef(false);
+  // Denied stays denied: signing out clears `user` while the redirect home may still be a pending (view)
+  // transition, and that re-render must not fall through to the anonymous branch (/login). Latched during render.
+  const [denied, setDenied] = useState(false);
+  if (isDenied && !denied) setDenied(true);
 
   useEffect(() => {
     if (!isDenied || signedOut.current) return;
@@ -24,11 +28,11 @@ export function AdminRoute({ children }: { children: ReactNode }) {
     void logout();
   }, [isDenied, logout]);
 
+  if (isDenied || denied) return <Navigate to="/" replace />;
   if (authLoading || isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   }
   if (!user) return <Navigate to="/login" replace />;
-  if (isDenied) return <Navigate to="/" replace />;
   if (isError || !isAdmin) {
     return (
       <div

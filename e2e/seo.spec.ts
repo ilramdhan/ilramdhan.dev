@@ -38,10 +38,10 @@ test('client-side navigation updates canonical, description and og:url (no stale
   await page.goto('/');
   const homeDesc = await page.locator('meta[name="description"]').getAttribute('content');
   await expect(page.locator('h1')).toHaveCount(1);
-  const menu = page.locator('nav button:has(svg.lucide-menu)');
+  const menu = page.getByRole('button', { name: 'Open menu' });
   if (await menu.isVisible()) await menu.click();
   await page
-    .locator('nav')
+    .getByRole('navigation', { name: 'Main' })
     .getByRole('link', { name: 'Projects', exact: true })
     .locator('visible=true')
     .first()

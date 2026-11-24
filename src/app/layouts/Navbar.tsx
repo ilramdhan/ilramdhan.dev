@@ -1,215 +1,157 @@
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { useEffect, useRef, useState, type RefObject } from 'react';
 import { useLocation } from 'react-router';
-import { useQuery } from '@tanstack/react-query';
-import { Link } from '@/i18n/Link';
-import { useT } from '@/i18n';
-import { splitLocale } from '@/i18n/locale';
-import { useIsAdmin } from '@/lib/useIsAdmin';
-import { profileQueries } from '@/features/profile/queries';
 import { prefetchRoute } from '@/app/prefetch';
-import { Img } from '@/components/ui/Img';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { Link } from '@/i18n/Link';
+import { splitLocale, useT } from '@/i18n';
+import { useIsAdmin } from '@/lib/useIsAdmin';
+import { cn } from '@/lib/utils';
+import { BrandLogo } from './chrome/Brand';
+import { CHROME_ICON_BTN, LocaleSwitcher, MenuGlyph } from './chrome/controls';
+import { MobileSheet } from './chrome/MobileSheet';
+import { BRAND_NAME, useNavItems } from './chrome/nav-items';
+import { ThemeMenu } from './chrome/ThemeControls';
 
-export function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const location = useLocation();
-  const path = splitLocale(location.pathname).path;
-  const t = useT();
-  const { isAdmin } = useIsAdmin();
+/** Past this scroll depth the nav name retracts into the mark (mutugading P16); back above it, it expands. */
+const BRAND_COLLAPSE_AT = 48;
 
-  const { data: profile, isLoading: isLoadingProfile } = useQuery(profileQueries.detail());
-
-  // Compact + stronger blur/border once the page is scrolled 16px.
-  const [scrolled, setScrolled] = useState(false);
+/**
+ * Flags the header with `data-brand-collapsed` once the page is scrolled past BRAND_COLLAPSE_AT. Reads the window
+ * scroll position (Lenis drives the native position, so this follows it too) at most once a frame and writes an
+ * attribute, not React state: the nav never re-renders while scrolling. CSS does the rest (global.css `.brand-name`).
+ */
+function useBrandCollapse(ref: RefObject<HTMLElement | null>) {
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 16);
-    onScroll();
+    const el = ref.current;
+    if (!el) return;
+    let frame = 0;
+    const apply = () => {
+      frame = 0;
+      el.toggleAttribute('data-brand-collapsed', window.scrollY > BRAND_COLLAPSE_AT);
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(apply);
+    };
+    apply();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  // Active-link pill: one element that slides between links (transform only).
-  const linksRef = useRef<HTMLDivElement>(null);
-  const [pill, setPill] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
-  useLayoutEffect(() => {
-    const container = linksRef.current;
-    const measure = () => {
-      const active = container?.querySelector<HTMLElement>('[aria-current="page"]');
-      const next = active
-        ? {
-            x: active.offsetLeft,
-            y: active.offsetTop,
-            w: active.offsetWidth,
-            h: active.offsetHeight,
-          }
-        : null;
-      setPill((prev) =>
-        prev &&
-        next &&
-        prev.x === next.x &&
-        prev.y === next.y &&
-        prev.w === next.w &&
-        prev.h === next.h
-          ? prev
-          : next,
-      );
-    };
-    measure();
-    window.addEventListener('resize', measure);
-    let ro: ResizeObserver | undefined;
-    if (typeof ResizeObserver !== 'undefined' && container) {
-      ro = new ResizeObserver(measure);
-      ro.observe(container);
-      const active = container.querySelector<HTMLElement>('[aria-current="page"]');
-      if (active) ro.observe(active);
-    }
     return () => {
-      window.removeEventListener('resize', measure);
-      ro?.disconnect();
+      window.removeEventListener('scroll', onScroll);
+      if (frame) cancelAnimationFrame(frame);
     };
-  }, [path, profile, isAdmin]);
+  }, [ref]);
+}
 
-  // Real links: `/#contact` is handled by ScrollManager (no timeouts, lands below the navbar).
-  const isActive = (linkPath: string) => (linkPath.includes('#') ? false : path === linkPath);
+/** Admin pill (12px, drawn at 28px inside a 44px target). Only for allowlisted admins (T-08). */
+function DashboardPill({ className }: { className?: string }) {
+  const t = useT().nav;
+  return (
+    <Link
+      to="/admin"
+      onMouseEnter={() => prefetchRoute('/admin')}
+      onFocus={() => prefetchRoute('/admin')}
+      className={cn(
+        'group/pill inline-flex min-h-11 shrink-0 items-center justify-center text-fine whitespace-nowrap',
+        className,
+      )}
+    >
+      <span className="inline-flex h-7 items-center justify-center rounded-full bg-pill px-3 text-pill-ink transition-[background-color,scale] duration-200 group-hover/pill:bg-pill-hover group-active/pill:scale-[0.98] motion-reduce:transition-none">
+        {t.dashboard}
+      </span>
+    </Link>
+  );
+}
 
-  const navLinks = [
-    { name: t.nav.home, path: '/' },
-    { name: t.nav.about, path: '/about' },
-    { name: t.nav.certificates, path: '/certificates' },
-    { name: t.nav.projects, path: '/projects' },
-    { name: t.nav.blog, path: '/blog' },
-    { name: t.nav.contact, path: '/#contact' },
-  ];
+/**
+ * Global nav (mutugading StickyMegaNavbar): one slim translucent bar, 44px (--nav-h). >= 834px: brand, 12px section
+ * links, appearance menu, EN / ID. < 834px: brand and a hamburger that opens the full-screen sheet.
+ */
+export function Navbar() {
+  const t = useT().nav;
+  const { pathname, key } = useLocation();
+  const path = splitLocale(pathname).path;
+  const { isAdmin } = useIsAdmin();
+  const items = useNavItems();
+  const headerRef = useRef<HTMLElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  useBrandCollapse(headerRef);
+
+  const [open, setOpen] = useState(false);
+  // Close the sheet on any navigation, `/#contact` on home included (adjust state during render; no effect needed).
+  const [prevKey, setPrevKey] = useState(key);
+  if (prevKey !== key) {
+    setPrevKey(key);
+    setOpen(false);
+  }
+
+  const isActive = (href: string) =>
+    !href.includes('#') && href !== '/' && (path === href || path.startsWith(`${href}/`));
+  const navLink =
+    'relative inline-flex h-11 items-center px-2 text-fine tracking-[-0.01em] transition-[color] duration-200 lg:px-2.5';
 
   return (
-    <nav
-      data-scrolled={scrolled}
-      className={`nav-glass fixed top-0 w-full z-50 border-b bg-on-dark/95 dark:bg-slate-950/95 supports-backdrop-filter:backdrop-blur-xl supports-backdrop-filter:backdrop-saturate-150 motion-safe:transition-[background-color,border-color,box-shadow] duration-200 ${
-        scrolled
-          ? 'border-slate-300 shadow-xs supports-backdrop-filter:bg-on-dark/75 dark:border-on-dark/10 dark:supports-backdrop-filter:bg-slate-950/70'
-          : 'border-slate-200 supports-backdrop-filter:bg-on-dark/60 dark:border-on-dark/5 dark:supports-backdrop-filter:bg-slate-950/50'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div
-          className={`flex items-center justify-between motion-safe:transition-[height] duration-200 ${scrolled ? 'h-14' : 'h-16'}`}
-        >
+    <header ref={headerRef} className="fixed inset-x-0 top-0 z-50" data-site-nav="">
+      <div className="nav-glass h-(--nav-h) bg-white/80 backdrop-blur-xl backdrop-saturate-[1.8]">
+        <div className="wrap flex h-full items-center">
           <Link
             to="/"
-            aria-label={t.nav.homeLabel}
-            className="shrink-0"
-            onClick={() => setIsOpen(false)}
+            aria-label={t.homeLink(BRAND_NAME)}
+            className="inline-flex min-h-11 shrink-0 items-center rounded-xs"
           >
-            {isLoadingProfile ? (
-              <div className="h-8 w-28 bg-slate-200 dark:bg-slate-800 rounded-sm motion-safe:animate-pulse" />
-            ) : profile?.logo_url ? (
-              <Img
-                src={profile.logo_url}
-                alt={profile.logo_text || t.nav.homeLabel}
-                width={128}
-                height={32}
-                priority
-                className="h-8 w-auto object-contain transition-all duration-300"
-              />
-            ) : (
-              <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 font-bold text-xl">
-                <span>{profile?.logo_text || 'DevFolio'}</span>
-              </div>
-            )}
+            <BrandLogo />
           </Link>
 
-          <div className="hidden lg:flex items-center gap-6">
-            <div ref={linksRef} className="relative flex items-center space-x-4">
-              {pill && (
-                <span
-                  aria-hidden="true"
-                  data-testid="nav-pill"
-                  className="absolute left-0 top-0 rounded-md bg-indigo-50 dark:bg-on-dark/10 motion-safe:transition-[transform,width,height] motion-safe:duration-300 motion-safe:ease-out"
-                  style={{
-                    width: pill.w,
-                    height: pill.h,
-                    transform: `translate(${pill.x}px, ${pill.y}px)`,
-                  }}
-                />
-              )}
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.path}
-                  aria-current={isActive(link.path) ? 'page' : undefined}
-                  onMouseEnter={() => prefetchRoute(link.path)}
-                  onFocus={() => prefetchRoute(link.path)}
-                  className={`relative px-3 py-2 rounded-md text-sm font-medium transition-colors ${
-                    isActive(link.path)
-                      ? 'text-indigo-600 dark:text-on-dark'
-                      : 'text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-on-dark hover:bg-indigo-50 dark:hover:bg-on-dark/10'
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              ))}
-            </div>
+          <nav aria-label={t.mainNav} className="flex flex-1 justify-center max-nav:hidden">
+            <ul className="flex items-center lg:gap-2 xl:gap-4">
+              {items.map((item) => {
+                const current = isActive(item.href);
+                return (
+                  <li key={item.id}>
+                    <Link
+                      to={item.href}
+                      aria-current={current ? 'page' : undefined}
+                      onMouseEnter={() => prefetchRoute(item.href)}
+                      onFocus={() => prefetchRoute(item.href)}
+                      className={cn(navLink, current ? 'text-ink' : 'text-ink/80 hover:text-ink')}
+                    >
+                      {item.label}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
 
-            <div className="flex items-center gap-4 border-l border-slate-200 dark:border-on-dark/10 pl-6">
-              <ThemeToggle />
-
-              {/* No public "Sign In" button: /login stays reachable directly.
-                  "Dashboard" is only shown to allowlisted admins (T-08). */}
-              {isAdmin && (
-                <Link
-                  to="/admin"
-                  onMouseEnter={() => prefetchRoute('/admin')}
-                  onFocus={() => prefetchRoute('/admin')}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-on-dark px-4 py-2 rounded-md text-sm font-medium transition-colors"
-                >
-                  {t.nav.dashboard}
-                </Link>
-              )}
-            </div>
-          </div>
-
-          <div className="-mr-2 flex lg:hidden items-center gap-4">
-            <ThemeToggle />
+          <div className="ml-auto flex shrink-0 items-center nav:ml-0">
+            <ThemeMenu className="max-nav:hidden" />
+            <LocaleSwitcher className="mr-1 max-nav:hidden" />
+            {isAdmin ? <DashboardPill className="max-nav:hidden" /> : null}
             <button
-              onClick={() => setIsOpen(!isOpen)}
-              aria-label={isOpen ? t.nav.closeMenu : t.nav.openMenu}
-              aria-expanded={isOpen}
-              className="inline-flex items-center justify-center p-2 rounded-md text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-on-dark hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-hidden"
+              ref={triggerRef}
+              type="button"
+              aria-label={t.openMenu}
+              aria-expanded={open}
+              aria-controls="mobile-sheet"
+              aria-haspopup="dialog"
+              data-mobile-menu-trigger=""
+              onClick={() => setOpen(true)}
+              className={cn(CHROME_ICON_BTN, '-mr-3 nav:hidden')}
             >
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              <MenuGlyph />
             </button>
           </div>
         </div>
       </div>
 
-      {isOpen && (
-        <div className="motion-safe:animate-menu-in lg:hidden border-t border-slate-200 dark:border-on-dark/5">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 flex flex-col">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.path}
-                onClick={() => setIsOpen(false)}
-                onTouchStart={() => prefetchRoute(link.path)}
-                onFocus={() => prefetchRoute(link.path)}
-                className="text-left text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-on-dark hover:bg-slate-100 dark:hover:bg-on-dark/10 block px-3 py-2 rounded-md text-base font-medium"
-              >
-                {link.name}
-              </Link>
-            ))}
-            {isAdmin && (
-              <Link
-                to="/admin"
-                onClick={() => setIsOpen(false)}
-                className="text-left text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 block px-3 py-2 rounded-md text-base font-medium"
-              >
-                {t.nav.dashboard}
-              </Link>
-            )}
-          </div>
-        </div>
-      )}
-    </nav>
+      {open ? (
+        <MobileSheet
+          items={items}
+          isActive={isActive}
+          isAdmin={isAdmin}
+          onClose={() => {
+            setOpen(false);
+            triggerRef.current?.focus();
+          }}
+        />
+      ) : null}
+    </header>
   );
 }

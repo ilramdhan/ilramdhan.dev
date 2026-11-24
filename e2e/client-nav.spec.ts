@@ -11,9 +11,14 @@ for (const [name, path, heading, text] of [
   test(`content is visible after navigating from home to ${path}`, async ({ page }) => {
     await page.goto('/');
     await expect(page.getByText('Project 1', { exact: true }).first()).toBeAttached();
-    const link = page.getByRole('link', { name, exact: true }).first();
-    if (!(await link.isVisible())) await page.locator('nav button:has(svg.lucide-menu)').click();
-    await link.click();
+    const menu = page.getByRole('button', { name: 'Open menu' });
+    if (await menu.isVisible()) await menu.click();
+    await page
+      .getByRole('navigation', { name: 'Main' })
+      .getByRole('link', { name, exact: true })
+      .locator('visible=true')
+      .first()
+      .click();
     await expect(page).toHaveURL(path);
     await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible();
     const item = page.getByText(text, { exact: true }).first();

@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronDown, Search, X } from 'lucide-react';
 import { Pagination } from '@/components/ui/Pagination';
-import { Navbar } from '@/app/layouts/Navbar';
 import { ProjectCard, ProjectCardSkeleton } from '@/features/projects/ProjectCard';
 import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
 import { projectQueries } from '@/features/projects/queries';
@@ -89,8 +88,7 @@ function ProjectsContent() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       <Seo title={t.seo.projects} description={t.seo.projectsDescription} />
-      <Navbar />
-      <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="pt-20 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="mb-12">
           <h1 className="text-4xl font-bold text-slate-900 dark:text-on-dark mb-4">
             {t.projects.heading}
@@ -98,7 +96,7 @@ function ProjectsContent() {
           <p className="text-slate-600 dark:text-slate-400 max-w-2xl">{t.projects.lead}</p>
         </div>
 
-        <div ref={listTop} className="scroll-mt-24 mb-8 space-y-4">
+        <div ref={listTop} className="scroll-mt-4 mb-8 space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row">
             <div className="relative flex-1">
               <label htmlFor="project-search" className="sr-only">

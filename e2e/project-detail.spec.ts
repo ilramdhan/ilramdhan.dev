@@ -100,7 +100,8 @@ test('related projects and thumbnails are in the prerendered HTML', async ({ req
   const html = await (await request.get(PROJECT)).text();
   expect(html).toContain('Related projects');
   // Every fixture project is tagged "oss": the three newest others (same date → id desc).
-  const section = html.slice(html.indexOf('Related projects'));
+  // The related list only: the footer's language links point at this page too.
+  const section = html.slice(html.indexOf('Related projects'), html.indexOf('<footer'));
   for (const slug of ['long-content', 'project-8', 'project-7']) {
     expect(section).toContain(`href="/projects/${slug}"`);
   }

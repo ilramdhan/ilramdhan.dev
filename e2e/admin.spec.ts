@@ -15,7 +15,7 @@ const logoutButton = { name: 'Logout', includeHidden: true } as const;
 test.describe('admin allowlist (T-08)', () => {
   test('anonymous visitors see no "Dashboard" button', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('navigation')).toBeVisible();
+    await expect(page.locator('header[data-site-nav]')).toBeVisible();
     await expect(page.getByRole('link', dashboardButton)).toHaveCount(0);
   });
 

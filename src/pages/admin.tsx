@@ -195,9 +195,9 @@ export default function AdminPage() {
         </AnimatePresence>
 
         {/* Main Content */}
-        <main className="flex-1 md:ml-64 p-4 md:p-8 overflow-y-auto min-h-screen pt-16 md:pt-8">
+        <div className="flex-1 md:ml-64 p-4 md:p-8 overflow-y-auto min-h-screen pt-16 md:pt-8">
           {tabs[activeTab]}
-        </main>
+        </div>
       </div>
     </MotionScope>
   );

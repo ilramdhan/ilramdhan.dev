@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 import { CertificateCard } from '@/components/ui/CertificateCard';
 import { Pagination } from '@/components/ui/Pagination';
-import { Navbar } from '@/app/layouts/Navbar';
 import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
 import { certificateQueries } from '@/features/certificates/queries';
 import { useListParams } from '@/lib/useListParams';
@@ -53,8 +52,7 @@ function CertificatesContent() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-on-dark transition-colors duration-300">
       <Seo title={t.seo.certificates} description={t.seo.certificatesDescription} />
-      <Navbar />
-      <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="pt-20 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">{t.certificates.heading}</h1>

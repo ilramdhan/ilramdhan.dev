@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
 import { NavigationType, useLocation, useNavigationType } from 'react-router';
+import { useLenis } from '@/components/motion/SmoothScrollProvider';
 
 const positions = new Map<string, number>();
 
@@ -16,17 +17,24 @@ function retryFor(ms: number, attempt: () => boolean): () => void {
 }
 
 /**
- * Scroll behaviour on navigation (T-30), replacing the unconditional scroll-to-top:
- * - POP (back/forward): restore the position saved for that history entry once the
- *   page is tall enough (pages are lazy and data-driven).
- * - PUSH/REPLACE with a hash: scroll to the target as soon as it exists; sections
- *   carry `scroll-margin-top` so the fixed navbar never covers them.
+ * Scroll behaviour on navigation (T-30), through Lenis when it runs (R4):
+ * - POP (back/forward): restore the position saved for that history entry once the page is tall enough.
+ * - PUSH/REPLACE with a hash: scroll to the target as soon as it exists. `html { scroll-padding-top }` keeps it below
+ *   the 44px nav; Lenis and native scrolling both honour it. Smooth within the same page, instant across pages.
  * - Otherwise: top of the page.
+ * Lenis (fine pointer, motion allowed, loaded on idle) gets `resize()` first, since the new page has a new height,
+ * then `scrollTo(..., { immediate, force })`; without it the window scrolls natively.
  */
 export function ScrollManager() {
   const location = useLocation();
   const navType = useNavigationType();
   const lastKey = useRef(location.key);
+  const lastPath = useRef(location.pathname);
+  const { lenis } = useLenis();
+  const lenisRef = useRef(lenis);
+  useEffect(() => {
+    lenisRef.current = lenis;
+  }, [lenis]);
 
   useEffect(() => {
     window.history.scrollRestoration = 'manual';
@@ -63,17 +71,32 @@ export function ScrollManager() {
   useEffect(() => {
     const pageLoad = isPageLoad.current;
     isPageLoad.current = false;
+    const samePage = lastPath.current === location.pathname;
+    lastPath.current = location.pathname;
     if (pageLoad && !location.hash) return;
+
+    const to = (target: number | HTMLElement, smooth = false) => {
+      const l = lenisRef.current;
+      if (l) {
+        l.resize();
+        l.scrollTo(target, { immediate: !smooth, force: true });
+      } else if (typeof target === 'number') {
+        window.scrollTo({ top: target, behavior: 'instant' });
+      } else {
+        target.scrollIntoView({ behavior: smooth ? 'smooth' : 'instant' });
+      }
+    };
+
     if (navType === NavigationType.Pop) {
       const y = positions.get(location.key) ?? 0;
       if (y === 0) {
-        window.scrollTo(0, 0);
+        to(0);
         return;
       }
       return retryFor(3000, () => {
         const max = document.documentElement.scrollHeight - window.innerHeight;
         if (max >= y - 1) {
-          window.scrollTo({ top: y, behavior: 'instant' });
+          to(y);
           return true;
         }
         return false;
@@ -81,15 +104,37 @@ export function ScrollManager() {
     }
     if (location.hash) {
       const id = decodeURIComponent(location.hash.slice(1));
-      return retryFor(3000, () => {
+      const smooth =
+        samePage &&
+        !pageLoad &&
+        !!window.matchMedia?.('(prefers-reduced-motion: no-preference)').matches;
+      // Self-correcting: a menu closing in this same commit restarts Lenis (which resets a running scroll), and Lenis
+      // booting on idle can cut a native smooth scroll short. Wait until Lenis runs, scroll, then once the page has
+      // settled check where the target landed and finish instantly if it is off.
+      let started = false;
+      let lastY = -1;
+      let still = 0;
+      return retryFor(4000, () => {
         const el = document.getElementById(id);
-        if (!el) return false;
-        el.scrollIntoView();
+        if (!el || lenisRef.current?.isStopped) return false;
+        if (!started) {
+          started = true;
+          to(el, smooth);
+          return false;
+        }
+        const y = window.scrollY;
+        still = y === lastY && !lenisRef.current?.isScrolling ? still + 1 : 0;
+        lastY = y;
+        if (still < 6) return false; // ~100ms without movement
+        const pad = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+        const top = el.getBoundingClientRect().top;
+        const atEnd = y >= document.documentElement.scrollHeight - window.innerHeight - 1;
+        if (Math.abs(top - pad) > 2 && !atEnd) to(el);
         return true;
       });
     }
-    window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [location.key, location.hash, navType]);
+    to(0);
+  }, [location.key, location.hash, location.pathname, navType]);
 
   return null;
 }

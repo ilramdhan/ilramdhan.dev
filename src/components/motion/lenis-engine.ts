@@ -61,7 +61,7 @@ export function startEngine({ velocity, onLenis }: EngineHooks): () => void {
     gsap.ticker.add(lenisTick);
     gsap.ticker.lagSmoothing(0);
     document.addEventListener('focusin', onFocus);
-    document.documentElement.classList.add('lenis-on');
+    document.documentElement.classList.add('has-lenis');
     onLenis(instance);
   };
   const unmount = () => {
@@ -70,7 +70,7 @@ export function startEngine({ velocity, onLenis }: EngineHooks): () => void {
       gsap.ticker.remove(lenisTick);
       instance.destroy();
       instance = null;
-      document.documentElement.classList.remove('lenis-on');
+      document.documentElement.classList.remove('has-lenis');
       onLenis(null);
     }
     lastY = window.scrollY;
@@ -88,6 +88,6 @@ export function startEngine({ velocity, onLenis }: EngineHooks): () => void {
     document.removeEventListener('focusin', onFocus);
     instance?.destroy();
     instance = null;
-    document.documentElement.classList.remove('lenis-on');
+    document.documentElement.classList.remove('has-lenis');
   };
 }
