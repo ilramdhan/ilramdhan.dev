@@ -141,7 +141,7 @@ test('loading state is a skeleton, not a spinner', async ({ page }) => {
     .getByRole('link', { name: /Blog Post 3/ })
     .first()
     .click();
-  await expect(page.getByRole('status').filter({ hasText: 'Loading article...' })).toBeAttached();
+  await expect(page.getByRole('status').filter({ hasText: 'Loading article…' })).toBeAttached();
   await expect(page.locator('.motion-safe\\:animate-spin')).toHaveCount(0);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Blog Post 3');
 });

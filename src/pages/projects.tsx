@@ -126,49 +126,53 @@ export default function ProjectsPage() {
         <div ref={listTop} className="w-full scroll-mt-(--nav-h) space-y-6">
           <div className="flex flex-col gap-3 sm:flex-row">
             <div className="relative flex-1">
-              <label htmlFor="project-search" className="sr-only">
+              <label htmlFor="project-search" className="mb-2 block text-caption text-tile-muted">
                 {t.projects.searchLabel}
               </label>
-              <Search
-                className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-muted"
-                aria-hidden="true"
-              />
-              <input
-                id="project-search"
-                type="text"
-                placeholder={t.projects.searchPlaceholder}
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                className={cn(FIELD, 'pl-12 pr-12')}
-              />
-              {searchInput && (
-                <button
-                  type="button"
-                  aria-label={t.list.clearSearch}
-                  onClick={() => setSearchInput('')}
-                  className="absolute right-1 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full text-ink-muted hover:text-ink"
-                >
-                  <X className="h-4 w-4" aria-hidden="true" />
-                </button>
-              )}
+              <div className="relative">
+                <Search
+                  className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-ink-muted"
+                  aria-hidden="true"
+                />
+                <input
+                  id="project-search"
+                  type="text"
+                  placeholder={t.projects.searchPlaceholder}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className={cn(FIELD, 'pl-12 pr-12')}
+                />
+                {searchInput && (
+                  <button
+                    type="button"
+                    aria-label={t.list.clearSearch}
+                    onClick={() => setSearchInput('')}
+                    className="absolute right-1 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full text-ink-muted hover:text-ink"
+                  >
+                    <X className="h-4 w-4" aria-hidden="true" />
+                  </button>
+                )}
+              </div>
             </div>
             <div className="relative">
-              <label htmlFor="project-sort" className="sr-only">
+              <label htmlFor="project-sort" className="mb-2 block text-caption text-tile-muted">
                 {t.projects.sortLabel}
               </label>
-              <select
-                id="project-sort"
-                value={sort}
-                onChange={(e) => setSort(e.target.value === 'oldest' ? 'oldest' : 'newest')}
-                className={cn(FIELD, 'appearance-none pr-11 sm:w-auto')}
-              >
-                <option value="newest">{t.list.sortNewest}</option>
-                <option value="oldest">{t.list.sortOldest}</option>
-              </select>
-              <ChevronDown
-                aria-hidden="true"
-                className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted"
-              />
+              <div className="relative">
+                <select
+                  id="project-sort"
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value === 'oldest' ? 'oldest' : 'newest')}
+                  className={cn(FIELD, 'appearance-none pr-11 sm:w-auto')}
+                >
+                  <option value="newest">{t.list.sortNewest}</option>
+                  <option value="oldest">{t.list.sortOldest}</option>
+                </select>
+                <ChevronDown
+                  aria-hidden="true"
+                  className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted"
+                />
+              </div>
             </div>
           </div>
 

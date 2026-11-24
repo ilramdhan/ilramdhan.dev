@@ -68,10 +68,16 @@ export default function CertificatesPage() {
           className="animate-rise-still"
         />
         <div className="mt-stack flex w-full flex-col items-center gap-6">
+          <label
+            htmlFor="cert-search"
+            className="-mb-3 block w-full max-w-xl text-left text-caption text-tile-muted"
+          >
+            {t.certificates.searchLabel}
+          </label>
           <input
+            id="cert-search"
             type="text"
             placeholder={t.certificates.searchPlaceholder}
-            aria-label={t.certificates.searchPlaceholder}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
             className="min-h-12 w-full max-w-xl rounded-full bg-parchment px-6 text-body text-ink outline-hidden placeholder:text-ink-muted/70 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-0 focus-visible:outline-tile-action"

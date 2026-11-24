@@ -143,45 +143,49 @@ export default function BlogPage() {
             ) : null}
             <div className="flex w-full max-w-xl flex-col gap-3 sm:flex-row">
               <div className="relative flex-1">
-                <label htmlFor="blog-search" className="sr-only">
+                <label htmlFor="blog-search" className="mb-2 block text-caption text-tile-muted">
                   {t.blog.searchLabel}
                 </label>
-                <input
-                  id="blog-search"
-                  type="text"
-                  placeholder={t.blog.searchPlaceholder}
-                  value={searchInput}
-                  onChange={(e) => setSearchInput(e.target.value)}
-                  className={`${field} w-full pr-12`}
-                />
-                {searchInput && (
-                  <button
-                    type="button"
-                    aria-label={t.list.clearSearch}
-                    onClick={() => setSearchInput('')}
-                    className="absolute right-1 top-0 grid size-11 place-items-center rounded-full text-ink-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-action"
-                  >
-                    <X className="size-4" aria-hidden="true" />
-                  </button>
-                )}
+                <div className="relative">
+                  <input
+                    id="blog-search"
+                    type="text"
+                    placeholder={t.blog.searchPlaceholder}
+                    value={searchInput}
+                    onChange={(e) => setSearchInput(e.target.value)}
+                    className={`${field} w-full pr-12`}
+                  />
+                  {searchInput && (
+                    <button
+                      type="button"
+                      aria-label={t.list.clearSearch}
+                      onClick={() => setSearchInput('')}
+                      className="absolute right-1 top-0 grid size-11 place-items-center rounded-full text-ink-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-action"
+                    >
+                      <X className="size-4" aria-hidden="true" />
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="relative">
-                <label htmlFor="blog-sort" className="sr-only">
+                <label htmlFor="blog-sort" className="mb-2 block text-caption text-tile-muted">
                   {t.blog.sortLabel}
                 </label>
-                <select
-                  id="blog-sort"
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value === 'oldest' ? 'oldest' : 'newest')}
-                  className={`${field} w-full appearance-none pr-11 sm:w-auto`}
-                >
-                  <option value="newest">{t.list.sortNewest}</option>
-                  <option value="oldest">{t.list.sortOldest}</option>
-                </select>
-                <ChevronDown
-                  aria-hidden="true"
-                  className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted"
-                />
+                <div className="relative">
+                  <select
+                    id="blog-sort"
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value === 'oldest' ? 'oldest' : 'newest')}
+                    className={`${field} w-full appearance-none pr-11 sm:w-auto`}
+                  >
+                    <option value="newest">{t.list.sortNewest}</option>
+                    <option value="oldest">{t.list.sortOldest}</option>
+                  </select>
+                  <ChevronDown
+                    aria-hidden="true"
+                    className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted"
+                  />
+                </div>
               </div>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-x-3 text-caption text-tile-muted">

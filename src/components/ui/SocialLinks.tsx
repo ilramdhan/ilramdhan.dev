@@ -1,6 +1,7 @@
 import type { ElementType } from 'react';
 import { Gamepad2, Mail, Phone } from 'lucide-react';
 import { Github, Instagram, Linkedin, Twitter, Youtube } from '@/components/ui/brand-icons';
+import { useT } from '@/i18n';
 import { socialEntries, type SocialKey } from '@/lib/social';
 
 /** The single source of truth for supported social platforms. */
@@ -14,18 +15,6 @@ const SOCIAL_ICONS = {
   whatsapp: Phone,
   steam: Gamepad2,
 } satisfies Record<SocialKey, ElementType>;
-
-/** Platform names are proper nouns: the same in every locale. */
-const SOCIAL_LABELS: Record<SocialKey, string> = {
-  github: 'GitHub',
-  linkedin: 'LinkedIn',
-  twitter: 'X (Twitter)',
-  instagram: 'Instagram',
-  youtube: 'YouTube',
-  mail: 'Email',
-  whatsapp: 'WhatsApp',
-  steam: 'Steam',
-};
 
 interface SocialLinksProps {
   links: unknown;
@@ -41,6 +30,7 @@ export function SocialLinks({
   linkClassName,
   iconClassName,
 }: SocialLinksProps) {
+  const t = useT();
   return (
     <div className={containerClassName}>
       {socialEntries(links).map(([key, href]) => {
@@ -51,7 +41,7 @@ export function SocialLinks({
             href={href}
             target="_blank"
             rel="noreferrer"
-            aria-label={SOCIAL_LABELS[key]}
+            aria-label={t.footer.socialName[key]}
             className={linkClassName}
           >
             <Icon aria-hidden="true" className={iconClassName} />
