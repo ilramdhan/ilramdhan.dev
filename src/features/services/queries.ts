@@ -11,6 +11,13 @@ export const serviceKeys = {
 
 export const serviceQueries = {
   list: (locale: Locale = 'en') =>
-    queryOptions({ queryKey: serviceKeys.list(locale), queryFn: async () => (await api()).getServices(locale) }),
-  admin: () => queryOptions({ queryKey: serviceKeys.admin(), queryFn: async () => (await api()).getAdminServices() }),
+    queryOptions({
+      queryKey: serviceKeys.list(locale),
+      queryFn: async () => (await api()).getServices(locale),
+    }),
+  admin: () =>
+    queryOptions({
+      queryKey: serviceKeys.admin(),
+      queryFn: async () => (await api()).getAdminServices(),
+    }),
 };

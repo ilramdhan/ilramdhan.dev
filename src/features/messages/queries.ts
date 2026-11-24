@@ -8,5 +8,9 @@ export const messageKeys = {
 };
 
 export const messageQueries = {
-  list: () => queryOptions({ queryKey: messageKeys.list(), queryFn: async () => (await api()).getMessages() }),
+  list: () =>
+    queryOptions({
+      queryKey: messageKeys.list(),
+      queryFn: async () => (await api()).getMessages(),
+    }),
 };

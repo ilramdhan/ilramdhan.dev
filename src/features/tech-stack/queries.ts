@@ -8,5 +8,9 @@ export const techStackKeys = {
 };
 
 export const techStackQueries = {
-  list: () => queryOptions({ queryKey: techStackKeys.list(), queryFn: async () => (await api()).getTechStack() }),
+  list: () =>
+    queryOptions({
+      queryKey: techStackKeys.list(),
+      queryFn: async () => (await api()).getTechStack(),
+    }),
 };

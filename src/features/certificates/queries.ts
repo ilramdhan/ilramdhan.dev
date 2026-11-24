@@ -30,7 +30,11 @@ export const certificateQueries = {
       queryKey: certificateKeys.full(locale),
       queryFn: async () => (await api()).getCertificates(locale),
     }),
-  admin: () => queryOptions({ queryKey: certificateKeys.admin(), queryFn: async () => (await api()).getAdminCertificates() }),
+  admin: () =>
+    queryOptions({
+      queryKey: certificateKeys.admin(),
+      queryFn: async () => (await api()).getAdminCertificates(),
+    }),
   list: (params: CertificateListParams, locale: Locale = 'en') =>
     queryOptions({
       queryKey: certificateKeys.list(params, locale),
@@ -38,5 +42,8 @@ export const certificateQueries = {
       placeholderData: keepPreviousData,
     }),
   issuers: () =>
-    queryOptions({ queryKey: certificateKeys.issuers(), queryFn: async () => (await api()).getCertificateIssuers() }),
+    queryOptions({
+      queryKey: certificateKeys.issuers(),
+      queryFn: async () => (await api()).getCertificateIssuers(),
+    }),
 };
