@@ -36,7 +36,7 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 | R6a | ✅     | #173 | projects + detail on tiles (LinkedGroup, SegmentedControl, FlipGroup, SpecRow, Morph, inset reveal); /projects 162 → 140 KiB; home +2.4 (shared-chunk split, owner OK)                         |
 | R6b | ✅     | #174 | blog list (split feature tile, segmented tags, rows, FlipGroup) + Newsroom article (680px/17px, TOC rail + Disclosure, hairline progress, chevron share); prose/hljs re-tokenised; /blog 139.2 |
 | R6c | ✅     | #172 | about (split hero, resume Disclosure rows, tools FeatureColumns, WakaTime SpecRow + GrowBar, GitHub graph frame) + certificates (issuer segmented, LinkedGroups, FlipGroup)                    |
-| R6d | 🟡     |      | privacy/terms/404 tiles, error screens + PageState, LocaleBanner, admin/login tokens; footer-click check; screens/R6d; awaiting PR                                                             |
+| R6d | ✅     | #171 | privacy/terms/404 tiles, error screens + PageState, LocaleBanner, admin/login tokens; footer-click check; screens/R6d                                                                          |
 | R7  | ⬜     |      |                                                                                                                                                                                                |
 | R8  | ⬜     |      |                                                                                                                                                                                                |
 | R9  | ⬜     |      |                                                                                                                                                                                                |
@@ -62,6 +62,10 @@ Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified 
 - **Merge `origin/redesign/apple-clean` into the phase branch before the PR** when a parallel phase merged first (R2+I1 pattern), then rerun gates.
 - **Read real exit codes.** `cmd | tail` returns tail's exit code; check `N failed` in the output, or redirect to a file and `echo exit=$?`. `npm test` can print `Errors N` under load while still exiting 0 through a pipe: rerun alone.
 - **`gh pr merge` can hang** waiting on stdin in this harness: run it with `</dev/null`, then confirm with `gh pr view N --json state`.
+- **eslint/prettier scan `.claude/worktrees/` until OOM** locally: use `npx eslint . --ignore-pattern '.claude/**'` and `npx prettier --check src e2e docs scripts`.
+- **Set `E2E_PORT` per worktree** so several e2e runs can go in parallel; never run two Playwright jobs in the same worktree (shared `test-results`/`dist-e2e` → `ENOENT .playwright-artifacts`, truncated zip errors that look like test failures).
+- **A new lazy chunk on one page can re-split shared chunks** and raise other routes' budgets: measure every route after a merge.
+- **client-nav e2e starts from the 404 page** via its "Back to Home"/Projects/Blog links: don't remove them.
 
 ## Log (one line per event, newest last)
 
