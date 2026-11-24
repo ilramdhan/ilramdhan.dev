@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import type { ZodType } from 'zod';
 
@@ -26,7 +26,10 @@ export interface ZodForm<V extends FormValues> {
   get: (path: string) => unknown;
   set: (path: string, value: unknown) => void;
   /** Validates with the schema; calls `onValid` with the parsed values or shows the errors. */
-  handleSubmit: (onValid: (values: V) => unknown) => (e: FormEvent) => void;
+  handleSubmit: (
+    onValid: (values: V) => unknown,
+    onInvalid?: (errors: FormErrors) => void,
+  ) => (e: FormEvent) => void;
 }
 
 /**
@@ -40,6 +43,8 @@ export function useZodForm<V extends FormValues>(
 ): ZodForm<V> {
   const [values, setValues] = useState<V>(defaultValues);
   const [errors, setErrors] = useState<FormErrors>({});
+  // Latest values, so a `set` after an await (image upload) does not spread a stale render.
+  const latest = useRef(values);
 
   const validate = (candidate: V) => {
     const result = schema.safeParse(candidate);
@@ -58,7 +63,8 @@ export function useZodForm<V extends FormValues>(
     errors,
     get: (path) => getPath(values, path),
     set: (path, value) => {
-      const next = setPath(values, path, value);
+      const next = setPath(latest.current, path, value);
+      latest.current = next;
       setValues(next);
       // Re-check only once the field shows an error, so typing clears it immediately.
       if (errors[path]) {
@@ -71,11 +77,12 @@ export function useZodForm<V extends FormValues>(
         });
       }
     },
-    handleSubmit: (onValid) => (e) => {
+    handleSubmit: (onValid, onInvalid) => (e) => {
       e.preventDefault();
-      const { result, found } = validate(values);
+      const { result, found } = validate(latest.current);
       setErrors(found);
       if (result.success) onValid(result.data);
+      else onInvalid?.(found);
     },
   };
 }
