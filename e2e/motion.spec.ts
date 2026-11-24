@@ -23,7 +23,11 @@ test.describe('reduced motion', () => {
       const transformed = await page.evaluate(
         () =>
           Array.from(document.querySelectorAll<HTMLElement>('main *, section *')).filter(
-            (el) => el.style.transform && el.style.transform !== 'none',
+            // The segmented control's thumb is a selection position (static), not a reveal.
+            (el) =>
+              !el.hasAttribute('data-segmented-thumb') &&
+              el.style.transform &&
+              el.style.transform !== 'none',
           ).length,
       );
       expect(transformed).toBe(0);
@@ -35,7 +39,8 @@ test('reveal animates once: scrolling away and back does not re-hide items', asy
   await page.goto('/certificates');
   const card = page.getByText('Cert 1', { exact: true }).first();
   await card.scrollIntoViewIfNeeded();
-  const wrapper = card.locator('xpath=ancestor::div[contains(@class,"rounded-xl")][1]');
+  // R6c: the group is a stagger-row item (translate only, never a fade): it stays fully opaque and ends at rest.
+  const wrapper = card.locator('xpath=ancestor::li[1]');
   await expect(wrapper).toHaveCSS('opacity', '1');
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));

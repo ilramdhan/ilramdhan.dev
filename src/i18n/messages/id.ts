@@ -168,6 +168,12 @@ export const id: Messages = {
     time: 'Waktu',
     githubGraph: (username) => `Grafik aktivitas GitHub ${username}`,
     githubSnake: 'Ular di Grid Kontribusi GitHub',
+    skills: 'Alat yang saya pakai',
+    codedHours: 'Jam coding, 30 hari terakhir',
+    topLanguage: 'Bahasa terbanyak dipakai, 7 hari terakhir',
+    githubHeading: 'Di GitHub',
+    certificatesLead: 'Kredensial dari kursus dan ujian di balik pekerjaan ini.',
+    resumeHeading: 'Pengalaman dan pendidikan',
   },
   list: {
     sortNewest: 'Terbaru dulu',
@@ -216,6 +222,10 @@ export const id: Messages = {
     none: 'Tidak ada sertifikat yang cocok dengan kriteria Anda.',
     alt: (title, issuer) => `Sertifikat ${title}${issuer ? ` dari ${issuer}` : ''}`,
     viewCredential: 'Lihat Kredensial',
+    issuerFilter: 'Filter berdasarkan penerbit',
+    allIssuers: 'Semua',
+    loading: 'Memuat sertifikat…',
+    listLabel: 'Semua sertifikat',
   },
   article: {
     breadcrumb: 'Jejak halaman',

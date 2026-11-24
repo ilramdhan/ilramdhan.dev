@@ -1,62 +1,58 @@
-import { Award } from 'lucide-react';
-import { Markdown } from '@/components/ui/Markdown';
-import { Reveal } from '@/components/motion';
+import type { ReactNode } from 'react';
+import { LinkChevron } from '@/components/tile/LinkChevron';
+import { MediaFrame } from '@/components/tile/MediaFrame';
 import type { Certificate } from '@/features/certificates/api';
 import { formatDate } from '@/lib/date';
-import { Img } from '@/components/ui/Img';
 import { useLocale, useT } from '@/i18n';
 
-interface CertificateCardProps {
-  cert: Certificate;
-  /** Position in the grid; drives the capped entrance stagger. */
-  index: number;
-}
-
-export function CertificateCard({ cert, index }: CertificateCardProps) {
+/**
+ * One certificate as a linked group (no card): the certificate image in a MediaFrame, title, issuer, dates and one
+ * clamped line. With a credential URL the whole group is the link (the photo zooms 1.02 on hover, like every linked
+ * group); without one it is plain text and the photo never reacts to the pointer.
+ */
+export function CertificateCard({ cert }: { cert: Certificate }) {
   const t = useT();
   const locale = useLocale();
-  return (
-    <Reveal
-      index={index}
-      className="bg-on-dark border border-slate-200 dark:bg-slate-900/50 dark:border-on-dark/5 rounded-xl overflow-hidden hover:border-indigo-500/30 transition-[transform,box-shadow,border-color] motion-safe:hover:-translate-y-0.5 hover:shadow-md shadow-xs dark:shadow-none group flex flex-col"
-    >
-      {cert.file_url ? (
-        <div className="h-48 bg-slate-100 dark:bg-slate-800 overflow-hidden relative">
-          <Img
-            src={cert.file_url}
-            alt={t.certificates.alt(cert.title, cert.issued_by)}
-            width={1600}
-            height={1200}
-            sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        </div>
-      ) : (
-        <div className="h-48 bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400">
-          <Award className="h-12 w-12" />
-        </div>
-      )}
-      <div className="p-6 flex-1 flex flex-col">
-        <h3 className="text-lg font-bold mb-2 text-slate-900 dark:text-on-dark">{cert.title}</h3>
-        <p className="text-sm text-indigo-600 dark:text-indigo-400 mb-2">{cert.issued_by}</p>
-        <p className="text-xs text-slate-500 mb-4">
-          {formatDate(cert.issued_date, locale)}
-          {cert.expiry_date ? ` - ${formatDate(cert.expiry_date, locale)}` : ''}
+  const link = cert.credential_url;
+  // ponytail: strips the inline Markdown marks this field uses; use `plainText` (features/home) if richer content shows.
+  const description = (cert.description ?? '')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+    .replace(/[*_`#>~]+/g, '')
+    .trim();
+  const body: ReactNode = (
+    <>
+      <MediaFrame
+        src={cert.file_url}
+        alt={cert.file_url ? t.certificates.alt(cert.title, cert.issued_by) : ''}
+        width={1600}
+        height={1200}
+        aspect="landscape"
+        interactive={!!link}
+      />
+      <h3 className="mt-4 text-title text-tile-ink">{cert.title}</h3>
+      {cert.issued_by ? <p className="mt-1 text-body text-tile-ink">{cert.issued_by}</p> : null}
+      <p className="mt-1 text-caption text-tile-muted">
+        {formatDate(cert.issued_date, locale)}
+        {cert.expiry_date ? ` - ${formatDate(cert.expiry_date, locale)}` : ''}
+      </p>
+      {description ? (
+        <p className="mt-2 line-clamp-3 text-[0.9375rem] leading-[1.4] text-pretty text-tile-muted">
+          {description}
         </p>
-        <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-4 flex-1 prose prose-sm dark:prose-invert line-clamp-3">
-          <Markdown>{cert.description || ''}</Markdown>
-        </div>
-        {cert.credential_url && (
-          <a
-            href={cert.credential_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:underline mt-auto"
-          >
-            {t.certificates.viewCredential} &rarr;
-          </a>
-        )}
-      </div>
-    </Reveal>
+      ) : null}
+      {link ? (
+        <LinkChevron className="mt-2 group-hover:underline">
+          {t.certificates.viewCredential}
+        </LinkChevron>
+      ) : null}
+    </>
+  );
+  const cls = 'group flex h-full flex-col items-start text-left';
+  return link ? (
+    <a href={link} target="_blank" rel="noopener noreferrer" className={cls}>
+      {body}
+    </a>
+  ) : (
+    <div className={cls}>{body}</div>
   );
 }

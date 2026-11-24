@@ -171,6 +171,12 @@ export const en = {
     time: 'Time',
     githubGraph: (username: string) => `${username}'s GitHub activity graph`,
     githubSnake: 'GitHub Contribution Grid Snake',
+    skills: 'Tools I work with',
+    codedHours: 'Hours coded, last 30 days',
+    topLanguage: 'Most used language, last 7 days',
+    githubHeading: 'On GitHub',
+    certificatesLead: 'Credentials from the courses and exams behind the work.',
+    resumeHeading: 'Experience and education',
   },
   list: {
     sortNewest: 'Newest first',
@@ -220,6 +226,10 @@ export const en = {
     alt: (title: string, issuer: string | null) =>
       `${title} certificate${issuer ? ` issued by ${issuer}` : ''}`,
     viewCredential: 'View Credential',
+    issuerFilter: 'Filter by issuer',
+    allIssuers: 'All',
+    loading: 'Loading certificates…',
+    listLabel: 'All certificates',
   },
   article: {
     breadcrumb: 'Breadcrumb',
