@@ -1,10 +1,9 @@
 import { useEffect, useRef, type RefObject } from 'react';
 
 /**
- * Thin bar at the very top showing how much of `target` has been scrolled past. Purely
- * visual (aria-hidden). Rendered at 0 on the server; updated from scroll events after
- * mount by writing the transform directly (no re-render per frame). The width change is
- * never animated, so it also suits reduced motion.
+ * Hairline under the nav showing how much of `target` has been scrolled past. Purely visual (aria-hidden). Rendered at
+ * 0 on the server; updated from scroll events after mount by writing the transform directly (no re-render per frame).
+ * The width change is never animated, so it also suits reduced motion.
  */
 export function ReadingProgress({ target }: { target: RefObject<HTMLElement | null> }) {
   const bar = useRef<HTMLDivElement>(null);
@@ -33,11 +32,14 @@ export function ReadingProgress({ target }: { target: RefObject<HTMLElement | nu
   }, [target]);
 
   return (
-    <div aria-hidden="true" className="pointer-events-none fixed left-0 top-0 z-50 h-1.5 w-full">
+    <div
+      aria-hidden="true"
+      className="pointer-events-none fixed inset-x-0 top-(--nav-h) z-40 h-0.5 w-full"
+    >
       <div
         ref={bar}
         data-testid="reading-progress"
-        className="h-full origin-left bg-indigo-500"
+        className="h-full origin-left bg-action"
         style={{ transform: 'scaleX(0)' }}
       />
     </div>

@@ -188,6 +188,9 @@ export const id: Messages = {
     error: 'Gagal memuat artikel.',
     noMatch: 'Tidak ada artikel yang cocok dengan filter Anda. Coba pencarian atau tag lain.',
     none: 'Belum ada artikel.',
+    all: 'Semua',
+    tagFilter: 'Filter berdasarkan tag',
+    read: 'Baca artikel',
   },
   projects: {
     heading: 'Semua Proyek',

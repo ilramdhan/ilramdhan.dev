@@ -22,24 +22,24 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 
 ## Phases
 
-| ID  | Status | PR   | Notes                                                                                                                 |
-| --- | ------ | ---- | --------------------------------------------------------------------------------------------------------------------- |
-| R0  | ✅     |      | baseline.md, inventory.md, screens/before (40), screens/reference (32); 404 not Lighthouse-measurable                 |
-| R1a | ✅     | #163 | React 19, R3F 9, Vite 8, Vitest 5, ESLint 10, router 8, Playwright 1.65, TS 6; holds below; CI green (735 e2e)        |
-| R1b | ✅     | #164 | TW 4.3 (@tailwindcss/vite), MG tokens/type/dark/Auto, Inter self-hosted, CSS budget 19.5; CI green                    |
-| R2  | ✅     | #165 | tile partials (static, R3 hooks as data-*), Field/Dialog/Pagination restyled; CSS budget 20.5; CI green               |
-| I1  | ✅     | #166 | typed en/id dicts, /id routes + prerender + hreflang + sitemap, banner; id dict lazy; CI green                        |
-| R3  | ✅     | #167 | GSAP 3.15 + Lenis lazy (48.4 KiB), ViewTransition route fade, /__motion dev-only; CI green                            |
-| R4  | ✅     | #168 | 44px nav + brand collapse, sheet (trap, Lenis stop), doormat + wordmark rise (P17), skip link, Lenis scroll; CI green |
-| R5  | ✅     | #170 | home tiles + D2 lanyard gate (idle boot, long tasks 3), ContactForm focus-visible; home 143 KiB; JS total 1640        |     |
-| I2  | ✅     | #169 | translations jsonb (owner SQL pending), localize(), admin EN/ID tabs, lazy api.ts; works pre/post migration           |     |
-| R6a | ⬜     |      |                                                                                                                       |
-| R6b | ⬜     |      |                                                                                                                       |
-| R6c | ⬜     |      |                                                                                                                       |
-| R6d | ⬜     |      |                                                                                                                       |
-| R7  | ⬜     |      |                                                                                                                       |
-| R8  | ⬜     |      |                                                                                                                       |
-| R9  | ⬜     |      |                                                                                                                       |
+| ID  | Status | PR   | Notes                                                                                                                    |
+| --- | ------ | ---- | ------------------------------------------------------------------------------------------------------------------------ |
+| R0  | ✅     |      | baseline.md, inventory.md, screens/before (40), screens/reference (32); 404 not Lighthouse-measurable                    |
+| R1a | ✅     | #163 | React 19, R3F 9, Vite 8, Vitest 5, ESLint 10, router 8, Playwright 1.65, TS 6; holds below; CI green (735 e2e)           |
+| R1b | ✅     | #164 | TW 4.3 (@tailwindcss/vite), MG tokens/type/dark/Auto, Inter self-hosted, CSS budget 19.5; CI green                       |
+| R2  | ✅     | #165 | tile partials (static, R3 hooks as data-*), Field/Dialog/Pagination restyled; CSS budget 20.5; CI green                  |
+| I1  | ✅     | #166 | typed en/id dicts, /id routes + prerender + hreflang + sitemap, banner; id dict lazy; CI green                           |
+| R3  | ✅     | #167 | GSAP 3.15 + Lenis lazy (48.4 KiB), ViewTransition route fade, /__motion dev-only; CI green                               |
+| R4  | ✅     | #168 | 44px nav + brand collapse, sheet (trap, Lenis stop), doormat + wordmark rise (P17), skip link, Lenis scroll; CI green    |
+| R5  | ✅     | #170 | home tiles + D2 lanyard gate (idle boot, long tasks 3), ContactForm focus-visible; home 143 KiB; JS total 1640           |     |
+| I2  | ✅     | #169 | translations jsonb (owner SQL pending), localize(), admin EN/ID tabs, lazy api.ts; works pre/post migration              |     |
+| R6a | ⬜     |      |                                                                                                                          |
+| R6b | 🟡     |      | blog list (split feature, segmented tags, rows, Flip) + Newsroom article; /blog initial JS 140.6 vs budget 138 (see log) |
+| R6c | ⬜     |      |                                                                                                                          |
+| R6d | ⬜     |      |                                                                                                                          |
+| R7  | ⬜     |      |                                                                                                                          |
+| R8  | ⬜     |      |                                                                                                                          |
+| R9  | ⬜     |      |                                                                                                                          |
 
 Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified by orchestrator.
 
@@ -75,3 +75,4 @@ Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified 
 - 2026-11-24 R4 on redesign/R4-chrome: mutugading chrome ported (44px nav + brand collapse, no flyouts, Light/Dark/Auto menu, EN/ID same-page switch, mobile sheet w/ focus trap + Lenis stop, parchment doormat + reveal curtain + lazy wordmark rise w/ P17 refresh, skip link, ScrollManager on Lenis, Pagination labels via t()); nav/main moved into PublicLayout; Dialog portalled to body; budgets CSS 22.5 / privacy 132 / blog 138 / projects 164 / home 157; screens/R4; awaiting orchestrator verify.
 - 2026-11-24 R4 ✅ merged #168 (verified by orchestrator: gates green, full e2e 820 local, screens/R4 nav 1440 + footer 375 checked vs reference, CI green). Budgets CSS 22.5 / home 157 / privacy 132 / blog 138 / projects 164. Fixed along: AdminRoute non-admin redirect, Lenis hash scroll cut short, locale link hash after hydration. Left for R5: ContactForm focus ring; R6d: admin .btn-secondary gray-on-color (impeccable). Local `npm test`/format pick up untracked `.claude/worktrees/`: exclude or delete them. Next: R5 + I2 in parallel.
 - 2026-11-24 I2 ✅ merged #169 (verified by orchestrator: gates, e2e 182 desktop+tablet, CI green; fixed a pre-migration e2e race + /projects budget via lazy api.ts). **Owner: run `supabase/migrations/20261124000000_translations_jsonb.sql` in the SQL Editor, then record the version.** R5 ✅ #170 (verified: gates, full e2e desktop+tablet 373, screens/R5 1440+375 vs reference; Footer barrel import fixed, JS total 1630→1640 for lazy motion engines only; TOC e2e now measures the nav). Follow-ups: R4 footer curtain slows footer-link clicks from scrolled pages (~10s in Playwright); indigo classes in ArticleFooter/ShareBar/Carousel/LocaleBanner (R6). Next: R6a–R6d in parallel.
+- 2026-11-24 R6b on redesign/R6b-blog: /blog + /blog/:slug rebuilt on tiles (featured split tile, SegmentedControl tags, article rows with stagger + FlipGroup, 17px/680px column, TOC rail + Disclosure with sliding marker, hairline progress, chevron ShareBar, morph); indigo removed from shared article components; prose + hljs on MG tokens; FeaturedCarousel deleted; screens/R6b. Budgets: /blog 136.4 -> 140.6 and JS total 1637.5 -> 1649.8 (new tile/motion chunks load on /blog; budgets NOT raised, orchestrator decides). Open: project-detail-reading.spec TOC selector (details/summary) breaks on tablet because TocDisclosure is now the shared Disclosure (R6a owns it).

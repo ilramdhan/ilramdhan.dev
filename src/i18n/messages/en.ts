@@ -191,6 +191,9 @@ export const en = {
     error: 'Error loading articles.',
     noMatch: 'No articles match your filters. Try a different search or tag.',
     none: 'No articles yet.',
+    all: 'All',
+    tagFilter: 'Filter by tag',
+    read: 'Read article',
   },
   projects: {
     heading: 'All Projects',
