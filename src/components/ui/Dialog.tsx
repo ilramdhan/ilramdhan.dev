@@ -5,6 +5,7 @@ interface DialogProps {
   onClose: () => void;
   title: string;
   children: ReactNode;
+  /** Panel classes (default: the raised 18px sheet, centred, max 480px wide). */
   className?: string;
   /** Backdrop classes (default: dimmed, centred, padded). */
   overlayClassName?: string;
@@ -14,14 +15,17 @@ const FOCUSABLE =
   'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
 
 /** Modal dialog: Esc closes, Tab is trapped inside, focus is restored on close. */
-const OVERLAY = 'fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4';
+const OVERLAY = 'fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4';
+/** mutugading RFQ dialog sheet: raised surface (white / #1D1D1F), 18px corners, no border or shadow. */
+const PANEL =
+  'max-h-[88svh] w-full max-w-[480px] overflow-y-auto rounded-lg bg-raised px-6 pt-10 pb-6 text-ink outline-hidden sm:px-10 sm:pt-12 sm:pb-8';
 
 export function Dialog({
   open,
   onClose,
   title,
   children,
-  className,
+  className = PANEL,
   overlayClassName = OVERLAY,
 }: DialogProps) {
   const ref = useRef<HTMLDivElement>(null);

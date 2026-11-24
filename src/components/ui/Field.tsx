@@ -15,8 +15,8 @@ export function Field({ label, description, error, children }: FieldProps) {
   const errId = error ? `${id}-err` : undefined;
   const describedBy = [descId, errId].filter(Boolean).join(' ') || undefined;
   return (
-    <div>
-      <label htmlFor={id} className="block text-sm font-medium mb-1">
+    <div className="flex flex-col gap-2">
+      <label htmlFor={id} className="text-caption font-semibold text-ink">
         {label}
       </label>
       {cloneElement(children, {
@@ -25,12 +25,12 @@ export function Field({ label, description, error, children }: FieldProps) {
         'aria-invalid': error ? true : undefined,
       })}
       {description && (
-        <p id={descId} className="mt-1 text-xs text-slate-500">
+        <p id={descId} className="text-caption text-ink-muted">
           {description}
         </p>
       )}
       {error && (
-        <p id={errId} role="alert" className="mt-1 text-xs text-red-500">
+        <p id={errId} role="alert" className="text-caption text-danger">
           {error}
         </p>
       )}
