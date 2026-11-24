@@ -39,7 +39,7 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 | R6d | ✅     | #171 | privacy/terms/404 tiles, error screens + PageState, LocaleBanner, admin/login tokens; footer-click check; screens/R6d                                                                              |
 | R7  | ✅     | #176 | QA gate: home 147.2 → 144.1 (limit 145; ≤143 not reached), no route up; axe 0, Lighthouse 100/100/96/100 (mock data), keyboard pass, visible filter labels; taste waivers (D1) in taste-waivers.md |
 | R8  | ✅     | #177 | SEO/GEO: per-page JSON-LD (prerender only), og.png re-themed 1200x630 + alt, hreflang/sitemap/h1 verified by e2e both locales; Reveal onClick removed; budgets unchanged                           |
-| R9  | ✅     | #180 | framer-motion out; budgets lowered (home 143.2, JS 1624.7); fallback JSON-LD + env crash fix; twitter:image:alt; DESIGN.md; code-review high fixes |
+| R9  | ✅     | #180 | framer-motion out; budgets lowered (home 143.2, JS 1624.7); fallback JSON-LD + env crash fix; twitter:image:alt; DESIGN.md; code-review high fixes                                                 |
 
 Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified by orchestrator.
 
