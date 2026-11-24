@@ -43,7 +43,7 @@ function RelatedProjects({ projects }: { projects: ProjectCardData[] | undefined
   return (
     <Tile labelledBy="related-projects-heading" tone="parchment">
       <TileHeading id="related-projects-heading" size="section" title={t.project.related} />
-      <div className="mt-stack w-full" role="region" aria-labelledby="related-projects-heading">
+      <div className="mt-stack w-full">
         <ul className="stagger-row grid gap-x-4 gap-y-12 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3">
           {projects.map((p, i) => (
             <li key={p.id} style={colVar(i, 3)} className="min-w-0">

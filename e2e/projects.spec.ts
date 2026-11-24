@@ -1,6 +1,9 @@
 import { expect, test } from './fixtures/test';
 import { horizontalOverflow } from './helpers/layout';
 
+const cardsOf = (page: import('@playwright/test').Page) =>
+  page.getByRole('main').locator('ul[data-flip] > li > a');
+
 // T-61 (#136): /projects search, sort, result line, Clear filters and empty state.
 
 test('projects sort is sent with an id tie-break (oldest: created_at.asc,id.asc), restored from the URL, and cleared', async ({
@@ -35,7 +38,7 @@ test('projects sort is sent with an id tie-break (oldest: created_at.asc,id.asc)
 
   await page.reload();
   await expect(page.getByLabel('Sort projects')).toHaveValue('oldest');
-  await expect(page.getByRole('main').getByRole('heading', { level: 2 })).toHaveCount(6);
+  await expect(cardsOf(page)).toHaveCount(6);
 
   await page.getByRole('button', { name: 'Clear filters' }).click();
   await expect(page).not.toHaveURL(/sort=/);
@@ -62,13 +65,13 @@ test('projects search matches the short description and shows a result line', as
   const search = page.getByLabel('Search projects');
   await search.fill('zebrafish');
   await expect(page).toHaveURL(/[?&]q=zebrafish/);
-  await expect(page.getByRole('heading', { level: 2, name: 'Unrelated' })).toBeVisible();
-  await expect(page.getByRole('main').getByRole('heading', { level: 2 })).toHaveCount(1);
+  await expect(cardsOf(page).filter({ hasText: 'Unrelated' })).toBeVisible();
+  await expect(cardsOf(page)).toHaveCount(1);
   await expect(page.getByText(/^1 project for/)).toBeVisible();
 
   await page.reload();
   await expect(page.getByLabel('Search projects')).toHaveValue('zebrafish');
-  await expect(page.getByRole('heading', { level: 2, name: 'Unrelated' })).toBeVisible();
+  await expect(cardsOf(page).filter({ hasText: 'Unrelated' })).toBeVisible();
 });
 
 test('Clear filters resets q, tag, sort and page; the empty state offers a reset', async ({
@@ -84,12 +87,12 @@ test('Clear filters resets q, tag, sort and page; the empty state offers a reset
   await expect(page.getByLabel('Search projects')).toHaveValue('');
   await expect(page.getByLabel('Sort projects')).toHaveValue('newest');
   await expect(page.getByText(/^9 projects$/)).toBeVisible();
-  await expect(page.getByRole('main').getByRole('heading', { level: 2 })).toHaveCount(6);
+  await expect(cardsOf(page)).toHaveCount(6);
 });
 
 test('grid columns follow the viewport and nothing overflows', async ({ page }, testInfo) => {
   await page.goto('/projects');
-  const cards = page.getByRole('main').getByRole('heading', { level: 2 });
+  const cards = cardsOf(page);
   await expect(cards).toHaveCount(6);
   const lefts = new Set<number>();
   for (const card of await cards.all()) lefts.add(Math.round((await card.boundingBox())!.x));
