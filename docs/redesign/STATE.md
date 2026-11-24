@@ -35,7 +35,7 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 | I2  | ✅     | #169 | translations jsonb (owner SQL pending), localize(), admin EN/ID tabs, lazy api.ts; works pre/post migration           |     |
 | R6a | ⬜     |      |                                                                                                                       |
 | R6b | ⬜     |      |                                                                                                                       |
-| R6c | ⬜     |      |                                                                                                                       |
+| R6c | 🟡     |      | about + certificates ported to tiles; PR pending orchestrator verify; JS total budget needs +10 KiB (see PR)          |
 | R6d | ⬜     |      |                                                                                                                       |
 | R7  | ⬜     |      |                                                                                                                       |
 | R8  | ⬜     |      |                                                                                                                       |
