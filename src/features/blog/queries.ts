@@ -1,16 +1,10 @@
 import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 import type { Locale } from '@/i18n/locale';
-import {
-  getAdjacentBlogs,
-  getAdminBlogs,
-  getBlogBySlug,
-  getBlogs,
-  getBlogTags,
-  getComments,
-  getFeaturedBlogs,
-  getRelatedBlogs,
-  type BlogListParams,
-} from './api';
+import type { BlogListParams } from './api';
+
+// ponytail: the data layer (localize, translations retry, ...) is loaded on first fetch so
+// it stays out of the initial JS of the routes that only need the query keys (bundle budget).
+const api = () => import('./api');
 
 export const blogKeys = {
   all: ['blogs'] as const,
@@ -46,23 +40,31 @@ export const blogQueries = {
   list: (params: BlogListParams, locale: Locale = 'en') =>
     queryOptions({
       queryKey: blogKeys.list(params, locale),
-      queryFn: () => getBlogs(params, locale),
+      queryFn: async () => (await api()).getBlogs(params, locale),
       placeholderData: keepPreviousData,
     }),
   featured: (locale: Locale = 'en') =>
-    queryOptions({ queryKey: blogKeys.featured(locale), queryFn: () => getFeaturedBlogs(locale) }),
-  tags: () => queryOptions({ queryKey: blogKeys.tags(), queryFn: getBlogTags }),
+    queryOptions({
+      queryKey: blogKeys.featured(locale),
+      queryFn: async () => (await api()).getFeaturedBlogs(locale),
+    }),
+  tags: () =>
+    queryOptions({ queryKey: blogKeys.tags(), queryFn: async () => (await api()).getBlogTags() }),
   detail: (slug: string, locale: Locale = 'en') =>
     queryOptions({
       queryKey: blogKeys.detail(slug, locale),
-      queryFn: () => getBlogBySlug(slug, locale),
+      queryFn: async () => (await api()).getBlogBySlug(slug, locale),
       enabled: !!slug,
     }),
-  admin: () => queryOptions({ queryKey: blogKeys.admin(), queryFn: getAdminBlogs }),
+  admin: () =>
+    queryOptions({
+      queryKey: blogKeys.admin(),
+      queryFn: async () => (await api()).getAdminBlogs(),
+    }),
   comments: (blogId: number | undefined) =>
     queryOptions({
       queryKey: blogKeys.comments(blogId),
-      queryFn: () => getComments(blogId!),
+      queryFn: async () => (await api()).getComments(blogId!),
       enabled: blogId !== undefined,
     }),
   /** Older/newer neighbours of a post (needs its id and publish date). */
@@ -73,13 +75,13 @@ export const blogQueries = {
   ) =>
     queryOptions({
       queryKey: blogKeys.adjacent(id, publishedAt, locale),
-      queryFn: () => getAdjacentBlogs(id!, publishedAt!, locale),
+      queryFn: async () => (await api()).getAdjacentBlogs(id!, publishedAt!, locale),
       enabled: id !== undefined && !!publishedAt,
     }),
   related: (id: number | undefined, tags: readonly string[] = [], locale: Locale = 'en') =>
     queryOptions({
       queryKey: blogKeys.related(id, tags, locale),
-      queryFn: () => getRelatedBlogs(id!, [...tags], locale),
+      queryFn: async () => (await api()).getRelatedBlogs(id!, [...tags], locale),
       enabled: id !== undefined,
     }),
 };
