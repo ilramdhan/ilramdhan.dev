@@ -30,6 +30,9 @@ test.describe('navbar pill and blog sort chevron', () => {
     await expectPillOnActive(page);
     await page.locator('nav').getByRole('link', { name: 'Projects', exact: true }).click();
     await expect(page).toHaveURL(/\/projects/);
+    // The URL changes before React commits a view-transition navigation; scroll only once the new page is in,
+    // or ScrollManager's scroll-to-top for the new entry lands after ours.
+    await expect(page.getByRole('heading', { level: 1, name: /Projects/i })).toBeVisible();
     await expectPillOnActive(page);
     await page.evaluate(() => window.scrollTo({ top: 600, behavior: 'instant' }));
     await expect(page.locator('nav[data-scrolled="true"]')).toBeVisible();

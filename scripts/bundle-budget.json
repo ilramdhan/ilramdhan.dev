@@ -6,7 +6,7 @@
       "pattern": "\\.js$",
       "metric": "gzip",
       "aggregate": "sum",
-      "maxKiB": 1580
+      "maxKiB": 1630
     },
     {
       "name": "Largest JS chunk (gzip)",
@@ -20,7 +20,7 @@
       "pattern": "\\.css$",
       "metric": "gzip",
       "aggregate": "sum",
-      "maxKiB": 20.5
+      "maxKiB": 21.5
     },
     {
       "name": "3D models (raw)",
@@ -51,7 +51,7 @@
       "route": "^assets/projects-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "initial",
-      "maxKiB": 160
+      "maxKiB": 161
     },
     {
       "name": "Initial JS / (gzip)",

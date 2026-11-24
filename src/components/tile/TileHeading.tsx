@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react';
+import { useRef, type ReactNode } from 'react';
+import { useSplitReveal } from '@/components/motion/useSplitReveal';
 import { cn } from '@/lib/utils';
 
 export type TileHeadingProps = {
@@ -14,7 +15,7 @@ export type TileHeadingProps = {
   align?: 'center' | 'start';
   /**
    * Masked word reveal on scroll (string titles only). Default: on for h2, off for h1 (the hero has its own load
-   * entrance). Static phase: only marks the heading with `data-reveal`; the split-text engine arrives in R3.
+   * entrance). The SplitText engine loads when the heading nears the viewport; reduced motion keeps it plain.
    */
   reveal?: boolean;
   className?: string;
@@ -40,6 +41,8 @@ export function TileHeading({
 }: TileHeadingProps) {
   const reveal = (revealProp ?? Tag !== 'h1') && typeof title === 'string';
   const s = size ?? (Tag === 'h1' ? 'hero' : 'tile');
+  const ref = useRef<HTMLHeadingElement>(null);
+  useSplitReveal(ref, reveal, title);
   const center = align === 'center';
   return (
     <div
@@ -50,6 +53,7 @@ export function TileHeading({
       )}
     >
       <Tag
+        ref={ref}
         id={id}
         data-reveal={reveal ? '' : undefined}
         className={cn(sizeClass[s], 'text-tile-ink')}

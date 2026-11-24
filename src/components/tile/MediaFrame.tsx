@@ -1,3 +1,7 @@
+import { InsetReveal } from '@/components/motion/InsetReveal';
+import { Morph } from '@/components/motion/Morph';
+import { ParallaxLayer } from '@/components/motion/ParallaxLayer';
+import { SoftLight } from '@/components/motion/SoftLight';
 import { Img } from '@/components/ui/Img';
 import { cn } from '@/lib/utils';
 
@@ -29,24 +33,26 @@ export type MediaFrameProps = {
   position?: string;
   /**
    * Clickable photos only (the frame sits inside a link/button with `group`): the photo zooms 1.02 when the link is
-   * hovered. Default false: a plain photo never reacts to the pointer. Dropped when `parallax` or `settle` is set.
-   * The soft pointer light joins in R3.
+   * hovered and a soft pointer light follows a fine pointer. Default false: a plain photo never reacts to the
+   * pointer. Dropped when `parallax` or `settle` is set (never zoom and parallax on one photo).
    */
   interactive?: boolean;
-  /** Scroll parallax travel in yPercent. Static phase: `data-parallax` hook only (engine in R3). */
+  /** Scroll parallax travel in yPercent (5–8 for large standalone photos; engine lazy-loaded near the viewport). */
   parallax?: number;
-  /** Inset clip reveal once in view (1–2 per page). Static phase: `data-reveal-frame` hook only (R3). */
+  /** Inset clip reveal once in view, only when the frame starts below the fold (1–2 per page). */
   reveal?: boolean;
-  /** Home hero scroll settle (1.06 → 1, square → 18px). Static phase: `data-settle-frame` hook only (R3). */
+  /** Home hero scroll settle (1.06 → 1, square → 18px corners over the first 65svh; CSS scroll timeline). Home only. */
   settle?: boolean;
-  /** View-transition name for a shared-element morph across routes (R3). */
+  /** View-transition name for a shared-element morph across routes (`morphName()`); one frame per name per page. */
   morph?: string;
   className?: string;
 };
 
 /**
- * Rounded (18px) photograph on the tile's frame grey. The frame owns the box (aspect class), so nothing shifts while
- * the photo loads. Motion props are typed now and wired by the motion layer (R3); here they only set data hooks.
+ * Rounded (18px) photograph on the tile's frame grey (mutugading `media-frame.tsx`). The frame owns the box (aspect
+ * class), so nothing shifts while the photo loads. Motion: `interactive` (inside a link) = 1.02 zoom on the link's
+ * `.group` hover + soft light; `parallax`, `reveal`, `settle`, `morph` as documented on the props. Reduced motion: a
+ * still photo. A priority (LCP) photo never starts hidden: its entrance (`animate-rise-still`) only translates.
  */
 export function MediaFrame({
   src,
@@ -66,7 +72,34 @@ export function MediaFrame({
   // Never both on one photo: a scroll-moving layer plus a hover scale reads as wobble.
   const hover = interactive && !parallax && !settle && !!src;
   const inset = !!reveal && !parallax && !settle && !!src;
-  return (
+  const img = src ? (
+    <Img
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      priority={priority}
+      className={cn(
+        'absolute inset-0 h-full w-full object-cover',
+        hover &&
+          'transition-transform duration-[800ms] ease-apple group-hover:scale-[1.02] motion-reduce:transition-none',
+      )}
+      style={position ? { objectPosition: position } : undefined}
+    />
+  ) : null;
+  const light = hover ? <SoftLight tone="photo" /> : null;
+  let layer = img && parallax ? <ParallaxLayer amount={parallax}>{img}</ParallaxLayer> : img;
+  if (img && settle) {
+    // Clip layer (animated corner radius) > zoom layer (animated scale) > image.
+    layer = (
+      <div data-settle="" className="absolute inset-0 overflow-hidden">
+        <div data-settle-zoom="" className="absolute inset-0">
+          {layer}
+        </div>
+      </div>
+    );
+  }
+  const frame = (
     <div
       className={cn(
         'relative w-full overflow-hidden rounded-lg bg-tile-frame',
@@ -76,26 +109,14 @@ export function MediaFrame({
       role={src ? undefined : alt ? 'img' : undefined}
       aria-label={src ? undefined : alt || undefined}
       data-media-interactive={hover ? '' : undefined}
-      data-parallax={src && parallax ? parallax : undefined}
       data-inset={inset ? '' : undefined}
       data-settle-frame={settle && src ? '' : undefined}
-      style={morph ? { viewTransitionName: morph } : undefined}
     >
-      {src ? (
-        <Img
-          src={src}
-          alt={alt}
-          width={width}
-          height={height}
-          priority={priority}
-          className={cn(
-            'absolute inset-0 h-full w-full object-cover',
-            hover &&
-              'transition-transform duration-[800ms] ease-apple group-hover:scale-[1.02] motion-reduce:transition-none',
-          )}
-          style={position ? { objectPosition: position } : undefined}
-        />
-      ) : null}
+      {layer}
+      {light}
+      {inset ? <InsetReveal /> : null}
     </div>
   );
+  // The view-transition name sits on the frame only: the photo morphs, never text.
+  return morph ? <Morph name={morph}>{frame}</Morph> : frame;
 }

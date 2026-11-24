@@ -1,8 +1,10 @@
-import { lazy, useEffect, useState, type ComponentType } from 'react';
+import { lazy, Suspense, useEffect, useState, type ComponentType } from 'react';
 import { BrowserRouter, useLocation, useRoutes, type RouteObject } from 'react-router';
 import { AdminRoute } from '@/app/AdminRoute';
 import { RouteErrorBoundary } from '@/app/error/RouteError';
 import PublicLayout from '@/app/layouts/PublicLayout';
+import MotionOutlet from '@/components/motion/MotionOutlet';
+import { SmoothScrollProvider } from '@/components/motion/SmoothScrollProvider';
 import { setRoutePrefetcher } from '@/app/prefetch';
 import { endPrerenderedView } from '@/lib/hooks';
 import { LocaleContext, loadLocale } from '@/i18n';
@@ -84,10 +86,39 @@ function publicChildren(locale: Locale): RouteObject[] {
   return children;
 }
 
-/** One route object per locale: `/...` for `en`, `/id/...` for `id`. */
+// Dev-only motion preview (R3): not prerendered, not in the sitemap, tree-shaken out of production builds.
+const MotionPreview =
+  import.meta.env.DEV || import.meta.env.VITE_MOTION_PREVIEW === '1'
+    ? lazy(() => import('@/components/motion/MotionPreview'))
+    : null;
+
+/**
+ * One route object per locale: `/...` for `en`, `/id/...` for `id`. Pages sit inside MotionOutlet (the route
+ * cross-fade: BrowserRouter runs navigations in startTransition, which React turns into view transitions).
+ */
 const ROUTES: RouteObject[] = [
-  { path: '/', element: <PublicLayout />, children: publicChildren('en') },
-  { path: '/id', element: <PublicLayout />, children: publicChildren('id') },
+  {
+    path: '/',
+    element: <PublicLayout />,
+    children: [{ element: <MotionOutlet />, children: publicChildren('en') }],
+  },
+  {
+    path: '/id',
+    element: <PublicLayout />,
+    children: [{ element: <MotionOutlet />, children: publicChildren('id') }],
+  },
+  ...(MotionPreview
+    ? [
+        {
+          path: '/__motion/*',
+          element: (
+            <Suspense fallback={null}>
+              <MotionPreview />
+            </Suspense>
+          ),
+        },
+      ]
+    : []),
 ];
 
 /** The route tree; rendered inside `BrowserRouter` (client) or `StaticRouter` (prerender). */
@@ -106,7 +137,9 @@ export function GuardedRoutes() {
   const routes = useRoutes(ROUTES);
   return (
     <LocaleContext.Provider value={locale}>
-      <RouteErrorBoundary resetKey={pathname}>{routes}</RouteErrorBoundary>
+      <RouteErrorBoundary resetKey={pathname}>
+        <SmoothScrollProvider>{routes}</SmoothScrollProvider>
+      </RouteErrorBoundary>
     </LocaleContext.Provider>
   );
 }

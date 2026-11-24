@@ -669,6 +669,186 @@
   list-style: none;
 }
 
+/*
+ * Motion layer (R3, ported from mutugading globals.css "P12.M+ extra motion" + morph.css). CSS first: scroll-driven
+ * where the browser has `animation-timeline`, a static, fully visible fallback where it does not, and nothing under
+ * reduced motion. Only transform / opacity / clip-path / scale animate (CLS 0).
+ */
+
+/* Lenis (lenis/dist/lenis.css, the rules this site needs). */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis:not(.lenis-autoToggle).lenis-stopped {
+  overflow: clip;
+}
+.lenis [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+.lenis.lenis-autoToggle {
+  transition-property: overflow;
+  transition-duration: 1ms;
+  transition-behavior: allow-discrete;
+}
+/* Lenis owns the easing; native smooth scrolling on top of it would fight it. */
+html.lenis-on {
+  scroll-behavior: auto;
+}
+
+/* TileHeading split-text reveal: each masked line clips its rising words. */
+.str-line {
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+/* Marquee: one clipped line while the loop runs; a wrapped, centred line otherwise (no JS, reduced motion). */
+[data-marquee]:not([data-animated='true']) [data-track] {
+  width: 100%;
+}
+[data-marquee]:not([data-animated='true']) [data-track] > ul {
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  row-gap: 0.75rem;
+}
+[data-marquee]:not([data-animated='true']) [data-marquee-copy] {
+  display: none;
+}
+
+/* Route cross-fade (RouteFade) + shared-element morph (Morph / MediaFrame `morph`). The old page leaves fast, the
+   new one arrives a beat later; the nav (root snapshot) does not move. */
+::view-transition {
+  pointer-events: none;
+}
+::view-transition-old(.vt-page-out) {
+  animation: vt-fade 160ms var(--ease-out-apple) both reverse;
+}
+::view-transition-new(.vt-page-in) {
+  animation: vt-fade 260ms var(--ease-out-apple) 90ms both;
+}
+::view-transition-group(.vt-morph) {
+  animation-duration: 320ms;
+  animation-timing-function: var(--ease-out-apple);
+}
+::view-transition-image-pair(.vt-morph) {
+  animation: none;
+  overflow: hidden;
+  border-radius: 18px;
+}
+::view-transition-old(.vt-morph),
+::view-transition-new(.vt-morph) {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation-duration: 320ms;
+  animation-timing-function: var(--ease-out-apple);
+}
+@keyframes vt-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    /* Scroll text fill (ScrollFill): words go from 64% ink to full ink as the statement crosses the lower two thirds
+       of the screen. Opacity only; 64% ink keeps >= 4.5:1. */
+    [data-scroll-fill] {
+      view-timeline: --vt-fill block;
+    }
+    [data-scroll-fill] > [data-w] {
+      animation: mo-fill linear both;
+      animation-timeline: --vt-fill;
+      animation-range: cover calc(18% + 32% * var(--p)) cover calc(26% + 32% * var(--p));
+    }
+
+    /* Hero photo settle (MediaFrame `settle`, home only): the photo starts 6% larger with square corners and settles
+       into its 18px frame over the first 65svh of scroll. The frame hands its corners to the inner clip layer. */
+    [data-settle-frame] {
+      border-radius: 0;
+      background: transparent;
+    }
+    [data-settle] {
+      animation: mo-settle-clip linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 65svh;
+    }
+    [data-settle] > [data-settle-zoom] {
+      transform-origin: 50% 0;
+      animation: mo-settle-zoom linear both;
+      animation-timeline: scroll(root block);
+      animation-range: 0 65svh;
+    }
+
+    /* Row stagger (SpecRow, FeatureColumns, LinkedGroupRow): items rise 24px into place as the row enters, each one
+       40px of scroll after its left neighbour. Translate only, never a fade (a scrubbed fade can rest half-transparent
+       at the screen edge). */
+    .stagger-row > * {
+      --i: 0;
+      animation: mo-row-in linear both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--i) * 40px) entry calc(180px + var(--i) * 40px);
+    }
+    /* The step restarts on every visual row: even items on 2-up grids, the column index (--col) from 1024px. */
+    .stagger-row > :nth-child(even) {
+      --i: 1;
+    }
+    @media (min-width: 1024px) {
+      .stagger-row > :nth-child(n) {
+        --i: var(--col, 0);
+      }
+    }
+  }
+
+  /* Inset reveal (MediaFrame `reveal`): armed by InsetReveal only when the frame starts off screen, opened once. */
+  [data-inset] {
+    transition: clip-path 1.1s var(--ease-out-apple);
+  }
+  [data-inset='armed'] {
+    clip-path: inset(5% 4% round 18px);
+  }
+  [data-inset='open'] {
+    clip-path: inset(0 round 18px);
+  }
+}
+
+@keyframes mo-fill {
+  from {
+    opacity: 0.64;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes mo-settle-clip {
+  from {
+    clip-path: inset(0 round 0);
+  }
+  to {
+    clip-path: inset(0 round 18px);
+  }
+}
+@keyframes mo-settle-zoom {
+  from {
+    scale: 1.06;
+  }
+  to {
+    scale: 1;
+  }
+}
+@keyframes mo-row-in {
+  from {
+    translate: 0 24px;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+
 /* Theme switch (T-32): the View Transition owns the cross-fade; stop the default one. */
 ::view-transition-old(root),
 ::view-transition-new(root) {

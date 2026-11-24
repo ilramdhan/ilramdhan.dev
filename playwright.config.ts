@@ -88,6 +88,8 @@ export default defineConfig<{ theme?: Theme }>({
       // Must match MOCK_SUPABASE_URL in e2e/fixtures/supabase-mock.ts.
       VITE_SUPABASE_URL: 'https://mock.supabase.co',
       VITE_SUPABASE_ANON_KEY: 'e2e-dummy-anon-key',
+      // Registers the dev-only /__motion preview in the e2e build (e2e/motion.spec.ts).
+      VITE_MOTION_PREVIEW: '1',
     },
   },
 });

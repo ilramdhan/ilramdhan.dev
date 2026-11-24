@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { SoftLight } from '@/components/motion/SoftLight';
 import { cn } from '@/lib/utils';
 
 export type TileTone = 'white' | 'parchment' | 'dark';
@@ -82,11 +83,15 @@ export type TileProps = {
   tone?: TileTone;
   align?: TileAlign;
   size?: TileSize;
-  /** Marks the tile whose content enters on load (hero only; the motion layer reads `data-enter`). */
+  /**
+   * Marks the hero whose content enters once on load (`data-enter`). The page puts `animate-rise` on the copy
+   * (`[animation-delay:120ms]` after the heading) and `animate-rise-still` on the LCP photo and h1: translate only, so
+   * the LCP element never starts at opacity 0. Reduced motion = still.
+   */
   enter?: boolean;
   /**
-   * Soft pointer light behind the content. Static phase: only sets `data-glow` + the stacking context; the light
-   * itself is mounted by the motion layer (R3). Fine pointer + motion allowed only.
+   * Soft tile light: a very quiet tile-aware radial light following a fine pointer behind the content. Off for touch
+   * and reduced motion.
    */
   glow?: boolean;
   /** Render as a rounded inset panel instead of a full-bleed tile (see InsetPanel). */
@@ -128,6 +133,7 @@ export function Tile({
             className,
           )}
         >
+          {glow ? <SoftLight tone="tile" className="-z-10" /> : null}
           <div className={cn('wrap', alignClass[align], innerClassName)}>{children}</div>
         </section>
       </InsetPanel>
@@ -148,6 +154,7 @@ export function Tile({
         className,
       )}
     >
+      {glow ? <SoftLight tone="tile" className="-z-10" /> : null}
       <div className={cn('wrap', alignClass[align], size === 'hero' && 'flex-1', innerClassName)}>
         {children}
       </div>

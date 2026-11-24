@@ -265,4 +265,11 @@ export const id: Messages = {
     body: 'Terjadi kesalahan yang tidak terduga.',
     goHome: 'Ke beranda',
   },
+  motion: {
+    previewTools: 'Alat',
+    previewFilter: 'Saring',
+    previewOpen: 'Buka',
+    pauseList: 'Jeda daftar yang bergerak',
+    playList: 'Putar daftar yang bergerak',
+  },
 };

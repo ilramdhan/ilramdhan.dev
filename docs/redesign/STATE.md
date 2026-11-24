@@ -29,7 +29,7 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 | R1b | ✅     | #164 | TW 4.3 (@tailwindcss/vite), MG tokens/type/dark/Auto, Inter self-hosted, CSS budget 19.5; CI green             |
 | R2  | ✅     | #165 | tile partials (static, R3 hooks as data-*), Field/Dialog/Pagination restyled; CSS budget 20.5; CI green        |
 | I1  | ✅     | #166 | typed en/id dicts, /id routes + prerender + hreflang + sitemap, banner; id dict lazy; CI green                 |
-| R3  | ⬜     |      |                                                                                                                |
+| R3  | ✅     | #167 | GSAP 3.15 + Lenis lazy (48.4 KiB), ViewTransition route fade, /__motion dev-only; CI green                     |
 | R4  | ⬜     |      |                                                                                                                |
 | R5  | ⬜     |      |                                                                                                                |
 | I2  | ⬜     |      |                                                                                                                |
@@ -69,3 +69,4 @@ Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified 
 - 2026-11-23 R1b on redesign/R1b-foundation: Tailwind 4 + mutugading tokens verbatim, `white` = page surface (literal whites → `on-dark`), Light/Dark/Auto via data-theme + no-flash script (CSP hash updated), tailwind-merge 3, .site-glow removed; screens/R1b; awaiting orchestrator verify.
 - 2026-11-23 R1b ✅ merged #164 (verified by orchestrator: gates green, screens/R1b checked, CI green incl. full e2e). Deferred to R2–R4: MG CSS for Disclosure/footer/scroll-fill/settle/stagger/inset/view transitions/brand collapse. Next: R2 + I1 in parallel.
 - 2026-11-24 R2 ✅ merged #165 (verified by orchestrator: gates green, screens/R2 checked, CI green; CSS budget 19.5 → 20.5 KiB). I1 ✅ #166 (verified: gates, e2e i18n/prerender/seo/data-layer; CI e2e failed once on a stale-seed double profile fetch, fixed in prerendered-data.ts, see Gotchas). Follow-up: Pagination aria-labels to messages. Next: R3.
+- 2026-11-24 R3 ✅ merged #167 (verified by orchestrator: gates green, screens/R3 checked vs reference home, full e2e 789 local, CI green). Budgets JS 1630 / CSS 21.5 / projects 161. Fixed: SSR ViewTransition CSP inline scripts, Lenis keyboard focus. Next: R4.
