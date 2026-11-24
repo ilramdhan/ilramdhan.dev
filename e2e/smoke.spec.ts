@@ -81,7 +81,7 @@ for (const path of ['/this-page-does-not-exist', '/blog/unknown-slug', '/project
   test(`unknown URL ${path} shows the 404 page with navbar and footer`, async ({ page }) => {
     await page.goto(path);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(/page not found/i);
-    await expect(page.getByRole('navigation')).toBeVisible();
+    await expect(page.locator('header[data-site-nav]')).toBeVisible();
     await expect(page.getByTestId('app-version')).toBeVisible();
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
   });

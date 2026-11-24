@@ -146,7 +146,12 @@ test.describe('layout frame (#122)', () => {
       expect(b, name).not.toBeNull();
       return { name, left: b!.x, right: b!.x + b!.width };
     };
-    const header = await box('header', page.locator('main > article > header'));
+    const header = await box(
+      'header',
+      page
+        .locator('main article > header')
+        .filter({ has: page.getByRole('heading', { level: 1 }) }),
+    );
     const cover = await box(
       'cover',
       page.locator('figure').filter({ has: page.getByRole('img', { name: /^Cover image/ }) }),
@@ -177,7 +182,10 @@ test.describe('layout frame (#122)', () => {
     await page.waitForLoadState('networkidle');
     const aside = page.getByRole('complementary');
     await expect(aside.getByRole('navigation', { name: 'On this page' })).toBeVisible();
-    const article = (await page.locator('main > article').boundingBox())!;
+    const article = (await page
+      .locator('main article')
+      .filter({ has: page.getByRole('heading', { level: 1 }) })
+      .boundingBox())!;
     const viewport = page.viewportSize()!;
     // Long enough for the sticky aside to actually move.
     expect(article.height).toBeGreaterThan(viewport.height * 2.5);

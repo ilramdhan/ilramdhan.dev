@@ -87,24 +87,22 @@ test.describe('hero', () => {
 
 // T-32 (#47): micro-interactions.
 test.describe('micro-interactions', () => {
-  test('navbar compacts after scrolling 16px', async ({ page }) => {
+  // R4: the compacting bar became the brand-name collapse (past 48px), the sliding pill became aria-current text.
+  test('nav brand name collapses after scrolling past 48px', async ({ page }) => {
     await page.goto('/');
-    const nav = page.locator('nav').first();
-    await expect(nav).toHaveAttribute('data-scrolled', 'false');
+    const nav = page.locator('header[data-site-nav]');
+    await expect(nav).not.toHaveAttribute('data-brand-collapsed');
     await page.evaluate(() => window.scrollTo({ top: 200, behavior: 'instant' }));
-    await expect(nav).toHaveAttribute('data-scrolled', 'true');
+    await expect(nav).toHaveAttribute('data-brand-collapsed', '');
   });
 
-  test('active nav pill follows the current route', async ({ page }) => {
+  test('the current section is marked in the nav', async ({ page }) => {
     await page.goto('/about');
-    await expect(page.locator('nav a[href="/about"]').first()).toHaveAttribute(
-      'aria-current',
-      'page',
-    );
-    // The sliding pill only exists in the desktop (lg+) navbar.
-    if ((page.viewportSize()?.width ?? 0) >= 1024) {
-      await expect(page.getByTestId('nav-pill')).toBeAttached();
-    }
+    const menu = page.getByRole('button', { name: 'Open menu' });
+    if (await menu.isVisible()) await menu.click();
+    await expect(
+      page.getByRole('link', { name: 'About', exact: true }).locator('visible=true').first(),
+    ).toHaveAttribute('aria-current', 'page');
   });
 
   test('carousel: keyboard and dot buttons change the slide', async ({ page }) => {
@@ -137,15 +135,25 @@ test.describe('micro-interactions', () => {
         expect(Math.round(scale * 100)).toBe(now);
       }
     });
-    test('theme toggle switches instantly without a view transition', async ({ page }) => {
+    test('theme switch is instant: no cross-fade transition under reduced motion', async ({
+      page,
+    }) => {
       await page.goto('/');
       const html = page.locator('html');
       await expect(html).toHaveClass(/dark/);
-      await page
-        .getByRole('button', { name: /Switch to light theme/ })
-        .first()
-        .click();
+      const menu = page.locator('[data-theme-toggle]');
+      if (await menu.isVisible()) {
+        await menu.click();
+        await page.getByRole('menuitemradio', { name: 'Light' }).click();
+      } else {
+        await page.getByRole('button', { name: 'Open menu' }).click();
+        await page.getByRole('radio', { name: 'Light' }).click();
+      }
       await expect(html).not.toHaveClass(/dark/);
+      // global.css: the theme-switching cross-fade only applies with motion allowed.
+      expect(
+        await page.evaluate(() => getComputedStyle(document.body).transitionDuration),
+      ).not.toBe('0.35s');
     });
   });
 });
@@ -270,7 +278,7 @@ test.describe('motion layer', () => {
 
   test('with Lenis on, Tab scrolls the focused control into view', async ({ page }) => {
     await page.goto('/__motion');
-    await expect(page.locator('html')).toHaveClass(/lenis-on/, { timeout: 8000 });
+    await expect(page.locator('html')).toHaveClass(/has-lenis/, { timeout: 8000 });
     // Tab through from the top (no programmatic scroll), as a keyboard visitor would.
     await page.locator('body').focus();
     for (let i = 0; i < 9; i++) {
