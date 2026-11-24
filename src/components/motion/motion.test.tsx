@@ -24,7 +24,8 @@ describe('motion layer static markup', () => {
     expect(html).not.toContain('data-inset="armed"');
     // Never zoom and parallax on one photo; the clickable frame gets the light.
     expect(html.match(/data-media-interactive/g)).toHaveLength(1);
-    expect(html.match(/data-soft-light="photo"/g)).toHaveLength(1);
+    // SoftLight is lazy (client-only pointer decoration), so it is not in the static markup.
+    expect(html).not.toContain('data-soft-light');
     // Marquee copies are hidden from AT; the loop is not running yet.
     expect(html).toMatch(/<ul aria-hidden="true" inert="" data-marquee-copy=""/);
     expect(html).not.toContain('data-animated="true"');

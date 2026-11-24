@@ -1,12 +1,8 @@
 import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 import type { Locale } from '@/i18n/locale';
-import {
-  getAdminCertificates,
-  getCertificateIssuers,
-  getCertificates,
-  getCertificatesPaginated,
-  type CertificateListParams,
-} from './api';
+import type { CertificateListParams } from './api';
+// ponytail: loaded on first fetch to keep api/localize code out of every route's initial JS.
+const api = () => import('./api');
 
 export const certificateKeys = {
   all: ['certificates'] as const,
@@ -32,15 +28,22 @@ export const certificateQueries = {
   all: (locale: Locale = 'en') =>
     queryOptions({
       queryKey: certificateKeys.full(locale),
-      queryFn: () => getCertificates(locale),
+      queryFn: async () => (await api()).getCertificates(locale),
     }),
-  admin: () => queryOptions({ queryKey: certificateKeys.admin(), queryFn: getAdminCertificates }),
+  admin: () =>
+    queryOptions({
+      queryKey: certificateKeys.admin(),
+      queryFn: async () => (await api()).getAdminCertificates(),
+    }),
   list: (params: CertificateListParams, locale: Locale = 'en') =>
     queryOptions({
       queryKey: certificateKeys.list(params, locale),
-      queryFn: () => getCertificatesPaginated(params, locale),
+      queryFn: async () => (await api()).getCertificatesPaginated(params, locale),
       placeholderData: keepPreviousData,
     }),
   issuers: () =>
-    queryOptions({ queryKey: certificateKeys.issuers(), queryFn: getCertificateIssuers }),
+    queryOptions({
+      queryKey: certificateKeys.issuers(),
+      queryFn: async () => (await api()).getCertificateIssuers(),
+    }),
 };

@@ -1,4 +1,5 @@
 import { morphName } from '@/components/motion/Morph';
+import { cn } from '@/lib/utils';
 import { LinkedGroup, type LinkedItem } from '@/components/tile/LinkedGroup';
 import { useLocalePath, useT } from '@/i18n';
 import type { Tables } from '@/types';
@@ -43,7 +44,7 @@ export function ProjectCard({
       item={item}
       moreLabel={t.projects.viewProject}
       aspect="landscape"
-      className={className}
+      className={cn('sm:items-start sm:text-left', className)}
     />
   );
 }
@@ -51,7 +52,7 @@ export function ProjectCard({
 /** The card's final boxes (4:3 frame, title, two lines, chevron row), so the grid doesn't shift (T-26). */
 export function ProjectCardSkeleton() {
   return (
-    <div aria-hidden="true" className="flex flex-col items-start sm:items-center">
+    <div aria-hidden="true" className="flex flex-col items-start">
       <div className="aspect-[4/3] w-full rounded-lg bg-tile-frame motion-safe:animate-pulse" />
       <div className="mt-4 h-[1.2em] w-2/3 rounded-sm bg-tile-frame text-title sm:mt-6" />
       <div className="mt-2 h-[2.8em] w-full rounded-sm bg-tile-frame text-[0.9375rem]" />

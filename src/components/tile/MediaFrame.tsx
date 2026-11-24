@@ -1,9 +1,14 @@
+import { lazy, Suspense } from 'react';
 import { InsetReveal } from '@/components/motion/InsetReveal';
 import { Morph } from '@/components/motion/Morph';
 import { ParallaxLayer } from '@/components/motion/ParallaxLayer';
-import { SoftLight } from '@/components/motion/SoftLight';
 import { Img } from '@/components/ui/Img';
 import { cn } from '@/lib/utils';
+
+// Lazy: the pointer light only runs on clickable frames with a fine pointer, so it stays out of the entry graph.
+const SoftLight = lazy(() =>
+  import('@/components/motion/SoftLight').then((m) => ({ default: m.SoftLight })),
+);
 
 export type MediaAspect =
   'wide' | 'video' | 'portrait' | 'landscape' | 'cinema' | 'square' | 'fill';
@@ -87,7 +92,11 @@ export function MediaFrame({
       style={position ? { objectPosition: position } : undefined}
     />
   ) : null;
-  const light = hover ? <SoftLight tone="photo" /> : null;
+  const light = hover ? (
+    <Suspense fallback={null}>
+      <SoftLight tone="photo" />
+    </Suspense>
+  ) : null;
   let layer = img && parallax ? <ParallaxLayer amount={parallax}>{img}</ParallaxLayer> : img;
   if (img && settle) {
     // Clip layer (animated corner radius) > zoom layer (animated scale) > image.

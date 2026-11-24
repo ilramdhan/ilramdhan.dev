@@ -1,6 +1,7 @@
 import { queryOptions } from '@tanstack/react-query';
 import type { Locale } from '@/i18n/locale';
-import { getAdminServices, getServices } from './api';
+// ponytail: loaded on first fetch to keep api/localize code out of every route's initial JS.
+const api = () => import('./api');
 
 export const serviceKeys = {
   all: ['services'] as const,
@@ -10,6 +11,13 @@ export const serviceKeys = {
 
 export const serviceQueries = {
   list: (locale: Locale = 'en') =>
-    queryOptions({ queryKey: serviceKeys.list(locale), queryFn: () => getServices(locale) }),
-  admin: () => queryOptions({ queryKey: serviceKeys.admin(), queryFn: getAdminServices }),
+    queryOptions({
+      queryKey: serviceKeys.list(locale),
+      queryFn: async () => (await api()).getServices(locale),
+    }),
+  admin: () =>
+    queryOptions({
+      queryKey: serviceKeys.admin(),
+      queryFn: async () => (await api()).getAdminServices(),
+    }),
 };

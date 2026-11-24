@@ -1,6 +1,7 @@
 import type { ElementType } from 'react';
 import { Gamepad2, Mail, Phone } from 'lucide-react';
 import { Github, Instagram, Linkedin, Twitter, Youtube } from '@/components/ui/brand-icons';
+import { useT } from '@/i18n';
 import { socialEntries, type SocialKey } from '@/lib/social';
 
 /** The single source of truth for supported social platforms. */
@@ -29,13 +30,21 @@ export function SocialLinks({
   linkClassName,
   iconClassName,
 }: SocialLinksProps) {
+  const t = useT();
   return (
     <div className={containerClassName}>
       {socialEntries(links).map(([key, href]) => {
         const Icon = SOCIAL_ICONS[key];
         return (
-          <a key={key} href={href} target="_blank" rel="noreferrer" className={linkClassName}>
-            <Icon className={iconClassName} />
+          <a
+            key={key}
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={t.footer.socialName[key]}
+            className={linkClassName}
+          >
+            <Icon aria-hidden="true" className={iconClassName} />
           </a>
         );
       })}
