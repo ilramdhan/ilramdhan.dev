@@ -356,7 +356,7 @@ function FilePreview<V extends FormValues>({
   if (field.preview === 'image')
     return <img src={url} alt="" className="h-8 w-auto object-contain mt-2" />;
   return (
-    <a href={url} target="_blank" rel="noreferrer" className="text-xs text-indigo-500 mt-1 block">
+    <a href={url} target="_blank" rel="noreferrer" className="text-xs text-action mt-1 block">
       {field.linkLabel ?? 'Current File'}
     </a>
   );

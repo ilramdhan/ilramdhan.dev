@@ -41,7 +41,7 @@ export default function LoginPage() {
         <button
           onClick={() => void handleLogin()}
           disabled={isLoading}
-          className="w-full py-3 bg-slate-800 hover:bg-slate-950 text-on-dark dark:bg-on-dark dark:text-slate-900 dark:hover:bg-slate-200 rounded-lg font-semibold flex justify-center items-center gap-2 transition-colors"
+          className="w-full py-3 bg-tile-pill hover:bg-tile-pill-hover text-tile-pill-ink rounded-full font-semibold flex justify-center items-center gap-2 transition-colors"
         >
           {isLoading ? (
             <Loader2 className="motion-safe:animate-spin h-5 w-5" />
