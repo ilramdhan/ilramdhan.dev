@@ -1,23 +1,21 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { X } from 'lucide-react';
-import { Pagination } from '@/components/ui/Pagination';
 import { FlipGroup } from '@/components/motion/FlipGroup';
+import { Pagination } from '@/components/ui/Pagination';
 import { SegmentedControl } from '@/components/tile/SegmentedControl';
-import { Tile } from '@/components/tile/Tile';
-import { TileHeading } from '@/components/tile/TileHeading';
-import { colVar } from '@/components/tile/stagger';
-import {
-  BlogCard,
-  BlogCardSkeleton,
-  BlogFeature,
-  BlogFeatureSkeleton,
-} from '@/features/blog/BlogCard';
+import { BlogCardSkeleton, BlogFeatureSkeleton } from '@/features/blog/BlogSkeleton';
 import { blogQueries } from '@/features/blog/queries';
 import { useListParams } from '@/lib/useListParams';
 import { Seo } from '@/components/seo/Seo';
 import { useLocale, useT } from '@/i18n';
+
+const load = () => import('@/features/blog/BlogList');
+// Requested at page load (parallel with hydration), not on first render: still outside the initial JS graph. On the
+// prerendered page the server waits for it and hydration keeps the markup, as with Markdown.
+const BlogRows = lazy(load);
+const BlogFeatureSlot = lazy(() => load().then((m) => ({ default: m.BlogFeatureSlot })));
 
 const ITEMS_PER_PAGE = 9;
 
@@ -109,139 +107,157 @@ export default function BlogPage() {
   return (
     <>
       <Seo title={t.seo.blog} description={t.seo.blogDescription} />
-      <Tile labelledBy="blog-h" enter className="pb-0 sm:pb-0">
-        <TileHeading
-          id="blog-h"
-          as="h1"
-          title={t.blog.heading}
-          lead={t.blog.lead}
-          className="animate-rise"
-        />
-      </Tile>
-
-      <Tile labelledBy="blog-h" className="pt-[clamp(2.5rem,5vw,4rem)]">
-        {showFeature && (isLoadingBlogs || feature) ? (
-          <div className="mb-stack-lg w-full">
-            {feature ? <BlogFeature post={feature} /> : <BlogFeatureSkeleton />}
+      {/* ponytail: the Tile/TileHeading markup written out (same classes). Importing the partials would pull SoftLight,
+          the split-text hooks and the motion registry into /blog's first paint (+3 KiB gzip over the route budget).
+          Swap back to <Tile>/<TileHeading> when the partials stop importing motion eagerly. */}
+      <section
+        aria-labelledby="blog-h"
+        data-tone="white"
+        data-enter=""
+        className="w-full scroll-mt-(--nav-h) bg-white pb-0 pt-section text-ink sm:pb-0"
+      >
+        <div className="wrap flex flex-col items-center text-center">
+          <div className="animate-rise flex flex-col items-center text-center">
+            <h1 id="blog-h" className="text-hero max-w-[14ch] text-tile-ink">
+              {t.blog.heading}
+            </h1>
+            <p className="mt-5 max-w-[34ch] text-lead text-tile-ink">{t.blog.lead}</p>
           </div>
-        ) : null}
-        <div
-          ref={listTop}
-          className="mb-10 flex w-full scroll-mt-(--nav-h) flex-col items-center gap-6"
-        >
-          {tagOptions.length > 1 ? (
-            <div className="max-w-full overflow-x-auto">
-              <SegmentedControl
-                options={tagOptions}
-                value={selectedTag ?? ''}
-                onChange={(v) => setFilter(v || null)}
-                label={t.blog.tagFilter}
-              />
-            </div>
-          ) : null}
-          <div className="flex w-full max-w-xl flex-col gap-3 sm:flex-row">
-            <div className="relative flex-1">
-              <label htmlFor="blog-search" className="sr-only">
-                {t.blog.searchLabel}
-              </label>
-              <input
-                id="blog-search"
-                type="text"
-                placeholder={t.blog.searchPlaceholder}
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                className={`${field} w-full pr-12`}
-              />
-              {searchInput && (
-                <button
-                  type="button"
-                  aria-label={t.list.clearSearch}
-                  onClick={() => setSearchInput('')}
-                  className="absolute right-1 top-0 grid size-11 place-items-center rounded-full text-ink-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-action"
+        </div>
+      </section>
+
+      <section
+        aria-labelledby="blog-h"
+        data-tone="white"
+        className="w-full scroll-mt-(--nav-h) bg-white pb-section pt-[clamp(2.5rem,5vw,4rem)] text-ink"
+      >
+        <div className="wrap flex flex-col items-center text-center">
+          <div
+            ref={listTop}
+            className="mb-10 flex w-full scroll-mt-(--nav-h) flex-col items-center gap-6"
+          >
+            {tagOptions.length > 1 ? (
+              <div className="max-w-full overflow-x-auto">
+                <SegmentedControl
+                  options={tagOptions}
+                  value={selectedTag ?? ''}
+                  onChange={(v) => setFilter(v || null)}
+                  label={t.blog.tagFilter}
+                />
+              </div>
+            ) : null}
+            <div className="flex w-full max-w-xl flex-col gap-3 sm:flex-row">
+              <div className="relative flex-1">
+                <label htmlFor="blog-search" className="sr-only">
+                  {t.blog.searchLabel}
+                </label>
+                <input
+                  id="blog-search"
+                  type="text"
+                  placeholder={t.blog.searchPlaceholder}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
+                  className={`${field} w-full pr-12`}
+                />
+                {searchInput && (
+                  <button
+                    type="button"
+                    aria-label={t.list.clearSearch}
+                    onClick={() => setSearchInput('')}
+                    className="absolute right-1 top-0 grid size-11 place-items-center rounded-full text-ink-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-action"
+                  >
+                    <X className="size-4" aria-hidden="true" />
+                  </button>
+                )}
+              </div>
+              <div>
+                <label htmlFor="blog-sort" className="sr-only">
+                  {t.blog.sortLabel}
+                </label>
+                <select
+                  id="blog-sort"
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value === 'oldest' ? 'oldest' : 'newest')}
+                  className={`${field} w-full sm:w-auto`}
                 >
-                  <X className="size-4" aria-hidden="true" />
+                  <option value="newest">{t.list.sortNewest}</option>
+                  <option value="oldest">{t.list.sortOldest}</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-x-3 text-caption text-tile-muted">
+              <p aria-live="polite">
+                {!isLoadingBlogs && (
+                  <>
+                    {t.blog.count(totalBlogs)}
+                    {searchQuery && t.list.forQuery(searchQuery)}
+                    {selectedTag && t.list.tagged(`#${selectedTag}`)}
+                  </>
+                )}
+              </p>
+              {filtersActive && (
+                <button type="button" onClick={clearFilters} className={textLink}>
+                  {t.list.clearFilters}
                 </button>
               )}
             </div>
-            <div>
-              <label htmlFor="blog-sort" className="sr-only">
-                {t.blog.sortLabel}
-              </label>
-              <select
-                id="blog-sort"
-                value={sort}
-                onChange={(e) => setSort(e.target.value === 'oldest' ? 'oldest' : 'newest')}
-                className={`${field} w-full sm:w-auto`}
-              >
-                <option value="newest">{t.list.sortNewest}</option>
-                <option value="oldest">{t.list.sortOldest}</option>
-              </select>
-            </div>
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-x-3 text-caption text-tile-muted">
-            <p aria-live="polite">
-              {!isLoadingBlogs && (
-                <>
-                  {t.blog.count(totalBlogs)}
-                  {searchQuery && t.list.forQuery(searchQuery)}
-                  {selectedTag && t.list.tagged(`#${selectedTag}`)}
-                </>
+
+          {isLoadingBlogs && (
+            <>
+              <span role="status" className="sr-only">
+                {t.blog.loading}
+              </span>
+              {showFeature && (
+                <div className="mb-stack-lg w-full">
+                  <BlogFeatureSkeleton />
+                </div>
               )}
-            </p>
-            {filtersActive && (
-              <button type="button" onClick={clearFilters} className={textLink}>
-                {t.list.clearFilters}
-              </button>
-            )}
+              <div className="grid w-full gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+                {Array.from({ length: showFeature ? ITEMS_PER_PAGE - 1 : ITEMS_PER_PAGE }).map(
+                  (_, i) => (
+                    <BlogCardSkeleton key={i} />
+                  ),
+                )}
+              </div>
+            </>
+          )}
+          {isErrorBlogs && !blogData && <p className="py-10 text-danger">{t.blog.error}</p>}
+          {showFeature && feature && (
+            <Suspense fallback={<BlogFeatureSkeleton />}>
+              <BlogFeatureSlot post={feature} />
+            </Suspense>
+          )}
+          {rows.length > 0 && (
+            <FlipGroup
+              flipKey={`${selectedTag}|${searchQuery}|${sort}|${currentPage}`}
+              className="stagger-row grid w-full gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3"
+            >
+              <Suspense fallback={null}>
+                <BlogRows rows={rows} />
+              </Suspense>
+            </FlipGroup>
+          )}
+          {currentBlogs.length === 0 && !isLoadingBlogs && !isErrorBlogs && (
+            <div className="space-y-2 py-10 text-center text-tile-muted">
+              <p>{filtersActive ? t.blog.noMatch : t.blog.none}</p>
+              {filtersActive && (
+                <button type="button" onClick={clearFilters} className={textLink}>
+                  {t.list.clearFilters}
+                </button>
+              )}
+            </div>
+          )}
+
+          <div className="mt-14 w-full">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
           </div>
         </div>
-
-        {isLoadingBlogs && (
-          <>
-            <span role="status" className="sr-only">
-              {t.blog.loading}
-            </span>
-            <div className="grid w-full gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
-              {Array.from({ length: showFeature ? ITEMS_PER_PAGE - 1 : ITEMS_PER_PAGE }).map(
-                (_, i) => (
-                  <BlogCardSkeleton key={i} />
-                ),
-              )}
-            </div>
-          </>
-        )}
-        {isErrorBlogs && !blogData && <p className="py-10 text-danger">{t.blog.error}</p>}
-        {rows.length > 0 && (
-          <FlipGroup
-            flipKey={`${selectedTag}|${searchQuery}|${sort}|${currentPage}`}
-            className="stagger-row grid w-full gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3"
-          >
-            {rows.map((blog, i) => (
-              <li key={blog.id} data-flip-id={blog.id} style={colVar(i, 3)}>
-                <BlogCard post={blog} />
-              </li>
-            ))}
-          </FlipGroup>
-        )}
-        {currentBlogs.length === 0 && !isLoadingBlogs && !isErrorBlogs && (
-          <div className="space-y-2 py-10 text-center text-tile-muted">
-            <p>{filtersActive ? t.blog.noMatch : t.blog.none}</p>
-            {filtersActive && (
-              <button type="button" onClick={clearFilters} className={textLink}>
-                {t.list.clearFilters}
-              </button>
-            )}
-          </div>
-        )}
-
-        <div className="mt-14 w-full">
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
-        </div>
-      </Tile>
+      </section>
     </>
   );
 }
