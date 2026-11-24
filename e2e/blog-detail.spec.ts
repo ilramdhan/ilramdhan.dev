@@ -98,9 +98,13 @@ test("posts sharing a publish date are still each other's neighbours", async ({
   const two = supabase.db.blogs!.find((b) => b.id === 2)!;
   supabase.db.blogs!.find((b) => b.id === 3)!.published_at = two.published_at;
   await page.goto('/blog/blog-post-2');
-  await page.getByRole('link', { name: /Newer post/ }).click();
+  // The prerendered page was built from the untied data: wait for the live neighbours before clicking.
+  const newer = page.getByRole('link', { name: /Newer post/ });
+  await expect(newer).toHaveAttribute('href', '/blog/blog-post-3');
+  await newer.click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Blog Post 3');
-  await page.getByRole('link', { name: /Newer post/ }).click();
+  await expect(newer).toHaveAttribute('href', '/blog/blog-post-1');
+  await newer.click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Blog Post 1');
 });
 
