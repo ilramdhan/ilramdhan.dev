@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { CountUpValue } from '@/components/motion/CountUpValue';
 import { cn } from '@/lib/utils';
 import { colVar } from './stagger';
 
@@ -21,8 +22,8 @@ const cols: Record<number, string> = {
 
 /**
  * Apple "compare"-style specs row: 2–4 big tabular figures, small muted labels under them. No boxes.
- * `countUp` (default true) uses an item's `node`; numeric values are marked `data-count-up` for the motion layer (R3),
- * which animates them once in view. Until then, and with countUp={false}, every value prints as is.
+ * `countUp` (default true) uses an item's `node`; a plain numeric value counts up once in view (CountUpValue, final value
+ * in the DOM for AT and the prerendered HTML). With countUp={false} every value prints as is.
  */
 export function SpecRow({
   items,
@@ -33,7 +34,7 @@ export function SpecRow({
 }: {
   items: SpecItem[];
   countUp?: boolean;
-  /** Row stagger hook (`.stagger-row`, wired in R3). Pass false in a hero (it sits on the first screen). */
+  /** Row stagger (`.stagger-row`, scroll-driven CSS). Pass false in a hero (it sits on the first screen). */
   stagger?: boolean;
   /** Values are words, not just figures: smaller size and allowed to wrap. */
   wrap?: boolean;
@@ -71,7 +72,10 @@ export function SpecRow({
                 : 'text-[clamp(1.75rem,1rem+2.6vw,3rem)] leading-none whitespace-nowrap',
             )}
           >
-            {countUp ? (s.node ?? s.value) : s.value}
+            {countUp
+              ? (s.node ??
+                (typeof s.value === 'number' ? <CountUpValue value={s.value} /> : s.value))
+              : s.value}
           </dd>
         </div>
       ))}

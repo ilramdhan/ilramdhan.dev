@@ -18,7 +18,7 @@ export type LinkedItem = {
     height: number;
     position?: string;
   } | null;
-  /** View-transition name for the photo (shared-element morph, R3). */
+  /** View-transition name for the photo (shared-element morph; build it with `morphName`). */
   morph?: string;
 };
 
@@ -90,7 +90,7 @@ export function LinkedGroupRow({
 }: {
   items: LinkedItem[];
   moreLabel: string;
-  /** Row stagger hook (`.stagger-row`, wired in R3). Default true. */
+  /** Row stagger hook (`.stagger-row`, scroll-driven CSS). Default true. */
   stagger?: boolean;
   /** Force the ≥1024px column count (2–5); default = item count capped at 5. */
   columns?: 2 | 3 | 4 | 5;

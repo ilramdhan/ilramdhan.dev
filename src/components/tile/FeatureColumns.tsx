@@ -33,7 +33,7 @@ export function FeatureColumns({
 }: {
   items: FeatureColumn[];
   align?: 'start' | 'center';
-  /** Row stagger hook (`.stagger-row`, wired in R3). Default true. */
+  /** Row stagger hook (`.stagger-row`, scroll-driven CSS). Default true. */
   stagger?: boolean;
   className?: string;
 }) {
