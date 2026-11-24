@@ -1,6 +1,5 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { useTheme } from '@/app/ThemeContext';
 import { useLocale, useT } from '@/i18n';
 
 interface WakatimeDailyData {
@@ -16,8 +15,13 @@ interface WakatimeStatsProps {
   data: WakatimeDailyData[];
 }
 
+/** Height of the title row (21px line + 24px gap) plus the chart: the Suspense fallback reserves the same box. */
+export const WAKATIME_STATS_HEIGHT = 349;
+
+// SVG attributes take CSS variables, so the chart follows the tile tokens (light, dark) with no theme switch in JS.
+const TICK = { fill: 'var(--tile-muted)', fontSize: 12 };
+
 const WakatimeStats: React.FC<WakatimeStatsProps> = ({ data }) => {
-  const { theme } = useTheme();
   const t = useT();
   const locale = useLocale();
 
@@ -26,30 +30,27 @@ const WakatimeStats: React.FC<WakatimeStatsProps> = ({ data }) => {
     Coding: day.total / 3600, // Convert seconds to hours
   }));
 
-  const tickColor = theme === 'dark' ? '#94a3b8' : '#64748b';
-  const gridColor = theme === 'dark' ? '#334155' : '#e2e8f0';
-
   return (
-    <div className="bg-on-dark dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-on-dark/5">
-      <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-on-dark">
-        {t.about.activityMonth}
-      </h3>
+    <div className="w-full text-left">
+      <h3 className="mb-6 text-title text-tile-ink">{t.about.activityMonth}</h3>
       <div style={{ width: '100%', height: 300 }}>
         <ResponsiveContainer>
-          <BarChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
-            <XAxis dataKey="date" tick={{ fill: tickColor, fontSize: 12 }} />
-            <YAxis unit="h" tick={{ fill: tickColor, fontSize: 12 }} />
+          <BarChart data={chartData} margin={{ top: 5, right: 8, left: -16, bottom: 5 }}>
+            <CartesianGrid vertical={false} stroke="var(--hairline)" />
+            <XAxis dataKey="date" tick={TICK} axisLine={false} tickLine={false} />
+            <YAxis unit="h" tick={TICK} axisLine={false} tickLine={false} />
             <Tooltip
+              cursor={{ fill: 'var(--tile-frame)', opacity: 0.6 }}
               contentStyle={{
-                backgroundColor: theme === 'dark' ? '#1e293b' : '#ffffff',
-                borderColor: theme === 'dark' ? '#334155' : '#e2e8f0',
-                color: theme === 'dark' ? '#f8fafc' : '#0f172a',
+                backgroundColor: 'var(--surface-white)',
+                border: 'none',
+                borderRadius: 12,
+                color: 'var(--ink)',
               }}
-              labelStyle={{ fontWeight: 'bold' }}
+              labelStyle={{ fontWeight: 600 }}
               formatter={(value) => [t.about.hours(Number(value).toFixed(2)), t.about.time]}
             />
-            <Bar dataKey="Coding" fill="#4f46e5" radius={[4, 4, 0, 0]} />
+            <Bar dataKey="Coding" fill="var(--tile-action)" radius={[4, 4, 0, 0]} />
           </BarChart>
         </ResponsiveContainer>
       </div>

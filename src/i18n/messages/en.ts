@@ -226,6 +226,7 @@ export const en = {
     alt: (title: string, issuer: string | null) =>
       `${title} certificate${issuer ? ` issued by ${issuer}` : ''}`,
     viewCredential: 'View Credential',
+    allIssuers: 'All',
   },
   article: {
     breadcrumb: 'Breadcrumb',

@@ -5,10 +5,10 @@ interface TechBadgeProps {
   iconUrl: string | null;
 }
 
-/** Tech-stack marquee item: icon (or Simple Icons fallback) plus name. */
+/** Tech-stack item: icon (or Simple Icons fallback) plus name, in quiet tile text (no hover effect: it is not a link). */
 export function TechBadge({ name, iconUrl }: TechBadgeProps) {
   return (
-    <div className="flex items-center gap-3 opacity-60 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-300">
+    <div className="flex items-center gap-3 text-tile-muted">
       {iconUrl ? (
         <Img
           src={iconUrl}
@@ -27,7 +27,7 @@ export function TechBadge({ name, iconUrl }: TechBadgeProps) {
           onError={(e) => (e.currentTarget.style.display = 'none')}
         />
       )}
-      <span className="text-lg font-bold text-slate-600 dark:text-slate-300">{name}</span>
+      <span className="text-title">{name}</span>
     </div>
   );
 }

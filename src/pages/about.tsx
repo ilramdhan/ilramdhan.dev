@@ -1,29 +1,70 @@
-import React, { lazy, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Download, MapPin, Briefcase, GraduationCap, ArrowRight, Award } from 'lucide-react';
-import { Link } from '@/i18n/Link';
+// Direct module imports, not the barrels (see STATE.md Gotchas).
+import { ActionLink } from '@/components/tile/ActionLink';
+import { FeatureColumns, type FeatureColumn } from '@/components/tile/FeatureColumns';
+import { LinkChevron } from '@/components/tile/LinkChevron';
+import { MediaFrame } from '@/components/tile/MediaFrame';
+import { SpecRow, type SpecItem } from '@/components/tile/SpecRow';
+import { colVar } from '@/components/tile/stagger';
+import { Tile } from '@/components/tile/Tile';
+import { TileHeading } from '@/components/tile/TileHeading';
+import { CountUp, GrowBar } from '@/components/motion/GrowBar';
 import { Markdown } from '@/components/ui/Markdown';
-import { CountUp, GrowBar, MotionScope, Reveal } from '@/components/motion';
 import { CertificateCard } from '@/components/ui/CertificateCard';
 import { SocialLinks } from '@/components/ui/SocialLinks';
-import { siteConfig } from '@/config/site';
-import { profileQueries } from '@/features/profile/queries';
-import { resumeQueries } from '@/features/resume/queries';
-import { certificateQueries } from '@/features/certificates/queries';
-import { wakatimeQueries } from '@/features/wakatime/queries';
-import { useTheme } from '@/app/ThemeContext';
-import { ensureFullUrl } from '@/lib/utils';
-import { Seo } from '@/components/seo/Seo';
 import { Img } from '@/components/ui/Img';
-import motionFeatures from '@/components/motion/features';
-import { useLocale, useT } from '@/i18n';
+import { Seo } from '@/components/seo/Seo';
+import { siteConfig } from '@/config/site';
+import { useTheme } from '@/app/ThemeContext';
+import { profileQueries } from '@/features/profile/queries';
+import { certificateQueries } from '@/features/certificates/queries';
+import { PROSE, ResumeRows } from '@/features/resume/ResumeRows';
+import { resumeQueries } from '@/features/resume/queries';
+import { techStackQueries } from '@/features/tech-stack/queries';
+import { WAKATIME_STATS_HEIGHT } from '@/features/wakatime/WakatimeStats';
+import { wakatimeQueries } from '@/features/wakatime/queries';
+import { ensureFullUrl } from '@/lib/utils';
+import { useLocale, useLocalePath, useT } from '@/i18n';
 
 // recharts (~100 KB gzip) is only needed for this one chart (T-24).
 const WakatimeStats = lazy(() => import('@/features/wakatime/WakatimeStats'));
 
-function AboutContent() {
+const githubUser = (url: string | undefined) => {
+  try {
+    return new URL(url ?? '').pathname.substring(1);
+  } catch {
+    return '';
+  }
+};
+
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+/** The page's first screen in its real shape (copy lines + portrait frame) while the profile loads: nothing shifts. */
+function AboutSkeleton({ label }: { label: string }) {
+  return (
+    <Tile labelledBy="about-loading-h" align="split">
+      <span id="about-loading-h" className="sr-only" role="status">
+        {label}
+      </span>
+      <div aria-hidden="true" className="flex w-full flex-col gap-4">
+        <div className="h-[1.1em] w-3/4 rounded-sm bg-tile-frame text-hero" />
+        <div className="h-[1.4em] w-full rounded-sm bg-tile-frame text-body" />
+        <div className="h-[1.4em] w-full rounded-sm bg-tile-frame text-body" />
+        <div className="h-[1.4em] w-2/3 rounded-sm bg-tile-frame text-body" />
+      </div>
+      <div
+        aria-hidden="true"
+        className="aspect-[4/5] w-full rounded-lg bg-tile-frame motion-safe:animate-pulse lg:max-w-[28rem] lg:justify-self-end"
+      />
+    </Tile>
+  );
+}
+
+export default function AboutPage() {
   const t = useT();
   const locale = useLocale();
+  const lp = useLocalePath();
   const { theme } = useTheme();
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery(profileQueries.detail(locale));
@@ -36,275 +77,239 @@ function AboutContent() {
   const { data: certificates, isLoading: isLoadingCerts } = useQuery(
     certificateQueries.all(locale),
   );
+  const { data: techStack } = useQuery(techStackQueries.list());
   const {
     data: wakatime,
     isLoading: isLoadingWakatime,
     isError: isWakatimeError,
   } = useQuery(wakatimeQueries.languages());
-  const {
-    data: wakatimeActivity,
-    isLoading: isLoadingWakatimeActivity,
-    isError: isWakatimeActivityError,
-  } = useQuery(wakatimeQueries.activity());
+  const { data: activity, isError: isActivityError } = useQuery(wakatimeQueries.activity());
 
-  const isLoading = isLoadingProfile || isLoadingExp || isLoadingEdu || isLoadingCerts;
-
-  const getGithubUsername = (url: string | undefined) => {
-    if (!url) return '';
-    try {
-      const urlObj = new URL(url);
-      return urlObj.pathname.substring(1);
-    } catch {
-      return '';
-    }
-  };
-
-  const username = getGithubUsername(
-    ensureFullUrl((profile?.social_links as Record<string, string> | null)?.github),
-  );
-  const resumeUrl = ensureFullUrl(profile?.resume_url);
-
-  if (isLoading) {
+  if (isLoadingProfile || isLoadingExp || isLoadingEdu || isLoadingCerts) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
-        <p>{t.about.loading}</p>
-      </div>
+      <>
+        <Seo title={t.seo.about} description={t.seo.aboutDescription} />
+        <AboutSkeleton label={t.about.loading} />
+      </>
     );
   }
 
+  const username = githubUser(
+    ensureFullUrl((profile?.social_links as Record<string, string> | null)?.github),
+  );
+  const resumeUrl = ensureFullUrl(profile?.resume_url);
+  const name = profile?.display_name || t.about.fallbackHeading;
+
+  // Skills: the tech stack grouped by its category, one quiet column per group.
+  const groups = new Map<string, string[]>();
+  for (const s of techStack ?? []) {
+    const key = s.category?.trim() ?? '';
+    groups.set(key, [...(groups.get(key) ?? []), s.name]);
+  }
+  const skills: FeatureColumn[] = [...groups.entries()]
+    .filter(([key]) => key)
+    .map(([key, names]) => ({ key, title: cap(key), body: names.join(', ') }));
+
+  // WakaTime figures: unknown = hidden (never a placeholder number).
+  const languages = !isWakatimeError ? (wakatime?.data ?? []).slice(0, 5) : [];
+  const monthSeconds = !isActivityError ? (activity ?? []).reduce((s, d) => s + d.total, 0) : 0;
+  const figures: SpecItem[] = [
+    {
+      value: monthSeconds > 0 ? Math.round(monthSeconds / 360) / 10 : null,
+      label: t.about.activityMonth,
+    },
+    { value: languages[0]?.name, label: t.about.languagesWeek },
+  ];
+  const wakaPending = isLoadingWakatime;
+  const showWaka = wakaPending || languages.length > 0 || (!!activity && !isActivityError);
+
+  const certs = certificates ?? [];
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-on-dark transition-colors duration-300">
+    <div>
       <Seo title={t.seo.about} description={t.seo.aboutDescription} />
-      <div className="pt-20 pb-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row gap-12 items-start mb-20">
-          <div className="w-full md:w-1/3 shrink-0">
-            <div className="aspect-square rounded-2xl overflow-hidden border-4 border-on-dark dark:border-slate-800 shadow-xl relative mb-6">
-              <div className="absolute inset-0 bg-indigo-500/10 mix-blend-overlay" />
-              <Img
-                src={profile?.avatar_url || ''}
-                alt={
-                  profile?.display_name
-                    ? t.about.portraitOf(profile.display_name)
-                    : t.about.portrait
-                }
-                width={512}
-                height={512}
-                priority
-                sizes="(min-width: 768px) 33vw, 100vw"
-                className="w-full h-full object-cover bg-on-dark dark:bg-slate-900"
-              />
+
+      <Tile labelledBy="about-h" align="split">
+        <div className="flex flex-col items-start gap-6 text-left">
+          <TileHeading
+            id="about-h"
+            as="h1"
+            title={name}
+            align="start"
+            className="animate-rise-still"
+          />
+          <div className="animate-rise [animation-delay:120ms]">
+            <div className={PROSE}>
+              <Markdown components={{ h1: 'h2' }}>{profile?.detailed_bio || ''}</Markdown>
             </div>
-
-            <div className="flex flex-col gap-4">
-              {profile?.address && (
-                <div className="flex items-center gap-3 text-slate-600 dark:text-slate-400">
-                  <MapPin className="h-5 w-5 text-indigo-500" />
-                  <span>{profile.address}</span>
-                </div>
-              )}
-
+            {profile?.address ? (
+              <p className="mt-4 text-body text-tile-muted">{profile.address}</p>
+            ) : null}
+            <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-2">
+              {resumeUrl ? (
+                <ActionLink
+                  variant="primary"
+                  link={{ kind: 'external', href: resumeUrl, label: t.about.downloadCv }}
+                />
+              ) : null}
               <SocialLinks
                 links={profile?.social_links}
-                containerClassName="flex flex-wrap gap-4 mt-2"
-                linkClassName="p-2 bg-slate-200 dark:bg-slate-900 rounded-lg hover:bg-indigo-100 dark:hover:bg-indigo-900/50 text-slate-600 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+                containerClassName="flex flex-wrap items-center"
+                linkClassName="inline-grid size-11 place-items-center rounded-full text-tile-action transition-colors duration-200 hover:bg-parchment hover:text-tile-action-hover"
                 iconClassName="h-5 w-5"
               />
             </div>
-
-            {resumeUrl && (
-              <a
-                href={resumeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-8 w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-on-dark py-3 rounded-lg font-medium transition-all shadow-lg shadow-indigo-500/20"
-              >
-                <Download className="h-5 w-5" /> {t.about.downloadCv}
-              </a>
-            )}
-          </div>
-
-          <div className="flex-1">
-            <h1 className="text-4xl font-bold mb-6">
-              {profile?.display_name || t.about.fallbackHeading}
-            </h1>
-            <div className="prose prose-lg prose-slate dark:prose-invert">
-              <Markdown components={{ h1: 'h2' }}>{profile?.detailed_bio || ''}</Markdown>
-            </div>
           </div>
         </div>
-
-        <div className="grid md:grid-cols-2 gap-12 mb-20">
-          <div>
-            <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
-              <div className="p-2 bg-indigo-100 dark:bg-indigo-900/30 rounded-lg text-indigo-600 dark:text-indigo-400">
-                <Briefcase className="h-6 w-6" />
-              </div>
-              {t.about.experience}
-            </h2>
-            <div className="space-y-8 border-l-2 border-slate-200 dark:border-slate-800 ml-3 pl-8 relative">
-              {experience?.map((exp, idx) => (
-                <Reveal key={exp.id} from="left" index={idx} className="relative">
-                  <span className="absolute left-[-41px] top-1 w-5 h-5 rounded-full border-4 border-on-dark dark:border-slate-950 bg-indigo-500" />
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-on-dark">
-                    {exp.title}
-                  </h3>
-                  <div className="text-indigo-600 dark:text-indigo-400 font-medium mb-2">
-                    {exp.institution}
-                  </div>
-                  <div className="text-sm text-slate-500 mb-3">{exp.period}</div>
-                  <div className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-3 prose prose-sm dark:prose-invert">
-                    <Markdown components={{ h1: 'h2' }}>{exp.description || ''}</Markdown>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
-              <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg text-purple-600 dark:text-purple-400">
-                <GraduationCap className="h-6 w-6" />
-              </div>
-              {t.about.education}
-            </h2>
-            <div className="space-y-8 border-l-2 border-slate-200 dark:border-slate-800 ml-3 pl-8 relative">
-              {education?.map((edu, idx) => (
-                <Reveal key={edu.id} from="left" index={idx} className="relative">
-                  <span className="absolute left-[-41px] top-1 w-5 h-5 rounded-full border-4 border-on-dark dark:border-slate-950 bg-purple-500" />
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-on-dark">
-                    {edu.title}
-                  </h3>
-                  <div className="text-purple-600 dark:text-purple-400 font-medium mb-1">
-                    {edu.institution}
-                  </div>
-                  <div className="text-sm text-slate-500 mb-2">{edu.period}</div>
-                  <div className="text-sm text-slate-600 dark:text-slate-400 mb-3 prose prose-sm dark:prose-invert">
-                    <Markdown components={{ h1: 'h2' }}>{edu.description || ''}</Markdown>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
-          </div>
+        <div className="w-full max-w-[28rem] justify-self-center lg:justify-self-end">
+          <MediaFrame
+            src={profile?.avatar_url || null}
+            alt={
+              profile?.display_name ? t.about.portraitOf(profile.display_name) : t.about.portrait
+            }
+            width={512}
+            height={640}
+            aspect="portrait"
+            priority
+            parallax={6}
+          />
         </div>
+      </Tile>
 
-        {certificates && certificates.length > 0 && (
-          <div className="mb-20">
-            <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 mb-8">
-              <h2 className="text-2xl font-bold flex items-center gap-3">
-                <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-600 dark:text-green-400">
-                  <Award className="h-6 w-6" />
-                </div>
-                {t.about.certificates}
-              </h2>
-              {certificates.length > 3 && (
-                <Link
-                  to="/certificates"
-                  className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium text-sm flex items-center gap-1"
-                >
-                  {t.about.viewAllCertificates} <ArrowRight className="h-4 w-4" />
-                </Link>
-              )}
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {certificates.slice(0, 3).map((cert, idx) => (
-                <CertificateCard key={cert.id} cert={cert} index={idx} />
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="border-t border-slate-200 dark:border-on-dark/10 pt-16">
-          <h2 className="text-2xl font-bold mb-8 text-center text-slate-900 dark:text-on-dark">
-            {t.about.codingActivity}
-          </h2>
-
-          {/* Wakatime Stats - Using Public JSON Data */}
-          {!isWakatimeError && !isLoadingWakatime && wakatime?.data && (
-            <div className="space-y-8 max-w-4xl mx-auto mb-12">
-              {/* Custom Top Languages Visualization */}
-              <div className="bg-on-dark dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-on-dark/5">
-                <h3 className="text-lg font-bold mb-4 text-slate-900 dark:text-on-dark">
-                  {t.about.languagesWeek}
-                </h3>
-                <div className="space-y-4">
-                  {wakatime.data.slice(0, 5).map((lang) => (
-                    <div key={lang.name}>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-slate-700 dark:text-slate-300 font-medium">
-                          {lang.name}
-                        </span>
-                        <span className="text-slate-500">
-                          {lang.text} (
-                          <CountUp
-                            value={lang.percent}
-                            decimals={String(lang.percent).split('.')[1]?.length ?? 0}
-                            suffix="%"
-                          />
-                          )
-                        </span>
-                      </div>
-                      <GrowBar percent={lang.percent} />
-                    </div>
-                  ))}
-                </div>
+      {(experience?.length ?? 0) + (education?.length ?? 0) > 0 ? (
+        <Tile labelledBy="about-resume-h" tone="parchment">
+          <TileHeading id="about-resume-h" title={t.about.experience} />
+          <div className="mt-stack grid w-full gap-x-16 gap-y-12 text-left lg:grid-cols-2">
+            {experience?.length ? (
+              <div>
+                <h3 className="mb-2 text-title text-tile-ink">{t.about.experience}</h3>
+                <ResumeRows items={experience} prefix="exp" />
               </div>
+            ) : null}
+            {education?.length ? (
+              <div>
+                <h3 className="mb-2 text-title text-tile-ink">{t.about.education}</h3>
+                <ResumeRows items={education} prefix="edu" />
+              </div>
+            ) : null}
+          </div>
+        </Tile>
+      ) : null}
 
-              {!isLoadingWakatimeActivity && !isWakatimeActivityError && wakatimeActivity && (
-                <Suspense
-                  fallback={
-                    <div
-                      aria-hidden="true"
-                      className="h-[396px] rounded-xl border border-slate-200 bg-on-dark dark:bg-slate-900/50 dark:border-on-dark/5"
-                    />
-                  }
-                >
-                  <WakatimeStats data={wakatimeActivity} />
-                </Suspense>
-              )}
+      {skills.length > 0 ? (
+        <Tile labelledBy="about-skills-h">
+          <TileHeading id="about-skills-h" title={t.home.techHeading} />
+          <div className="mt-stack w-full">
+            <FeatureColumns items={skills} />
+          </div>
+        </Tile>
+      ) : null}
+
+      {showWaka ? (
+        <Tile labelledBy="about-code-h" tone="parchment">
+          <TileHeading id="about-code-h" title={t.about.codingActivity} />
+          {wakaPending ? (
+            <div
+              aria-hidden="true"
+              className="mt-stack w-full rounded-lg bg-tile-frame motion-safe:animate-pulse"
+              style={{ height: WAKATIME_STATS_HEIGHT }}
+            />
+          ) : (
+            <div className="mt-stack flex w-full flex-col gap-stack">
+              <SpecRow items={figures} wrap />
+              {languages.length > 0 ? (
+                <div className="mx-auto w-full max-w-3xl text-left">
+                  <h3 className="mb-6 text-title text-tile-ink">{t.about.languagesWeek}</h3>
+                  <ul className="flex flex-col gap-5">
+                    {languages.map((lang) => (
+                      <li key={lang.name}>
+                        <div className="mb-2 flex justify-between gap-4 text-body">
+                          <span className="text-tile-ink">{lang.name}</span>
+                          <span className="tabular text-tile-muted">
+                            {lang.text} (
+                            <CountUp
+                              value={lang.percent}
+                              decimals={String(lang.percent).split('.')[1]?.length ?? 0}
+                              suffix="%"
+                            />
+                            )
+                          </span>
+                        </div>
+                        <GrowBar percent={lang.percent} label={lang.name} />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {activity && !isActivityError ? (
+                <div className="mx-auto w-full max-w-3xl">
+                  <Suspense
+                    fallback={
+                      <div
+                        aria-hidden="true"
+                        className="w-full rounded-lg bg-tile-frame"
+                        style={{ height: WAKATIME_STATS_HEIGHT }}
+                      />
+                    }
+                  >
+                    <WakatimeStats data={activity} />
+                  </Suspense>
+                </div>
+              ) : null}
             </div>
           )}
+        </Tile>
+      ) : null}
 
-          {/* GitHub Stats */}
-          {username && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 gap-6">
-                <a href={`https://github.com/${username}`}>
-                  <Img
-                    width={1200}
-                    height={420}
-                    src={`https://github-act-graph.rodriaum.com/graph?username=${username}&${theme === 'dark' ? 'bg_color=09090B&color=FAFAFA&line=FAFAFA&point=FAFAFA' : 'bg_color=FFFFFF&color=09090B&line=09090B&point=09090B'}&area=true&hide_border=true`}
-                    alt={t.about.githubGraph(username)}
-                    className="rounded-xl border border-slate-200 dark:border-on-dark/10 shadow-lg w-full h-auto"
-                  />
-                </a>
-              </div>
-              <div className="flex justify-center">
-                <Img
-                  width={880}
-                  height={192}
-                  src={`https://raw.githubusercontent.com/${siteConfig.githubUsername}/Snake-in-Contribution-Grid/output/github-contribution-grid-snake.svg`}
-                  alt={t.about.githubSnake}
-                  className="max-w-full h-auto"
-                />
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      {certs.length > 0 ? (
+        <Tile labelledBy="about-certs-h">
+          <TileHeading
+            id="about-certs-h"
+            title={t.about.certificates}
+            lead={t.certificates.lead}
+            links={
+              certs.length > 3 ? (
+                <LinkChevron href={lp('/certificates')}>{t.about.viewAllCertificates}</LinkChevron>
+              ) : undefined
+            }
+          />
+          <ul className="stagger-row mt-stack grid w-full gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+            {certs.slice(0, 3).map((cert, i) => (
+              <li key={cert.id} style={colVar(i, 3)}>
+                <CertificateCard cert={cert} />
+              </li>
+            ))}
+          </ul>
+        </Tile>
+      ) : null}
+
+      {username ? (
+        <Tile labelledBy="about-github-h" tone="parchment">
+          <TileHeading id="about-github-h" title={t.footer.socialName.github} />
+          <div className="mt-stack flex w-full flex-col items-center gap-stack">
+            <a
+              href={`https://github.com/${username}`}
+              className="block w-full overflow-hidden rounded-lg bg-tile-frame"
+              style={{ aspectRatio: '1200 / 420' }}
+            >
+              <Img
+                width={1200}
+                height={420}
+                src={`https://github-act-graph.rodriaum.com/graph?username=${username}&${theme === 'dark' ? 'bg_color=232325&color=F5F5F7&line=F5F5F7&point=F5F5F7' : 'bg_color=E8E8ED&color=1D1D1F&line=1D1D1F&point=1D1D1F'}&area=true&hide_border=true`}
+                alt={t.about.githubGraph(username)}
+                className="h-full w-full object-contain"
+              />
+            </a>
+            <Img
+              width={880}
+              height={192}
+              src={`https://raw.githubusercontent.com/${siteConfig.githubUsername}/Snake-in-Contribution-Grid/output/github-contribution-grid-snake.svg`}
+              alt={t.about.githubSnake}
+              className="h-auto max-w-full"
+            />
+          </div>
+        </Tile>
+      ) : null}
     </div>
-  );
-}
-
-/**
- * The cards use `Reveal` (`m.*`), which needs a `LazyMotion` ancestor. This wrapper has no
- * state, so it never re-renders: LazyMotion hands out a new context value on every render,
- * and React would push that change into Markdown boundaries that are still hydrating
- * (React #421). The features load synchronously for the same reason.
- */
-export default function AboutPage() {
-  return (
-    <MotionScope features={motionFeatures}>
-      <AboutContent />
-    </MotionScope>
   );
 }

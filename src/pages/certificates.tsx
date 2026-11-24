@@ -1,19 +1,22 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Search } from 'lucide-react';
+// Direct module imports, not the barrels (see STATE.md Gotchas).
+import { SegmentedControl } from '@/components/tile/SegmentedControl';
+import { colVar } from '@/components/tile/stagger';
+import { Tile } from '@/components/tile/Tile';
+import { TileHeading } from '@/components/tile/TileHeading';
+import { FlipGroup } from '@/components/motion/FlipGroup';
 import { CertificateCard } from '@/components/ui/CertificateCard';
 import { Pagination } from '@/components/ui/Pagination';
-import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
 import { certificateQueries } from '@/features/certificates/queries';
 import { useListParams } from '@/lib/useListParams';
 import { Seo } from '@/components/seo/Seo';
 import { useLocale, useT } from '@/i18n';
-import { MotionScope } from '@/components/motion';
-import motionFeatures from '@/components/motion/features';
 
 const ITEMS_PER_PAGE = 9;
+const ALL = '__all__';
+const GRID = 'grid w-full gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3';
 
-function CertificatesContent() {
+export default function CertificatesPage() {
   const t = useT();
   const locale = useLocale();
   const {
@@ -26,7 +29,7 @@ function CertificatesContent() {
     setPage,
   } = useListParams('issuer');
 
-  const { data: allIssuers, isLoading: isLoadingIssuers } = useQuery(certificateQueries.issuers());
+  const { data: allIssuers } = useQuery(certificateQueries.issuers());
 
   const {
     data: certData,
@@ -34,107 +37,102 @@ function CertificatesContent() {
     isError,
   } = useQuery(
     certificateQueries.list(
-      {
-        page: currentPage,
-        limit: ITEMS_PER_PAGE,
-        query: searchQuery,
-        issuer: selectedIssuer,
-      },
+      { page: currentPage, limit: ITEMS_PER_PAGE, query: searchQuery, issuer: selectedIssuer },
       locale,
     ),
   );
 
   const certificates = certData?.data ?? [];
-  const totalCerts = certData?.count ?? 0;
-  const totalPages = Math.ceil(totalCerts / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil((certData?.count ?? 0) / ITEMS_PER_PAGE);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const issuerOptions = [
+    { value: ALL, label: t.certificates.allIssuers },
+    ...(allIssuers ?? []).map((i) => ({ value: i, label: i })),
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-on-dark transition-colors duration-300">
+    <div>
       <Seo title={t.seo.certificates} description={t.seo.certificatesDescription} />
-      <div className="pt-20 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">{t.certificates.heading}</h1>
-          <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-            {t.certificates.lead}
-          </p>
-        </div>
 
-        {/* Search & Filters */}
-        <div className="max-w-4xl mx-auto mb-12 space-y-6">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
-            <input
-              type="text"
-              placeholder={t.certificates.searchPlaceholder}
-              aria-label={t.certificates.searchPlaceholder}
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full bg-on-dark dark:bg-slate-900/80 border border-slate-200 dark:border-on-dark/10 rounded-full py-3 pl-12 pr-6 text-slate-900 dark:text-on-dark focus:ring-2 focus:ring-indigo-500 outline-hidden backdrop-blur-xs shadow-xs"
-            />
-          </div>
-
-          <div className="flex justify-center">
-            <CollapsibleTagFilter
-              tags={allIssuers ?? []}
-              selectedTag={selectedIssuer}
-              onTagClick={handleIssuerFilter}
-              maxVisible={6}
-              isLoading={isLoadingIssuers}
-            />
-          </div>
-        </div>
-
-        {/* Certificate Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {isLoadingCerts &&
-            Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
-              <div
-                key={i}
-                className="rounded-xl bg-slate-200 dark:bg-slate-800/50 aspect-4/3 motion-safe:animate-pulse"
-              />
-            ))}
-          {isError && !certData && (
-            <div className="col-span-full py-20 text-center text-red-500">
-              {t.certificates.error}
-            </div>
-          )}
-          {certificates.map((cert, idx) => (
-            <CertificateCard key={cert.id} cert={cert} index={idx} />
-          ))}
-          {certificates.length === 0 && !isLoadingCerts && (
-            <div className="col-span-full py-20 text-center text-slate-500">
-              {t.certificates.none}
-            </div>
-          )}
-        </div>
-
-        {/* Pagination */}
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
+      <Tile labelledBy="certs-h">
+        <TileHeading
+          id="certs-h"
+          as="h1"
+          title={t.certificates.heading}
+          lead={t.certificates.lead}
+          className="animate-rise-still"
         />
-      </div>
-    </div>
-  );
-}
+        <div className="mt-stack flex w-full flex-col items-center gap-6">
+          <input
+            type="text"
+            placeholder={t.certificates.searchPlaceholder}
+            aria-label={t.certificates.searchPlaceholder}
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="min-h-12 w-full max-w-xl rounded-full bg-parchment px-6 text-body text-ink outline-none placeholder:text-ink-muted/70 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-tile-action"
+          />
+          {issuerOptions.length > 2 ? (
+            <div className="max-w-full overflow-x-auto">
+              <SegmentedControl
+                label={t.certificates.heading}
+                options={issuerOptions}
+                value={selectedIssuer ?? ALL}
+                onChange={(v) => handleIssuerFilter(v === ALL ? null : v)}
+              />
+            </div>
+          ) : null}
+        </div>
+      </Tile>
 
-/**
- * The cards use `Reveal` (`m.*`), which needs a `LazyMotion` ancestor. This wrapper has no
- * state, so it never re-renders: LazyMotion hands out a new context value on every render,
- * and React would push that change into Markdown boundaries that are still hydrating
- * (React #421). The features load synchronously for the same reason.
- */
-export default function CertificatesPage() {
-  return (
-    <MotionScope features={motionFeatures}>
-      <CertificatesContent />
-    </MotionScope>
+      <Tile labelledBy="certs-list-h" tone="parchment" className="min-h-[60svh]">
+        <h2 id="certs-list-h" className="sr-only">
+          {t.certificates.heading}
+        </h2>
+        {isLoadingCerts ? (
+          <>
+            <span className="sr-only" role="status">
+              {t.about.loading}
+            </span>
+            <ul aria-hidden="true" className={GRID}>
+              {Array.from({ length: ITEMS_PER_PAGE }, (_, i) => (
+                <li key={i} className="flex flex-col items-start">
+                  <div className="aspect-[4/3] w-full rounded-lg bg-tile-frame motion-safe:animate-pulse" />
+                  <div className="mt-4 h-[1.2em] w-2/3 rounded-sm bg-tile-frame text-title" />
+                  <div className="mt-1 h-[1.4em] w-1/3 rounded-sm bg-tile-frame text-body" />
+                  <div className="mt-1 h-[1.3em] w-1/4 rounded-sm bg-tile-frame text-caption" />
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : isError && !certData ? (
+          <p className="text-body text-danger">{t.certificates.error}</p>
+        ) : certificates.length === 0 ? (
+          <p className="text-body text-tile-muted">{t.certificates.none}</p>
+        ) : (
+          <FlipGroup
+            flipKey={`${selectedIssuer ?? ''}|${searchQuery}|${currentPage}`}
+            className={`${GRID} stagger-row`}
+          >
+            {certificates.map((cert, i) => (
+              <li key={cert.id} data-flip-id={cert.id} style={colVar(i, 3)}>
+                <CertificateCard cert={cert} />
+              </li>
+            ))}
+          </FlipGroup>
+        )}
+        <div className="mt-stack">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      </Tile>
+    </div>
   );
 }

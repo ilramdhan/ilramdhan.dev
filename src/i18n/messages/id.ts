@@ -222,6 +222,7 @@ export const id: Messages = {
     none: 'Tidak ada sertifikat yang cocok dengan kriteria Anda.',
     alt: (title, issuer) => `Sertifikat ${title}${issuer ? ` dari ${issuer}` : ''}`,
     viewCredential: 'Lihat Kredensial',
+    allIssuers: 'Semua',
   },
   article: {
     breadcrumb: 'Jejak halaman',
