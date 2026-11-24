@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
-import { X } from 'lucide-react';
+import { ChevronDown, X } from 'lucide-react';
 import { FlipGroup } from '@/components/motion/FlipGroup';
 import { Pagination } from '@/components/ui/Pagination';
 import { SegmentedControl } from '@/components/tile/SegmentedControl';
@@ -165,7 +165,7 @@ export default function BlogPage() {
                   </button>
                 )}
               </div>
-              <div>
+              <div className="relative">
                 <label htmlFor="blog-sort" className="sr-only">
                   {t.blog.sortLabel}
                 </label>
@@ -173,11 +173,15 @@ export default function BlogPage() {
                   id="blog-sort"
                   value={sort}
                   onChange={(e) => setSort(e.target.value === 'oldest' ? 'oldest' : 'newest')}
-                  className={`${field} w-full sm:w-auto`}
+                  className={`${field} w-full appearance-none pr-11 sm:w-auto`}
                 >
                   <option value="newest">{t.list.sortNewest}</option>
                   <option value="oldest">{t.list.sortOldest}</option>
                 </select>
+                <ChevronDown
+                  aria-hidden="true"
+                  className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted"
+                />
               </div>
             </div>
             <div className="flex flex-wrap items-center justify-center gap-x-3 text-caption text-tile-muted">
