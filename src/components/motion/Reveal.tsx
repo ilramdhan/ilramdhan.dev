@@ -10,7 +10,6 @@ interface RevealProps {
   index?: number;
   /** Slide in from the side instead of rising. */
   from?: 'bottom' | 'left';
-  onClick?: () => void;
 }
 
 /**
@@ -18,22 +17,16 @@ interface RevealProps {
  * Under `prefers-reduced-motion`, and for prerendered content (already on screen, T-35),
  * it renders a plain element: no transform, no animation.
  */
-export function Reveal({ children, className, index = 0, from = 'bottom', onClick }: RevealProps) {
+export function Reveal({ children, className, index = 0, from = 'bottom' }: RevealProps) {
   const reduced = useReducedMotion();
   const prerendered = useIsPrerendered();
   if (reduced || prerendered) {
-    return (
-      // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions -- TODO(#57) card click mirrors the previous markup
-      <div className={className} onClick={onClick}>
-        {children}
-      </div>
-    );
+    return <div className={className}>{children}</div>;
   }
   const offset = from === 'left' ? { x: -distance } : { y: distance };
   return (
     <m.div
       className={className}
-      onClick={onClick}
       initial={{ opacity: 0, ...offset }}
       whileInView={{ opacity: 1, x: 0, y: 0 }}
       viewport={viewport}

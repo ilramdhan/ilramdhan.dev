@@ -42,6 +42,16 @@ test('thumbnails open a lightbox: right image, ←/→, Esc closes and focus ret
   await dialog.getByRole('button', { name: 'Next image' }).click();
   await expect(dialog.getByText('1 / 2')).toBeVisible();
 
+  // Tab cycles inside the dialog (never reaches the page behind it), both directions.
+  for (let i = 0; i < 8; i++) {
+    await page.keyboard.press('Tab');
+    expect(await dialog.evaluate((d) => d.contains(document.activeElement))).toBe(true);
+  }
+  for (let i = 0; i < 8; i++) {
+    await page.keyboard.press('Shift+Tab');
+    expect(await dialog.evaluate((d) => d.contains(document.activeElement))).toBe(true);
+  }
+
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
   await expect(second).toBeFocused();
