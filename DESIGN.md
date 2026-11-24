@@ -75,6 +75,12 @@ typography:
     fontWeight: 400
     lineHeight: 1.47
     letterSpacing: '-0.01em'
+  item:
+    fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, Inter Variable, Inter, Helvetica Neue, Arial, sans-serif'
+    fontSize: '0.9375rem'
+    fontWeight: 600
+    lineHeight: 1.4
+    letterSpacing: '-0.01em'
   caption:
     fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, Inter Variable, Inter, Helvetica Neue, Arial, sans-serif'
     fontSize: '0.875rem'
@@ -245,6 +251,7 @@ legacy `dark` class) from `localStorage.theme` before paint; its CSP hash is in 
 - **Title** (`text-title`, 600, 19→21px, 1.19): item names in rows and columns (h3).
 - **Lead** (`text-lead`, 400, 21→24px, 1.33): one line under a heading.
 - **Body** (`text-body`, 400, 17px, 1.47): running text. Article columns are 680px wide, 17px.
+- **Item** (600, 15px, 1.4): the nav wordmark (`.brand-name`).
 - **Caption** (`text-caption`, 400, 14px): labels, meta, field labels (600).
 - **Fine** (`text-fine`, 400, 12px, 0 tracking): nav links, footer columns, fine print.
 
