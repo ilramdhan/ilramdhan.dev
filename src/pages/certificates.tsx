@@ -79,7 +79,7 @@ export default function CertificatesPage() {
           {issuerOptions.length > 2 ? (
             <div className="max-w-full overflow-x-auto">
               <SegmentedControl
-                label={t.certificates.issuerFilter}
+                label={t.certificates.heading}
                 options={issuerOptions}
                 value={selectedIssuer ?? ALL}
                 onChange={(v) => handleIssuerFilter(v === ALL ? null : v)}
@@ -91,12 +91,12 @@ export default function CertificatesPage() {
 
       <Tile labelledBy="certs-list-h" tone="parchment" className="min-h-[60svh]">
         <h2 id="certs-list-h" className="sr-only">
-          {t.certificates.listLabel}
+          {t.certificates.heading}
         </h2>
         {isLoadingCerts ? (
           <>
             <span className="sr-only" role="status">
-              {t.certificates.loading}
+              {t.about.loading}
             </span>
             <ul aria-hidden="true" className={GRID}>
               {Array.from({ length: ITEMS_PER_PAGE }, (_, i) => (

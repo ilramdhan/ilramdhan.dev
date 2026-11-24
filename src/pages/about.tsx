@@ -116,9 +116,9 @@ export default function AboutPage() {
   const figures: SpecItem[] = [
     {
       value: monthSeconds > 0 ? Math.round(monthSeconds / 360) / 10 : null,
-      label: t.about.codedHours,
+      label: t.about.activityMonth,
     },
-    { value: languages[0]?.name, label: t.about.topLanguage },
+    { value: languages[0]?.name, label: t.about.languagesWeek },
   ];
   const wakaPending = isLoadingWakatime;
   const showWaka = wakaPending || languages.length > 0 || (!!activity && !isActivityError);
@@ -178,7 +178,7 @@ export default function AboutPage() {
 
       {(experience?.length ?? 0) + (education?.length ?? 0) > 0 ? (
         <Tile labelledBy="about-resume-h" tone="parchment">
-          <TileHeading id="about-resume-h" title={t.about.resumeHeading} />
+          <TileHeading id="about-resume-h" title={t.about.experience} />
           <div className="mt-stack grid w-full gap-x-16 gap-y-12 text-left lg:grid-cols-2">
             {experience?.length ? (
               <div>
@@ -198,7 +198,7 @@ export default function AboutPage() {
 
       {skills.length > 0 ? (
         <Tile labelledBy="about-skills-h">
-          <TileHeading id="about-skills-h" title={t.about.skills} />
+          <TileHeading id="about-skills-h" title={t.home.techHeading} />
           <div className="mt-stack w-full">
             <FeatureColumns items={skills} />
           </div>
@@ -266,7 +266,7 @@ export default function AboutPage() {
           <TileHeading
             id="about-certs-h"
             title={t.about.certificates}
-            lead={t.about.certificatesLead}
+            lead={t.certificates.lead}
             links={
               certs.length > 3 ? (
                 <LinkChevron href={lp('/certificates')}>{t.about.viewAllCertificates}</LinkChevron>
@@ -285,7 +285,7 @@ export default function AboutPage() {
 
       {username ? (
         <Tile labelledBy="about-github-h" tone="parchment">
-          <TileHeading id="about-github-h" title={t.about.githubHeading} />
+          <TileHeading id="about-github-h" title={t.footer.socialName.github} />
           <div className="mt-stack flex w-full flex-col items-center gap-stack">
             <a
               href={`https://github.com/${username}`}
