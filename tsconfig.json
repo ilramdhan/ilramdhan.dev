@@ -18,6 +18,5 @@
     "noFallthroughCasesInSwitch": true,
     "noEmit": true
   },
-  // framer-motion React 19 shim first: it must be loaded before framer-motion types (see file).
-  "include": ["src/types/framer-motion-react19.d.ts", "**/*"]
+  "include": ["**/*"]
 }

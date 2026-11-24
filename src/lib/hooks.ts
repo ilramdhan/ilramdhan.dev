@@ -80,7 +80,7 @@ export function useMediaQuery(query: string): boolean {
   return matches;
 }
 
-/** `prefers-reduced-motion: reduce`, hydration-safe (framer's hook reads it during render). */
+/** `prefers-reduced-motion: reduce`, hydration-safe. */
 export function useReducedMotion(): boolean {
   return useMediaQuery('(prefers-reduced-motion: reduce)');
 }

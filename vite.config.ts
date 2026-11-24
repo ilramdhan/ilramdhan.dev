@@ -121,8 +121,6 @@ const VENDOR_CHUNKS: [name: string, pattern: RegExp][] = [
     'markdown',
     /[\\/]node_modules[\\/](react-markdown|remark-[^/\\]+|rehype-[^/\\]+|unified|micromark[^/\\]*|mdast-[^/\\]+|hast-[^/\\]+|unist-[^/\\]+|vfile[^/\\]*|property-information|space-separated-tokens|comma-separated-tokens|decode-named-character-reference|character-entities[^/\\]*|devlop|bail|trough|is-plain-obj|zwitch|longest-streak|ccount|trim-lines|html-url-attributes|estree-util-[^/\\]+|style-to-[^/\\]+|inline-style-parser)[\\/]/,
   ],
-  // framer-motion is deliberately not pinned to a chunk: LazyMotion (components/motion/features)
-  // loads its animation features through a dynamic import, which a manual chunk would defeat.
   ['supabase', /[\\/]node_modules[\\/](@supabase|tslib|ws|iceberg-js)[\\/]/],
   ['router-query', /[\\/]node_modules[\\/](react-router|@tanstack)[\\/]/],
   // use-sync-external-store: shared by recharts and zustand (R3F); without the pin it lands in
