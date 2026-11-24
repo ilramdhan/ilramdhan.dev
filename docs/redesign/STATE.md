@@ -22,24 +22,24 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 
 ## Phases
 
-| ID  | Status | PR   | Notes                                                                                                                 |
-| --- | ------ | ---- | --------------------------------------------------------------------------------------------------------------------- |
-| R0  | ✅     |      | baseline.md, inventory.md, screens/before (40), screens/reference (32); 404 not Lighthouse-measurable                 |
-| R1a | ✅     | #163 | React 19, R3F 9, Vite 8, Vitest 5, ESLint 10, router 8, Playwright 1.65, TS 6; holds below; CI green (735 e2e)        |
-| R1b | ✅     | #164 | TW 4.3 (@tailwindcss/vite), MG tokens/type/dark/Auto, Inter self-hosted, CSS budget 19.5; CI green                    |
-| R2  | ✅     | #165 | tile partials (static, R3 hooks as data-*), Field/Dialog/Pagination restyled; CSS budget 20.5; CI green               |
-| I1  | ✅     | #166 | typed en/id dicts, /id routes + prerender + hreflang + sitemap, banner; id dict lazy; CI green                        |
-| R3  | ✅     | #167 | GSAP 3.15 + Lenis lazy (48.4 KiB), ViewTransition route fade, /__motion dev-only; CI green                            |
-| R4  | ✅     | #168 | 44px nav + brand collapse, sheet (trap, Lenis stop), doormat + wordmark rise (P17), skip link, Lenis scroll; CI green |
-| R5  | ✅     | #170 | home tiles + D2 lanyard gate (idle boot, long tasks 3), ContactForm focus-visible; home 143 KiB; JS total 1640        |     |
-| I2  | ✅     | #169 | translations jsonb (owner SQL pending), localize(), admin EN/ID tabs, lazy api.ts; works pre/post migration           |     |
-| R6a | ⬜     |      |                                                                                                                       |
-| R6b | ⬜     |      |                                                                                                                       |
-| R6c | ⬜     |      |                                                                                                                       |
+| ID  | Status | PR   | Notes                                                                                                                              |
+| --- | ------ | ---- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| R0  | ✅     |      | baseline.md, inventory.md, screens/before (40), screens/reference (32); 404 not Lighthouse-measurable                              |
+| R1a | ✅     | #163 | React 19, R3F 9, Vite 8, Vitest 5, ESLint 10, router 8, Playwright 1.65, TS 6; holds below; CI green (735 e2e)                     |
+| R1b | ✅     | #164 | TW 4.3 (@tailwindcss/vite), MG tokens/type/dark/Auto, Inter self-hosted, CSS budget 19.5; CI green                                 |
+| R2  | ✅     | #165 | tile partials (static, R3 hooks as data-*), Field/Dialog/Pagination restyled; CSS budget 20.5; CI green                            |
+| I1  | ✅     | #166 | typed en/id dicts, /id routes + prerender + hreflang + sitemap, banner; id dict lazy; CI green                                     |
+| R3  | ✅     | #167 | GSAP 3.15 + Lenis lazy (48.4 KiB), ViewTransition route fade, /__motion dev-only; CI green                                         |
+| R4  | ✅     | #168 | 44px nav + brand collapse, sheet (trap, Lenis stop), doormat + wordmark rise (P17), skip link, Lenis scroll; CI green              |
+| R5  | ✅     | #170 | home tiles + D2 lanyard gate (idle boot, long tasks 3), ContactForm focus-visible; home 143 KiB; JS total 1640                     |     |
+| I2  | ✅     | #169 | translations jsonb (owner SQL pending), localize(), admin EN/ID tabs, lazy api.ts; works pre/post migration                        |     |
+| R6a | ⬜     |      |                                                                                                                                    |
+| R6b | ⬜     |      |                                                                                                                                    |
+| R6c | ⬜     |      |                                                                                                                                    |
 | R6d | 🟡     |      | privacy/terms/404 tiles, error screens + PageState, LocaleBanner, admin/login tokens; footer-click check; screens/R6d; awaiting PR |
-| R7  | ⬜     |      |                                                                                                                       |
-| R8  | ⬜     |      |                                                                                                                       |
-| R9  | ⬜     |      |                                                                                                                       |
+| R7  | ⬜     |      |                                                                                                                                    |
+| R8  | ⬜     |      |                                                                                                                                    |
+| R9  | ⬜     |      |                                                                                                                                    |
 
 Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified by orchestrator.
 
