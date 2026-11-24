@@ -7,7 +7,7 @@ import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
 import { certificateQueries } from '@/features/certificates/queries';
 import { useListParams } from '@/lib/useListParams';
 import { Seo } from '@/components/seo/Seo';
-import { useT } from '@/i18n';
+import { useLocale, useT } from '@/i18n';
 import { MotionScope } from '@/components/motion';
 import motionFeatures from '@/components/motion/features';
 
@@ -15,6 +15,7 @@ const ITEMS_PER_PAGE = 9;
 
 function CertificatesContent() {
   const t = useT();
+  const locale = useLocale();
   const {
     input: searchInput,
     setInput: setSearchInput,
@@ -32,12 +33,15 @@ function CertificatesContent() {
     isLoading: isLoadingCerts,
     isError,
   } = useQuery(
-    certificateQueries.list({
-      page: currentPage,
-      limit: ITEMS_PER_PAGE,
-      query: searchQuery,
-      issuer: selectedIssuer,
-    }),
+    certificateQueries.list(
+      {
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+        query: searchQuery,
+        issuer: selectedIssuer,
+      },
+      locale,
+    ),
   );
 
   const certificates = certData?.data ?? [];

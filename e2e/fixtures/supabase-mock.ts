@@ -15,6 +15,8 @@ export interface SupabaseMock {
    * Unset tag/issuer functions are computed from `db`; anything else answers PGRST202.
    */
   rpc: Record<string, { status: number; body: unknown }>;
+  /** Set to simulate a database where the T-41 migration has not been applied yet. */
+  withoutTranslationsColumn?: boolean;
 }
 
 /** PostgREST's answer for a function that doesn't exist (migration not applied yet). */
@@ -187,6 +189,15 @@ export function respond(
 
   const table = url.pathname.replace('/rest/v1/', '');
   if (request.method === 'HEAD') return { status: 200 };
+  if (
+    mock.withoutTranslationsColumn &&
+    /(^|,)translations(,|$)/.test(url.searchParams.get('select') ?? '')
+  ) {
+    return json(400, {
+      code: '42703',
+      message: `column ${table}.translations does not exist`,
+    });
+  }
   if (request.method !== 'GET') return json(201, []);
 
   let rows: Row[];

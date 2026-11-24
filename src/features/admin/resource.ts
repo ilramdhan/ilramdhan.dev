@@ -31,6 +31,8 @@ export interface ResourceConfig<
     remove: (id: number) => Promise<void>;
   };
   schema: ZodType<V, unknown>;
+  /** Fields that also take an Indonesian text (EN | ID tabs), saved into `translations.id`. */
+  translatable?: readonly string[];
   sections: FormSection<V>[];
   /** Form values for a new row. */
   empty: () => V;

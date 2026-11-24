@@ -29,10 +29,12 @@ function resumeResource(type: ResumeType): ResourceConfig<ResumeItem, Values, Pa
   const isEdu = type === 'education';
   return defineResource({
     label: isEdu ? 'Education' : 'Experience',
-    listKey: resumeKeys.list(type),
-    fetchList: () => api.getResume(type),
+    listKey: resumeKeys.admin(type),
+    invalidate: resumeKeys.all,
+    fetchList: () => api.getAdminResume(type),
     api: { create: api.addResumeItem, update: api.updateResumeItem, remove: api.deleteResumeItem },
     schema: isEdu ? schema : experienceSchema,
+    translatable: ['title', 'institution', 'period', 'description'],
     sections: [
       {
         columns: 2,

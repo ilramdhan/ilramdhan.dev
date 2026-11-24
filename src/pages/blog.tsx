@@ -8,7 +8,7 @@ import { BlogCard, BlogCardSkeleton } from '@/features/blog/BlogCard';
 import { blogQueries } from '@/features/blog/queries';
 import { useListParams } from '@/lib/useListParams';
 import { Seo } from '@/components/seo/Seo';
-import { useT } from '@/i18n';
+import { useLocale, useT } from '@/i18n';
 
 const ITEMS_PER_PAGE = 9;
 
@@ -25,6 +25,7 @@ export default function BlogPage() {
     setPage,
   } = useListParams('tag');
   const t = useT();
+  const locale = useLocale();
   const [params, setParams] = useSearchParams();
   const sort: Sort = params.get('sort') === 'oldest' ? 'oldest' : 'newest';
   const listTop = React.useRef<HTMLDivElement>(null);
@@ -36,13 +37,16 @@ export default function BlogPage() {
     isLoading: isLoadingBlogs,
     isError: isErrorBlogs,
   } = useQuery(
-    blogQueries.list({
-      page: currentPage,
-      limit: ITEMS_PER_PAGE,
-      query: searchQuery,
-      tag: selectedTag,
-      sort,
-    }),
+    blogQueries.list(
+      {
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+        query: searchQuery,
+        tag: selectedTag,
+        sort,
+      },
+      locale,
+    ),
   );
 
   const currentBlogs = blogData?.data ?? [];

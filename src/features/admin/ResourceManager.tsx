@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { Edit, Plus, Trash2 } from 'lucide-react';
 import type { FormValues, ZodForm } from './useZodForm';
 import { ResourceForm } from './ResourceForm';
+import { idTranslation } from './translations';
 import type { ResourceConfig, ResourceRow } from './resource';
 import { useCrudResource } from './useCrudResource';
 
@@ -72,8 +73,14 @@ export function ResourceManager<Row extends ResourceRow, V extends FormValues, P
           submitLabel={editing ? 'Update' : 'Save'}
           className={formClassName}
           extra={extra}
+          translatable={resource.translatable}
+          defaultTranslation={idTranslation(
+            (editing as { translations?: unknown } | null)?.translations,
+          )}
           onCancel={close}
-          onSubmit={(values) => crud.save.mutate({ values, editing }, { onSuccess: close })}
+          onSubmit={(values, translation) =>
+            crud.save.mutate({ values, editing, translation }, { onSuccess: close })
+          }
         />
       )}
 

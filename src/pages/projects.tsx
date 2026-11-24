@@ -8,7 +8,7 @@ import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
 import { projectQueries } from '@/features/projects/queries';
 import { useListParams } from '@/lib/useListParams';
 import { Seo } from '@/components/seo/Seo';
-import { useT } from '@/i18n';
+import { useLocale, useT } from '@/i18n';
 import { MotionScope } from '@/components/motion';
 import motionFeatures from '@/components/motion/features';
 
@@ -28,6 +28,7 @@ function ProjectsContent() {
     setPage,
   } = useListParams('tag');
   const t = useT();
+  const locale = useLocale();
   const [params, setParams] = useSearchParams();
   const sort: Sort = params.get('sort') === 'oldest' ? 'oldest' : 'newest';
   const listTop = React.useRef<HTMLDivElement>(null);
@@ -39,13 +40,16 @@ function ProjectsContent() {
     isLoading: isLoadingProjects,
     isError: isErrorProjects,
   } = useQuery(
-    projectQueries.list({
-      page: currentPage,
-      limit: ITEMS_PER_PAGE,
-      query: searchQuery,
-      tag: selectedTag,
-      sort,
-    }),
+    projectQueries.list(
+      {
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+        query: searchQuery,
+        tag: selectedTag,
+        sort,
+      },
+      locale,
+    ),
   );
 
   const currentProjects = projectData?.data ?? [];

@@ -42,11 +42,11 @@ export async function GET(request: Request): Promise<Response> {
     return notFound(url.origin, 'no-store');
   }
   try {
+    const locale = url.searchParams.get('locale') === 'id' ? 'id' : 'en';
     const [row, template] = await Promise.all([
-      fetchDetailRow(kind, slug, { url: supabaseUrl, anonKey }),
+      fetchDetailRow(kind, slug, { url: supabaseUrl, anonKey }, fetch, locale),
       staticPage(url.origin, 'spa'),
     ]);
-    const locale = url.searchParams.get('locale') === 'id' ? 'id' : 'en';
     const page = buildDetailHtml(template, kind, slug, row, locale);
     // A short CDN cache: the next deploy prerenders the page and takes over anyway.
     if (page) return html(page, 200, 'public, s-maxage=300, stale-while-revalidate=3600');

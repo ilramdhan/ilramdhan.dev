@@ -311,6 +311,15 @@ export const en = {
     pauseList: 'Pause the moving list',
     playList: 'Play the moving list',
   },
+  content: {
+    notTranslated: 'Not yet translated: showing the English original.',
+  },
+  admin: {
+    tabsLabel: 'Content language',
+    tabEn: 'EN',
+    tabId: 'ID',
+    translationHint: 'Leave empty to show the English text on the Indonesian site.',
+  },
 };
 
 export type Messages = typeof en;
