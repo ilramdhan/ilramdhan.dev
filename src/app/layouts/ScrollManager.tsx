@@ -108,12 +108,28 @@ export function ScrollManager() {
         samePage &&
         !pageLoad &&
         !!window.matchMedia?.('(prefers-reduced-motion: no-preference)').matches;
-      // A menu closing in this same commit restarts Lenis on its overflow `transitionend`, and that restart resets
-      // any scroll already running: wait until Lenis runs again.
-      return retryFor(3000, () => {
+      // Self-correcting: a menu closing in this same commit restarts Lenis (which resets a running scroll), and Lenis
+      // booting on idle can cut a native smooth scroll short. Wait until Lenis runs, scroll, then once the page has
+      // settled check where the target landed and finish instantly if it is off.
+      let started = false;
+      let lastY = -1;
+      let still = 0;
+      return retryFor(4000, () => {
         const el = document.getElementById(id);
         if (!el || lenisRef.current?.isStopped) return false;
-        to(el, smooth);
+        if (!started) {
+          started = true;
+          to(el, smooth);
+          return false;
+        }
+        const y = window.scrollY;
+        still = y === lastY && !lenisRef.current?.isScrolling ? still + 1 : 0;
+        lastY = y;
+        if (still < 6) return false; // ~100ms without movement
+        const pad = parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) || 0;
+        const top = el.getBoundingClientRect().top;
+        const atEnd = y >= document.documentElement.scrollHeight - window.innerHeight - 1;
+        if (Math.abs(top - pad) > 2 && !atEnd) to(el);
         return true;
       });
     }
