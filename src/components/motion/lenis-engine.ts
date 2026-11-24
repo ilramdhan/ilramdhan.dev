@@ -27,6 +27,17 @@ export function startEngine({ velocity, onLenis }: EngineHooks): () => void {
     lastY = y;
   };
   const lenisTick = (time: number) => instance?.raf(time * 1000);
+  // Keyboard focus: the browser scrolls the focused element into view natively, then Lenis' next tick drags the
+  // page back to its own target, leaving focus off screen (WCAG 2.4.11). Sync Lenis to the element instead.
+  const onFocus = (e: FocusEvent) => {
+    const el = e.target as HTMLElement | null;
+    if (!instance || !el?.getBoundingClientRect) return;
+    const r = el.getBoundingClientRect();
+    const nav =
+      parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 44;
+    if (r.top >= nav && r.bottom <= window.innerHeight) return;
+    instance.scrollTo(el, { immediate: true, force: true, offset: -(nav + 24) });
+  };
 
   const mount = () => {
     if (instance) return;
@@ -47,11 +58,13 @@ export function startEngine({ velocity, onLenis }: EngineHooks): () => void {
     });
     gsap.ticker.add(lenisTick);
     gsap.ticker.lagSmoothing(0);
+    document.addEventListener('focusin', onFocus);
     document.documentElement.classList.add('lenis-on');
     onLenis(instance);
   };
   const unmount = () => {
     if (instance) {
+      document.removeEventListener('focusin', onFocus);
       gsap.ticker.remove(lenisTick);
       instance.destroy();
       instance = null;
@@ -70,6 +83,7 @@ export function startEngine({ velocity, onLenis }: EngineHooks): () => void {
     gsap.ticker.remove(nativeTick);
     gsap.ticker.remove(lenisTick);
     gsap.ticker.lagSmoothing(500, 33);
+    document.removeEventListener('focusin', onFocus);
     instance?.destroy();
     instance = null;
     document.documentElement.classList.remove('lenis-on');

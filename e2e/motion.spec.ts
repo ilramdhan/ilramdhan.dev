@@ -268,6 +268,18 @@ test.describe('motion layer', () => {
     );
   });
 
+  test('with Lenis on, Tab scrolls the focused control into view', async ({ page }) => {
+    await page.goto('/__motion');
+    await expect(page.locator('html')).toHaveClass(/lenis-on/, { timeout: 8000 });
+    // Tab through from the top (no programmatic scroll), as a keyboard visitor would.
+    await page.locator('body').focus();
+    for (let i = 0; i < 9; i++) {
+      await page.keyboard.press('Tab');
+      await page.waitForTimeout(350); // a Lenis tick must not drag the page back
+      await expect(page.locator(':focus')).toBeInViewport();
+    }
+  });
+
   test.describe('reduced motion', () => {
     test.use({ contextOptions: { reducedMotion: 'reduce' } });
     test('nothing splits, counts, loops or loads an engine; marquee is one wrapped line', async ({
