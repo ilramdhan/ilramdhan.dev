@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  FeatureColumns,
-  LinkChevron,
-  SpecRow,
-  Tile,
-  TileHeading,
-  type LinkedItem,
-  type SpecItem,
-} from '@/components/tile';
-import { Marquee, ScrollFill } from '@/components/motion';
+// Direct module imports, not the barrels: the footer (entry chunk) imports the tile barrel, and through it Rollup
+// would hoist every home-only partial into the entry that every route downloads.
+import { FeatureColumns } from '@/components/tile/FeatureColumns';
+import type { LinkedItem } from '@/components/tile/LinkedGroup';
+import { LinkChevron } from '@/components/tile/LinkChevron';
+import { SpecRow, type SpecItem } from '@/components/tile/SpecRow';
+import { Tile } from '@/components/tile/Tile';
+import { TileHeading } from '@/components/tile/TileHeading';
+import { Marquee } from '@/components/motion/Marquee';
+import { ScrollFill } from '@/components/motion/ScrollFill';
 import { Hero } from '@/features/hero-3d/Hero';
 import { ContactForm } from '@/features/messages/ContactForm';
 import { LinkedRowOrNote, LinkedRowSkeleton } from '@/features/home/HomeRows';

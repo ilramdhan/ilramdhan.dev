@@ -1,4 +1,4 @@
-import { LinkedGroupRow, type LinkedItem } from '@/components/tile';
+import { LinkedGroupRow, type LinkedItem } from '@/components/tile/LinkedGroup';
 import { cn } from '@/lib/utils';
 
 /** Frames of the row's real shape (2 columns under 1024px, then `columns`), so data arriving later shifts nothing. */

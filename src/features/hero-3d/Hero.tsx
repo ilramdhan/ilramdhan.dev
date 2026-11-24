@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { PillButton } from '@/components/tile';
+import { PillButton } from '@/components/tile/PillButton';
 import { useMediaQuery } from '@/lib/hooks';
 import { cn } from '@/lib/utils';
 import { profileQueries } from '@/features/profile/queries';

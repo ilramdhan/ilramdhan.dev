@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, useId } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { pillClass } from '@/components/tile';
+import { pillClass } from '@/components/tile/pill';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 import { addMessage } from './api';
