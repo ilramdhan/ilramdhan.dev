@@ -1,6 +1,5 @@
 import { queryOptions } from '@tanstack/react-query';
-// ponytail: loaded on first fetch to keep api/localize code out of every route's initial JS.
-const api = () => import('./api');
+import { getTechStack } from './api';
 
 export const techStackKeys = {
   all: ['tech-stack'] as const,
@@ -8,9 +7,5 @@ export const techStackKeys = {
 };
 
 export const techStackQueries = {
-  list: () =>
-    queryOptions({
-      queryKey: techStackKeys.list(),
-      queryFn: async () => (await api()).getTechStack(),
-    }),
+  list: () => queryOptions({ queryKey: techStackKeys.list(), queryFn: getTechStack }),
 };

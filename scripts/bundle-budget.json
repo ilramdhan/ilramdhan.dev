@@ -6,7 +6,7 @@
       "pattern": "\\.js$",
       "metric": "gzip",
       "aggregate": "sum",
-      "maxKiB": 1652
+      "maxKiB": 1650.5
     },
     {
       "name": "Largest JS chunk (gzip)",
