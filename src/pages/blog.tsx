@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
 import { useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { X } from 'lucide-react';
@@ -6,16 +6,11 @@ import { FlipGroup } from '@/components/motion/FlipGroup';
 import { Pagination } from '@/components/ui/Pagination';
 import { SegmentedControl } from '@/components/tile/SegmentedControl';
 import { BlogCardSkeleton, BlogFeatureSkeleton } from '@/features/blog/BlogSkeleton';
+import BlogRows, { BlogFeatureSlot } from '@/features/blog/BlogList';
 import { blogQueries } from '@/features/blog/queries';
 import { useListParams } from '@/lib/useListParams';
 import { Seo } from '@/components/seo/Seo';
 import { useLocale, useT } from '@/i18n';
-
-const load = () => import('@/features/blog/BlogList');
-// Requested at page load (parallel with hydration), not on first render: still outside the initial JS graph. On the
-// prerendered page the server waits for it and hydration keeps the markup, as with Markdown.
-const BlogRows = lazy(load);
-const BlogFeatureSlot = lazy(() => load().then((m) => ({ default: m.BlogFeatureSlot })));
 
 const ITEMS_PER_PAGE = 9;
 
@@ -223,19 +218,13 @@ export default function BlogPage() {
             </>
           )}
           {isErrorBlogs && !blogData && <p className="py-10 text-danger">{t.blog.error}</p>}
-          {showFeature && feature && (
-            <Suspense fallback={<BlogFeatureSkeleton />}>
-              <BlogFeatureSlot post={feature} />
-            </Suspense>
-          )}
+          {showFeature && feature && <BlogFeatureSlot post={feature} />}
           {rows.length > 0 && (
             <FlipGroup
               flipKey={`${selectedTag}|${searchQuery}|${sort}|${currentPage}`}
               className="stagger-row grid w-full gap-x-8 gap-y-12 md:grid-cols-2 lg:grid-cols-3"
             >
-              <Suspense fallback={null}>
-                <BlogRows rows={rows} />
-              </Suspense>
+              <BlogRows rows={rows} />
             </FlipGroup>
           )}
           {currentBlogs.length === 0 && !isLoadingBlogs && !isErrorBlogs && (
