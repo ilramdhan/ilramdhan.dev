@@ -17,9 +17,9 @@ const ITEMS_PER_PAGE = 9;
 type Sort = 'newest' | 'oldest';
 
 const field =
-  'min-h-11 rounded-full bg-parchment px-5 text-body text-ink outline-none placeholder:text-ink-muted/70 focus-visible:outline-2 focus-visible:outline-action';
+  'min-h-11 rounded-full bg-parchment px-5 text-body text-ink outline-hidden placeholder:text-ink-muted/70 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-action';
 const textLink =
-  'inline-flex min-h-11 items-center text-caption text-tile-action underline-offset-4 hover:text-tile-action-hover hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tile-action';
+  'inline-flex min-h-11 items-center text-caption text-tile-action underline-offset-4 hover:text-tile-action-hover hover:underline focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-2 focus-visible:outline-tile-action';
 
 export default function BlogPage() {
   const {
@@ -159,7 +159,7 @@ export default function BlogPage() {
                     type="button"
                     aria-label={t.list.clearSearch}
                     onClick={() => setSearchInput('')}
-                    className="absolute right-1 top-0 grid size-11 place-items-center rounded-full text-ink-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-action"
+                    className="absolute right-1 top-0 grid size-11 place-items-center rounded-full text-ink-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-action"
                   >
                     <X className="size-4" aria-hidden="true" />
                   </button>

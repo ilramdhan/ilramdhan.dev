@@ -21,7 +21,7 @@ const ITEMS_PER_PAGE = 6;
 
 const GRID = 'gap-x-4 gap-y-12 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-3';
 const FIELD =
-  'min-h-12 w-full rounded-md bg-parchment px-4 text-body text-ink outline-none placeholder:text-ink-muted/70 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-tile-action';
+  'min-h-12 w-full rounded-md bg-parchment px-4 text-body text-ink outline-hidden placeholder:text-ink-muted/70 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-0 focus-visible:outline-tile-action';
 
 type Sort = 'newest' | 'oldest';
 

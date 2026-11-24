@@ -13,7 +13,7 @@ const COOLDOWN_SECONDS = 60;
 // mutugading FIELD: parchment fill, no stroke, 11px corners, 48px tall, 17px text. Focus and errors are a 2px outline
 // (focus in the tile's action colour, never removed without a replacement).
 const FIELD =
-  'min-h-12 w-full rounded-md bg-parchment px-4 text-body text-ink outline-none placeholder:text-ink-muted/70 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-tile-action aria-invalid:outline-2 aria-invalid:outline-danger disabled:opacity-60';
+  'min-h-12 w-full rounded-md bg-parchment px-4 text-body text-ink outline-hidden placeholder:text-ink-muted/70 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-0 focus-visible:outline-tile-action aria-invalid:outline-2 aria-invalid:outline-danger disabled:opacity-60';
 // Signal red is tuned for light grounds; on a dark tile it uses the dark theme's red (7.5:1 on night).
 // ponytail: literal value; becomes a `--tile-danger` token if a second dark-tile form appears.
 const ERROR = 'text-caption text-danger [[data-tone=dark]_&]:text-[#ff6961]';

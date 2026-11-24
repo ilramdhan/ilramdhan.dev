@@ -27,7 +27,7 @@ function useScrollLock() {
 }
 
 const NAV_BUTTON =
-  'grid size-11 place-items-center rounded-full bg-on-dark/10 text-on-dark transition-[background-color,scale] duration-200 ease-apple hover:bg-on-dark/20 active:scale-[0.96] motion-reduce:transition-none focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-on-dark';
+  'grid size-11 place-items-center rounded-full bg-on-dark/10 text-on-dark transition-[background-color,scale] duration-200 ease-apple hover:bg-on-dark/20 active:scale-[0.96] motion-reduce:transition-none focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-on-dark';
 
 /**
  * Full-screen image viewer (T-52), loaded lazily by `ProjectGallery` on first open: the

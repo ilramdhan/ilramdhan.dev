@@ -141,7 +141,7 @@ export default function BlogDetailPage() {
   };
 
   const input =
-    'min-h-11 w-full rounded-lg bg-white px-4 text-body text-ink outline-none placeholder:text-ink-muted/70 focus-visible:outline-2 focus-visible:outline-action';
+    'min-h-11 w-full rounded-lg bg-white px-4 text-body text-ink outline-hidden placeholder:text-ink-muted/70 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-action';
 
   return (
     <article ref={articleRef}>

@@ -74,7 +74,7 @@ export default function CertificatesPage() {
             aria-label={t.certificates.searchPlaceholder}
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="min-h-12 w-full max-w-xl rounded-full bg-parchment px-6 text-body text-ink outline-none placeholder:text-ink-muted/70 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-tile-action"
+            className="min-h-12 w-full max-w-xl rounded-full bg-parchment px-6 text-body text-ink outline-hidden placeholder:text-ink-muted/70 focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-offset-0 focus-visible:outline-tile-action"
           />
           {issuerOptions.length > 2 ? (
             <div className="max-w-full overflow-x-auto">
