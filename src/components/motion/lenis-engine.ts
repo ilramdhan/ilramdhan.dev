@@ -31,7 +31,9 @@ export function startEngine({ velocity, onLenis }: EngineHooks): () => void {
   // page back to its own target, leaving focus off screen (WCAG 2.4.11). Sync Lenis to the element instead.
   const onFocus = (e: FocusEvent) => {
     const el = e.target as HTMLElement | null;
-    if (!instance || !el?.getBoundingClientRect) return;
+    // Keyboard focus only: a pointer press focuses its target too, and jumping the page between mousedown and
+    // mouseup would cancel the click.
+    if (!instance || !el?.getBoundingClientRect || !el.matches(':focus-visible')) return;
     const r = el.getBoundingClientRect();
     const nav =
       parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h')) || 44;
