@@ -31,7 +31,7 @@ export function ResumeTab() {
         heading="Work Experience"
         addLabel="Add"
         listClassName="space-y-4"
-        renderRow={row('text-indigo-500')}
+        renderRow={row('text-action')}
       />
       <ResourceManager
         variant="section"

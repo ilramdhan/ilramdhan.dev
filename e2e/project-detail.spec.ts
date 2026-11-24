@@ -113,9 +113,9 @@ test('related projects and thumbnails are in the prerendered HTML', async ({ req
 test('related projects exclude the current one and link to their pages', async ({ page }) => {
   await page.goto(PROJECT);
   const related = page.getByRole('region', { name: 'Related projects' });
-  await expect(related.getByRole('heading', { level: 3 })).toHaveCount(3);
-  await expect(related.getByRole('link', { name: 'Project 1', exact: true })).toHaveCount(0);
-  await related.getByRole('link', { name: 'Project 8', exact: true }).click();
+  await expect(related.getByRole('link')).toHaveCount(3);
+  await expect(related.getByRole('link').filter({ hasText: /Project 1$/m })).toHaveCount(0);
+  await related.getByRole('link').filter({ hasText: 'Project 8' }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Project 8');
 });
 
@@ -135,7 +135,9 @@ test.describe('layout', () => {
     await check();
   });
 
-  test('sections share the left and right edges at 1280 px', async ({ page }, testInfo) => {
+  test('gallery and related projects share the carousel edges at 1280 px', async ({
+    page,
+  }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop', 'desktop layout');
     await page.goto(PROJECT);
     await page.waitForLoadState('networkidle');
@@ -147,12 +149,13 @@ test.describe('layout', () => {
     const carousel = await box('carousel', page.getByRole('group', { name: ALT }));
     for (const b of [
       await box('gallery', page.getByRole('list', { name: 'Gallery' })),
-      await box('related', page.getByRole('region', { name: 'Related projects' })),
+      await box(
+        'related',
+        page.getByRole('region', { name: 'Related projects' }).getByRole('list'),
+      ),
     ]) {
       expect(Math.abs(b.left - carousel.left), `${b.name} left`).toBeLessThanOrEqual(1);
       expect(Math.abs(b.right - carousel.right), `${b.name} right`).toBeLessThanOrEqual(1);
     }
-    const h1 = await box('h1', page.getByRole('heading', { level: 1 }));
-    expect(Math.abs(h1.left - carousel.left), 'h1 left').toBeLessThanOrEqual(1);
   });
 });

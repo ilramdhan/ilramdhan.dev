@@ -45,14 +45,14 @@ export function LocaleBanner() {
   // `en.banner` is Indonesian on purpose: it is shown to Indonesian readers on the English page.
   const t = en.banner;
   const button =
-    'min-h-11 min-w-11 rounded-lg px-4 py-2 text-sm font-medium outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500';
+    'min-h-11 min-w-11 px-4 text-fine outline-hidden focus-visible:ring-2 focus-visible:ring-action';
   return (
     <div
       role="region"
       aria-label={t.label}
-      className="fixed inset-x-4 bottom-4 z-60 mx-auto flex max-w-xl flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-on-dark p-4 shadow-lg dark:border-on-dark/10 dark:bg-slate-900"
+      className="fixed inset-x-4 bottom-4 z-60 mx-auto flex max-w-xl flex-wrap items-center justify-between gap-3 rounded-xl bg-parchment p-4"
     >
-      <p className="text-sm font-medium text-slate-900 dark:text-on-dark">{t.question}</p>
+      <p className="text-fine font-medium text-ink">{t.question}</p>
       <div className="flex gap-2">
         <button
           type="button"
@@ -60,7 +60,7 @@ export function LocaleBanner() {
             save('en');
             setShow(false);
           }}
-          className={`${button} text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800`}
+          className={`${button} text-ink-muted hover:text-ink`}
         >
           {t.dismiss}
         </button>
@@ -72,7 +72,7 @@ export function LocaleBanner() {
             const target = `${localePath(splitLocale(pathname).path, 'id')}${search}${hash}`;
             void loadLocale('id').then(() => navigate(target));
           }}
-          className={`${button} bg-indigo-600 text-on-dark hover:bg-indigo-700`}
+          className={`${button} rounded-full bg-tile-pill font-medium text-tile-pill-ink hover:bg-tile-pill-hover`}
         >
           {t.accept}
         </button>

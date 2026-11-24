@@ -22,24 +22,24 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 
 ## Phases
 
-| ID  | Status | PR   | Notes                                                                                                                 |
-| --- | ------ | ---- | --------------------------------------------------------------------------------------------------------------------- |
-| R0  | ✅     |      | baseline.md, inventory.md, screens/before (40), screens/reference (32); 404 not Lighthouse-measurable                 |
-| R1a | ✅     | #163 | React 19, R3F 9, Vite 8, Vitest 5, ESLint 10, router 8, Playwright 1.65, TS 6; holds below; CI green (735 e2e)        |
-| R1b | ✅     | #164 | TW 4.3 (@tailwindcss/vite), MG tokens/type/dark/Auto, Inter self-hosted, CSS budget 19.5; CI green                    |
-| R2  | ✅     | #165 | tile partials (static, R3 hooks as data-*), Field/Dialog/Pagination restyled; CSS budget 20.5; CI green               |
-| I1  | ✅     | #166 | typed en/id dicts, /id routes + prerender + hreflang + sitemap, banner; id dict lazy; CI green                        |
-| R3  | ✅     | #167 | GSAP 3.15 + Lenis lazy (48.4 KiB), ViewTransition route fade, /__motion dev-only; CI green                            |
-| R4  | ✅     | #168 | 44px nav + brand collapse, sheet (trap, Lenis stop), doormat + wordmark rise (P17), skip link, Lenis scroll; CI green |
-| R5  | ✅     | #170 | home tiles + D2 lanyard gate (idle boot, long tasks 3), ContactForm focus-visible; home 143 KiB; JS total 1640        |     |
-| I2  | ✅     | #169 | translations jsonb (owner SQL pending), localize(), admin EN/ID tabs, lazy api.ts; works pre/post migration           |     |
-| R6a | ⬜     |      |                                                                                                                       |
-| R6b | 🟡     | #174 | blog list + Newsroom article on tiles; /blog 136.4 (= base), JS total +flip chunks only; awaiting orchestrator verify |
-| R6c | ⬜     |      |                                                                                                                       |
-| R6d | ⬜     |      |                                                                                                                       |
-| R7  | ⬜     |      |                                                                                                                       |
-| R8  | ⬜     |      |                                                                                                                       |
-| R9  | ⬜     |      |                                                                                                                       |
+| ID  | Status | PR   | Notes                                                                                                                                                                  |
+| --- | ------ | ---- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R0  | ✅     |      | baseline.md, inventory.md, screens/before (40), screens/reference (32); 404 not Lighthouse-measurable                                                                  |
+| R1a | ✅     | #163 | React 19, R3F 9, Vite 8, Vitest 5, ESLint 10, router 8, Playwright 1.65, TS 6; holds below; CI green (735 e2e)                                                         |
+| R1b | ✅     | #164 | TW 4.3 (@tailwindcss/vite), MG tokens/type/dark/Auto, Inter self-hosted, CSS budget 19.5; CI green                                                                     |
+| R2  | ✅     | #165 | tile partials (static, R3 hooks as data-*), Field/Dialog/Pagination restyled; CSS budget 20.5; CI green                                                                |
+| I1  | ✅     | #166 | typed en/id dicts, /id routes + prerender + hreflang + sitemap, banner; id dict lazy; CI green                                                                         |
+| R3  | ✅     | #167 | GSAP 3.15 + Lenis lazy (48.4 KiB), ViewTransition route fade, /__motion dev-only; CI green                                                                             |
+| R4  | ✅     | #168 | 44px nav + brand collapse, sheet (trap, Lenis stop), doormat + wordmark rise (P17), skip link, Lenis scroll; CI green                                                  |
+| R5  | ✅     | #170 | home tiles + D2 lanyard gate (idle boot, long tasks 3), ContactForm focus-visible; home 143 KiB; JS total 1640                                                         |     |
+| I2  | ✅     | #169 | translations jsonb (owner SQL pending), localize(), admin EN/ID tabs, lazy api.ts; works pre/post migration                                                            |     |
+| R6a | ✅     | #173 | projects + detail on tiles (LinkedGroup, SegmentedControl, FlipGroup, SpecRow, Morph, inset reveal); /projects 162 → 140 KiB; home +2.4 (shared-chunk split, owner OK) |
+| R6b | 🟡     | #174 | blog list + Newsroom article on tiles; /blog 136.4 (= base), JS total +flip chunks only; awaiting orchestrator verify                                                  |
+| R6c | ⬜     |      |                                                                                                                                                                        |
+| R6d | 🟡     |      | privacy/terms/404 tiles, error screens + PageState, LocaleBanner, admin/login tokens; footer-click check; screens/R6d; awaiting PR                                     |
+| R7  | ⬜     |      |                                                                                                                                                                        |
+| R8  | ⬜     |      |                                                                                                                                                                        |
+| R9  | ⬜     |      |                                                                                                                                                                        |
 
 Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified by orchestrator.
 
@@ -51,6 +51,8 @@ Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified 
 - Home long tasks at 4x CPU: fixed in R5 (3D card boots after load + idle): 3 in 9/10 runs, limit 5.
 - **Import partials by module, not the barrel** (`@/components/tile/X`, `@/components/motion/X`) from anything in the entry chunk (chrome, shared cards): a barrel import there hoists every partial into `index.js` for all routes (R5: privacy +3.6 KiB).
 - Feature `queries.ts` lazy-import their `api.ts` (I2) to keep localize/translations retry out of initial JS.
+
+- 2026-11-24 R6b on redesign/R6b-blog (PR #174): /blog + /blog/:slug rebuilt on tiles (split featured, SegmentedControl tags, rows + stagger + FlipGroup, 17px/680px column, TOC rail + Disclosure with sliding marker, hairline progress, chevron ShareBar, morph); indigo removed from article components; prose + hljs on MG tokens; FeaturedCarousel deleted. /blog initial JS back to base 136.4 via hero markup without Tile/TileHeading (ponytail comment in pages/blog.tsx) and a lazy card chunk. Project-detail TOC spec now targets the shared Disclosure button. Gotcha: a dynamic import of a module that pulls tile partials can re-split shared chunks (i18n, hooks) and push /privacy +1 KiB; check every route budget after adding one.
 
 ### CI failures (read before opening a PR)
 
@@ -75,4 +77,6 @@ Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified 
 - 2026-11-24 R4 on redesign/R4-chrome: mutugading chrome ported (44px nav + brand collapse, no flyouts, Light/Dark/Auto menu, EN/ID same-page switch, mobile sheet w/ focus trap + Lenis stop, parchment doormat + reveal curtain + lazy wordmark rise w/ P17 refresh, skip link, ScrollManager on Lenis, Pagination labels via t()); nav/main moved into PublicLayout; Dialog portalled to body; budgets CSS 22.5 / privacy 132 / blog 138 / projects 164 / home 157; screens/R4; awaiting orchestrator verify.
 - 2026-11-24 R4 ✅ merged #168 (verified by orchestrator: gates green, full e2e 820 local, screens/R4 nav 1440 + footer 375 checked vs reference, CI green). Budgets CSS 22.5 / home 157 / privacy 132 / blog 138 / projects 164. Fixed along: AdminRoute non-admin redirect, Lenis hash scroll cut short, locale link hash after hydration. Left for R5: ContactForm focus ring; R6d: admin .btn-secondary gray-on-color (impeccable). Local `npm test`/format pick up untracked `.claude/worktrees/`: exclude or delete them. Next: R5 + I2 in parallel.
 - 2026-11-24 I2 ✅ merged #169 (verified by orchestrator: gates, e2e 182 desktop+tablet, CI green; fixed a pre-migration e2e race + /projects budget via lazy api.ts). **Owner: run `supabase/migrations/20261124000000_translations_jsonb.sql` in the SQL Editor, then record the version.** R5 ✅ #170 (verified: gates, full e2e desktop+tablet 373, screens/R5 1440+375 vs reference; Footer barrel import fixed, JS total 1630→1640 for lazy motion engines only; TOC e2e now measures the nav). Follow-ups: R4 footer curtain slows footer-link clicks from scrolled pages (~10s in Playwright); indigo classes in ArticleFooter/ShareBar/Carousel/LocaleBanner (R6). Next: R6a–R6d in parallel.
-- 2026-11-24 R6b on redesign/R6b-blog (PR #174): /blog + /blog/:slug rebuilt on tiles (split featured, SegmentedControl tags, rows + stagger + FlipGroup, 17px/680px column, TOC rail + Disclosure with sliding marker, hairline progress, chevron ShareBar, morph); indigo removed from article components; prose + hljs on MG tokens; FeaturedCarousel deleted. /blog initial JS back to base 136.4 via hero markup without Tile/TileHeading (ponytail comment in pages/blog.tsx) and a lazy card chunk. Project-detail TOC spec now targets the shared Disclosure button. Gotcha: a dynamic import of a module that pulls tile partials can re-split shared chunks (i18n, hooks) and push /privacy +1 KiB; check every route budget after adding one.
+- 2026-11-24 R6d on redesign/R6d-utility: privacy/terms/404 as screen tiles (inlined Tile classes, no tile partial in the entry chunk: privacy 128.9 KiB, home 142.8); error screens + PageState on tokens; LocaleBanner, admin, login indigo -> MG tokens; .btn-secondary text-ink on parchment. Footer-click root cause: the reveal curtain (z 2) covers the sticky footer (z 1) until the page is near the bottom; clicks from 30-60% scroll wait for the lift (2-6 s), working as designed; the new e2e check scrolls to the bottom first and clicks with 3 s timeout (desktop + tablet). Gates: typecheck/lint/format:check/test/build/size exit 0; e2e navigation+smoke+a11y+theme+navbar+i18n+admin+admin-crud desktop+tablet 99 passed, 0 failed. impeccable detect: 2 findings left, both global.css font stack (R1b, not ours). Next: orchestrator verifies, merges.
+- 2026-11-24 R6a follow-up: motion.spec carousel test moved to the detail gallery, detail gallery inset reveal on, impeccable detect clean; JS total 1648.6 vs 1640 = flip-engine + FlipGroup (+10.2) + ~0.9 new detail-page code; orchestrator raises JS total, R6a stays 🟡 until size is green.
+- 2026-11-24 R6a ✅ #173 (verified by orchestrator after #175: gates, e2e 155 desktop+tablet, screens/R6a projects 1440 vs reference products). Home initial 142.9 → 145.3 from shared partials splitting into their own chunks once /projects uses them (owner accepted; trim in R7). Left for R7: LinkedGroup text centred vs left-aligned in the reference.

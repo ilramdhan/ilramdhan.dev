@@ -6,7 +6,7 @@
       "pattern": "\\.js$",
       "metric": "gzip",
       "aggregate": "sum",
-      "maxKiB": 1640
+      "maxKiB": 1650.5
     },
     {
       "name": "Largest JS chunk (gzip)",
@@ -51,7 +51,7 @@
       "route": "^assets/projects-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "initial",
-      "maxKiB": 164
+      "maxKiB": 140.5
     },
     {
       "name": "Initial JS / (gzip)",

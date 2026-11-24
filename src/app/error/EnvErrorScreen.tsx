@@ -7,25 +7,25 @@ export function EnvErrorScreen({ errors }: EnvErrorScreenProps) {
   return (
     <main
       role="alert"
-      className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 text-slate-800 dark:text-slate-100"
+      className="flex min-h-screen flex-col items-center justify-center bg-white px-4 text-ink"
     >
-      <div className="w-full max-w-lg rounded-2xl border border-slate-200 dark:border-on-dark/10 bg-on-dark dark:bg-slate-900 p-6 shadow-lg">
-        <h1 className="text-xl font-bold">Site configuration error</h1>
-        <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">
+      <div className="w-full max-w-[60ch]">
+        <h1 className="text-tile font-semibold">Site configuration error</h1>
+        <p className="mt-4 text-body text-ink-muted">
           The site could not start because required environment variables are missing or invalid.
         </p>
-        <ul className="mt-4 list-disc space-y-1 pl-5 font-mono text-sm text-red-600 dark:text-red-400">
+        <ul className="mt-6 list-disc space-y-1 pl-5 font-mono text-fine text-danger">
           {errors.map((error) => (
             <li key={error}>{error}</li>
           ))}
         </ul>
         {import.meta.env.DEV ? (
-          <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-6 text-body text-ink-muted">
             Copy <code>.env.example</code> to <code>.env.local</code>, fill in the values and
             restart the dev server.
           </p>
         ) : (
-          <p className="mt-4 text-sm text-slate-600 dark:text-slate-400">
+          <p className="mt-6 text-body text-ink-muted">
             Please try again later. If you are the site owner, set these variables in the hosting
             provider&apos;s environment settings and redeploy.
           </p>

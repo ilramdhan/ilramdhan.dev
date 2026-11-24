@@ -29,20 +29,20 @@ test('two featured projects are a row of two', async ({ page, supabase }) => {
   for (const p of supabase.db.projects ?? []) p.is_featured = p.id === 1 || p.id === 2;
   // Client-side render (the prerendered home has the full dataset): go via another page.
   await page.goto('/no-such-page');
-  await page.getByRole('main').getByRole('link', { name: 'Home', exact: true }).click();
+  await page.getByRole('main').getByRole('link', { name: 'Back to Home' }).click();
   await expect(page.locator('#projects ul > li > a')).toHaveCount(2);
 });
 
 test('no featured projects shows the empty message', async ({ page, supabase }) => {
   for (const p of supabase.db.projects ?? []) p.is_featured = false;
   await page.goto('/no-such-page');
-  await page.getByRole('main').getByRole('link', { name: 'Home', exact: true }).click();
+  await page.getByRole('main').getByRole('link', { name: 'Back to Home' }).click();
   await expect(page.getByText('No featured projects yet.')).toBeVisible();
 });
 
 test('the featured query asks for up to 9 projects', async ({ page, supabase }) => {
   await page.goto('/no-such-page');
-  await page.getByRole('main').getByRole('link', { name: 'Home', exact: true }).click();
+  await page.getByRole('main').getByRole('link', { name: 'Back to Home' }).click();
   await expect(page.locator('#projects ul > li > a').first()).toBeVisible();
   expect(
     supabase.requests.some(
@@ -57,7 +57,7 @@ test('the featured query asks for up to 9 projects', async ({ page, supabase }) 
 test('hero counts come from the database and hide when unknown', async ({ page, supabase }) => {
   supabase.db.certificates = [];
   await page.goto('/no-such-page');
-  await page.getByRole('main').getByRole('link', { name: 'Home', exact: true }).click();
+  await page.getByRole('main').getByRole('link', { name: 'Back to Home' }).click();
   const specs = page.locator('section[data-enter] dl');
   // Dataset: 9 projects, 8 posts, 5 tools; 0 certificates = hidden, never "0".
   await expect(specs.locator('dd .sr-only')).toHaveText(['9', '8', '5']);

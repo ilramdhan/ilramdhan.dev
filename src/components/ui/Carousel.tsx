@@ -15,7 +15,7 @@ const HIDE_SCROLLBAR = { scrollbarWidth: 'none' } as const;
 /** One icon for both buttons (a second one would add a shared chunk to the entry's list). */
 const MIRROR = { scale: '-1 1' } as const;
 const NAV_BUTTON =
-  'inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-on-dark text-slate-700 shadow-xs transition-colors hover:border-indigo-500/50 hover:text-indigo-600 outline-hidden focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:cursor-not-allowed disabled:opacity-50 dark:border-on-dark/10 dark:bg-slate-900 dark:text-slate-200 dark:hover:text-indigo-400';
+  'grid size-11 place-items-center rounded-full bg-parchment text-tile-ink transition-[background-color,scale] duration-200 ease-apple hover:bg-tile-frame active:scale-[0.96] disabled:cursor-not-allowed disabled:opacity-40 motion-reduce:transition-none';
 
 /** Skeleton row with the carousel's / grid's card boxes (1 / 2 / 3 visible). */
 export function CarouselSkeleton({ renderSkeleton }: { renderSkeleton: () => ReactNode }) {

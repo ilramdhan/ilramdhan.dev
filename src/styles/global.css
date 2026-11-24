@@ -525,31 +525,31 @@
 
   /* Admin forms and buttons (restyled tokens-only in R6d). */
   .input {
-    @apply w-full rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-slate-900 outline-hidden focus:ring-1 focus:ring-indigo-500 dark:border-on-dark/10 dark:bg-slate-950 dark:text-on-dark;
+    @apply w-full rounded-md bg-parchment px-4 py-2 text-ink outline-hidden focus-visible:ring-2 focus-visible:ring-action;
   }
   .input-file {
-    @apply w-full text-sm text-slate-500 file:mr-4 file:rounded-full file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100 dark:file:bg-indigo-900/50 dark:file:text-indigo-300 dark:hover:file:bg-indigo-800/50;
+    @apply w-full text-fine text-ink-muted file:mr-4 file:rounded-full file:border-0 file:bg-parchment file:px-4 file:py-2 file:text-fine file:font-semibold file:text-ink hover:file:bg-rule;
   }
   .form-container {
-    @apply space-y-4 rounded-xl border border-slate-200 bg-white p-6 shadow-xs dark:border-on-dark/10 dark:bg-slate-900;
+    @apply space-y-4 rounded-xl bg-white p-6;
   }
   .item-card {
-    @apply flex items-center justify-between rounded-lg border border-slate-200 bg-white p-4 dark:border-on-dark/5 dark:bg-slate-900;
+    @apply flex items-center justify-between rounded-md bg-white p-4;
   }
   .btn-primary {
-    @apply flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 font-semibold text-on-dark transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50;
+    @apply flex items-center justify-center gap-2 rounded-full bg-tile-pill px-[22px] py-[11px] font-semibold text-tile-pill-ink transition-colors hover:bg-tile-pill-hover disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-primary-sm {
-    @apply flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm text-on-dark transition-colors hover:bg-indigo-700;
+    @apply flex items-center gap-1 rounded-full bg-tile-pill px-3.5 py-1.5 text-fine text-tile-pill-ink transition-colors hover:bg-tile-pill-hover;
   }
   .btn-secondary {
-    @apply rounded-lg border border-slate-200 px-4 py-2 font-medium text-slate-600 hover:bg-slate-100 dark:border-on-dark/10 dark:text-slate-300 dark:hover:bg-slate-800;
+    @apply rounded-full bg-parchment px-[22px] py-[11px] font-medium text-ink hover:bg-rule;
   }
   .btn-icon-blue {
-    @apply rounded-lg p-2 text-blue-500 hover:bg-slate-100 dark:hover:bg-slate-800;
+    @apply rounded-full p-2 text-action hover:bg-parchment;
   }
   .btn-icon-red {
-    @apply rounded-lg p-2 text-red-500 hover:bg-slate-100 dark:hover:bg-slate-800;
+    @apply rounded-full p-2 text-danger hover:bg-parchment;
   }
 }
 

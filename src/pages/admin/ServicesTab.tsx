@@ -13,7 +13,7 @@ export function ServicesTab() {
       renderRow={(srv, actions) => (
         <div key={srv.id} className="item-card group">
           <div className="flex items-start gap-3">
-            <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-sm text-indigo-600 dark:text-indigo-400">
+            <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-sm text-action">
               <Zap className="h-5 w-5" aria-hidden />
             </div>
             <div>

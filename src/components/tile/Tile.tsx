@@ -1,6 +1,15 @@
-import type { ReactNode } from 'react';
-import { SoftLight } from '@/components/motion/SoftLight';
+import { lazy, Suspense, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+
+// Lazy: `glow` is rare (one quiet light per page at most), so pages without it don't ship the pointer code.
+const SoftLight = lazy(() =>
+  import('@/components/motion/SoftLight').then((m) => ({ default: m.SoftLight })),
+);
+const Glow = () => (
+  <Suspense fallback={null}>
+    <SoftLight tone="tile" className="-z-10" />
+  </Suspense>
+);
 
 export type TileTone = 'white' | 'parchment' | 'dark';
 export type TileAlign = 'center' | 'split';
@@ -133,7 +142,7 @@ export function Tile({
             className,
           )}
         >
-          {glow ? <SoftLight tone="tile" className="-z-10" /> : null}
+          {glow ? <Glow /> : null}
           <div className={cn('wrap', alignClass[align], innerClassName)}>{children}</div>
         </section>
       </InsetPanel>
@@ -154,7 +163,7 @@ export function Tile({
         className,
       )}
     >
-      {glow ? <SoftLight tone="tile" className="-z-10" /> : null}
+      {glow ? <Glow /> : null}
       <div className={cn('wrap', alignClass[align], size === 'hero' && 'flex-1', innerClassName)}>
         {children}
       </div>
