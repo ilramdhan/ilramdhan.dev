@@ -3,15 +3,19 @@ export const TOC_MIN_HEADINGS = 3;
 /** Balanced title lines; inline because the shared CSS bundle is at its budget. */
 export const BALANCE = { textWrap: 'balance' } as const;
 /**
- * One frame for every section (#122): header, cover, tags/share, prev/next, related and
- * comments span it edge to edge, so they share the same left and right edges.
+ * Legacy frame (the project page, until R6a moves it onto tiles): header, cover, tags/share, prev/next, related and
+ * comments span it edge to edge, so they share the same left and right edges (#122).
  */
 export const CONTAINER = 'max-w-5xl mx-auto px-4 sm:px-6 lg:px-8';
-/** Body + TOC (16rem = the aside's w-64): the TOC's right edge is the frame's right edge. */
+/** Legacy body + TOC grid (16rem = the aside's w-64). */
 export const BODY_GRID = 'mt-10 lg:grid lg:grid-cols-[minmax(0,1fr)_16rem] lg:gap-12';
-/**
- * Article column (prose, gallery), left aligned with the frame. 44rem is ~70ch of the
- * prose-lg text: with the TOC the grid track (41rem at 1280 px) is narrower, so the column
- * fills it; without a TOC it keeps the measure instead of stretching to the frame.
- */
+/** Legacy article column (prose, gallery). */
 export const BODY_COLUMN = 'min-w-0 max-w-176';
+/**
+ * Newsroom article body (mutugading insights article): TOC rail (13rem) | 680px column | empty rail, so the column
+ * sits on the centre line of the 1180px wrap. Below 1024px: one column, TOC as a disclosure above the text.
+ */
+export const ARTICLE_GRID =
+  'grid w-full gap-10 lg:grid-cols-[13rem_minmax(0,42.5rem)_13rem] lg:justify-between lg:gap-10';
+/** The 680px reading column (17px text). */
+export const ARTICLE_COLUMN = 'min-w-0 w-full lg:order-2';

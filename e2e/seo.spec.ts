@@ -116,10 +116,9 @@ test('middle-click on a card opens a new tab; whole card is clickable', async ({
   await popup.waitForURL(/\/blog\/blog-post-1$/);
   await popup.close();
 
-  // Clicking the card body (not the title text) navigates via the stretched link.
-  const article = page.locator('article', { has: link }).first();
-  const box = (await article.boundingBox())!;
-  await article.click({ position: { x: box.width - 12, y: box.height - 12 } });
+  // Clicking the card body (not the title text) navigates: the whole card is the link.
+  const box = (await link.boundingBox())!;
+  await link.click({ position: { x: box.width - 12, y: box.height - 12 } });
   await expect(page).toHaveURL(/\/blog\/blog-post-1$/);
 });
 

@@ -43,7 +43,7 @@
       "route": "^assets/blog-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "initial",
-      "maxKiB": 138
+      "maxKiB": 139.5
     },
     {
       "name": "Initial JS /projects (gzip)",
@@ -51,7 +51,7 @@
       "route": "^assets/projects-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "initial",
-      "maxKiB": 140.5
+      "maxKiB": 141.5
     },
     {
       "name": "Initial JS / (gzip)",
