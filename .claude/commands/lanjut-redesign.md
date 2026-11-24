@@ -17,8 +17,10 @@ Extra instruction: $ARGUMENTS
 4. Take the phase named in $ARGUMENTS, else the first non-✅ row (🟡 = inspect files and finish, don't restart).
    Dispatch it with the Agent tool using the model in PLAN §6 (haiku/sonnet/opus). R2+I1 run in parallel; R5+I2 and R6a–R6d+I2 run in parallel in one
    message (disjoint files; state file ownership in each prompt). Paste PLAN §5's "Every UI sub-agent prompt must say"
-   block into every UI prompt.
-5. After each phase: run the PLAN §5 gates yourself, look at 2 of its screenshots next to the mutugading reference,
+   block into every UI prompt. Every sub-agent prompt also says: "Before you report, stop every background shell
+   you started (dev server, e2e, watchers) with TaskStop/kill; leave none running."
+5. When a sub-agent hands back (or its task notification says it is waiting on background work), stop it with
+   TaskStop right away, so it doesn't linger as "waiting on 1 shell". Then, after each phase: run the PLAN §5 gates yourself, look at 2 of its screenshots next to the mutugading reference,
    update STATE.md (row + log line), tell the user briefly. Keep going phase after phase until R9 or until context runs
    low (then finish the current phase, update STATE.md, tell the user to run `/lanjut-redesign`).
 6. Sub-agent API failure: resume it with SendMessage stating exact on-disk progress ("finish, don't restart").
