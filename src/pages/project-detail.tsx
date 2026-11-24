@@ -190,6 +190,7 @@ export default function ProjectDetailPage() {
               images={images}
               alt={alt}
               priority
+              reveal
               sizes="(min-width: 1180px) 1180px, 100vw"
               morph={project.slug ? morphName('project', project.slug) : undefined}
             />
