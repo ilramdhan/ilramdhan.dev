@@ -45,8 +45,9 @@ test('table of contents links jump to the headings', async ({ page }, testInfo) 
   const heading = page.locator('#wrap-up');
   await expect(heading).toHaveText('Wrap-up');
   await expect(heading).toBeInViewport();
-  // Clear of the fixed navbar.
-  expect((await heading.boundingBox())!.y).toBeGreaterThanOrEqual(56);
+  // Clear of the fixed navbar (44px bar + html scroll-padding, R4), measured, not hard-coded.
+  const navBottom = (await page.locator('header').first().boundingBox())!;
+  expect((await heading.boundingBox())!.y).toBeGreaterThanOrEqual(navBottom.y + navBottom.height);
   if (desktop) {
     await expect(toc.getByRole('link', { name: 'Wrap-up' })).toHaveAttribute(
       'aria-current',
