@@ -149,3 +149,151 @@ test.describe('micro-interactions', () => {
     });
   });
 });
+
+// R3: the GSAP / Lenis motion layer on the dev-only /__motion preview (VITE_MOTION_PREVIEW=1 in the e2e build).
+test.describe('motion layer', () => {
+  const engineRequests = (page: import('@playwright/test').Page) => {
+    const urls: string[] = [];
+    page.on('request', (r) => {
+      if (
+        /\/assets\/(gsap|ScrollTrigger|lenis|SplitText|Flip|[\w-]*-engine)[\w-]*\.js$/.test(r.url())
+      )
+        urls.push(r.url());
+    });
+    return urls;
+  };
+
+  test('GSAP and Lenis are never in the served HTML (initial module graph)', async ({
+    request,
+  }) => {
+    for (const path of ['/', '/about', '/id/']) {
+      const html = await (await request.get(path)).text();
+      expect(html).toMatch(/<script type="module"/);
+      expect(html).not.toMatch(
+        /assets\/(gsap|lenis|ScrollTrigger|SplitText|Flip|[\w-]*-engine)[\w-]*\.js/,
+      );
+    }
+  });
+
+  test('h2 splits into masked words and ends fully shown; count-up lands on the final value', async ({
+    page,
+  }) => {
+    await page.goto('/__motion');
+    const h2 = page.locator('#mp-specs-h');
+    await h2.scrollIntoViewIfNeeded();
+    await expect(h2).toHaveAttribute('data-revealed', '', { timeout: 8000 });
+    await expect(h2).toHaveAttribute('aria-label', 'Words rise into place as you arrive');
+    expect(await h2.locator('.str-word').count()).toBeGreaterThan(3);
+    await expect(h2).toHaveText('Words rise into place as you arrive');
+    const value = page.locator('#mp-specs dd').first();
+    await expect(value.locator('[aria-hidden="true"]')).toHaveText('42', { timeout: 5000 });
+    await expect(value.locator('.sr-only')).toHaveText('42');
+  });
+
+  test('parallax scrubs the standalone photo; clickable photos get the soft light', async ({
+    page,
+  }) => {
+    await page.goto('/__motion');
+    const layer = page.locator('[data-parallax]');
+    await layer.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() => layer.evaluate((el) => getComputedStyle(el).transform), { timeout: 8000 })
+      .not.toBe('none');
+    // Never zoom and parallax on one photo.
+    await expect(page.locator('[data-parallax]').locator('xpath=..')).not.toHaveAttribute(
+      'data-media-interactive',
+      '',
+    );
+    await expect(page.locator('[data-media-interactive] [data-soft-light="photo"]')).toHaveCount(2);
+  });
+
+  test('marquee loops, has a working Pause/Play control, and copies are hidden from AT', async ({
+    page,
+  }) => {
+    await page.goto('/__motion');
+    const region = page.getByRole('region', { name: 'Tools' });
+    await region.scrollIntoViewIfNeeded();
+    await expect(region).toHaveAttribute('data-animated', 'true', { timeout: 8000 });
+    await expect(region.locator('[data-marquee-copy]').first()).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    );
+    const pause = page.getByRole('button', { name: 'Pause the moving list' });
+    await pause.click();
+    await expect(region).toHaveAttribute('data-held', 'true');
+    await expect(page.getByRole('button', { name: 'Play the moving list' })).toBeVisible();
+  });
+
+  test('FlipGroup glides kept items when the filter changes', async ({ page }) => {
+    await page.goto('/__motion');
+    const group = page.getByTestId('mp-flip');
+    await group.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(300); // let the Flip engine load near the viewport
+    await page.getByRole('button', { name: 'Even' }).click();
+    await expect(group.locator('li')).toHaveCount(4);
+    await expect(group).toHaveAttribute('data-flip-runs', '1');
+  });
+
+  test('rows stagger by translate only (never opacity)', async ({ page }) => {
+    await page.goto('/__motion');
+    await page.locator('#mp-rows').scrollIntoViewIfNeeded();
+    await expect
+      .poll(() =>
+        page.evaluate(() => document.getAnimations().map((a) => (a as CSSAnimation).animationName)),
+      )
+      .toContain('mo-row-in');
+    const opacity = await page
+      .locator('.stagger-row > *')
+      .evaluateAll((els) => els.map((el) => getComputedStyle(el).opacity));
+    expect(opacity.every((o) => o === '1')).toBe(true);
+  });
+
+  test('a link between routes runs a view transition and morphs the shared photo', async ({
+    page,
+  }) => {
+    await page.goto('/__motion');
+    await page.evaluate(() => {
+      const w = window as unknown as { __vt: number };
+      w.__vt = 0;
+      const orig = document.startViewTransition.bind(document);
+      document.startViewTransition = ((arg: never) => {
+        w.__vt++;
+        return orig(arg);
+      }) as typeof document.startViewTransition;
+    });
+    await page.getByRole('link', { name: /Item alpha/ }).click();
+    await expect(page.getByRole('heading', { level: 1, name: 'Item alpha' })).toBeVisible();
+    expect(await page.evaluate(() => (window as unknown as { __vt: number }).__vt)).toBeGreaterThan(
+      0,
+    );
+  });
+
+  test.describe('reduced motion', () => {
+    test.use({ contextOptions: { reducedMotion: 'reduce' } });
+    test('nothing splits, counts, loops or loads an engine; marquee is one wrapped line', async ({
+      page,
+    }) => {
+      const urls = engineRequests(page);
+      await page.goto('/__motion');
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      await page.waitForTimeout(600);
+      await expect(page.locator('.str-word')).toHaveCount(0);
+      await expect(page.locator('[data-counting]')).toHaveCount(0);
+      await expect(page.getByRole('region', { name: 'Tools' })).not.toHaveAttribute(
+        'data-animated',
+        'true',
+      );
+      await expect(page.locator('[data-marquee-copy]').first()).toBeHidden();
+      await expect(page.getByRole('button', { name: /moving list/ })).toBeHidden();
+      await expect(page.locator('[data-inset="armed"]')).toHaveCount(0);
+      expect(await page.evaluate(() => document.documentElement.classList.contains('lenis'))).toBe(
+        false,
+      );
+      const running = await page.evaluate(
+        () => document.getAnimations().filter((a) => a.playState === 'running').length,
+      );
+      expect(running).toBe(0);
+      expect(urls).toEqual([]);
+    });
+  });
+});
