@@ -15,6 +15,18 @@ const SOCIAL_ICONS = {
   steam: Gamepad2,
 } satisfies Record<SocialKey, ElementType>;
 
+/** Platform names are proper nouns: the same in every locale. */
+const SOCIAL_LABELS: Record<SocialKey, string> = {
+  github: 'GitHub',
+  linkedin: 'LinkedIn',
+  twitter: 'X (Twitter)',
+  instagram: 'Instagram',
+  youtube: 'YouTube',
+  mail: 'Email',
+  whatsapp: 'WhatsApp',
+  steam: 'Steam',
+};
+
 interface SocialLinksProps {
   links: unknown;
   containerClassName: string;
@@ -34,8 +46,15 @@ export function SocialLinks({
       {socialEntries(links).map(([key, href]) => {
         const Icon = SOCIAL_ICONS[key];
         return (
-          <a key={key} href={href} target="_blank" rel="noreferrer" className={linkClassName}>
-            <Icon className={iconClassName} />
+          <a
+            key={key}
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={SOCIAL_LABELS[key]}
+            className={linkClassName}
+          >
+            <Icon aria-hidden="true" className={iconClassName} />
           </a>
         );
       })}
