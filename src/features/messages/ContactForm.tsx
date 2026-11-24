@@ -1,12 +1,11 @@
 import React, { useState, useRef, useEffect, useCallback, useId } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { pillClass } from '@/components/tile/pill';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
-import { addMessage } from './api';
 import { messageKeys } from './queries';
+import type { MessageInsert } from './api';
 import type { ContactState } from './contact-validation';
 
 const COOLDOWN_SECONDS = 60;
@@ -49,7 +48,7 @@ export function ContactForm() {
   }, []);
 
   const addMessageMutation = useMutation({
-    mutationFn: addMessage,
+    mutationFn: async (m: MessageInsert) => (await import('./api')).addMessage(m),
     onSuccess: () => {
       // The success toast/state are handled by the call-level `onSuccess` in
       // `handleSubmit` (it also resets the form and starts the cooldown).
@@ -173,7 +172,10 @@ export function ContactForm() {
         >
           {pending ? (
             <>
-              <Loader2 aria-hidden="true" className="size-4 motion-safe:animate-spin" />{' '}
+              <span
+                aria-hidden="true"
+                className="size-4 rounded-full border-2 border-current border-t-transparent motion-safe:animate-spin"
+              />{' '}
               {t.contact.sending}
             </>
           ) : cooldown > 0 ? (

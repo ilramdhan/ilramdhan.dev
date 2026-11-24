@@ -6,7 +6,7 @@
       "pattern": "\\.js$",
       "metric": "gzip",
       "aggregate": "sum",
-      "maxKiB": 1650.5
+      "maxKiB": 1652
     },
     {
       "name": "Largest JS chunk (gzip)",
@@ -59,7 +59,7 @@
       "route": "^assets/home-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "initial",
-      "maxKiB": 157
+      "maxKiB": 145
     },
     {
       "name": "3D card chunks (gzip)",
