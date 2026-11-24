@@ -18,8 +18,8 @@ type Values = z.infer<typeof schema>;
 
 export const certificatesResource = defineResource({
   label: 'Certificate',
-  listKey: certificateKeys.full(),
-  fetchList: api.getCertificates,
+  listKey: certificateKeys.admin(),
+  fetchList: api.getAdminCertificates,
   invalidate: certificateKeys.all,
   api: {
     create: api.addCertificate,
@@ -27,6 +27,7 @@ export const certificatesResource = defineResource({
     remove: api.deleteCertificate,
   },
   schema,
+  translatable: ['title', 'description'],
   sections: [
     {
       columns: 2,

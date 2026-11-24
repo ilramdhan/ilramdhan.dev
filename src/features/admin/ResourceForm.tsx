@@ -1,8 +1,10 @@
-import { useState, type ReactNode } from 'react';
+import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import type { ZodType } from 'zod';
 import { Loader2, Save, Trash } from 'lucide-react';
 import { Field } from '@/components/ui/Field';
 import { acceptAttribute, ALL_MIME_TYPES, IMAGE_MIME_TYPES } from '@/lib/upload';
+import { useT } from '@/i18n';
+import { cleanTranslation, type Translation } from './translations';
 import { MarkdownField } from './MarkdownField';
 import type { FieldConfig, FormSection, MediaFile, MediaList } from './fields';
 import { useZodForm, type FormValues, type ZodForm } from './useZodForm';
@@ -18,7 +20,12 @@ export interface ResourceFormProps<V extends FormValues> {
   sections: FormSection<V>[];
   schema: ZodType<V, unknown>;
   defaultValues: V;
-  onSubmit: (values: V) => unknown;
+  /** `translation`: the non-empty Indonesian texts (only when `translatable` is set). */
+  onSubmit: (values: V, translation: Translation) => unknown;
+  /** Names of the fields that also get an ID text (EN | ID tabs); written to `translations.id`. */
+  translatable?: readonly string[];
+  /** Current `translations.id` of the row being edited. */
+  defaultTranslation?: Translation;
   onCancel?: () => void;
   isPending: boolean;
   submitLabel: string;
@@ -39,31 +46,64 @@ export function ResourceForm<V extends FormValues>({
   submitLabel,
   className = 'form-container mb-6',
   extra,
+  translatable,
+  defaultTranslation,
 }: ResourceFormProps<V>) {
   const form = useZodForm(schema, defaultValues);
+  const [tab, setTab] = useState<'en' | 'id'>('en');
+  const [translation, setTranslation] = useState<Translation>(defaultTranslation ?? {});
   // In-content image uploads (MarkdownField) still running: saving or cancelling now
   // would drop the URL they are about to insert.
   const [uploads, setUploads] = useState(0);
   const onUploading = (active: boolean) => setUploads((n) => Math.max(0, n + (active ? 1 : -1)));
   const busy = isPending || uploads > 0;
+  const t = useT();
 
   return (
-    <form noValidate onSubmit={form.handleSubmit(onSubmit)} className={className}>
+    <form
+      noValidate
+      onSubmit={form.handleSubmit((values) => onSubmit(values, cleanTranslation(translation)))}
+      className={className}
+    >
       {title && <h3 className="text-lg font-bold mb-4">{title}</h3>}
-      {sections.map((section, i) => (
-        <div key={i} className="space-y-4">
-          {section.divider && <hr className="border-slate-200 dark:border-on-dark/10" />}
-          {section.title && <h2 className="text-xl font-bold">{section.title}</h2>}
-          <div className={GRID[section.columns ?? 1]}>
-            {section.fields.map((field) => (
-              <div key={field.name} className={field.wide ? 'md:col-span-full' : undefined}>
-                <FormField field={field} form={form} onUploading={onUploading} />
-              </div>
+      {translatable && translatable.length > 0 && <LangTabs tab={tab} onTab={setTab} />}
+      {tab === 'id' && translatable && (
+        <div id={PANEL_ID.id} role="tabpanel" aria-labelledby={TAB_ID.id} className="space-y-4">
+          <p className="text-sm text-slate-500 dark:text-slate-400">{t.admin.translationHint}</p>
+          {sections
+            .flatMap((section) => section.fields)
+            .filter((field) => translatable.includes(field.name as string))
+            .map((field) => (
+              <FormField
+                key={field.name}
+                field={field}
+                form={translationForm(translation, setTranslation)}
+                onUploading={onUploading}
+              />
             ))}
-          </div>
         </div>
-      ))}
-      {extra?.(form)}
+      )}
+      <div
+        hidden={tab === 'id'}
+        id={PANEL_ID.en}
+        role={translatable ? 'tabpanel' : undefined}
+        aria-labelledby={translatable ? TAB_ID.en : undefined}
+      >
+        {sections.map((section, i) => (
+          <div key={i} className="space-y-4">
+            {section.divider && <hr className="border-slate-200 dark:border-on-dark/10" />}
+            {section.title && <h2 className="text-xl font-bold">{section.title}</h2>}
+            <div className={GRID[section.columns ?? 1]}>
+              {section.fields.map((field) => (
+                <div key={field.name} className={field.wide ? 'md:col-span-full' : undefined}>
+                  <FormField field={field} form={form} onUploading={onUploading} />
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+        {extra?.(form)}
+      </div>
       <div className="flex justify-end gap-2">
         {onCancel && (
           <button type="button" onClick={onCancel} disabled={busy} className="btn-secondary">
@@ -84,6 +124,71 @@ export function ResourceForm<V extends FormValues>({
         </span>
       </div>
     </form>
+  );
+}
+
+const TAB_ID = { en: 'lang-tab-en', id: 'lang-tab-id' } as const;
+const PANEL_ID = { en: 'lang-panel-en', id: 'lang-panel-id' } as const;
+
+/** A form-shaped view of the ID texts, so the regular field renderer can edit them. */
+function translationForm<V extends FormValues>(
+  translation: Translation,
+  set: (next: Translation) => void,
+): ZodForm<V> {
+  return {
+    values: translation as unknown as V,
+    errors: {},
+    get: (path) => translation[path],
+    set: (path, value) => set({ ...translation, [path]: typeof value === 'string' ? value : '' }),
+    handleSubmit: () => () => undefined,
+  };
+}
+
+/** EN | ID switch: WAI-ARIA tabs with roving focus (arrows, Home, End). */
+function LangTabs({ tab, onTab }: { tab: 'en' | 'id'; onTab: (tab: 'en' | 'id') => void }) {
+  const t = useT();
+  const refs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const group = useId();
+  const order = ['en', 'id'] as const;
+  const move = (e: KeyboardEvent, from: number) => {
+    const next =
+      e.key === 'ArrowRight' || e.key === 'ArrowDown'
+        ? (from + 1) % order.length
+        : e.key === 'ArrowLeft' || e.key === 'ArrowUp'
+          ? (from + order.length - 1) % order.length
+          : e.key === 'Home'
+            ? 0
+            : e.key === 'End'
+              ? order.length - 1
+              : -1;
+    if (next < 0) return;
+    e.preventDefault();
+    const target = order[next]!;
+    onTab(target);
+    refs.current[target]?.focus();
+  };
+  return (
+    <div role="tablist" aria-label={t.admin.tabsLabel} id={group} className="mb-4 flex gap-1">
+      {order.map((lang, i) => (
+        <button
+          key={lang}
+          ref={(el) => {
+            refs.current[lang] = el;
+          }}
+          type="button"
+          role="tab"
+          id={TAB_ID[lang]}
+          aria-selected={tab === lang}
+          aria-controls={PANEL_ID[lang]}
+          tabIndex={tab === lang ? 0 : -1}
+          onClick={() => onTab(lang)}
+          onKeyDown={(e) => move(e, i)}
+          className={tab === lang ? 'btn-primary-sm' : 'btn-secondary'}
+        >
+          {lang === 'en' ? t.admin.tabEn : t.admin.tabId}
+        </button>
+      ))}
+    </div>
   );
 }
 

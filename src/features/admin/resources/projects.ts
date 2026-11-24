@@ -26,6 +26,7 @@ export const projectsResource = defineResource({
   invalidate: projectKeys.all,
   api: { create: api.addProject, update: api.updateProject, remove: api.deleteProject },
   schema,
+  translatable: ['title', 'short_description', 'content'],
   sections: [
     {
       fields: [

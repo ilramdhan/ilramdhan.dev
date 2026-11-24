@@ -16,19 +16,26 @@ import { ensureFullUrl } from '@/lib/utils';
 import { Seo } from '@/components/seo/Seo';
 import { Img } from '@/components/ui/Img';
 import motionFeatures from '@/components/motion/features';
-import { useT } from '@/i18n';
+import { useLocale, useT } from '@/i18n';
 
 // recharts (~100 KB gzip) is only needed for this one chart (T-24).
 const WakatimeStats = lazy(() => import('@/features/wakatime/WakatimeStats'));
 
 function AboutContent() {
   const t = useT();
+  const locale = useLocale();
   const { theme } = useTheme();
 
-  const { data: profile, isLoading: isLoadingProfile } = useQuery(profileQueries.detail());
-  const { data: experience, isLoading: isLoadingExp } = useQuery(resumeQueries.list('experience'));
-  const { data: education, isLoading: isLoadingEdu } = useQuery(resumeQueries.list('education'));
-  const { data: certificates, isLoading: isLoadingCerts } = useQuery(certificateQueries.all());
+  const { data: profile, isLoading: isLoadingProfile } = useQuery(profileQueries.detail(locale));
+  const { data: experience, isLoading: isLoadingExp } = useQuery(
+    resumeQueries.list('experience', locale),
+  );
+  const { data: education, isLoading: isLoadingEdu } = useQuery(
+    resumeQueries.list('education', locale),
+  );
+  const { data: certificates, isLoading: isLoadingCerts } = useQuery(
+    certificateQueries.all(locale),
+  );
   const {
     data: wakatime,
     isLoading: isLoadingWakatime,
