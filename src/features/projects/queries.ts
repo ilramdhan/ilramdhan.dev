@@ -1,15 +1,10 @@
 import { keepPreviousData, queryOptions } from '@tanstack/react-query';
 import type { Locale } from '@/i18n/locale';
-import {
-  getAdjacentProjects,
-  getAdminProjects,
-  getFeaturedProjects,
-  getProjectBySlug,
-  getProjects,
-  getProjectTags,
-  getRelatedProjects,
-  type ProjectListParams,
-} from './api';
+import type { ProjectListParams } from './api';
+
+// ponytail: the data layer (localize, translations retry, ...) is loaded on first fetch so
+// it stays out of the initial JS of the routes that only need the query keys (bundle budget).
+const api = () => import('./api');
 
 export const projectKeys = {
   all: ['projects'] as const,
@@ -42,33 +37,41 @@ export const projectQueries = {
   list: (params: ProjectListParams, locale: Locale = 'en') =>
     queryOptions({
       queryKey: projectKeys.list(params, locale),
-      queryFn: () => getProjects(params, locale),
+      queryFn: async () => (await api()).getProjects(params, locale),
       placeholderData: keepPreviousData,
     }),
   featured: (locale: Locale = 'en') =>
     queryOptions({
       queryKey: projectKeys.featured(locale),
-      queryFn: () => getFeaturedProjects(locale),
+      queryFn: async () => (await api()).getFeaturedProjects(locale),
     }),
-  tags: () => queryOptions({ queryKey: projectKeys.tags(), queryFn: getProjectTags }),
+  tags: () =>
+    queryOptions({
+      queryKey: projectKeys.tags(),
+      queryFn: async () => (await api()).getProjectTags(),
+    }),
   detail: (slug: string, locale: Locale = 'en') =>
     queryOptions({
       queryKey: projectKeys.detail(slug, locale),
-      queryFn: () => getProjectBySlug(slug, locale),
+      queryFn: async () => (await api()).getProjectBySlug(slug, locale),
       enabled: !!slug,
     }),
-  admin: () => queryOptions({ queryKey: projectKeys.admin(), queryFn: getAdminProjects }),
+  admin: () =>
+    queryOptions({
+      queryKey: projectKeys.admin(),
+      queryFn: async () => (await api()).getAdminProjects(),
+    }),
   /** Older/newer neighbours of a project (needs its id and creation date). */
   adjacent: (id: number | undefined, createdAt: string | null | undefined, locale: Locale = 'en') =>
     queryOptions({
       queryKey: projectKeys.adjacent(id, createdAt, locale),
-      queryFn: () => getAdjacentProjects(id!, createdAt!, locale),
+      queryFn: async () => (await api()).getAdjacentProjects(id!, createdAt!, locale),
       enabled: id !== undefined && !!createdAt,
     }),
   related: (id: number | undefined, tags: readonly string[] = [], locale: Locale = 'en') =>
     queryOptions({
       queryKey: projectKeys.related(id, tags, locale),
-      queryFn: () => getRelatedProjects(id!, [...tags], locale),
+      queryFn: async () => (await api()).getRelatedProjects(id!, [...tags], locale),
       enabled: id !== undefined,
     }),
 };
