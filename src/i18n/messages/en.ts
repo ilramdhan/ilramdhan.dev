@@ -269,6 +269,13 @@ export const en = {
     body: 'An unexpected error occurred.',
     goHome: 'Go home',
   },
+  motion: {
+    previewTools: 'Tools',
+    previewFilter: 'Filter',
+    previewOpen: 'Open',
+    pauseList: 'Pause the moving list',
+    playList: 'Play the moving list',
+  },
 };
 
 export type Messages = typeof en;

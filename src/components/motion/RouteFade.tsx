@@ -10,8 +10,17 @@ import { useLocation } from 'react-router';
  */
 export function RouteFade({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
+  // Prerender: no enter/exit classes. Inside a Suspense boundary Fizz would otherwise outline the page to animate
+  // its reveal, emitting inline `$RV` scripts the CSP blocks. A ViewTransition renders no DOM, so the client may
+  // carry the classes without a hydration mismatch; they only act on later (transition) navigations.
+  const ssr = import.meta.env.SSR;
   return (
-    <ViewTransition key={pathname} enter="vt-page-in" exit="vt-page-out" default="none">
+    <ViewTransition
+      key={pathname}
+      enter={ssr ? 'none' : 'vt-page-in'}
+      exit={ssr ? 'none' : 'vt-page-out'}
+      default="none"
+    >
       {children}
     </ViewTransition>
   );

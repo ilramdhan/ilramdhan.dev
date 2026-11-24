@@ -11,6 +11,7 @@ import {
 } from 'react';
 import { useLocation } from 'react-router';
 import { motionRegistry } from './motion-registry';
+import { motionOk } from './near';
 
 type LenisApi = {
   /** Live Lenis instance (null on touch / reduced motion / SSR / before the idle boot). */
@@ -41,6 +42,9 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
 
   useEffect(() => {
+    // ponytail: reduced motion at load never downloads the engine (nothing would move); a later switch to
+    // motion-ok takes effect on the next page load.
+    if (!motionOk()) return;
     let cleanup: (() => void) | undefined;
     let cancelled = false;
     const w = window as IdleWindow;
