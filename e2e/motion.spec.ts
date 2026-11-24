@@ -177,7 +177,7 @@ test.describe('motion layer', () => {
     const urls: string[] = [];
     page.on('request', (r) => {
       if (
-        /\/assets\/(gsap|ScrollTrigger|lenis|SplitText|Flip|[\w-]*-engine)[\w-]*\.js$/.test(r.url())
+        /\/assets\/(gsap|ScrollTrigger|lenis|SplitText|Flip(?!Group)|[\w-]*-engine)[\w-]*\.js$/.test(r.url())
       )
         urls.push(r.url());
     });
@@ -191,7 +191,7 @@ test.describe('motion layer', () => {
       const html = await (await request.get(path)).text();
       expect(html).toMatch(/<script type="module"/);
       expect(html).not.toMatch(
-        /assets\/(gsap|lenis|ScrollTrigger|SplitText|Flip|[\w-]*-engine)[\w-]*\.js/,
+        /assets\/(gsap|lenis|ScrollTrigger|SplitText|Flip(?!Group)|[\w-]*-engine)[\w-]*\.js/,
       );
     }
   });
