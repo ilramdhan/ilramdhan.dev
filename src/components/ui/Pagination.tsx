@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
 
 interface PaginationProps {
@@ -27,12 +28,13 @@ function getPageItems(current: number, total: number): (number | null)[] {
 
 /** Previous / numbered / next page controls. Renders nothing for a single page. */
 export function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
+  const t = useT().pagination;
   if (totalPages <= 1) return null;
   return (
-    <nav aria-label="Pagination" className="flex items-center justify-center gap-1">
+    <nav aria-label={t.label} className="flex items-center justify-center gap-1">
       <button
         type="button"
-        aria-label="Previous page"
+        aria-label={t.previous}
         onClick={() => onPageChange(Math.max(1, currentPage - 1))}
         disabled={currentPage === 1}
         className={NAV_BTN}
@@ -69,7 +71,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
       )}
       <button
         type="button"
-        aria-label="Next page"
+        aria-label={t.next}
         onClick={() => onPageChange(Math.min(totalPages, currentPage + 1))}
         disabled={currentPage === totalPages}
         className={NAV_BTN}

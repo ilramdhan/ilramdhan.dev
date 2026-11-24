@@ -3,7 +3,6 @@ import { useSearchParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronDown, Search, X } from 'lucide-react';
 import { Pagination } from '@/components/ui/Pagination';
-import { Navbar } from '@/app/layouts/Navbar';
 import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
 import { BlogCard, BlogCardSkeleton } from '@/features/blog/BlogCard';
 import { blogQueries } from '@/features/blog/queries';
@@ -88,14 +87,13 @@ export default function BlogPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-on-dark transition-colors duration-300">
       <Seo title={t.seo.blog} description={t.seo.blogDescription} />
-      <Navbar />
-      <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="pt-20 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">{t.blog.heading}</h1>
           <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">{t.blog.lead}</p>
         </div>
 
-        <div ref={listTop} className="scroll-mt-24 mb-8 space-y-4">
+        <div ref={listTop} className="scroll-mt-4 mb-8 space-y-4">
           <div className="flex flex-col gap-3 sm:flex-row">
             <div className="relative flex-1">
               <label htmlFor="blog-search" className="sr-only">

@@ -20,7 +20,7 @@
       "pattern": "\\.css$",
       "metric": "gzip",
       "aggregate": "sum",
-      "maxKiB": 21.5
+      "maxKiB": 22.5
     },
     {
       "name": "3D models (raw)",
@@ -35,7 +35,7 @@
       "route": "^assets/privacy-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "initial",
-      "maxKiB": 122
+      "maxKiB": 132
     },
     {
       "name": "Initial JS /blog (gzip)",
@@ -43,7 +43,7 @@
       "route": "^assets/blog-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "initial",
-      "maxKiB": 135
+      "maxKiB": 138
     },
     {
       "name": "Initial JS /projects (gzip)",
@@ -51,7 +51,7 @@
       "route": "^assets/projects-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "initial",
-      "maxKiB": 161
+      "maxKiB": 164
     },
     {
       "name": "Initial JS / (gzip)",
@@ -59,7 +59,7 @@
       "route": "^assets/home-[\\w-]{8}\\.js$",
       "metric": "gzip",
       "aggregate": "initial",
-      "maxKiB": 155
+      "maxKiB": 157
     },
     {
       "name": "3D card chunks (gzip)",

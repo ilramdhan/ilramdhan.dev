@@ -1,10 +1,10 @@
 import type { ElementType } from 'react';
 import { Gamepad2, Mail, Phone } from 'lucide-react';
 import { Github, Instagram, Linkedin, Twitter, Youtube } from '@/components/ui/brand-icons';
-import { ensureFullUrl } from '@/lib/utils';
+import { socialEntries, type SocialKey } from '@/lib/social';
 
 /** The single source of truth for supported social platforms. */
-const SOCIAL_ICONS: Record<string, ElementType> = {
+const SOCIAL_ICONS = {
   github: Github,
   linkedin: Linkedin,
   twitter: Twitter,
@@ -13,7 +13,7 @@ const SOCIAL_ICONS: Record<string, ElementType> = {
   mail: Mail,
   whatsapp: Phone,
   steam: Gamepad2,
-};
+} satisfies Record<SocialKey, ElementType>;
 
 interface SocialLinksProps {
   links: unknown;
@@ -31,21 +31,14 @@ export function SocialLinks({
 }: SocialLinksProps) {
   return (
     <div className={containerClassName}>
-      {!!links &&
-        typeof links === 'object' &&
-        Object.entries(links).map(([key, value]) => {
-          if (!value) return null;
-          const Icon = SOCIAL_ICONS[key];
-          if (!Icon) return null;
-          // social_links values are URLs / addresses stored as strings.
-          const link = value as string;
-          const href = key === 'mail' ? `mailto:${link}` : ensureFullUrl(link) || '#';
-          return (
-            <a key={key} href={href} target="_blank" rel="noreferrer" className={linkClassName}>
-              <Icon className={iconClassName} />
-            </a>
-          );
-        })}
+      {socialEntries(links).map(([key, href]) => {
+        const Icon = SOCIAL_ICONS[key];
+        return (
+          <a key={key} href={href} target="_blank" rel="noreferrer" className={linkClassName}>
+            <Icon className={iconClassName} />
+          </a>
+        );
+      })}
     </div>
   );
 }

@@ -1,5 +1,4 @@
 import { Link } from '@/i18n/Link';
-import { Navbar } from '@/app/layouts/Navbar';
 import { EmptyState } from '@/components/ui/PageState';
 import { Seo } from '@/components/seo/Seo';
 import { useT } from '@/i18n';
@@ -16,8 +15,7 @@ export default function NotFoundPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-on-dark transition-colors">
       <Seo title={t.seo.notFound} noindex />
-      <Navbar />
-      <main className="min-h-screen flex flex-col items-center justify-center px-4">
+      <div className="min-h-screen flex flex-col items-center justify-center px-4">
         <p className="text-sm font-mono text-indigo-600 dark:text-indigo-400">404</p>
         <h1 className="text-3xl md:text-4xl font-bold mt-2">{t.notFound.title}</h1>
         <EmptyState className="py-6">{t.notFound.body}</EmptyState>
@@ -32,7 +30,7 @@ export default function NotFoundPage() {
             </Link>
           ))}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

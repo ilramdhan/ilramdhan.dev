@@ -6,7 +6,6 @@ import { Markdown } from '@/components/ui/Markdown';
 import { CountUp, GrowBar, MotionScope, Reveal } from '@/components/motion';
 import { CertificateCard } from '@/components/ui/CertificateCard';
 import { SocialLinks } from '@/components/ui/SocialLinks';
-import { Navbar } from '@/app/layouts/Navbar';
 import { siteConfig } from '@/config/site';
 import { profileQueries } from '@/features/profile/queries';
 import { resumeQueries } from '@/features/resume/queries';
@@ -69,8 +68,7 @@ function AboutContent() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-on-dark transition-colors duration-300">
       <Seo title={t.seo.about} description={t.seo.aboutDescription} />
-      <Navbar />
-      <div className="pt-32 pb-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="pt-20 pb-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row gap-12 items-start mb-20">
           <div className="w-full md:w-1/3 shrink-0">
             <div className="aspect-square rounded-2xl overflow-hidden border-4 border-on-dark dark:border-slate-800 shadow-xl relative mb-6">

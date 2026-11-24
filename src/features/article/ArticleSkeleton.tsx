@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react';
-import { Navbar } from '@/app/layouts/Navbar';
 import { BODY_COLUMN, BODY_GRID, CONTAINER } from './layout';
 
 interface ArticleSkeletonProps {
@@ -15,8 +14,7 @@ interface ArticleSkeletonProps {
 export function ArticleSkeleton({ label, header, media }: ArticleSkeletonProps) {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors">
-      <Navbar />
-      <main className={`${CONTAINER} pt-24 pb-20`} aria-busy="true">
+      <div className={`${CONTAINER} pt-12 pb-20`} aria-busy="true">
         <span className="sr-only" role="status">
           {label}
         </span>
@@ -40,7 +38,7 @@ export function ArticleSkeleton({ label, header, media }: ArticleSkeletonProps) 
             <div className="hidden h-40 rounded-xl bg-slate-100 dark:bg-slate-800/60 lg:block" />
           </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }

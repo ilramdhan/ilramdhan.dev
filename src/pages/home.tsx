@@ -8,7 +8,6 @@ import { Hero } from '@/features/hero-3d/Hero';
 import { ProjectCard, ProjectCardSkeleton } from '@/features/projects/ProjectCard';
 import { ContactForm } from '@/features/messages/ContactForm';
 import { TechBadge } from '@/components/ui/TechBadge';
-import { Navbar } from '@/app/layouts/Navbar';
 import { profileQueries } from '@/features/profile/queries';
 import { projectQueries } from '@/features/projects/queries';
 import { blogQueries } from '@/features/blog/queries';
@@ -58,8 +57,7 @@ export default function Page() {
   return (
     <MotionScope>
       <Seo description={t.seo.homeDescription} />
-      <Navbar />
-      <main className="min-h-screen">
+      <div className="min-h-screen">
         <Hero />
 
         {/* Services Section */}
@@ -258,7 +256,7 @@ export default function Page() {
             </div>
           </div>
         </section>
-      </main>
+      </div>
     </MotionScope>
   );
 }

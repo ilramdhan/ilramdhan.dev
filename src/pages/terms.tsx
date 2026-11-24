@@ -4,7 +4,6 @@ import { ArrowLeft } from 'lucide-react';
 import { Link } from '@/i18n/Link';
 import { Markdown } from '@/components/ui/Markdown';
 import { profileQueries } from '@/features/profile/queries';
-import { Navbar } from '@/app/layouts/Navbar';
 import { formatDate } from '@/lib/date';
 import { Seo } from '@/components/seo/Seo';
 import { useLocale, useT } from '@/i18n';
@@ -25,8 +24,7 @@ export default function TermsPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-on-dark transition-colors duration-300">
       <Seo title={t.seo.terms} description={t.seo.termsDescription} />
-      <Navbar />
-      <div className="pt-32 pb-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="pt-20 pb-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <Link
           to="/"
           className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-on-dark mb-8 transition-colors"

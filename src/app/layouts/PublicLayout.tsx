@@ -1,73 +1,53 @@
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { Outlet, useLocation } from 'react-router';
 import { Toaster } from 'sonner';
-import { useQuery } from '@tanstack/react-query';
-import { Link } from '@/i18n/Link';
 import { useT } from '@/i18n';
 import { LocaleBanner } from '@/i18n/LocaleBanner';
-import { profileQueries } from '@/features/profile/queries';
-import { APP_COMMIT, releaseUrl, versionLabel } from '@/lib/version';
+import { cn } from '@/lib/utils';
+import { Footer, RevealStage } from './chrome/Footer';
+import { useNavItems } from './chrome/nav-items';
+import { Navbar } from './Navbar';
 import { ScrollManager } from './ScrollManager';
-import { ScrollToTop } from './ScrollToTop';
 
-function Footer() {
-  const { data: profile } = useQuery(profileQueries.detail());
-  const t = useT();
-
-  return (
-    <footer className="bg-on-dark border-t border-slate-200 dark:bg-slate-950/90 dark:border-on-dark/5 py-12 backdrop-blur-md transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-          <span className="text-slate-500 text-sm">{profile?.footer_text}</span>
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-            <Link
-              to="/privacy"
-              className="text-slate-500 hover:text-slate-900 dark:hover:text-on-dark text-sm"
-            >
-              {t.footer.privacy}
-            </Link>
-            <Link
-              to="/terms"
-              className="text-slate-500 hover:text-slate-900 dark:hover:text-on-dark text-sm"
-            >
-              {t.footer.terms}
-            </Link>
-            <a
-              href={releaseUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={t.footer.versionLabel(versionLabel(), APP_COMMIT)}
-              data-testid="app-version"
-              className="font-mono text-xs text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-on-dark"
-            >
-              {versionLabel()}
-            </a>
-          </div>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
+/**
+ * Site chrome (mutugading SiteChrome): skip link, the fixed nav, `<main id="main">` (padded by the 44px nav) inside
+ * the reveal curtain, and the parchment footer under it. Nav and footer sit outside the route cross-fade.
+ */
 export default function App() {
-  const { pathname } = useLocation();
+  const t = useT();
+  const items = useNavItems();
+  // Admin and login never had the site nav (the admin has its own fixed sidebar).
+  const bare = /^\/(admin|login)(\/|$)/.test(useLocation().pathname);
   return (
-    <div className="min-h-screen text-slate-900 dark:text-slate-50 antialiased selection:bg-indigo-500/30 flex flex-col">
+    <div className="flex min-h-screen flex-col antialiased">
+      {/* First focusable element. A plain hash change would reach the router as a POP; move focus instead. */}
+      <a
+        href="#main"
+        onClick={(e) => {
+          const main = document.getElementById('main');
+          if (!main) return;
+          e.preventDefault();
+          main.focus();
+        }}
+        className="sr-only z-[100] rounded-full bg-ink px-4 py-3 text-caption text-white focus:not-sr-only focus:fixed focus:top-1 focus:left-3 focus:inline-flex focus:min-h-11 focus:items-center"
+      >
+        {t.nav.skipToContent}
+      </a>
+      {bare ? null : <Navbar />}
       <LocaleBanner />
-      <div className="flex-1">
-        {/* Page chunks are lazy (T-24): keep the layout mounted and reserve the
-            viewport height while one loads so the footer doesn't jump. */}
-        {/* Keyed by path: each route fades in (opacity only, so fixed children and
-            layout never shift; disabled under reduced motion). */}
-        <div key={pathname} className="motion-safe:animate-page-in">
+      <RevealStage footer={<Footer items={items} />}>
+        <main
+          id="main"
+          tabIndex={-1}
+          className={cn('flex-1 outline-none', !bare && 'pt-(--nav-h)')}
+        >
+          {/* Page chunks are lazy (T-24): reserve the viewport height while one loads so the footer doesn't jump. */}
           <Suspense fallback={<div className="min-h-screen" aria-busy="true" />}>
             <Outlet />
           </Suspense>
-        </div>
-      </div>
-      <Footer />
+        </main>
+      </RevealStage>
       <ScrollManager />
-      <ScrollToTop />
       <Toaster position="bottom-right" theme="system" />
     </div>
   );
