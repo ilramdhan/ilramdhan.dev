@@ -35,14 +35,14 @@ async function notFound(origin: string, cache: string): Promise<Response> {
 
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
-  const { kind, slug } = detailParams(url);
+  const { kind, slug, locale: pathLocale } = detailParams(url);
   const supabaseUrl = process.env.VITE_SUPABASE_URL;
   const anonKey = process.env.VITE_SUPABASE_ANON_KEY;
   if (!isDetailKind(kind) || !slug || !supabaseUrl || !anonKey) {
     return notFound(url.origin, 'no-store');
   }
   try {
-    const locale = url.searchParams.get('locale') === 'id' ? 'id' : 'en';
+    const locale = url.searchParams.get('locale') === 'id' || pathLocale === 'id' ? 'id' : 'en';
     const [row, template] = await Promise.all([
       fetchDetailRow(kind, slug, { url: supabaseUrl, anonKey }, fetch, locale),
       staticPage(url.origin, 'spa'),

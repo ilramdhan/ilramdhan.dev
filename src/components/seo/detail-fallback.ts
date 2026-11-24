@@ -42,16 +42,26 @@ export const isDetailKind = (value: unknown): value is DetailKind =>
  * `kind` and `slug` from the rewrite's query (`/api/detail-page?kind=blog&slug=…`), or from
  * the original `/blog/<slug>` / `/projects/<slug>` path if the query didn't come through.
  */
-export function detailParams(url: URL): { kind: string | null; slug: string | null } {
+export function detailParams(url: URL): {
+  kind: string | null;
+  slug: string | null;
+  /** From the `/id` path prefix; the rewrite's `locale` query is read by the caller. */
+  locale: Locale | null;
+} {
   const kind = url.searchParams.get('kind');
   const slug = url.searchParams.get('slug');
-  if (kind && slug) return { kind, slug };
-  const match = /^(?:\/id)?\/(blog|projects)\/([^/]+)$/.exec(url.pathname);
-  if (!match?.[1] || !match[2]) return { kind: null, slug: null };
+  if (kind && slug) return { kind, slug, locale: null };
+  const none = { kind: null, slug: null, locale: null };
+  const match = /^(\/id)?\/(blog|projects)\/([^/]+)$/.exec(url.pathname);
+  if (!match?.[2] || !match[3]) return none;
   try {
-    return { kind: match[1] === 'blog' ? 'blog' : 'project', slug: decodeURIComponent(match[2]) };
+    return {
+      kind: match[2] === 'blog' ? 'blog' : 'project',
+      slug: decodeURIComponent(match[3]),
+      locale: match[1] ? 'id' : null,
+    };
   } catch {
-    return { kind: null, slug: null };
+    return none;
   }
 }
 

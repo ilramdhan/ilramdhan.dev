@@ -174,11 +174,18 @@ describe('detailParams', () => {
     expect(detailParams(new URL('https://x.dev/api/detail-page?kind=blog&slug=a'))).toEqual({
       kind: 'blog',
       slug: 'a',
+      locale: null,
     });
     expect(detailParams(new URL('https://x.dev/projects/caf%C3%A9'))).toEqual({
       kind: 'project',
       slug: 'café',
+      locale: null,
     });
-    expect(detailParams(new URL('https://x.dev/blog/a/b'))).toEqual({ kind: null, slug: null });
+    expect(detailParams(new URL('https://x.dev/blog/a/b'))).toEqual({
+      kind: null,
+      slug: null,
+      locale: null,
+    });
+    expect(detailParams(new URL('https://x.dev/id/blog/a')).locale).toBe('id');
   });
 });
