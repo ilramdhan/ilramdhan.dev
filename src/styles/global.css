@@ -315,11 +315,10 @@
   }
 }
 
-/* CSS replacements for framer-motion enter animations in always-loaded chrome (T-24); restyled in R3/R4. */
+/* Small enter animations (menus, sheets, overlays); used with motion-safe:. */
 @theme {
   --animate-menu-in: menu-in 200ms ease-out;
   --animate-page-in: page-in 180ms ease-out;
-  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
 
   @keyframes menu-in {
     0% {
@@ -337,11 +336,6 @@
     }
     100% {
       opacity: 1;
-    }
-  }
-  @keyframes shimmer {
-    100% {
-      transform: translateX(100%);
     }
   }
 }

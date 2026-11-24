@@ -71,13 +71,17 @@ export async function prerenderRoutes(withContent: boolean): Promise<string[]> {
 // Resolves once everything (lazy pages and Suspense boundaries included) is ready:
 // complete markup, no streaming placeholders or inline scripts (CSP).
 async function toHtml(element: ReactElement): Promise<string> {
+  // Throwing inside onError would unwind React's work loop: record it, throw after the await.
+  let failure: unknown;
   const { prelude } = await prerenderToNodeStream(element, {
     // React 19 outlines large completed boundaries (inline `$RC` reveal scripts); never do.
     progressiveChunkSize: Infinity,
     onError: (error) => {
-      throw error;
+      failure ??= error;
     },
   });
+  if (failure)
+    throw failure instanceof Error ? failure : new Error('prerender failed', { cause: failure });
   let html = '';
   for await (const chunk of prelude) html += String(chunk);
   return html;

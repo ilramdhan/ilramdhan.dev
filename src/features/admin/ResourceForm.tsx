@@ -1,4 +1,12 @@
-import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import {
+  useId,
+  useRef,
+  useState,
+  type Dispatch,
+  type KeyboardEvent,
+  type ReactNode,
+  type SetStateAction,
+} from 'react';
 import type { ZodType } from 'zod';
 import { Loader2, Save, Trash } from 'lucide-react';
 import { Field } from '@/components/ui/Field';
@@ -58,17 +66,36 @@ export function ResourceForm<V extends FormValues>({
   const onUploading = (active: boolean) => setUploads((n) => Math.max(0, n + (active ? 1 : -1)));
   const busy = isPending || uploads > 0;
   const t = useT();
+  const uid = useId();
+  const ids = {
+    tab: { en: `${uid}-tab-en`, id: `${uid}-tab-id` },
+    panel: { en: `${uid}-panel-en`, id: `${uid}-panel-id` },
+  };
+  // Errors live in the EN panel: reveal it and focus the first invalid field.
+  const onInvalid = (errors: Record<string, string>, root: HTMLFormElement) => {
+    setTab('en');
+    const first = Object.keys(errors)[0];
+    setTimeout(() => {
+      const el = first ? root.elements.namedItem(first) : null;
+      if (el instanceof HTMLElement) el.focus();
+    });
+  };
 
   return (
     <form
       noValidate
-      onSubmit={form.handleSubmit((values) => onSubmit(values, cleanTranslation(translation)))}
+      onSubmit={(e) =>
+        form.handleSubmit(
+          (values) => onSubmit(values, cleanTranslation(translation)),
+          (errors) => onInvalid(errors, e.currentTarget),
+        )(e)
+      }
       className={className}
     >
       {title && <h3 className="text-lg font-bold mb-4">{title}</h3>}
-      {translatable && translatable.length > 0 && <LangTabs tab={tab} onTab={setTab} />}
+      {translatable && translatable.length > 0 && <LangTabs tab={tab} onTab={setTab} ids={ids} />}
       {tab === 'id' && translatable && (
-        <div id={PANEL_ID.id} role="tabpanel" aria-labelledby={TAB_ID.id} className="space-y-4">
+        <div id={ids.panel.id} role="tabpanel" aria-labelledby={ids.tab.id} className="space-y-4">
           <p className="text-sm text-slate-500 dark:text-slate-400">{t.admin.translationHint}</p>
           {sections
             .flatMap((section) => section.fields)
@@ -85,9 +112,9 @@ export function ResourceForm<V extends FormValues>({
       )}
       <div
         hidden={tab === 'id'}
-        id={PANEL_ID.en}
+        id={ids.panel.en}
         role={translatable ? 'tabpanel' : undefined}
-        aria-labelledby={translatable ? TAB_ID.en : undefined}
+        aria-labelledby={translatable ? ids.tab.en : undefined}
       >
         {sections.map((section, i) => (
           <div key={i} className="space-y-4">
@@ -127,25 +154,32 @@ export function ResourceForm<V extends FormValues>({
   );
 }
 
-const TAB_ID = { en: 'lang-tab-en', id: 'lang-tab-id' } as const;
-const PANEL_ID = { en: 'lang-panel-en', id: 'lang-panel-id' } as const;
-
 /** A form-shaped view of the ID texts, so the regular field renderer can edit them. */
 function translationForm<V extends FormValues>(
   translation: Translation,
-  set: (next: Translation) => void,
+  set: Dispatch<SetStateAction<Translation>>,
 ): ZodForm<V> {
   return {
     values: translation as unknown as V,
     errors: {},
     get: (path) => translation[path],
-    set: (path, value) => set({ ...translation, [path]: typeof value === 'string' ? value : '' }),
+    set: (path, value) =>
+      set((prev) => ({ ...prev, [path]: typeof value === 'string' ? value : '' })),
     handleSubmit: () => () => undefined,
   };
 }
 
 /** EN | ID switch: WAI-ARIA tabs with roving focus (arrows, Home, End). */
-function LangTabs({ tab, onTab }: { tab: 'en' | 'id'; onTab: (tab: 'en' | 'id') => void }) {
+type Lang = 'en' | 'id';
+function LangTabs({
+  tab,
+  onTab,
+  ids,
+}: {
+  tab: Lang;
+  onTab: (tab: Lang) => void;
+  ids: { tab: Record<Lang, string>; panel: Record<Lang, string> };
+}) {
   const t = useT();
   const refs = useRef<Record<string, HTMLButtonElement | null>>({});
   const group = useId();
@@ -177,9 +211,9 @@ function LangTabs({ tab, onTab }: { tab: 'en' | 'id'; onTab: (tab: 'en' | 'id') 
           }}
           type="button"
           role="tab"
-          id={TAB_ID[lang]}
+          id={ids.tab[lang]}
           aria-selected={tab === lang}
-          aria-controls={PANEL_ID[lang]}
+          aria-controls={ids.panel[lang]}
           tabIndex={tab === lang ? 0 : -1}
           onClick={() => onTab(lang)}
           onKeyDown={(e) => move(e, i)}

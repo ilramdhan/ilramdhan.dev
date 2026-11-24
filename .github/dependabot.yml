@@ -17,8 +17,6 @@ updates:
       # Pinned to match the Playwright browser build; bump deliberately (see CONTRIBUTING).
       - dependency-name: '@playwright/test'
       - dependency-name: playwright-core
-      # Removed in the redesign (R9); not upgraded meanwhile.
-      - dependency-name: framer-motion
       # Tailwind 4 (and tailwind-merge 3, Tailwind-4-only) land together in redesign R1b.
       - dependency-name: tailwindcss
         update-types: ['version-update:semver-major']

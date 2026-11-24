@@ -274,6 +274,9 @@ test('og image is 1200x630 with alt, og:locale + alternate match the page locale
     expect(await content('meta[property="og:image:width"]')).toBe('1200');
     expect(await content('meta[property="og:image:height"]')).toBe('630');
     expect(await content('meta[property="og:image:alt"]')).toBeTruthy();
+    expect(await content('meta[name="twitter:image:alt"]')).toBe(
+      await content('meta[property="og:image:alt"]'),
+    );
     expect(await content('meta[property="og:locale"]')).toBe(locale);
     expect(await content('meta[property="og:locale:alternate"]')).toBe(alt);
     expect(await content('meta[name="twitter:card"]')).toBe('summary_large_image');
