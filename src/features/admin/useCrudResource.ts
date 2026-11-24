@@ -37,10 +37,11 @@ export function useCrudResource<Row extends ResourceRow, V extends FormValues, P
     mutationFn: async ({ values, editing, translation }: SaveInput<Row, V>): Promise<boolean> => {
       const uploaded = await resolveUploads(resource.sections, values);
       const payload = resource.toPayload(uploaded, editing);
-      if (resource.translatable) {
+      // `translation` undefined (create/update helpers): leave the stored ID texts alone.
+      if (resource.translatable && translation) {
         const merged = mergeTranslations(
           (editing as { translations?: unknown } | null)?.translations,
-          translation ?? {},
+          translation,
           editing !== null && 'translations' in editing,
         );
         if (merged) (payload as Record<string, unknown>).translations = merged;
