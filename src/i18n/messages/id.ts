@@ -188,6 +188,9 @@ export const id: Messages = {
     error: 'Gagal memuat artikel.',
     noMatch: 'Tidak ada artikel yang cocok dengan filter Anda. Coba pencarian atau tag lain.',
     none: 'Belum ada artikel.',
+    all: 'Semua',
+    tagFilter: 'Filter berdasarkan tag',
+    read: 'Baca artikel',
   },
   projects: {
     heading: 'Semua Proyek',
@@ -207,6 +210,9 @@ export const id: Messages = {
     sourceOf: (title) => `Kode sumber ${title}`,
     liveDemo: 'Demo langsung',
     sourceCode: 'Kode sumber',
+    viewProject: 'Lihat proyek',
+    filterLabel: 'Filter menurut tag',
+    allTags: 'Semua',
   },
   certificates: {
     heading: 'Sertifikat',
@@ -271,6 +277,13 @@ export const id: Messages = {
     more: 'Proyek lainnya',
     older: 'Proyek sebelumnya',
     newer: 'Proyek berikutnya',
+    specYear: 'Tahun',
+    specStack: 'Dibangun dengan',
+    specRead: 'Waktu baca',
+    ctaTitle: 'Punya sesuatu di benak?',
+    ctaLead: 'Ceritakan apa yang sedang Anda bangun dan di mana kendalanya.',
+    ctaContact: 'Hubungi saya',
+    ctaAll: 'Semua proyek',
   },
   gallery: {
     label: 'Galeri',

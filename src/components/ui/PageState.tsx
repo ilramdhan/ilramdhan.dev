@@ -8,7 +8,7 @@ export function EmptyState({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={`col-span-full ${className} text-center text-slate-500`}>{children}</div>;
+  return <div className={`col-span-full ${className} text-center text-ink-muted`}>{children}</div>;
 }
 
 /** Grid-spanning error message with an optional retry action. */
@@ -22,10 +22,14 @@ export function ErrorState({
   retryLabel?: string;
 }) {
   return (
-    <div className="col-span-full py-20 text-center text-red-500">
+    <div className="col-span-full py-20 text-center text-danger">
       {children}
       {onRetry && (
-        <button type="button" onClick={onRetry} className="ml-3 underline">
+        <button
+          type="button"
+          onClick={onRetry}
+          className="ml-3 min-h-11 px-2 text-action underline"
+        >
           {retryLabel}
         </button>
       )}

@@ -87,7 +87,7 @@ export function MessagesTab() {
           {paginatedMessages.map((msg) => (
             <div
               key={msg.id}
-              className={`p-4 rounded-lg border ${msg.is_read ? 'bg-on-dark dark:bg-slate-900 border-slate-200 dark:border-on-dark/5' : 'bg-indigo-50 dark:bg-indigo-900/10 border-indigo-200 dark:border-indigo-500/30'}`}
+              className={`p-4 rounded-md ${msg.is_read ? 'bg-white' : 'bg-parchment'}`}
             >
               <div className="flex justify-between items-start mb-2">
                 <div className="flex items-center gap-3">
@@ -99,9 +99,9 @@ export function MessagesTab() {
                   <div>
                     <h4 className="font-bold text-slate-900 dark:text-on-dark flex items-center gap-2">
                       {msg.name}
-                      {!msg.is_read && <span className="w-2 h-2 rounded-full bg-indigo-500"></span>}
+                      {!msg.is_read && <span className="w-2 h-2 rounded-full bg-action"></span>}
                     </h4>
-                    <p className="text-xs text-indigo-600 dark:text-indigo-400">{msg.email}</p>
+                    <p className="text-xs text-action">{msg.email}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -112,7 +112,7 @@ export function MessagesTab() {
                     <button
                       onClick={() => markReadMutation.mutate(msg.id)}
                       title="Mark as Read"
-                      className="p-1 text-indigo-500 hover:bg-indigo-100 dark:hover:bg-indigo-500/10 rounded-sm"
+                      className="p-1 text-action hover:bg-parchment rounded-sm"
                     >
                       <MailOpen className="h-4 w-4" />
                     </button>

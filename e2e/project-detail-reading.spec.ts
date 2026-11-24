@@ -48,8 +48,10 @@ test('table of contents links jump to the headings', async ({ page }, testInfo) 
   const desktop = testInfo.project.name === 'desktop';
   const toc = desktop
     ? page.getByRole('complementary').getByRole('navigation', { name: 'On this page' })
-    : page.locator('details').getByRole('navigation', { name: 'On this page' });
-  if (!desktop) await page.locator('details > summary', { hasText: 'On this page' }).click();
+    : page
+        .getByRole('region', { name: 'On this page' })
+        .getByRole('navigation', { name: 'On this page' });
+  if (!desktop) await page.getByRole('button', { name: 'On this page' }).click();
   await expect(toc.getByRole('link')).toHaveText([
     'Overview',
     'Architecture',

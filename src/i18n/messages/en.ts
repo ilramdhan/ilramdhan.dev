@@ -191,6 +191,9 @@ export const en = {
     error: 'Error loading articles.',
     noMatch: 'No articles match your filters. Try a different search or tag.',
     none: 'No articles yet.',
+    all: 'All',
+    tagFilter: 'Filter by tag',
+    read: 'Read article',
   },
   projects: {
     heading: 'All Projects',
@@ -210,6 +213,9 @@ export const en = {
     sourceOf: (title: string) => `Source code of ${title}`,
     liveDemo: 'Live demo',
     sourceCode: 'Source code',
+    viewProject: 'View project',
+    filterLabel: 'Filter by tag',
+    allTags: 'All',
   },
   certificates: {
     heading: 'Certificates',
@@ -275,6 +281,13 @@ export const en = {
     more: 'More projects',
     older: 'Older project',
     newer: 'Newer project',
+    specYear: 'Year',
+    specStack: 'Built with',
+    specRead: 'Reading time',
+    ctaTitle: 'Have something in mind?',
+    ctaLead: 'Tell me what you are building and where it is stuck.',
+    ctaContact: 'Get in touch',
+    ctaAll: 'All projects',
   },
   gallery: {
     label: 'Gallery',

@@ -1,43 +1,46 @@
 import { expect, test } from './fixtures/test';
 
-// T-60 (#135): project card actions are reachable without hover; detail links are absolute.
+// T-60 (#135) → R6a: a project card is one linked group (photo, title, line, chevron); demo and repo links live on
+// the detail page, absolute.
 
 const card = (page: import('@playwright/test').Page) =>
-  page
-    .locator('a[href="/projects/project-1"]')
-    .first()
-    .locator('xpath=ancestor::div[contains(@class,"group")][1]');
+  page.locator('a[href="/projects/project-1"]').first();
 
-test('card actions have accessible names and absolute URLs', async ({ page }) => {
-  await page.goto('/projects');
-  const demo = card(page).getByRole('link', { name: 'Live demo of Project 1' });
-  const repo = card(page).getByRole('link', { name: 'Source code of Project 1' });
-  await expect(demo).toHaveAttribute('href', /^https:\/\//);
-  await expect(repo).toHaveAttribute('href', 'https://github.com/x/y');
-  // Tech chips: three fit, so no "+N".
-  await expect(card(page).getByRole('list', { name: 'Tech stack' }).locator('li')).toHaveCount(3);
-});
-
-test('card actions appear on keyboard focus and the card shows a focus ring', async ({ page }) => {
+test('the card is one link with the screenshot, title and a "View project" chevron', async ({
+  page,
+}) => {
   await page.goto('/projects');
   const c = card(page);
-  const demo = c.getByRole('link', { name: 'Live demo of Project 1' });
-  const actions = demo.locator('xpath=..');
-  await page.mouse.move(0, 0);
-  await expect(actions).toHaveCSS('opacity', '0');
-  await page.locator('a[href="/projects/project-1"]').first().focus();
-  await expect(actions).toHaveCSS('opacity', '1');
-  expect(await c.evaluate((el) => getComputedStyle(el).boxShadow)).not.toBe('none');
-  await demo.focus();
-  await expect(demo).toBeFocused();
+  await expect(c).toContainText('Project 1');
+  await expect(c).toContainText('View project');
+  await expect(c.locator('img')).toHaveAttribute('alt', 'Screenshot of Project 1');
+  // No nested links or buttons: a link inside a link is invalid HTML.
+  await expect(c.locator('a, button')).toHaveCount(0);
 });
 
-test('clicking a carousel dot changes the slide without leaving the list', async ({ page }) => {
+test('the card shows a focus ring on keyboard focus', async ({ page }) => {
   await page.goto('/projects');
-  const carousel = card(page).getByRole('group', { name: 'Screenshot of Project 1' });
-  await carousel.getByRole('button', { name: 'Show image 2 of 2' }).click({ force: true });
+  const c = card(page);
+  await c.focus();
+  await expect(c).toBeFocused();
+  expect(await c.evaluate((el) => getComputedStyle(el).outlineStyle)).not.toBe('none');
+});
+
+test('the photo zooms only when the link is hovered', async ({ page }) => {
+  await page.goto('/projects');
+  const img = card(page).locator('img');
+  await page.mouse.move(0, 0);
+  await expect(img).toHaveCSS('scale', 'none');
+  await card(page).hover();
+  await expect.poll(() => img.evaluate((el) => getComputedStyle(el).scale)).not.toBe('none');
+});
+
+test('clicking a carousel dot on the detail page changes the slide', async ({ page }) => {
+  await page.goto('/projects/project-1');
+  const carousel = page.getByRole('group', { name: 'Screenshot of Project 1' });
+  await carousel.getByRole('button', { name: 'Show image 2 of 2' }).click();
   await expect(carousel.locator('img')).toHaveAttribute('alt', /image 2 of 2$/);
-  await expect(page).toHaveURL(/\/projects$/);
+  await expect(page).toHaveURL(/\/projects\/project-1$/);
 });
 
 test('detail page demo/repo links are absolute', async ({ page }) => {
@@ -50,13 +53,4 @@ test('detail page demo/repo links are absolute', async ({ page }) => {
     'href',
     'https://github.com/x/y',
   );
-});
-
-test.describe('touch', () => {
-  test.use({ hasTouch: true, isMobile: true });
-  test('card actions are visible without hover', async ({ page }) => {
-    await page.goto('/projects');
-    const demo = card(page).getByRole('link', { name: 'Live demo of Project 1' });
-    await expect(demo.locator('xpath=..')).toHaveCSS('opacity', '1');
-  });
 });

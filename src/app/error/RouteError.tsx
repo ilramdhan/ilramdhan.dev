@@ -36,17 +36,15 @@ export class RouteErrorBoundary extends Component<Props, State> {
           return (
             <main
               role="alert"
-              className="min-h-screen flex flex-col items-center justify-center px-4 bg-slate-50 dark:bg-slate-950"
+              className="flex min-h-screen flex-col items-center justify-center bg-white px-4 text-center text-ink"
             >
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-on-dark">
-                {t.error.title}
-              </h1>
+              <h1 className="text-tile font-semibold">{t.error.title}</h1>
               <ErrorState
                 onRetry={() => this.setState({ error: null })}
                 retryLabel={t.common.retry}
               >
                 {t.error.body}{' '}
-                <a href={locale === 'id' ? '/id' : '/'} className="underline">
+                <a href={locale === 'id' ? '/id' : '/'} className="text-action underline">
                   {t.error.goHome}
                 </a>
                 .

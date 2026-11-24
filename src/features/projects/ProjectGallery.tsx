@@ -1,5 +1,4 @@
 import { lazy, Suspense, useCallback, useRef, useState } from 'react';
-import { Maximize2 } from 'lucide-react';
 import { Img } from '@/components/ui/Img';
 import { useT } from '@/i18n';
 
@@ -35,7 +34,7 @@ export function ProjectGallery({ images, alt }: ProjectGalleryProps) {
 
   return (
     <>
-      <ul aria-label={t.gallery.label} className="grid grid-cols-4 gap-2 sm:grid-cols-6 sm:gap-3">
+      <ul aria-label={t.gallery.label} className="mt-4 grid grid-cols-4 gap-3 sm:grid-cols-6">
         {images.map((src, i) => (
           <li key={`${i}-${src}`}>
             <button
@@ -51,7 +50,7 @@ export function ProjectGallery({ images, alt }: ProjectGalleryProps) {
                 opened.current = i;
                 setOpen(i);
               }}
-              className="group/thumb relative block aspect-video w-full overflow-hidden rounded-lg border border-slate-200 bg-slate-100 focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 dark:border-on-dark/10 dark:bg-slate-900"
+              className="group/thumb relative block aspect-video w-full overflow-hidden rounded-md bg-tile-frame"
             >
               <Img
                 src={src}
@@ -59,11 +58,8 @@ export function ProjectGallery({ images, alt }: ProjectGalleryProps) {
                 width={1600}
                 height={900}
                 sizes="(min-width: 640px) 10rem, 25vw"
-                className="h-full w-full object-cover transition-opacity group-hover/thumb:opacity-80"
+                className="h-full w-full object-cover transition-opacity group-hover/thumb:opacity-85"
               />
-              <span className="absolute right-1 top-1 rounded-sm bg-black/50 p-0.5 text-on-dark opacity-0 transition-opacity group-hover/thumb:opacity-100 group-focus-visible/thumb:opacity-100">
-                <Maximize2 className="h-3 w-3" aria-hidden="true" />
-              </span>
             </button>
           </li>
         ))}

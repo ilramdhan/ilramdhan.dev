@@ -93,7 +93,7 @@ export default function AdminPage() {
         <aside className="w-64 border-r border-slate-200 dark:border-on-dark/5 bg-on-dark dark:bg-slate-900/50 hidden md:block fixed h-full overflow-y-auto pb-20 transition-colors z-40">
           <div className="p-6">
             <div className="flex items-center gap-2 mb-8 px-2">
-              <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-on-dark">
+              <div className="h-8 w-8 rounded-lg bg-tile-pill flex items-center justify-center font-bold text-tile-pill-ink">
                 A
               </div>
               <span className="font-bold text-slate-900 dark:text-on-dark">Admin Panel</span>
@@ -111,7 +111,7 @@ export default function AdminPage() {
                 <button
                   key={t.id}
                   onClick={() => setActiveTab(t.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === t.id ? 'bg-indigo-600 text-on-dark' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-on-dark/5'}`}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === t.id ? 'bg-tile-pill text-tile-pill-ink' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-on-dark/5'}`}
                 >
                   <t.icon className="h-4 w-4" />
                   <span>{t.label}</span>
@@ -149,7 +149,7 @@ export default function AdminPage() {
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-8 px-2">
                     <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-on-dark">
+                      <div className="h-8 w-8 rounded-lg bg-tile-pill flex items-center justify-center font-bold text-tile-pill-ink">
                         A
                       </div>
                       <span className="font-bold text-slate-900 dark:text-on-dark">Admin</span>
@@ -174,7 +174,7 @@ export default function AdminPage() {
                           setActiveTab(t.id);
                           setIsMobileMenuOpen(false);
                         }}
-                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === t.id ? 'bg-indigo-600 text-on-dark' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-on-dark/5'}`}
+                        className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${activeTab === t.id ? 'bg-tile-pill text-tile-pill-ink' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-on-dark/5'}`}
                       >
                         <t.icon className="h-4 w-4" />
                         <span>{t.label}</span>
