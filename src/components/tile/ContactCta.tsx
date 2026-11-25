@@ -6,6 +6,9 @@ import { useLocalePath, useT } from '@/i18n';
 /** D12 photographs (public/images/backgrounds, credits in docs/redesign/photo-credits.md), 16:9 at 1280 and 2560. */
 export type CtaPhoto = 'desk' | 'code' | 'light';
 
+// Phones crop a tall slice out of the 16:9 photo (cover), so they ask for a wider source than 100vw (MG HomePhotoBand).
+const SIZES = '(max-width: 767px) 240vw, 100vw';
+
 /**
  * D13: the one closing "Get in touch" tile → /contact on every public page but /contact, legal, 404 and admin. A dark
  * tile (never the footer's parchment, F-9) with one full-bleed D12 photograph under the copy: decorative (empty alt,
@@ -45,11 +48,11 @@ export function ContactCta({
     <section id={id} aria-labelledby={hid} data-tone="dark" data-cta={photo} className="cta">
       <div aria-hidden="true" className="cta-photo">
         <picture>
-          <source type="image/avif" srcSet={set('avif')} sizes="100vw" />
+          <source type="image/avif" srcSet={set('avif')} sizes={SIZES} />
           <img
             src={`${src}1280.webp`}
             srcSet={set('webp')}
-            sizes="100vw"
+            sizes={SIZES}
             width={2560}
             height={1440}
             alt=""
