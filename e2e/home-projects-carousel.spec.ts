@@ -17,8 +17,9 @@ test('featured projects: one linked group per project, no carousel, no sideways 
   await expect(links.first().locator('img')).toHaveAttribute('alt', 'Screenshot of Project 1');
   await expect(section.locator('[aria-roledescription="carousel"]')).toHaveCount(0);
   // Every group is painted (the row stagger only translates, never fades).
-  await links.last().scrollIntoViewIfNeeded();
-  await expect(links.last()).toHaveCSS('opacity', '1');
+  // (Under 1024px the row holds two; the rest are hidden, never wrapped.)
+  await links.nth(1).scrollIntoViewIfNeeded();
+  await expect(links.nth(1)).toHaveCSS('opacity', '1');
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(
     await page.evaluate(() => window.innerWidth),
   );
@@ -40,7 +41,7 @@ test('no featured projects shows the empty message', async ({ page, supabase }) 
   await expect(page.getByText('No featured projects yet.')).toBeVisible();
 });
 
-test('the featured query asks for up to 9 projects', async ({ page, supabase }) => {
+test('the featured query asks for the latest 4 projects', async ({ page, supabase }) => {
   await page.goto('/no-such-page');
   await page.getByRole('main').getByRole('link', { name: 'Back to Home' }).click();
   await expect(page.locator('#projects ul > li > a').first()).toBeVisible();
@@ -49,7 +50,7 @@ test('the featured query asks for up to 9 projects', async ({ page, supabase }) 
       (r) =>
         r.path.startsWith('/rest/v1/projects') &&
         r.path.includes('is_featured=eq.true') &&
-        r.path.includes('limit=9'),
+        r.path.includes('limit=4'),
     ),
   ).toBe(true);
 });

@@ -94,7 +94,7 @@ export async function getBlogs(
 }
 
 /** Featured posts on the home carousel. */
-export const FEATURED_LIMIT = 9;
+export const FEATURED_LIMIT = 4;
 
 export async function getFeaturedBlogs(locale: Locale = 'en'): Promise<BlogCard[]> {
   const supabase = await getSupabase();

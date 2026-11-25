@@ -24,3 +24,8 @@ export function firstParagraph(md: string | null | undefined): string {
   }
   return '';
 }
+
+/** The first sentence of a paragraph ("" when empty); the whole text when it has no sentence end. */
+export function firstSentence(text: string): string {
+  return /^.*?[.!?](?=\s|$)/.exec(text)?.[0] ?? text;
+}

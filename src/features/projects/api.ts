@@ -114,7 +114,7 @@ export async function getProjects(
 }
 
 /** Featured projects on the home carousel. */
-export const FEATURED_PROJECTS_LIMIT = 9;
+export const FEATURED_PROJECTS_LIMIT = 4;
 
 export async function getFeaturedProjects(locale: Locale = 'en'): Promise<ProjectCard[]> {
   const supabase = await getSupabase();

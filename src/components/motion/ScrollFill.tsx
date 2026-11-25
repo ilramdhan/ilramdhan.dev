@@ -2,7 +2,7 @@ import type { CSSProperties } from 'react';
 import { cn } from '@/lib/utils';
 
 /**
- * Scroll text fill (mutugading `scroll-fill.tsx`): a statement whose words go from 64% to full ink, left to right, as it
+ * Scroll text fill (mutugading `scroll-fill.tsx`): a statement whose words go from 82% to full ink, left to right, as it
  * crosses the screen (CSS `view-timeline`, scrubbed, no pin, no JS). One per page. Opacity only; the start state keeps
  * AA contrast. No `animation-timeline` support or reduced motion = the plain statement in full ink.
  */

@@ -812,8 +812,8 @@ html.has-lenis {
 
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
-    /* Scroll text fill (ScrollFill): words go from 64% ink to full ink as the statement crosses the lower two thirds
-       of the screen. Opacity only; 64% ink keeps >= 4.5:1. */
+    /* Scroll text fill (ScrollFill): words go from 82% ink to full ink as the statement crosses the lower two thirds
+       of the screen. Opacity only; 82% ink keeps >= 4.5:1. */
     [data-scroll-fill] {
       view-timeline: --vt-fill block;
     }
@@ -875,7 +875,7 @@ html.has-lenis {
 
 @keyframes mo-fill {
   from {
-    opacity: 0.64;
+    opacity: 0.82;
   }
   to {
     opacity: 1;
@@ -1042,5 +1042,33 @@ html.has-lenis {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* LinkedGroupRow `oneRow`: four shared rows (media, title, line, link) so text aligns across the row; under 1024px
+   the row holds two items and the rest are hidden, never wrapped. */
+.one-row {
+  grid-template-rows: repeat(4, auto);
+  row-gap: 0;
+}
+.one-row > li {
+  display: grid;
+  grid-row: span 4;
+  grid-template-rows: subgrid;
+}
+.one-row > li > a {
+  display: grid;
+  grid-row: span 4;
+  grid-template-rows: subgrid;
+  justify-items: start;
+}
+@media (width < 64rem) {
+  .one-row > li:nth-child(n + 3) {
+    display: none;
+  }
+}
+@media (width >= 40rem) {
+  .one-row > li > a {
+    justify-items: center;
   }
 }
