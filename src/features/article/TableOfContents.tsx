@@ -87,19 +87,33 @@ function TocList({
   );
 }
 
-/** Classes for the `<aside>` wrapping `TocSidebar`: the sticky part lives on the wrapper. */
-export const TOC_ASIDE_CLASS =
-  'hidden lg:block w-64 shrink-0 self-start sticky top-[calc(var(--nav-h)+1.5rem)] max-h-[calc(100vh-var(--nav-h)-3rem)] overflow-y-auto';
-
-/** Sticky "On this page" rail (lg+), with the heading being read marked. */
+/**
+ * Sticky "On this page" rail (lg+): the list scrolls inside the viewport-high aside, and the heading being read is
+ * kept in view by moving the aside's own scroll (never the page's).
+ */
 export function TocSidebar({ headings }: { headings: TocHeading[] }) {
   const TITLE = useT().article.onThisPage;
   const active = useActiveHeading(headings.map((h) => h.id).join('\n'));
+  const aside = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const box = aside.current;
+    const link = box?.querySelector<HTMLElement>('[aria-current="location"]');
+    if (!box || !link || box.scrollHeight <= box.clientHeight) return;
+    const b = box.getBoundingClientRect();
+    const l = link.getBoundingClientRect();
+    if (l.top < b.top || l.bottom > b.bottom)
+      box.scrollTo({ top: box.scrollTop + l.top - b.top - b.height / 2, behavior: 'instant' });
+  }, [active]);
   return (
-    <nav aria-label={TITLE} className="w-full">
-      <p className="mb-3 text-caption font-semibold text-tile-ink">{TITLE}</p>
-      <TocList headings={headings} active={active} />
-    </nav>
+    <aside
+      ref={aside}
+      className="sticky top-[calc(var(--nav-h)+1.5rem)] hidden max-h-[calc(100dvh-var(--nav-h)-3rem)] overflow-y-auto overscroll-contain lg:block"
+    >
+      <nav aria-label={TITLE} className="w-full">
+        <p className="mb-3 text-caption font-semibold text-tile-ink">{TITLE}</p>
+        <TocList headings={headings} active={active} />
+      </nav>
+    </aside>
   );
 }
 

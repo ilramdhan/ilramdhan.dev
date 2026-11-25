@@ -81,13 +81,13 @@ test('prev/next, related posts, share links and TOC are in the prerendered HTML'
 
 test('related posts share a tag and exclude the current post', async ({ page }) => {
   await page.goto('/blog/blog-post-2');
-  const related = page.getByRole('region', { name: 'Related articles' });
-  // Dataset: even posts are tagged "react" (4, 6); topped up with the newest other post (1).
+  const related = page.getByRole('list', { name: 'Related articles' });
+  // Dataset: even posts are tagged "react" (4, 6); post 1 (newer) and 3 (older) are the prev/next row, not repeated here.
   await expect(related.getByRole('heading', { level: 3 })).toHaveText([
     'Blog Post 4',
     'Blog Post 6',
-    'Blog Post 1',
   ]);
+  await expect(related.getByRole('link', { name: /Blog Post (1|3)$/ })).toHaveCount(0);
   await expect(related.getByRole('link', { name: 'Blog Post 2', exact: true })).toHaveCount(0);
   await page.getByRole('link', { name: /Older post/ }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Blog Post 3');
@@ -167,7 +167,7 @@ test.describe('article frame (R6b)', () => {
       page.getByRole('navigation', { name: 'Breadcrumb' }),
     );
     const comments = await box('comments', page.getByRole('heading', { name: /^Comments/ }));
-    const related = await box('related', page.getByRole('region', { name: 'Related articles' }));
+    const related = await box('related', page.getByRole('list', { name: 'Related articles' }));
     // The cover is the 1180px wrap; breadcrumb, comments and related start on its left edge.
     for (const b of [breadcrumb, comments, related]) {
       expect(Math.abs(b.left - cover.left), `${b.name} left`).toBeLessThanOrEqual(1);
@@ -214,5 +214,45 @@ test.describe('article frame (R6b)', () => {
     await page.goto(POST);
     await page.waitForLoadState('networkidle');
     expect(await horizontalOverflow(page), (await overflowingElements(page)).join(', ')).toBe(0);
+  });
+});
+
+test.describe('long TOC (F-15)', () => {
+  test('scrolls inside its own box and keeps the active item visible', async ({
+    page,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'the sidebar TOC is lg+ only');
+    // A short window makes the TOC taller than its rail.
+    await page.setViewportSize({ width: 1440, height: 240 });
+    await page.goto(POST);
+    await page.waitForLoadState('networkidle');
+    const aside = page.getByRole('complementary');
+    const info = await aside.evaluate((el) => ({
+      scrolls: el.scrollHeight > el.clientHeight,
+      overflowY: getComputedStyle(el).overflowY,
+    }));
+    expect(info).toEqual({ scrolls: true, overflowY: 'auto' });
+    await page.evaluate(() => {
+      document.getElementById('wrap-up')!.scrollIntoView({ behavior: 'instant' });
+      window.scrollBy({ top: 100, behavior: 'instant' });
+    });
+    const last = aside.getByRole('link', { name: 'Wrap-up' });
+    await expect(last).toHaveAttribute('aria-current', 'location');
+    await expect(async () => {
+      const [a, l] = await Promise.all([aside.boundingBox(), last.boundingBox()]);
+      expect(l!.y).toBeGreaterThanOrEqual(a!.y - 1);
+      expect(l!.y + l!.height).toBeLessThanOrEqual(a!.y + a!.height + 1);
+    }).toPass();
+    expect(await aside.evaluate((el) => el.scrollTop)).toBeGreaterThan(0);
+  });
+
+  test('"More" section lists every post once', async ({ page }) => {
+    await page.goto('/blog/blog-post-2');
+    const more = page.getByRole('region', { name: 'More posts' });
+    const hrefs = await more
+      .getByRole('link')
+      .evaluateAll((a) => a.map((x) => x.getAttribute('href')));
+    expect(hrefs.length).toBeGreaterThan(2);
+    expect(new Set(hrefs).size).toBe(hrefs.length);
   });
 });

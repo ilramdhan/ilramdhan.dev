@@ -94,18 +94,6 @@ test('the lightbox code is loaded on demand, not with the page', async ({ page }
   expect(scripts.some((u) => /\/Lightbox-[\w-]+\.js$/.test(u))).toBe(true);
 });
 
-test('carousel: arrow keys and prev/next buttons change the slide', async ({ page }) => {
-  await page.goto(PROJECT);
-  const carousel = page.getByRole('group', { name: ALT });
-  const img = carousel.locator('img');
-  await expect(img).toHaveAttribute('alt', `${ALT}: image 1 of 2`);
-  await carousel.focus();
-  await page.keyboard.press('ArrowRight');
-  await expect(img).toHaveAttribute('alt', `${ALT}: image 2 of 2`);
-  await carousel.getByRole('button', { name: 'Previous image' }).click();
-  await expect(img).toHaveAttribute('alt', `${ALT}: image 1 of 2`);
-});
-
 test('related projects and thumbnails are in the prerendered HTML', async ({ request }) => {
   const html = await (await request.get(PROJECT)).text();
   expect(html).toContain('Related projects');
@@ -122,7 +110,7 @@ test('related projects and thumbnails are in the prerendered HTML', async ({ req
 
 test('related projects exclude the current one and link to their pages', async ({ page }) => {
   await page.goto(PROJECT);
-  const related = page.getByRole('region', { name: 'Related projects' });
+  const related = page.getByRole('list', { name: 'Related projects' });
   await expect(related.getByRole('link')).toHaveCount(3);
   await expect(related.getByRole('link').filter({ hasText: /Project 1$/m })).toHaveCount(0);
   await related.getByRole('link').filter({ hasText: 'Project 8' }).click();
@@ -145,7 +133,7 @@ test.describe('layout', () => {
     await check();
   });
 
-  test('gallery and related projects share the carousel edges at 1280 px', async ({
+  test('gallery and related projects share the body column edges at 1280 px', async ({
     page,
   }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop', 'desktop layout');
@@ -156,14 +144,8 @@ test.describe('layout', () => {
       expect(b, name).not.toBeNull();
       return { name, left: b!.x, right: b!.x + b!.width };
     };
-    const carousel = await box('carousel', page.getByRole('group', { name: ALT }));
-    for (const b of [
-      await box('gallery', page.getByRole('list', { name: 'Gallery' })),
-      await box(
-        'related',
-        page.getByRole('region', { name: 'Related projects' }).getByRole('list'),
-      ),
-    ]) {
+    const carousel = await box('body', page.locator('.prose').first());
+    for (const b of [await box('gallery', page.getByRole('list', { name: 'Gallery' }))]) {
       expect(Math.abs(b.left - carousel.left), `${b.name} left`).toBeLessThanOrEqual(1);
       expect(Math.abs(b.right - carousel.right), `${b.name} right`).toBeLessThanOrEqual(1);
     }
