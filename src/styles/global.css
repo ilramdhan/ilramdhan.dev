@@ -476,6 +476,15 @@
     --backdrop-x: left;
     left: 0;
   }
+  /* ponytail: parallax via native scroll-driven animation (no JS); browsers without it show the shape static. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      [data-backdrop] > div {
+        animation: backdrop-drift linear both;
+        animation-timeline: view();
+      }
+    }
+  }
   /* Icon-only tech item (features/tech-stack/TechIcon): quiet frame square, CSS-only name tooltip on hover/focus. */
   .tech-icon {
     @apply relative flex size-11 items-center justify-center rounded-xl bg-tile-frame text-caption font-semibold text-tile-muted;
@@ -1115,5 +1124,14 @@ html.has-lenis {
 @media (width >= 40rem) {
   .one-row > li > a {
     justify-items: center;
+  }
+}
+
+@keyframes backdrop-drift {
+  from {
+    transform: translateY(-6%);
+  }
+  to {
+    transform: translateY(6%);
   }
 }

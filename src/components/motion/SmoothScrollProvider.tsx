@@ -83,13 +83,6 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     return () => cancelAnimationFrame(raf);
   }, [pathname, lenis]);
 
-  // D7: backdrop shapes are static markup; the parallax engine attaches to them per page (motion ok only).
-  useEffect(() => {
-    let off: (() => void) | undefined;
-    if (motionOk()) void import('./parallax-engine').then((m) => (off = m.attachBackdrops()));
-    return () => off?.();
-  }, [pathname]);
-
   const api = useMemo<LenisApi>(
     () => ({
       lenis,
