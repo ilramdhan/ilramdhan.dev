@@ -115,6 +115,8 @@ export const id: Messages = {
     viewProject: 'Lihat proyek',
     readPost: 'Baca artikel',
     techLabel: 'Nama teknologi',
+    loadingCertificates: 'Memuat sertifikat…',
+    viewCertificates: 'Lihat sertifikat',
     statementHeading: 'Tentang saya',
     moreAboutMe: 'Selengkapnya tentang saya',
   },

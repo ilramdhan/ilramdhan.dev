@@ -58,9 +58,9 @@ export function LinkedGroup({
         interactive
         morph={item.morph}
       />
-      <span className="mt-4 text-title text-tile-ink sm:mt-6">{item.title}</span>
+      <span className={cn('mt-4 line-clamp-2 text-title text-tile-ink sm:mt-6')}>{item.title}</span>
       {item.line ? (
-        <span className="mt-2 flex-1 text-[0.9375rem] leading-[1.4] text-pretty text-tile-muted">
+        <span className="mt-2 line-clamp-3 flex-1 text-[0.9375rem] leading-[1.4] text-pretty text-tile-muted">
           {item.line}
         </span>
       ) : null}
@@ -86,6 +86,7 @@ export function LinkedGroupRow({
   stagger = true,
   columns,
   aspect,
+  oneRow = false,
   className,
 }: {
   items: LinkedItem[];
@@ -95,6 +96,11 @@ export function LinkedGroupRow({
   /** Force the ≥1024px column count (2–5); default = item count capped at 5. */
   columns?: 2 | 3 | 4 | 5;
   aspect?: MediaAspect;
+  /**
+   * Exactly one row at every width: the items beyond the 2 that fit under 1024px are hidden there, and the text
+   * rows (title / line / link) line up across the row through a subgrid.
+   */
+  oneRow?: boolean;
   className?: string;
 }) {
   if (items.length === 0) return null;
@@ -105,6 +111,7 @@ export function LinkedGroupRow({
         'grid w-full grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 sm:gap-y-12',
         cols[n],
         stagger && 'stagger-row',
+        oneRow && 'one-row',
         className,
       )}
     >

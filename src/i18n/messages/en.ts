@@ -118,6 +118,8 @@ export const en = {
     viewProject: 'View project',
     readPost: 'Read article',
     techLabel: 'Technology names',
+    loadingCertificates: 'Loading certificates…',
+    viewCertificates: 'View certificates',
     statementHeading: 'About me',
     moreAboutMe: 'More about me',
   },
