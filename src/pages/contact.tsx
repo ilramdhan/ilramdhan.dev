@@ -56,8 +56,11 @@ export default function ContactPage() {
         aria-labelledby="contact-h"
         data-tone="white"
         data-enter=""
-        className={`${tile} pb-0 pt-[clamp(3.5rem,8vw,6rem)]`}
+        className={`${tile} relative isolate pb-0 pt-[clamp(3.5rem,8vw,6rem)]`}
       >
+        <div aria-hidden="true" data-backdrop="rings" data-backdrop-side="right">
+          <div />
+        </div>
         <div className="wrap flex animate-rise flex-col items-center text-center">
           <h1 id="contact-h" className="text-hero max-w-[14ch] text-tile-ink">
             {t.home.contactTitle}

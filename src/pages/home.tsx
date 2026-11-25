@@ -157,7 +157,7 @@ export default function Page() {
       </Tile>
 
       {services.isPending || (services.data && services.data.length > 0) ? (
-        <Tile labelledBy="home-services-h">
+        <Tile labelledBy="home-services-h" backdrop={{ shape: 'dots' }}>
           <TileHeading id="home-services-h" title={t.home.whatIDo} lead={t.home.whatIDoLead} />
           <div className="mt-stack w-full">
             {services.data ? (
@@ -245,7 +245,13 @@ export default function Page() {
       </Tile>
 
       {statement ? (
-        <Tile labelledBy="home-statement-h" tone="parchment" align="split" size="roomy">
+        <Tile
+          labelledBy="home-statement-h"
+          tone="parchment"
+          align="split"
+          size="roomy"
+          backdrop={{ shape: 'rings' }}
+        >
           <div className="order-2 flex flex-col items-start text-left lg:order-1">
             <h2 id="home-statement-h" className="sr-only">
               {t.home.statementHeading}
@@ -294,7 +300,14 @@ export default function Page() {
         </Tile>
       ) : null}
 
-      <Tile id="contact" labelledBy="home-contact-h" tone="dark" size="roomy" className={ANCHOR}>
+      <Tile
+        id="contact"
+        labelledBy="home-contact-h"
+        tone="dark"
+        size="roomy"
+        className={ANCHOR}
+        backdrop={{ shape: 'waves' }}
+      >
         <TileHeading
           id="home-contact-h"
           title={t.home.contactTitle}

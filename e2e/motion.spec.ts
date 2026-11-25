@@ -323,3 +323,29 @@ test.describe('motion layer', () => {
     });
   });
 });
+
+test.describe('abstract backdrops (F-8, D7)', () => {
+  test.use({ contextOptions: { reducedMotion: 'reduce' } });
+
+  for (const path of ['/', '/about', '/projects', '/blog', '/certificates', '/contact']) {
+    test(`${path}: backdrops aria-hidden, opacity <= 0.12, not transformed`, async ({ page }) => {
+      await page.goto(path);
+      await page.waitForLoadState('networkidle');
+      const found = await page.evaluate(() =>
+        Array.from(document.querySelectorAll<HTMLElement>('[data-backdrop]')).map((el) => ({
+          hidden: el.getAttribute('aria-hidden') === 'true',
+          opacity: Number(getComputedStyle(el).opacity),
+          transformed: Array.from(el.querySelectorAll<HTMLElement>('*')).some(
+            (c) => c.style.transform && c.style.transform !== 'none',
+          ),
+        })),
+      );
+      expect(found.length).toBeGreaterThan(0);
+      for (const b of found) {
+        expect(b.hidden).toBe(true);
+        expect(b.opacity).toBeLessThanOrEqual(0.12);
+        expect(b.transformed).toBe(false);
+      }
+    });
+  }
+});

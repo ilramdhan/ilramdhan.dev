@@ -180,7 +180,12 @@ export default function ProjectDetailPage() {
         renderCard={(p) => <ProjectCard project={p} />}
       />
 
-      <Tile labelledBy="project-cta-h" tone="dark" size="roomy">
+      <Tile
+        labelledBy="project-cta-h"
+        tone="dark"
+        size="roomy"
+        backdrop={{ shape: 'waves', side: 'left' }}
+      >
         <TileHeading
           id="project-cta-h"
           title={t.project.ctaTitle}
