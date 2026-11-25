@@ -57,7 +57,8 @@ export function ShareBar({ title, url }: ShareBarProps) {
         href={`https://twitter.com/intent/tweet?text=${enc(title)}&url=${enc(url)}`}
         target="_blank"
         rel="noopener noreferrer"
-        className={linkChevronClass}
+        // A one-letter label: keep the 44px target wide too.
+        className={`${linkChevronClass} min-w-11`}
         aria-label={t.article.shareOnX}
       >
         X
