@@ -5,13 +5,19 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 
 ## Decisions (PLAN §2, answered by owner 2026-11-23)
 
-| ID  | Answer                                                                                                 |
-| --- | ------------------------------------------------------------------------------------------------------ |
-| D1  | Exact 1:1 match with mutugading (tokens, type, layout, UI/UX, motion, accent)                          |
-| D2  | Lanyard 3D live on desktop only (≥1024, fine pointer, motion ok); mobile: not rendered, not downloaded |
-| D3  | Branch `redesign/apple-clean` from origin/main 7f7c54e (created locally, not pushed yet)               |
-| D4  | Tailwind latest (4.x) + all deps latest where reasonable (R1a); holds recorded below                   |
-| D5  | EN + ID (T-40 #55, T-41 #56) via phases I1, I2                                                         |
+| ID  | Answer                                                                                                                   |
+| --- | ------------------------------------------------------------------------------------------------------------------------ |
+| D1  | Exact 1:1 match with mutugading (tokens, type, layout, UI/UX, motion, accent)                                            |
+| D2  | Lanyard 3D live on desktop only (≥1024, fine pointer, motion ok); mobile: not rendered, not downloaded                   |
+| D3  | Branch `redesign/apple-clean` from origin/main 7f7c54e (created locally, not pushed yet)                                 |
+| D4  | Tailwind latest (4.x) + all deps latest where reasonable (R1a); holds recorded below                                     |
+| D5  | EN + ID (T-40 #55, T-41 #56) via phases I1, I2                                                                           |
+| D6  | 2026-11-25: services as parchment/night tile-cards (radius, no border/shadow), 3 cols ≥1024, 1 col mobile (D1 deviation) |
+| D7  | 2026-11-25: 2–3 own abstract SVG/AVIF shapes, opacity ≤0.12, aria-hidden, parallax, off on reduced motion (D1 deviation) |
+| D8  | 2026-11-25: statement = one short tagline line, one type step down, more padding, higher unfilled contrast               |
+| D9  | 2026-11-25: home order per PLAN §8.2 D9 default; real data only, hide empty sections                                     |
+| D10 | 2026-11-25: Turnstile + `api/contact.ts` server verify, env flag off by default; owner adds Vercel env keys              |
+| D11 | 2026-11-25: `/contact` + `/id/contact`; nav + every Contact CTA point there                                              |
 
 ## Holds (deps not upgraded, with reason)
 
@@ -40,7 +46,7 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 | R7  | ✅     | #176 | QA gate: home 147.2 → 144.1 (limit 145; ≤143 not reached), no route up; axe 0, Lighthouse 100/100/96/100 (mock data), keyboard pass, visible filter labels; taste waivers (D1) in taste-waivers.md |
 | R8  | ✅     | #177 | SEO/GEO: per-page JSON-LD (prerender only), og.png re-themed 1200x630 + alt, hreflang/sitemap/h1 verified by e2e both locales; Reveal onClick removed; budgets unchanged                           |
 | R9  | ✅     | #180 | framer-motion out; budgets lowered (home 143.2, JS 1624.7); fallback JSON-LD + env crash fix; twitter:image:alt; DESIGN.md; code-review high fixes                                                 |
-| F0  | ⬜     |      | ask D6–D11 (PLAN §8.2)                                                                                                                                                                             |
+| F0  | ✅     |      | D6–D11 answered: all defaults                                                                                                                                                                      |
 | F8  | ⬜     |      | F-14 lanyard first load                                                                                                                                                                            |
 | F5  | ⬜     |      | F-9 last tile vs footer, F-13 theme circle reveal                                                                                                                                                  |
 | F1  | ⬜     |      | F-1…F-6 home                                                                                                                                                                                       |
@@ -104,3 +110,4 @@ Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified 
 - 2026-11-24 R9 on redesign/R9-finish: framer-motion removed (dep, override, shim, Reveal/Stagger/MotionScope/features, unused motion barrel + tokens; admin sidebar on CSS animate-page-in, backdrop a native button), unused shimmer keyframe dropped. Budgets KiB gzip actual (limit before to after): home 144.1 to 143.1 (145 to 143.5), privacy 129.2 to 129.1 (132 to 129.5), blog 138.8 to 138.1 (139.5 to 138.5), projects 141.0 to 140.3 (141.5 to 140.5), JS total 1650.5 to 1624.4 (1650.5 to 1625), CSS 18.0 (22.5 to 18.5). Home <=143 not reached: a manual tile chunk group gave home 141.8 but /privacy +3.3 and /blog +1.4 (Rolldown pulls shared modules into the group), dropped. api/detail-page fallback now writes BlogPosting/CreativeWork + BreadcrumbList with inLanguage; it threw on every request since R8 (buildHead read import.meta.env.SSR, undefined outside Vite), fixed. twitter:image:alt at prerender (client JS unchanged). Root DESIGN.md (impeccable document), README/CONTRIBUTING/architecture updated. Gates exit 0 (typecheck, eslint, prettier, test 262, build, size); e2e client-nav+seo+motion+smoke+a11y+admin+admin-crud+prerender+navigation+theme desktop 115 + tablet 103: 217 passed, 1 skipped, 0 failed; admin mobile sheet open/backdrop-close checked. impeccable detect 0. screens/R9 match R7. Left: Lighthouse on prod data, `/code-review high` + final PR to main (orchestrator).
 - 2026-11-25 R9 ✅ #180 (verified by orchestrator: gates exit 0 after merging the base, screens/R9 home 1440 + article 375 dark checked, CI green). /code-review high main...R9: 8 fixed (JSON-LD leak on client nav, hidden EN errors on ID tab, stale-closure edits lost during upload, locale switch swallowed on chunk failure, duplicate tab ids, translation wipe in crud helpers, /id fallback locale, prerender onError throw); e2e admin+admin-crud+i18n+seo+navigation+client-nav desktop 82 / tablet 82 passed; home 143.2, JS total 1624.7. Follow-ups: STATIC_ROUTES duplicated in scripts/prerender.mjs; home <=143 (shared chunk re-split); Lighthouse on prod data (CI preview Lighthouse warn-only). Next: final PR redesign/apple-clean -> main (owner OK after Vercel preview).
 - 2026-11-25 Final PR #181 (redesign/apple-clean -> main) opened, not merged. Owner reviewed the Vercel preview: 16 notes recorded as F-1…F-16 in PLAN §8 with phases F0–F9 and open decisions D6–D11. #181 stays open until round 2 is done. Next: F0.
+- 2026-11-25 F0 ✅ owner accepted all PLAN §8.2 defaults for D6–D11 (recorded in Decisions). Next: F8 + F5 in parallel.
