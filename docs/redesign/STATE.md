@@ -58,7 +58,7 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 | F6  | ✅     | #192 | /contact + /id/contact, home CTA tile; Turnstile behind VITE_TURNSTILE_SITE_KEY, api/contact.ts checks action + hostnames                                                                          |
 | F7  | ✅     | #194 | F-8/D7: 3 SVG masks (currentColor, opacity 0.06, aria-hidden), CSS scroll-driven drift (no JS), hidden <1024 and under reduced-motion static; /blog 138.4                                          |
 | F9  | 🟡     |      | QA: e2e 861/0, axe 0, LH 100 exc. /projects 90 /certificates 91 (mock LCP host); fixes: listing LCP eager, home tech icons, X tap                                                                  |
-| F10 | 🟡     | #PR  | D12 photo CTA tiles (3 Unsplash photos, AVIF/WebP 1280+2560), D13 ContactCta on 7 routes, contact links short names + mailHref; F7 shapes removed                                                  |
+| F10 | 🟡     | #196 | D12 photo CTA tiles (3 Unsplash photos, AVIF/WebP 1280+2560), D13 ContactCta on 7 routes, contact links short names + mailHref; F7 shapes removed                                                  |
 
 Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified by orchestrator.
 
