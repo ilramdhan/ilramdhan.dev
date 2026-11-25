@@ -8,6 +8,8 @@ export type FeatureColumn = {
   figure?: ReactNode;
   title: string;
   body?: string;
+  /** Free content under the title (e.g. an icon grid). */
+  content?: ReactNode;
   /** Small muted line (e.g. the named standard). */
   note?: string;
   /** A LinkChevron / ActionLink. */
@@ -68,6 +70,7 @@ export function FeatureColumns({
           {it.body ? (
             <p className="mt-2 max-w-[40ch] text-body text-pretty text-tile-muted">{it.body}</p>
           ) : null}
+          {it.content}
           {it.note ? <p className="mt-3 text-caption text-tile-muted">{it.note}</p> : null}
           {it.action ? <div className="mt-2">{it.action}</div> : null}
         </li>

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { motionOk, whenNear } from './near';
@@ -21,6 +22,8 @@ export type MarqueeProps = {
   direction?: 1 | -1;
   className?: string;
   itemClassName?: string;
+  /** Render an item as something other than its text (e.g. an icon); `items` stay the names/keys. */
+  renderItem?: (item: string) => ReactNode;
 };
 
 /**
@@ -40,6 +43,7 @@ export function Marquee({
   direction = 1,
   className,
   itemClassName,
+  renderItem,
 }: MarqueeProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [held, setHeld] = useState(false);
@@ -87,7 +91,7 @@ export function Marquee({
             <ul className="flex shrink-0 flex-nowrap items-center">
               {items.map((item) => (
                 <li key={item} className={li}>
-                  {item}
+                  {renderItem?.(item) ?? item}
                 </li>
               ))}
             </ul>
@@ -101,7 +105,7 @@ export function Marquee({
               >
                 {items.map((item) => (
                   <li key={item} className={li}>
-                    {item}
+                    {renderItem?.(item) ?? item}
                   </li>
                 ))}
               </ul>

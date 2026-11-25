@@ -6,6 +6,7 @@ import { LinkChevron } from '@/components/tile/LinkChevron';
 import { SpecRow, type SpecItem } from '@/components/tile/SpecRow';
 import { Tile } from '@/components/tile/Tile';
 import { TileHeading } from '@/components/tile/TileHeading';
+import { TechIcon } from '@/features/tech-stack/TechIcon';
 import { Marquee } from '@/components/motion/Marquee';
 import { ScrollFill } from '@/components/motion/ScrollFill';
 import { Hero } from '@/features/hero-3d/Hero';
@@ -212,7 +213,11 @@ export default function Page() {
               label={t.home.techLabel}
               pauseLabel={t.motion.pauseList}
               playLabel={t.motion.playList}
-              itemClassName="text-title text-tile-muted"
+              className="pb-9"
+              itemClassName="px-2 sm:px-3"
+              renderItem={(n) => (
+                <TechIcon name={n} iconUrl={techStack?.find((s) => s.name === n)?.icon_url ?? ''} />
+              )}
             />
           </div>
         </Tile>
