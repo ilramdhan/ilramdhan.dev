@@ -23,6 +23,10 @@ export function TechIcon({ name, iconUrl }: { name: string; iconUrl: string | nu
         width={28}
         height={28}
         onError={(e) => (e.currentTarget.hidden = true)}
+        // A prerendered icon can fail before hydration, when onError is not attached yet: it is complete with no pixels.
+        ref={(el: HTMLImageElement | null) => {
+          if (el?.complete && !el.naturalWidth) el.hidden = true;
+        }}
         className="tech-icon-img"
       />
     </span>

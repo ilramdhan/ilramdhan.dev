@@ -1,4 +1,4 @@
-import type { ImgHTMLAttributes } from 'react';
+import type { ImgHTMLAttributes, Ref } from 'react';
 import { dimensionsFromUrl } from '@/lib/image-dimensions';
 
 type ImgProps = Omit<ImgHTMLAttributes<HTMLImageElement>, 'alt' | 'width' | 'height'> & {
@@ -13,6 +13,7 @@ type ImgProps = Omit<ImgHTMLAttributes<HTMLImageElement>, 'alt' | 'width' | 'hei
   height: number;
   /** The LCP image: load eagerly with high fetch priority. Everything else is lazy. */
   priority?: boolean;
+  ref?: Ref<HTMLImageElement>;
 };
 
 /**

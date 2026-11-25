@@ -152,7 +152,7 @@ export default function ProjectsPage() {
                   style={colVar(i, columns)}
                   className="min-w-0"
                 >
-                  <ProjectCard project={project} />
+                  <ProjectCard project={project} priority={i === 0} />
                 </li>
               ))}
             </FlipGroup>

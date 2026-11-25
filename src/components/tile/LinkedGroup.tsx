@@ -31,12 +31,15 @@ export function LinkedGroup({
   item,
   moreLabel,
   aspect = 'portrait',
+  priority,
   className,
 }: {
   item: LinkedItem;
   /** The chevron text, e.g. "Learn more" (from the caller's messages). */
   moreLabel: string;
   aspect?: MediaAspect;
+  /** The first item above the fold on a listing page is the mobile LCP: load its photo eagerly. */
+  priority?: boolean;
   className?: string;
 }) {
   return (
@@ -54,6 +57,7 @@ export function LinkedGroup({
         height={item.image?.height ?? 5}
         position={item.image?.position}
         aspect={aspect}
+        priority={priority}
         className={aspect === 'portrait' ? 'max-sm:aspect-square' : undefined}
         interactive
         morph={item.morph}
