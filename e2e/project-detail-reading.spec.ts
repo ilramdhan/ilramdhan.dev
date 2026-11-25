@@ -25,7 +25,7 @@ test('header: breadcrumb, tag links, title, lead and reading time above the gall
     '/projects?tag=web',
   );
 
-  const gallery = page.getByRole('group', { name: 'Screenshot of Project 2' });
+  const gallery = page.getByRole('img', { name: 'Screenshot of Project 2' }).first();
   expect((await h1.boundingBox())!.y).toBeLessThan((await gallery.boundingBox())!.y);
   await page.waitForLoadState('networkidle');
   expect(consoleErrors).toEqual([]);

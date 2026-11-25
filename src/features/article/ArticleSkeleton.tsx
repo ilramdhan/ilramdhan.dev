@@ -1,19 +1,14 @@
-import type { ReactNode } from 'react';
 import { ARTICLE_COLUMN, ARTICLE_GRID } from './layout';
 
 interface ArticleSkeletonProps {
   /** Screen-reader status text, e.g. "Loading article...". */
   label: string;
-  /** Extra header boxes below the meta line (e.g. project actions). */
-  header?: ReactNode;
-  /** Extra boxes right below the cover (e.g. a thumbnail strip). */
-  media?: ReactNode;
 }
 
 const bar = 'rounded-sm bg-tile-frame';
 
 /** Placeholder with the Newsroom article's boxes (breadcrumb, centred header, wide cover, 680px column). */
-export function ArticleSkeleton({ label, header, media }: ArticleSkeletonProps) {
+export function ArticleSkeleton({ label }: ArticleSkeletonProps) {
   return (
     <div className="bg-white pb-section pt-6 text-ink" aria-busy="true">
       <div className="wrap">
@@ -29,9 +24,7 @@ export function ArticleSkeleton({ label, header, media }: ArticleSkeletonProps) 
             <div className={`${bar} h-7 w-3/5`} />
             <div className={`${bar} h-4 w-48`} />
           </div>
-          {header}
           <div className="mt-stack aspect-[4/5] rounded-lg bg-tile-frame sm:aspect-[16/7]" />
-          {media}
           <div className={`${ARTICLE_GRID} mt-stack`}>
             <div className={`${ARTICLE_COLUMN} space-y-3`}>
               {[0, 1, 2, 3].map((i) => (

@@ -122,20 +122,6 @@ test.describe('micro-interactions', () => {
     ).toHaveAttribute('aria-current', 'page');
   });
 
-  test('carousel: keyboard and dot buttons change the slide', async ({ page }) => {
-    // R5: the home rows have no image carousels; R6a: project cards are linked groups, the carousel is the detail gallery.
-    await page.goto('/projects/project-1');
-    const carousel = page.getByRole('group', { name: 'Screenshot of Project 1' });
-    await expect(carousel).toBeVisible();
-    const img = carousel.locator('img').first();
-    const before = await img.getAttribute('alt');
-    await carousel.focus();
-    await page.keyboard.press('ArrowRight');
-    await expect(carousel.locator('img').first()).not.toHaveAttribute('alt', before ?? '');
-    await carousel.getByRole('button', { name: /Show image 1 of/ }).click();
-    await expect(carousel.locator('img').first()).toHaveAttribute('alt', before ?? '');
-  });
-
   test.describe('reduced motion', () => {
     test.use({ contextOptions: { reducedMotion: 'reduce' } });
     test('about: bars and counters render final values, nothing animates', async ({ page }) => {

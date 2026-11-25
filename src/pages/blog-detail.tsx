@@ -12,23 +12,21 @@ import { isNotFoundError } from '@/lib/errors';
 import { Seo } from '@/components/seo/Seo';
 import { MediaFrame } from '@/components/tile/MediaFrame';
 import { Tile } from '@/components/tile/Tile';
-import { Chevron } from '@/components/tile/LinkChevron';
 import { pillClass } from '@/components/tile/pill';
 import { morphName } from '@/components/motion/Morph';
 import { absoluteUrl } from '@/config/site';
-import { articleHeadingComponents } from '@/features/blog/article-headings';
+import { articleHeadingComponents } from '@/features/article/article-headings';
 import { blogPostingJsonLd } from '@/components/seo/json-ld';
-import { PostNavigation, RelatedPosts, TagLinks } from '@/features/blog/ArticleFooter';
-import { ReadingProgress } from '@/features/blog/ReadingProgress';
-import { readingTime } from '@/features/blog/reading';
-import { ShareBar } from '@/features/blog/ShareBar';
-import { TocDisclosure, TocSidebar } from '@/features/blog/TableOfContents';
-import { extractHeadings } from '@/features/blog/toc';
+import { BlogCard } from '@/features/blog/BlogCard';
+import { ReadingProgress } from '@/features/article/ReadingProgress';
+import { readingTime } from '@/features/article/reading';
+import { extractHeadings } from '@/features/article/toc';
 import { formatDate } from '@/lib/date';
 import { useLocale, useLocalePath, useT } from '@/i18n';
-import { NotTranslated } from '@/i18n/NotTranslated';
 import { ArticleSkeleton } from '@/features/article/ArticleSkeleton';
-import { ARTICLE_COLUMN, ARTICLE_GRID, TOC_MIN_HEADINGS } from '@/features/article/layout';
+import { ArticleBody } from '@/features/article/ArticleBody';
+import { DetailHeader } from '@/features/article/DetailHeader';
+import { MoreSection } from '@/features/article/MoreSection';
 
 const COMMENT_COOLDOWN = 30;
 
@@ -127,7 +125,6 @@ export default function BlogDetailPage() {
 
   const cover = blog.images?.[0];
   const gallery = blog.images?.slice(1) ?? [];
-  const showToc = headings.length >= TOC_MIN_HEADINGS;
 
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -174,123 +171,70 @@ export default function BlogDetailPage() {
       />
       <ReadingProgress target={articleRef} />
 
-      <Tile
-        labelledBy="article-title"
-        enter
-        className="pb-0 pt-6 sm:pb-0 sm:pt-6"
-        innerClassName="items-start text-left"
+      <DetailHeader
+        listPath="/blog"
+        listLabel={t.nav.blog}
+        item={blog}
+        title={blog.title}
+        subtitle={blog.excerpt}
+        date={blog.published_at}
+        minutes={minutes}
+        tags={blog.tags ?? []}
       >
-        <header className="w-full">
-          <nav aria-label={t.article.breadcrumb}>
-            <ol className="flex min-w-0 flex-wrap items-center gap-x-1 text-fine text-tile-muted">
-              <li className="flex items-center gap-1">
-                <Link
-                  to="/"
-                  className="inline-flex min-h-11 min-w-11 items-center justify-center px-1 underline-offset-4 hover:text-tile-ink hover:underline"
-                >
-                  {t.article.home}
-                </Link>
-                <Chevron className="h-2.5 w-[5px]" />
-              </li>
-              <li className="flex items-center gap-1">
-                <Link
-                  to="/blog"
-                  className="inline-flex min-h-11 min-w-11 items-center justify-center px-1 underline-offset-4 hover:text-tile-ink hover:underline"
-                >
-                  {t.nav.blog}
-                </Link>
-                <Chevron className="h-2.5 w-[5px]" />
-              </li>
-              <li className="min-w-0">
-                <span aria-current="page" className="block truncate px-1 text-tile-ink">
-                  {blog.title}
-                </span>
-              </li>
-            </ol>
-          </nav>
-          <div className="animate-rise mx-auto mt-6 flex max-w-208 flex-col items-center gap-4 text-center">
-            <NotTranslated item={blog} />
-            <h1 id="article-title" className="text-tile wrap-break-word text-tile-ink">
-              {blog.title}
-            </h1>
-            {blog.excerpt && <p className="text-lead text-pretty text-tile-ink">{blog.excerpt}</p>}
-            <p className="text-caption text-tile-muted">
-              {blog.published_at && (
-                <>
-                  <time dateTime={blog.published_at}>{formatDate(blog.published_at, locale)}</time>
-                  {', '}
-                </>
-              )}
-              <span>{t.common.minRead(minutes)}</span>
-            </p>
-          </div>
-          {cover ? (
-            <MediaFrame
-              src={cover}
-              alt={blog.title ? t.post.coverAlt(blog.title) : t.post.coverFallback}
-              width={1600}
-              height={900}
-              aspect="wide"
-              priority
-              parallax={6}
-              morph={blog.slug ? morphName('blog', blog.slug) : undefined}
-              className="animate-rise-still mt-stack [animation-delay:150ms]"
-            />
-          ) : null}
-        </header>
-      </Tile>
+        {cover ? (
+          <MediaFrame
+            src={cover}
+            alt={blog.title ? t.post.coverAlt(blog.title) : t.post.coverFallback}
+            width={1600}
+            height={900}
+            aspect="wide"
+            priority
+            parallax={6}
+            morph={blog.slug ? morphName('blog', blog.slug) : undefined}
+            className="animate-rise-still mt-stack [animation-delay:150ms]"
+          />
+        ) : null}
+      </DetailHeader>
 
-      {/* overflow-visible: the TOC rail is position:sticky. */}
-      <Tile
-        labelledBy="article-title"
-        className="overflow-visible pt-[clamp(2.5rem,5vw,4rem)]"
-        innerClassName="items-start text-left"
+      <ArticleBody
+        headings={headings}
+        title={blog.title}
+        url={absoluteUrl(`/blog/${blog.slug ?? slug}`)}
       >
-        <div className={showToc ? ARTICLE_GRID : 'mx-auto w-full max-w-170'}>
-          {showToc && (
-            <div className="lg:order-1">
-              <TocDisclosure headings={headings} />
-              <aside className="sticky top-[calc(var(--nav-h)+1.5rem)] hidden max-h-[calc(100vh-var(--nav-h)-3rem)] overflow-y-auto lg:block">
-                <TocSidebar headings={headings} />
-              </aside>
-            </div>
-          )}
-          <div className={showToc ? ARTICLE_COLUMN : 'min-w-0'}>
-            <div className="prose max-w-none">
-              <Markdown components={components}>{content}</Markdown>
-            </div>
-            {gallery.length > 0 && (
-              <ul className="mt-10 grid grid-cols-2 gap-4" aria-label={t.post.moreImages}>
-                {gallery.map((src, i) => (
-                  <li key={src}>
-                    <MediaFrame
-                      src={src}
-                      alt={t.post.imageAlt(i + 2, blog.title)}
-                      width={1600}
-                      height={900}
-                      aspect="video"
-                      className="max-sm:aspect-video"
-                    />
-                  </li>
-                ))}
-              </ul>
-            )}
-            <div className="mt-10 flex flex-col gap-2 border-t border-rule pt-4">
-              <TagLinks tags={blog.tags ?? []} />
-              <ShareBar title={blog.title} url={absoluteUrl(`/blog/${blog.slug ?? slug}`)} />
-            </div>
-          </div>
+        <div className="prose max-w-none">
+          <Markdown components={components}>{content}</Markdown>
         </div>
-      </Tile>
+        {gallery.length > 0 && (
+          <ul className="mt-10 grid grid-cols-2 gap-4" aria-label={t.post.moreImages}>
+            {gallery.map((src, i) => (
+              <li key={src}>
+                <MediaFrame
+                  src={src}
+                  alt={t.post.imageAlt(i + 2, blog.title)}
+                  width={1600}
+                  height={900}
+                  aspect="video"
+                  className="max-sm:aspect-video"
+                />
+              </li>
+            ))}
+          </ul>
+        )}
+      </ArticleBody>
 
-      {(adjacent?.older?.slug || adjacent?.newer?.slug || related?.length) && (
-        <Tile labelledBy="article-title" tone="parchment" innerClassName="items-stretch text-left">
-          <div className="space-y-stack">
-            <PostNavigation adjacent={adjacent} />
-            <RelatedPosts posts={related} />
-          </div>
-        </Tile>
-      )}
+      <MoreSection
+        adjacent={adjacent}
+        related={related}
+        basePath="/blog"
+        labels={{
+          more: t.post.more,
+          pager: t.post.more,
+          older: t.post.older,
+          newer: t.post.newer,
+          related: t.post.related,
+        }}
+        renderCard={(post) => <BlogCard post={post} headingLevel="h3" />}
+      />
 
       <Tile labelledBy="comments-heading" innerClassName="items-stretch text-left">
         <h2 id="comments-heading" className="text-section text-tile-ink">

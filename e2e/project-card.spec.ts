@@ -35,14 +35,6 @@ test('the photo zooms only when the link is hovered', async ({ page }) => {
   await expect.poll(() => img.evaluate((el) => getComputedStyle(el).scale)).not.toBe('none');
 });
 
-test('clicking a carousel dot on the detail page changes the slide', async ({ page }) => {
-  await page.goto('/projects/project-1');
-  const carousel = page.getByRole('group', { name: 'Screenshot of Project 1' });
-  await carousel.getByRole('button', { name: 'Show image 2 of 2' }).click();
-  await expect(carousel.locator('img')).toHaveAttribute('alt', /image 2 of 2$/);
-  await expect(page).toHaveURL(/\/projects\/project-1$/);
-});
-
 test('detail page demo/repo links are absolute', async ({ page }) => {
   await page.goto('/projects/project-1');
   await expect(page.getByRole('link', { name: 'Live Demo', exact: true })).toHaveAttribute(
