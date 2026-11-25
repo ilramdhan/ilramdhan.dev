@@ -77,7 +77,7 @@ export default function BlogPage() {
   return (
     <>
       <Seo title={t.seo.blog} description={t.seo.blogDescription} />
-      <ListingHero id="blog-h" title={t.blog.heading} lead={t.blog.lead} />
+      <ListingHero shape="waves" id="blog-h" title={t.blog.heading} lead={t.blog.lead} />
 
       <ListingSection id="blog-list-h" title={t.nav.blog}>
         <div className="flex flex-col items-center text-center">

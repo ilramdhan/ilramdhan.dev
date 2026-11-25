@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { ChevronDown, X } from 'lucide-react';
+import type { BackdropShape } from '@/components/tile/TileBackdrop';
 import { SegmentedControl, type SegmentedOption } from '@/components/tile/SegmentedControl';
 import { cn } from '@/lib/utils';
 
@@ -7,14 +8,30 @@ import { cn } from '@/lib/utils';
 // and motion registry into their first paint. Swap back to <Tile>/<TileHeading> when those stop importing eagerly.
 
 /** Same hero on /projects, /blog, /certificates: white tile, centred h1 + lead, one rise entrance. */
-export function ListingHero({ id, title, lead }: { id: string; title: string; lead: string }) {
+export function ListingHero({
+  id,
+  title,
+  lead,
+  shape = 'rings',
+  side = 'right',
+}: {
+  id: string;
+  title: string;
+  lead: string;
+  shape?: BackdropShape;
+  side?: 'left' | 'right';
+}) {
   return (
     <section
       aria-labelledby={id}
       data-tone="white"
       data-enter=""
-      className="w-full scroll-mt-(--nav-h) bg-white pb-0 pt-section text-ink"
+      className="relative isolate w-full scroll-mt-(--nav-h) bg-white pb-0 pt-section text-ink"
     >
+      {/* ponytail: TileBackdrop's markup inline so /blog's first load has no extra chunk. */}
+      <div aria-hidden="true" data-backdrop={shape} data-backdrop-side={side}>
+        <div />
+      </div>
       <div className="wrap flex flex-col items-center text-center">
         <div className="animate-rise flex flex-col items-center text-center">
           <h1 id={id} className="text-hero max-w-[14ch] text-tile-ink">

@@ -450,6 +450,32 @@
 }
 
 @layer components {
+  /* D7 abstract backdrops (TileBackdrop): a corner shape masked over currentColor, so it follows light/dark. */
+  [data-backdrop] {
+    @apply pointer-events-none absolute inset-0 -z-10 overflow-hidden opacity-[0.06];
+  }
+  [data-backdrop] > div {
+    @apply absolute -top-[8%] -bottom-[8%] w-[min(60vw,480px)] bg-current;
+    mask: var(--backdrop) no-repeat var(--backdrop-x) top / contain;
+    -webkit-mask: var(--backdrop) no-repeat var(--backdrop-x) top / contain;
+  }
+  [data-backdrop='rings'] > div {
+    --backdrop: url(/backdrops/rings.svg);
+  }
+  [data-backdrop='dots'] > div {
+    --backdrop: url(/backdrops/dots.svg);
+  }
+  [data-backdrop='waves'] > div {
+    --backdrop: url(/backdrops/waves.svg);
+  }
+  [data-backdrop-side='right'] > div {
+    --backdrop-x: right;
+    right: 0;
+  }
+  [data-backdrop-side='left'] > div {
+    --backdrop-x: left;
+    left: 0;
+  }
   /* Icon-only tech item (features/tech-stack/TechIcon): quiet frame square, CSS-only name tooltip on hover/focus. */
   .tech-icon {
     @apply relative flex size-11 items-center justify-center rounded-xl bg-tile-frame text-caption font-semibold text-tile-muted;

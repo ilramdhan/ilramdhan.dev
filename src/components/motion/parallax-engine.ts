@@ -20,3 +20,11 @@ export function attachParallax(frame: HTMLElement, inner: HTMLElement, amount: n
   });
   return () => mm.revert();
 }
+
+/** D7: parallax every `[data-backdrop]` shape on the page (static markup); the engine is already loaded here. */
+export function attachBackdrops(): () => void {
+  const offs = [...document.querySelectorAll<HTMLElement>('[data-backdrop]')].map((f) =>
+    attachParallax(f, f.firstElementChild as HTMLElement, 6),
+  );
+  return () => offs.forEach((off) => off());
+}

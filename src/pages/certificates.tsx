@@ -67,7 +67,13 @@ export default function CertificatesPage() {
     <div>
       <Seo title={t.seo.certificates} description={t.seo.certificatesDescription} />
 
-      <ListingHero id="certs-h" title={t.certificates.heading} lead={t.certificates.lead} />
+      <ListingHero
+        shape="dots"
+        side="left"
+        id="certs-h"
+        title={t.certificates.heading}
+        lead={t.certificates.lead}
+      />
 
       <ListingSection id="certs-list-h" title={t.certificates.heading}>
         <ListingToolbar

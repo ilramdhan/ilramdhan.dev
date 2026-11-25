@@ -1,5 +1,6 @@
 import { lazy, Suspense, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { TileBackdrop, type BackdropShape } from './TileBackdrop';
 
 // Lazy: `glow` is rare (one quiet light per page at most), so pages without it don't ship the pointer code.
 const SoftLight = lazy(() =>
@@ -105,6 +106,8 @@ export type TileProps = {
   glow?: boolean;
   /** Render as a rounded inset panel instead of a full-bleed tile (see InsetPanel). */
   inset?: TileInset;
+  /** One quiet abstract shape in a corner (D7), parallaxed; max one per tile. */
+  backdrop?: { shape: BackdropShape; side?: 'left' | 'right' };
   className?: string;
   /** Classes for the inner max-width wrap. */
   innerClassName?: string;
@@ -124,10 +127,12 @@ export function Tile({
   enter,
   glow,
   inset,
+  backdrop,
   className,
   innerClassName,
   children,
 }: TileProps) {
+  const deco = backdrop ? <TileBackdrop {...backdrop} /> : null;
   if (inset) {
     return (
       <InsetPanel id={id} tone={tone} inset={inset}>
@@ -137,13 +142,14 @@ export function Tile({
           className={cn(
             'w-full scroll-mt-(--nav-h) overflow-hidden',
             insetRadius[inset],
-            glow && 'relative isolate',
+            (glow || backdrop) && 'relative isolate',
             sizeClass[size === 'screen' ? 'default' : size],
             className,
           )}
         >
           {glow ? <Glow /> : null}
           <div className={cn('wrap', alignClass[align], innerClassName)}>{children}</div>
+          {deco}
         </section>
       </InsetPanel>
     );
@@ -157,7 +163,7 @@ export function Tile({
       data-glow={glow ? '' : undefined}
       className={cn(
         'w-full scroll-mt-(--nav-h)',
-        glow && 'relative isolate',
+        (glow || backdrop) && 'relative isolate',
         toneClass[tone],
         sizeClass[size],
         className,
@@ -167,6 +173,7 @@ export function Tile({
       <div className={cn('wrap', alignClass[align], size === 'hero' && 'flex-1', innerClassName)}>
         {children}
       </div>
+      {deco}
     </section>
   );
 }

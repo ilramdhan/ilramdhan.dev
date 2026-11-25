@@ -143,7 +143,7 @@ export default function AboutPage() {
     <div>
       <Seo title={t.seo.about} description={t.seo.aboutDescription} />
 
-      <Tile labelledBy="about-h" align="split">
+      <Tile labelledBy="about-h" align="split" backdrop={{ shape: 'rings' }}>
         <div className="flex flex-col items-start gap-6 text-left">
           <TileHeading
             id="about-h"
@@ -211,7 +211,7 @@ export default function AboutPage() {
       ) : null}
 
       {skills.length > 0 ? (
-        <Tile labelledBy="about-skills-h">
+        <Tile labelledBy="about-skills-h" backdrop={{ shape: 'dots', side: 'left' }}>
           <TileHeading id="about-skills-h" title={t.home.techHeading} />
           <div className="mt-stack w-full">
             <FeatureColumns items={skills} />
