@@ -56,7 +56,18 @@ export function useListParams(filterKey: string) {
     update({ q: debounced, page: null }, true);
   }, [debounced, update]);
 
+  const sort: 'newest' | 'oldest' = params.get('sort') === 'oldest' ? 'oldest' : 'newest';
+  const filtersActive = Boolean(urlQuery || filter || sort !== 'newest');
+
   return {
+    sort,
+    setSort: (value: 'newest' | 'oldest') =>
+      update({ sort: value === 'oldest' ? 'oldest' : null, page: null }),
+    filtersActive,
+    clearFilters: () => {
+      setInput('');
+      update({ q: null, [filterKey]: null, sort: null, page: null });
+    },
     /** Value for the search input. */
     input,
     setInput,
