@@ -150,6 +150,58 @@ test.describe('3D card & Vanta (T-25)', () => {
   });
 });
 
+// F-14: the card was missing on a cold first open. Its boot waited for `window.load`, which a slow subresource on a
+// cold cache (third-party iframe, large image) held back indefinitely. Fresh context per run = empty cache.
+test.describe('lanyard on a cold first load (F-14)', () => {
+  for (let run = 1; run <= 10; run++) {
+    test(`1440 cold run ${run}: the canvas mounts`, async ({ browser }) => {
+      const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+      const page = await context.newPage();
+      await installSupabaseMock(page);
+      await page.goto('/');
+      await expect(page.getByTestId('hero-card-canvas').locator('canvas')).toBeVisible();
+      await context.close();
+    });
+  }
+
+  test('1440: the canvas mounts while a slow subresource still holds `load`', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const page = await context.newPage();
+    await installSupabaseMock(page);
+    // Never answered during the test: `load` cannot fire.
+    await page.route('https://vercel.live/**', () => new Promise<void>(() => {}));
+    await page.addInitScript(() => {
+      document.addEventListener('DOMContentLoaded', () => {
+        const frame = document.createElement('iframe');
+        frame.src = 'https://vercel.live/_next-live/feedback/instrument';
+        frame.hidden = true;
+        document.body.append(frame);
+      });
+    });
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByTestId('hero-card-canvas').locator('canvas')).toBeVisible();
+    expect(await page.evaluate(() => document.readyState)).not.toBe('complete');
+    await context.close();
+  });
+
+  test('1440: a failed model download leaves the page, not an error screen', async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+    const page = await context.newPage();
+    await installSupabaseMock(page);
+    await page.route('**/models/card.glb', (route) => route.abort('connectionreset'));
+    await page.goto('/');
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Dummy Dev');
+    await page.waitForLoadState('networkidle');
+    await expect(page.getByRole('alert')).toHaveCount(0);
+    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Dummy Dev');
+    await context.close();
+  });
+});
+
 test('home load: long tasks stay near the T-25 target of 3', async ({ page }, testInfo) => {
   await page.addInitScript(() => {
     const w = window as unknown as { __longTasks: number };
