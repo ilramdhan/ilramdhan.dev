@@ -19,6 +19,7 @@ export const certificateKeys = {
         limit: params.limit,
         issuer: params.issuer ?? null,
         query: params.query ?? '',
+        sort: params.sort ?? 'newest',
       },
     ] as const,
   issuers: () => [...certificateKeys.all, 'issuers'] as const,

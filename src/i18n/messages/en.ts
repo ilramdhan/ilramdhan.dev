@@ -213,6 +213,9 @@ export const en = {
     lead: 'Professional certifications, achievements, and credentials.',
     searchLabel: 'Search certificates',
     searchPlaceholder: 'Search certificates…',
+    sortLabel: 'Sort certificates',
+    filterLabel: 'Filter by issuer',
+    count: (n: number) => `${n} ${n === 1 ? 'certificate' : 'certificates'}`,
     error: 'Error loading certificates.',
     none: 'No certificates found matching your criteria.',
     alt: (title: string, issuer: string | null) =>
