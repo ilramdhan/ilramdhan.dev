@@ -4,12 +4,16 @@ import { useLenis } from '@/components/motion/SmoothScrollProvider';
 
 const positions = new Map<string, number>();
 
-/** Retries `attempt` on animation frames until it returns true or `ms` elapsed (lazy chunks / data). */
-function retryFor(ms: number, attempt: () => boolean): () => void {
+/**
+ * Retries `attempt` on animation frames until it returns true or `ms` elapsed (lazy chunks / data); `onTimeout` runs
+ * when it never succeeded.
+ */
+function retryFor(ms: number, attempt: () => boolean, onTimeout?: () => void): () => void {
   let raf = 0;
   const end = performance.now() + ms;
   const tick = () => {
-    if (attempt() || performance.now() > end) return;
+    if (attempt()) return;
+    if (performance.now() > end) return onTimeout?.();
     raf = requestAnimationFrame(tick);
   };
   tick();
@@ -93,14 +97,19 @@ export function ScrollManager() {
         to(0);
         return;
       }
-      return retryFor(3000, () => {
-        const max = document.documentElement.scrollHeight - window.innerHeight;
-        if (max >= y - 1) {
-          to(y);
-          return true;
-        }
-        return false;
-      });
+      const max = () => document.documentElement.scrollHeight - window.innerHeight;
+      return retryFor(
+        3000,
+        () => {
+          if (max() >= y - 1) {
+            to(y);
+            return true;
+          }
+          return false;
+        },
+        // The page came back shorter than when it was left (e.g. saved at the very bottom): go as far as it goes.
+        () => to(Math.max(0, max())),
+      );
     }
     if (location.hash) {
       const id = decodeURIComponent(location.hash.slice(1));

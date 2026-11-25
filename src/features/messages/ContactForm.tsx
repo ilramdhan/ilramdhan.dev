@@ -1,14 +1,20 @@
 import React, { useState, useRef, useEffect, useCallback, useId } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { pillClass } from '@/components/tile/pill';
-import { useT } from '@/i18n';
+import { useLocale, useT } from '@/i18n';
 import { cn } from '@/lib/utils';
-import { messageKeys } from './queries';
+import Turnstile, { sendVerified } from './Turnstile';
 import type { MessageInsert } from './api';
 import type { ContactState } from './contact-validation';
 
 const COOLDOWN_SECONDS = 60;
+
+// D10: Cloudflare Turnstile + server verify (api/contact.ts), only when the build has a site key. Unset (default):
+// no widget, no script, the form inserts with the anon key exactly as before (the widget code is tree-shaken out).
+// This form only lives on the lazy /contact route; Cloudflare's api.js loads once the form nears the viewport.
+const SITE_KEY = (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined) || '';
+const TOKEN_FIELD = 'cf-turnstile-response';
 
 // mutugading FIELD: parchment fill, no stroke, 11px corners, 48px tall, 17px text. Focus and errors are a 2px outline
 // (focus in the tile's action colour, never removed without a replacement).
@@ -22,8 +28,9 @@ type FieldName = 'name' | 'email' | 'message';
 
 export function ContactForm() {
   const t = useT();
+  const locale = useLocale();
+  const resetCaptcha = useRef<(() => void) | null>(null);
   const uid = useId();
-  const queryClient = useQueryClient();
   const [state, setState] = useState<ContactState>({});
   const [cooldown, setCooldown] = useState(0);
   const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -48,14 +55,18 @@ export function ContactForm() {
   }, []);
 
   const addMessageMutation = useMutation({
-    mutationFn: async (m: MessageInsert) => (await import('./api')).addMessage(m),
-    onSuccess: () => {
-      // The success toast/state are handled by the call-level `onSuccess` in
-      // `handleSubmit` (it also resets the form and starts the cooldown).
-      // Invalidate messages query to refetch in admin panel if it's open
-      void queryClient.invalidateQueries({ queryKey: messageKeys.all });
-    },
-    onError: () => {
+    mutationFn: async ({ m, form }: { m: MessageInsert; form: FormData }) =>
+      SITE_KEY ? sendVerified(form) : (await import('./api')).addMessage(m),
+    // Success toast/state: the call-level `onSuccess` in `handleSubmit`. No admin-inbox invalidation: the admin tab
+    // refetches on mount/focus anyway, and the query keys would pull a shared chunk into this route.
+    onError: (error) => {
+      // 403 = the Turnstile check failed or expired: a fresh one is needed before the next try.
+      if (error.message === '403') {
+        resetCaptcha.current?.();
+        setState({ message: t.contact.captcha, success: false });
+        toast.error(t.contact.captcha);
+        return;
+      }
       toast.error(t.contact.error);
     },
   });
@@ -86,14 +97,23 @@ export function ContactForm() {
       return;
     }
 
-    addMessageMutation.mutate(validation.data, {
-      onSuccess: () => {
-        toast.success(t.contact.sentToast);
-        form.reset();
-        setState({ success: true, message: t.contact.sentState });
-        startCooldown();
+    if (SITE_KEY && !formData.get(TOKEN_FIELD)) {
+      setState({ message: t.contact.captcha, success: false });
+      return;
+    }
+
+    addMessageMutation.mutate(
+      { m: validation.data, form: formData },
+      {
+        onSuccess: () => {
+          resetCaptcha.current?.();
+          toast.success(t.contact.sentToast);
+          form.reset();
+          setState({ success: true, message: t.contact.sentState });
+          startCooldown();
+        },
       },
-    });
+    );
   };
 
   const pending = addMessageMutation.isPending;
@@ -160,6 +180,8 @@ export function ContactForm() {
           maxLength={5000}
         />
       ))}
+
+      {SITE_KEY ? <Turnstile siteKey={SITE_KEY} locale={locale} resetRef={resetCaptcha} /> : null}
 
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
         <button

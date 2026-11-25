@@ -49,6 +49,7 @@ const BlogPage = page('blog');
 const BlogDetailPage = page('blogDetail');
 const PrivacyPage = page('privacy');
 const TermsPage = page('terms');
+const ContactPage = page('contact');
 const LoginPage = page('login');
 const AdminPage = page('admin');
 const NotFoundPage = page('notFound');
@@ -67,6 +68,7 @@ function publicChildren(locale: Locale): RouteObject[] {
     { path: 'blog/:slug', element: <BlogDetailPage /> },
     { path: 'privacy', element: <PrivacyPage /> },
     { path: 'terms', element: <TermsPage /> },
+    { path: 'contact', element: <ContactPage /> },
   ];
   // Admin stays English-only: no /id/login, no /id/admin.
   if (locale === 'en') {

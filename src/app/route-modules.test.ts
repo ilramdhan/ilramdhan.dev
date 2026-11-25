@@ -13,6 +13,8 @@ describe('pageForPath', () => {
     ['/blog?tag=react', 'blog'],
     ['/blog/a-post', 'blogDetail'],
     ['/privacy', 'privacy'],
+    ['/contact', 'contact'],
+    ['/id/contact', 'contact'],
     ['/admin', 'admin'],
     ['/nope', 'notFound'],
   ])('%s -> %s', (path, page) => {

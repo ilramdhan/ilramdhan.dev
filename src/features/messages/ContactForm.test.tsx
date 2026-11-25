@@ -16,6 +16,8 @@ describe('ContactForm', () => {
     expect(email).toHaveAttribute('aria-invalid', 'true');
     expect(email).toHaveAccessibleDescription('Please enter a valid email.');
     expect(screen.getByRole('status')).toHaveTextContent('Missing Fields');
+    // D10 flag off (no VITE_TURNSTILE_SITE_KEY): no widget, the anon insert path as before.
+    expect(document.querySelector('[data-turnstile]')).toBeNull();
     // Focus ring: the field draws a 2px focus-visible outline and never hides the outline on plain focus.
     // (The banned class is matched by pattern: a literal here would make Tailwind emit it.)
     expect(email.className).toContain('focus-visible:outline-2');

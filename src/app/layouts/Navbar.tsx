@@ -75,7 +75,7 @@ export function Navbar() {
   useBrandCollapse(headerRef);
 
   const [open, setOpen] = useState(false);
-  // Close the sheet on any navigation, `/#contact` on home included (adjust state during render; no effect needed).
+  // Close the sheet on any navigation, in-page hash links included (adjust state during render; no effect needed).
   const [prevKey, setPrevKey] = useState(key);
   if (prevKey !== key) {
     setPrevKey(key);

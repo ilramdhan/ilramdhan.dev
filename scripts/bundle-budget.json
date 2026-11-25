@@ -54,6 +54,14 @@
       "maxKiB": 140.5
     },
     {
+      "name": "Initial JS /contact (gzip)",
+      "pattern": "\\.js$",
+      "route": "^assets/contact-[\\w-]{8}\\.js$",
+      "metric": "gzip",
+      "aggregate": "initial",
+      "maxKiB": 130.5
+    },
+    {
       "name": "Initial JS / (gzip)",
       "pattern": "\\.js$",
       "route": "^assets/home-[\\w-]{8}\\.js$",

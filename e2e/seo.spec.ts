@@ -77,7 +77,7 @@ test('nav items, logo and footer links are anchors with href', async ({ page }) 
     '/projects',
     '/blog',
     '/certificates',
-    '/#contact',
+    '/contact',
     '/privacy',
     '/terms',
   ]) {
@@ -242,6 +242,7 @@ for (const route of LOCALIZED) {
       if (route.path.startsWith('/blog/')) expect(types).toEqual(['BlogPosting', 'BreadcrumbList']);
       if (route.path.startsWith('/projects/'))
         expect(types[0]).toMatch(/^(CreativeWork|SoftwareSourceCode)$/);
+      if (route.path === '/contact') expect(types).toEqual(['ContactPage']);
     });
   }
 }

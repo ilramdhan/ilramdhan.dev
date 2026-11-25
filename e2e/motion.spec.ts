@@ -80,7 +80,7 @@ test.describe('hero', () => {
     const hero = page.locator('section[data-enter]');
     await expect(hero.getByRole('link', { name: 'Contact Me' })).toHaveAttribute(
       'href',
-      '/#contact',
+      '/contact',
     );
     await expect(hero.getByRole('link', { name: 'View Projects' })).toHaveAttribute(
       'href',

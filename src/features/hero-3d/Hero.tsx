@@ -89,7 +89,7 @@ function Bar({ className }: { className: string }) {
 }
 
 /**
- * Home hero (mutugading HomeHero, P15a): the owner's name as the h1, one lead line, a pill to the contact tile and a
+ * Home hero (mutugading HomeHero, P15a): the owner's name as the h1, one lead line, a pill to the contact page and a
  * chevron link to the projects, then `specs` (a SpecRow of real counts). Clean white ground. On a desktop with a fine
  * pointer and motion allowed the copy moves to the left half and the lanyard hangs on the right (canvas behind the
  * pointer-transparent copy layer, so the card can be dragged). Entrance: the h1 rises without fading (LCP), the rest
@@ -145,7 +145,7 @@ export function Hero({ specs }: { specs?: ReactNode }) {
                 SPLIT_LINKS,
               )}
             >
-              <PillButton href={lp('/#contact')}>{t.hero.contactMe}</PillButton>
+              <PillButton href={lp('/contact')}>{t.hero.contactMe}</PillButton>
               <PillButton href={lp('/projects')} variant="secondary">
                 {t.hero.viewProjects}
               </PillButton>

@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 // would hoist every home-only partial into the entry that every route downloads.
 import type { LinkedItem } from '@/components/tile/LinkedGroup';
 import { LinkChevron } from '@/components/tile/LinkChevron';
+import { PillButton } from '@/components/tile/PillButton';
 import { SpecRow, type SpecItem } from '@/components/tile/SpecRow';
 import { Tile } from '@/components/tile/Tile';
 import { TileHeading } from '@/components/tile/TileHeading';
@@ -10,7 +11,6 @@ import { TechIcon } from '@/features/tech-stack/TechIcon';
 import { Marquee } from '@/components/motion/Marquee';
 import { ScrollFill } from '@/components/motion/ScrollFill';
 import { Hero } from '@/features/hero-3d/Hero';
-import { ContactForm } from '@/features/messages/ContactForm';
 import { LinkedRowOrNote, LinkedRowSkeleton } from '@/features/home/HomeRows';
 import { firstParagraph, firstSentence, plainText } from '@/features/home/home-text';
 import { colVar } from '@/components/tile/stagger';
@@ -27,7 +27,7 @@ import { useLocale, useLocalePath, useT } from '@/i18n';
 
 // Intrinsic ratio for photos whose URL carries no size (Img reads `_<w>x<h>` from uploads first).
 const PHOTO = { width: 1600, height: 1200 };
-// Hash targets (/#projects, /#blog, /#contact): html's scroll-padding already clears the nav; the tile's own
+// Hash targets (/#projects, /#blog, /#certificates): html's scroll-padding already clears the nav; the tile's own
 // scroll-margin would add a second 44px gap.
 const ANCHOR = 'scroll-mt-0';
 // One row is enough for a total: the count header comes back with it.
@@ -38,7 +38,7 @@ const LATEST_CERTS = { page: 1, limit: 3 } as const;
 /**
  * Home (PLAN §3, mutugading home): hero with real counts, featured projects as a row of linked groups, services as
  * quiet text columns, the tools as a plain-text marquee, featured articles, one scroll-filled statement from the
- * profile, and a closing night tile with the contact form. Every figure and line comes from the database; anything
+ * profile, and a closing night tile pointing to /contact (D11). Every figure and line comes from the database; anything
  * missing is hidden, never invented.
  */
 export default function Page() {
@@ -295,10 +295,12 @@ export default function Page() {
       ) : null}
 
       <Tile id="contact" labelledBy="home-contact-h" tone="dark" size="roomy" className={ANCHOR}>
-        <TileHeading id="home-contact-h" title={t.home.contactTitle} lead={t.home.contactLead} />
-        <div className="mt-stack w-full max-w-xl text-left">
-          <ContactForm />
-        </div>
+        <TileHeading
+          id="home-contact-h"
+          title={t.home.contactTitle}
+          lead={t.home.contactLead}
+          links={<PillButton href={lp('/contact')}>{t.contact.formTitle}</PillButton>}
+        />
       </Tile>
     </div>
   );

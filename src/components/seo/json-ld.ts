@@ -46,6 +46,19 @@ export function homeJsonLd(locale: Locale, o: { description: string; image?: str
   ];
 }
 
+/** /contact: a ContactPage about the person (same `@id` as the home Person). */
+export function contactJsonLd(locale: Locale, o: { name: string; description: string }): JsonLd {
+  return {
+    '@context': CONTEXT,
+    '@type': 'ContactPage',
+    name: o.name,
+    description: o.description,
+    url: abs(localePath('/contact', locale)),
+    inLanguage: locale,
+    mainEntity: { '@id': `${abs('/')}#person` },
+  };
+}
+
 export function breadcrumbJsonLd(items: Array<{ name: string; path: string }>): JsonLd {
   return {
     '@context': CONTEXT,
