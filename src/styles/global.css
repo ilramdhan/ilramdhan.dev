@@ -454,8 +454,11 @@
   .tech-icon {
     @apply relative flex size-11 items-center justify-center rounded-xl bg-tile-frame text-caption font-semibold text-tile-muted;
   }
+  .tech-icon:has(> img:not([hidden])) {
+    @apply text-transparent;
+  }
   .tech-icon-img {
-    @apply absolute inset-0 size-11 rounded-xl bg-tile-frame object-contain p-2 dark:invert;
+    @apply absolute inset-0 size-11 object-contain p-2.5 opacity-80 brightness-0 dark:invert;
   }
   .tech-icon::after {
     content: attr(aria-label);

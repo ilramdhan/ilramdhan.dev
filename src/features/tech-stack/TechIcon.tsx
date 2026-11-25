@@ -3,7 +3,7 @@ import { Img } from '@/components/ui/Img';
 /**
  * Icon-only tech item: a 44px quiet frame square. The monogram sits under the icon, so a missing or failed icon
  * (hidden on error, no state) leaves it showing. The name is the accessible name and a CSS-only tooltip on hover and
- * keyboard focus (below the square). The frame keeps pale and dark monochrome icons legible in both themes.
+ * keyboard focus (below the square). Icons render monochrome in the tile ink (black on light, white on dark) so any upload reads in both themes.
  */
 export function TechIcon({ name, iconUrl }: { name: string; iconUrl: string | null }) {
   return (
@@ -16,16 +16,15 @@ export function TechIcon({ name, iconUrl }: { name: string; iconUrl: string | nu
       className="tech-icon"
     >
       {name.slice(0, 2).toUpperCase()}
-      {iconUrl ? (
-        <Img
-          src={iconUrl}
-          alt=""
-          width={28}
-          height={28}
-          onError={(e) => (e.currentTarget.hidden = true)}
-          className="tech-icon-img"
-        />
-      ) : null}
+      <Img
+        // No uploaded icon: the Simple Icons CDN by name (as the old TechBadge did); a miss leaves the monogram.
+        src={iconUrl ?? `https://cdn.simpleicons.org/${name.toLowerCase().replace(/\s+/g, '')}`}
+        alt=""
+        width={28}
+        height={28}
+        onError={(e) => (e.currentTarget.hidden = true)}
+        className="tech-icon-img"
+      />
     </span>
   );
 }
