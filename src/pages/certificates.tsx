@@ -95,7 +95,8 @@ export default function CertificatesPage() {
         </div>
       </Tile>
 
-      <Tile labelledBy="certs-list-h" tone="parchment" className="min-h-[60svh]">
+      {/* F-9: white (one surface with the hero, as /projects and /blog), not the footer's parchment. */}
+      <Tile labelledBy="certs-list-h" className="min-h-[60svh] pt-0!">
         <h2 id="certs-list-h" className="sr-only">
           {t.certificates.heading}
         </h2>

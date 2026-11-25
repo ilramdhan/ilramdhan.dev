@@ -284,7 +284,8 @@ export default function AboutPage() {
       ) : null}
 
       {username ? (
-        <Tile labelledBy="about-github-h" tone="parchment">
+        // F-9: dark, not parchment: the last tile must differ from the parchment footer the curtain lifts off.
+        <Tile labelledBy="about-github-h" tone="dark">
           <TileHeading id="about-github-h" title={t.footer.socialName.github} />
           <div className="mt-stack flex w-full flex-col items-center gap-stack">
             <a
@@ -295,7 +296,7 @@ export default function AboutPage() {
               <Img
                 width={1200}
                 height={420}
-                src={`https://github-act-graph.rodriaum.com/graph?username=${username}&${theme === 'dark' ? 'bg_color=232325&color=F5F5F7&line=F5F5F7&point=F5F5F7' : 'bg_color=E8E8ED&color=1D1D1F&line=1D1D1F&point=1D1D1F'}&area=true&hide_border=true`}
+                src={`https://github-act-graph.rodriaum.com/graph?username=${username}&bg_color=${theme === 'dark' ? '333336' : '2A2A2C'}&color=F5F5F7&line=F5F5F7&point=F5F5F7&area=true&hide_border=true`}
                 alt={t.about.githubGraph(username)}
                 className="h-full w-full object-contain"
               />
@@ -303,7 +304,7 @@ export default function AboutPage() {
             <Img
               width={880}
               height={192}
-              src={`https://raw.githubusercontent.com/${siteConfig.githubUsername}/Snake-in-Contribution-Grid/output/github-contribution-grid-snake.svg`}
+              src={`https://raw.githubusercontent.com/${siteConfig.githubUsername}/Snake-in-Contribution-Grid/output/github-contribution-grid-snake-dark.svg`}
               alt={t.about.githubSnake}
               className="h-auto max-w-full"
             />
