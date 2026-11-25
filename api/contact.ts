@@ -6,12 +6,16 @@
 import { validateContactForm } from '../src/features/messages/contact-validation';
 import { en } from '../src/i18n/messages/en';
 
+/** Must match the `action` the widget renders with (src/features/messages/Turnstile.tsx). */
+export const TURNSTILE_ACTION = 'contact';
 const SITEVERIFY = 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
 /** Name 100 + email 320 + message 5000 chars (multi-byte), token ~2 KB, plus form encoding. */
 const MAX_BODY_BYTES = 32 * 1024;
 
 export interface ContactEnv {
   TURNSTILE_SECRET_KEY?: string;
+  /** Comma-separated production hostnames the token must come from (unset = any; Cloudflare also binds the widget). */
+  TURNSTILE_HOSTNAMES?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
   VITE_SUPABASE_URL?: string;
 }
@@ -64,8 +68,18 @@ export async function handleContact(
   if (ip) verifyBody.set('remoteip', ip.split(',')[0]!.trim());
   try {
     const res = await fetchImpl(SITEVERIFY, { method: 'POST', body: verifyBody });
-    const outcome = (await res.json()) as { success?: boolean };
-    if (!outcome.success) return json({ error: 'captcha' }, 403);
+    const outcome = (await res.json()) as { success?: boolean; action?: string; hostname?: string };
+    const hosts = env.TURNSTILE_HOSTNAMES?.split(',')
+      .map((h) => h.trim())
+      .filter(Boolean);
+    // Reject a token minted for another widget action or another site (Cloudflare's server-side checklist).
+    if (
+      !outcome.success ||
+      outcome.action !== TURNSTILE_ACTION ||
+      (hosts?.length && !hosts.includes(outcome.hostname ?? ''))
+    ) {
+      return json({ error: 'captcha' }, 403);
+    }
   } catch (error) {
     console.error('[contact] siteverify', error);
     return json({ error: 'captcha' }, 502);
