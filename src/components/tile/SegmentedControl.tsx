@@ -75,10 +75,7 @@ export function SegmentedControl<V extends string>({
         role="group"
         aria-label={label}
         data-segmented=""
-        className={cn(
-          'relative inline-grid w-max min-w-full rounded-full bg-parchment p-1',
-          className,
-        )}
+        className={cn('relative inline-grid w-max rounded-full bg-parchment p-1', className)}
         style={{ gridTemplateColumns: `repeat(${n}, 1fr)` }}
       >
         {i >= 0 ? (
