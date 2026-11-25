@@ -1044,3 +1044,31 @@ html.has-lenis {
     scroll-behavior: auto !important;
   }
 }
+
+/* LinkedGroupRow `oneRow`: four shared rows (media, title, line, link) so text aligns across the row; under 1024px
+   the row holds two items and the rest are hidden, never wrapped. */
+.one-row {
+  grid-template-rows: repeat(4, auto);
+  row-gap: 0;
+}
+.one-row > li {
+  display: grid;
+  grid-row: span 4;
+  grid-template-rows: subgrid;
+}
+.one-row > li > a {
+  display: grid;
+  grid-row: span 4;
+  grid-template-rows: subgrid;
+  justify-items: start;
+}
+@media (width < 64rem) {
+  .one-row > li:nth-child(n + 3) {
+    display: none;
+  }
+}
+@media (width >= 40rem) {
+  .one-row > li > a {
+    justify-items: center;
+  }
+}

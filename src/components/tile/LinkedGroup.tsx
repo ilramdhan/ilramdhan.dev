@@ -111,20 +111,12 @@ export function LinkedGroupRow({
         'grid w-full grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 sm:gap-y-12',
         cols[n],
         stagger && 'stagger-row',
-        oneRow && 'grid-rows-[repeat(4,auto)] gap-y-0',
+        oneRow && 'one-row',
         className,
       )}
     >
       {items.map((item, i) => (
-        <li
-          key={item.id}
-          style={stagger ? colVar(i, n) : undefined}
-          className={
-            oneRow
-              ? 'row-span-4 grid grid-rows-subgrid max-lg:nth-[n+3]:hidden [&>a]:row-span-4 [&>a]:grid [&>a]:grid-rows-subgrid [&>a]:justify-items-start sm:[&>a]:justify-items-center'
-              : undefined
-          }
-        >
+        <li key={item.id} style={stagger ? colVar(i, n) : undefined}>
           <LinkedGroup item={item} moreLabel={moreLabel} aspect={aspect} />
         </li>
       ))}
