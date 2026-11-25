@@ -19,7 +19,6 @@ export const MOTION = {
   scrub: 0.6,
 } as const;
 
-export const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)';
 export const MOTION_OK_QUERY = '(prefers-reduced-motion: no-preference)';
 
 export { gsap, ScrollTrigger, useGSAP };

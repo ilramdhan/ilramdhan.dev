@@ -1,5 +1,4 @@
 // Relative import on purpose: also bundled into the Vercel function (api/), which ignores tsconfig paths.
-import { siteConfig } from '../config/site';
 
 /** `en` lives at `/`, every other locale under its own prefix (`/id/...`). Slugs are shared. */
 export type Locale = 'en' | 'id';
@@ -34,7 +33,3 @@ export function alternatesFor(path: string): Array<{ hreflang: string; path: str
     { hreflang: 'x-default', path: localePath(bare, DEFAULT_LOCALE) },
   ];
 }
-
-/** Absolute URL of `path` in `locale`. */
-export const localeUrl = (path: string, locale: Locale) =>
-  new URL(localePath(path, locale), siteConfig.url).toString();

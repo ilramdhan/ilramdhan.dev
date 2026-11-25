@@ -35,16 +35,6 @@ export function endPrerenderedView(): void {
 }
 
 /**
- * Whether this component is part of the prerendered HTML (rendered on the server or
- * while hydrating it). Entrance animations skip such content: it is already on screen,
- * hiding it to fade it back in would only delay it.
- */
-export function useIsPrerendered(): boolean {
-  const [prerendered] = useState(() => prerenderedView);
-  return prerendered;
-}
-
-/**
  * `false` while React hydrates prerendered HTML (and during the prerender itself), `true`
  * afterwards and in plain client renders. Values that only the browser knows (stored
  * theme, media queries) must render their server value until this flips, or hydration
