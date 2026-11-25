@@ -21,6 +21,8 @@ import { profileQueries } from '@/features/profile/queries';
 import { certificateQueries } from '@/features/certificates/queries';
 import { PROSE, ResumeRows } from '@/features/resume/ResumeRows';
 import { resumeQueries } from '@/features/resume/queries';
+import { TechIcon } from '@/features/tech-stack/TechIcon';
+import type { TechStack } from '@/features/tech-stack/api';
 import { techStackQueries } from '@/features/tech-stack/queries';
 import { WAKATIME_STATS_HEIGHT } from '@/features/wakatime/WakatimeStats';
 import { wakatimeQueries } from '@/features/wakatime/queries';
@@ -101,14 +103,26 @@ export default function AboutPage() {
   const name = profile?.display_name || t.about.fallbackHeading;
 
   // Skills: the tech stack grouped by its category, one quiet column per group.
-  const groups = new Map<string, string[]>();
+  const groups = new Map<string, TechStack[]>();
   for (const s of techStack ?? []) {
     const key = s.category?.trim() ?? '';
-    groups.set(key, [...(groups.get(key) ?? []), s.name]);
+    groups.set(key, [...(groups.get(key) ?? []), s]);
   }
   const skills: FeatureColumn[] = [...groups.entries()]
     .filter(([key]) => key)
-    .map(([key, names]) => ({ key, title: cap(key), body: names.join(', ') }));
+    .map(([key, techs]) => ({
+      key,
+      title: cap(key),
+      content: (
+        <ul className="mt-4 flex flex-wrap gap-2">
+          {techs.map((s) => (
+            <li key={s.id}>
+              <TechIcon name={s.name} iconUrl={s.icon_url} />
+            </li>
+          ))}
+        </ul>
+      ),
+    }));
 
   // WakaTime figures: unknown = hidden (never a placeholder number).
   const languages = !isWakatimeError ? (wakatime?.data ?? []).slice(0, 5) : [];
