@@ -918,6 +918,20 @@ html.has-lenis {
 ::view-transition-new(root) {
   z-index: 2;
 }
+/* F-13: the new theme grows as a circle from the control's centre. Scoped to `html.theme-vt` (set by ThemeControls
+   for the switch only), so route fades never pick it up. --vt-x/y are set on <html> by script (CSSOM); 150vmax
+   reaches the farthest corner from any point on screen. */
+html.theme-vt::view-transition-new(root) {
+  animation: theme-reveal 560ms var(--ease-out-apple) both;
+}
+@keyframes theme-reveal {
+  from {
+    clip-path: circle(0 at var(--vt-x) var(--vt-y));
+  }
+  to {
+    clip-path: circle(150vmax at var(--vt-x) var(--vt-y));
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*),
   ::view-transition-old(*),

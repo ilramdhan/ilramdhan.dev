@@ -117,6 +117,78 @@ test.describe('theme (T-20)', () => {
     await expect(button).toBeFocused();
   });
 
+  test('F-13: the new theme grows as a circle from the control, scoped to the switch', async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      // Record every View Transition animation (the root reveal and route fades) by name.
+      const w = window as unknown as { vtNames: string[] };
+      w.vtNames = [];
+      const start = document.startViewTransition.bind(document);
+      document.startViewTransition = ((cb: () => void) => {
+        const vt = start(cb);
+        void vt.ready.then(() => {
+          for (const a of document.documentElement.getAnimations({ subtree: true }))
+            w.vtNames.push((a as CSSAnimation).animationName);
+        });
+        return vt;
+      }) as typeof document.startViewTransition;
+    });
+    await page.addInitScript(() => localStorage.setItem('theme', 'light'));
+    await page.goto('/privacy');
+    const toggle = page.locator('[data-theme-toggle]');
+    const desktop = await toggle.isVisible();
+    await pickTheme(page, 'Dark');
+    await expect.poll(() => dataTheme(page)).toBe('dark');
+    await expect
+      .poll(() => page.evaluate(() => (window as unknown as { vtNames: string[] }).vtNames))
+      .toContain('theme-reveal');
+    // Starts from the toggle's centre (nav button on desktop, the picked radio in the sheet).
+    const from = await page.evaluate(() => ({
+      x: parseFloat(document.documentElement.style.getPropertyValue('--vt-x')),
+      y: parseFloat(document.documentElement.style.getPropertyValue('--vt-y')),
+    }));
+    if (desktop) {
+      const box = (await toggle.boundingBox())!;
+      expect(Math.abs(from.x - (box.x + box.width / 2))).toBeLessThan(2);
+      expect(Math.abs(from.y - (box.y + box.height / 2))).toBeLessThan(2);
+    }
+    // The scope class goes away, so a route change afterwards only gets the page fade.
+    await expect
+      .poll(() => page.evaluate(() => document.documentElement.classList.contains('theme-vt')))
+      .toBe(false);
+    await page.evaluate(() => {
+      (window as unknown as { vtNames: string[] }).vtNames = [];
+    });
+    await page.getByRole('contentinfo').getByRole('link', { name: 'Terms' }).first().click();
+    await expect(page).toHaveURL(/\/terms$/);
+    const names = await page.evaluate(() => (window as unknown as { vtNames: string[] }).vtNames);
+    expect(names).not.toContain('theme-reveal');
+  });
+
+  test.describe('reduced motion', () => {
+    test.use({ contextOptions: { reducedMotion: 'reduce' } });
+    test('the switch is instant (no View Transition)', async ({ page }) => {
+      await page.addInitScript(() => {
+        const w = window as unknown as { vtCount: number };
+        w.vtCount = 0;
+        const start = document.startViewTransition.bind(document);
+        document.startViewTransition = ((cb: () => void) => {
+          w.vtCount++;
+          return start(cb);
+        }) as typeof document.startViewTransition;
+      });
+      await page.addInitScript(() => localStorage.setItem('theme', 'dark'));
+      await page.goto('/privacy');
+      await pickTheme(page, 'Light');
+      await expect.poll(() => dataTheme(page)).toBe('light');
+      expect(await page.evaluate(() => (window as unknown as { vtCount: number }).vtCount)).toBe(0);
+      expect(
+        await page.evaluate(() => document.documentElement.classList.contains('theme-vt')),
+      ).toBe(false);
+    });
+  });
+
   test('the 404 page respects the saved theme', async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('theme', 'light'));
     await page.goto('/nope');

@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
+import { flushSync } from 'react-dom';
 import { useTheme, type ThemePreference } from '@/app/ThemeContext';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
@@ -9,16 +10,35 @@ const CHOICES: readonly ThemePreference[] = ['light', 'dark', 'system'];
 const KEY = { light: 'light', dark: 'dark', system: 'auto' } as const;
 
 let switchTimer: number | undefined;
+let reveal: ViewTransition | undefined;
 
-/** Picks a theme with a one-off colour cross-fade (`html.theme-switching`, global.css; nothing moves). */
+/**
+ * Picks a theme. With View Transitions the new theme grows as a circle from `from`'s centre (`html.theme-vt`,
+ * global.css; the class scopes it, route fades are untouched). Without: a one-off colour cross-fade
+ * (`html.theme-switching`). Reduced motion: instant.
+ */
 function useChoose() {
   const { setPreference } = useTheme();
-  return (choice: ThemePreference) => {
+  return (choice: ThemePreference, from?: Element | null) => {
     const root = document.documentElement;
-    root.classList.add('theme-switching');
-    window.clearTimeout(switchTimer);
-    switchTimer = window.setTimeout(() => root.classList.remove('theme-switching'), 400);
-    setPreference(choice);
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return setPreference(choice);
+    if (!document.startViewTransition) {
+      root.classList.add('theme-switching');
+      window.clearTimeout(switchTimer);
+      switchTimer = window.setTimeout(() => root.classList.remove('theme-switching'), 400);
+      return setPreference(choice);
+    }
+    const r = from?.getBoundingClientRect();
+    // CSSOM custom properties, not an inline <style>: no CSP hash needed.
+    root.style.setProperty('--vt-x', `${r ? r.left + r.width / 2 : innerWidth / 2}px`);
+    root.style.setProperty('--vt-y', `${r ? r.top + r.height / 2 : 0}px`);
+    root.classList.add('theme-vt');
+    const vt = (reveal = document.startViewTransition(() =>
+      flushSync(() => setPreference(choice)),
+    ));
+    void vt.finished.finally(() => {
+      if (reveal === vt) root.classList.remove('theme-vt');
+    });
   };
 }
 
@@ -162,7 +182,7 @@ export function ThemeMenu({ className }: { className?: string }) {
               aria-checked={preference === c}
               tabIndex={-1}
               onClick={() => {
-                choose(c);
+                choose(c, btn.current);
                 close();
               }}
               className={cn(
@@ -215,7 +235,7 @@ export function ThemeSegmented({ className }: { className?: string }) {
           : null;
     if (next === null) return;
     e.preventDefault();
-    choose(CHOICES[next]!);
+    choose(CHOICES[next]!, refs.current[next]);
     refs.current[next]?.focus();
   };
   return (
@@ -242,7 +262,7 @@ export function ThemeSegmented({ className }: { className?: string }) {
               role="radio"
               aria-checked={on}
               tabIndex={on ? 0 : -1}
-              onClick={() => choose(c)}
+              onClick={(e) => choose(c, e.currentTarget)}
               className={cn(
                 'inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-3 text-caption transition-colors duration-200',
                 on ? 'bg-thumb font-semibold text-ink' : 'text-ink-muted hover:text-ink',
