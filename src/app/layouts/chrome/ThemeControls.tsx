@@ -3,77 +3,29 @@ import { flushSync } from 'react-dom';
 import { useTheme, type ThemePreference } from '@/app/ThemeContext';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
+import { motionOk } from '@/components/motion/near';
 import { CHROME_ICON_BTN } from './controls';
 
 /** Menu order (mutugading THEME_CHOICES). `system` is shown as "Auto". */
 const CHOICES: readonly ThemePreference[] = ['light', 'dark', 'system'];
 const KEY = { light: 'light', dark: 'dark', system: 'auto' } as const;
 
-let switchTimer: number | undefined;
-let reveal: ViewTransition | undefined;
-
 /**
- * Picks a theme. With View Transitions the new theme grows as a circle from `from`'s centre (`html.theme-vt`,
- * global.css; the class scopes it, route fades are untouched). Without: a one-off colour cross-fade
- * (`html.theme-switching`). Reduced motion: instant.
+ * Picks a theme: a circle reveal from `from` (theme-switch.ts, lazy). ponytail: no View Transitions, reduced motion
+ * or a failed chunk load = instant switch (the old cross-fade fallback was dropped for the entry budget); add one back
+ * if pre-2025 browsers matter.
  */
 function useChoose() {
   const { setPreference } = useTheme();
-  return (choice: ThemePreference, from?: Element | null) => {
-    const root = document.documentElement;
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return setPreference(choice);
-    if (!document.startViewTransition) {
-      root.classList.add('theme-switching');
-      window.clearTimeout(switchTimer);
-      switchTimer = window.setTimeout(() => root.classList.remove('theme-switching'), 400);
-      return setPreference(choice);
-    }
-    const r = from?.getBoundingClientRect();
-    // CSSOM custom properties, not an inline <style>: no CSP hash needed.
-    root.style.setProperty('--vt-x', `${r ? r.left + r.width / 2 : innerWidth / 2}px`);
-    root.style.setProperty('--vt-y', `${r ? r.top + r.height / 2 : 0}px`);
-    root.classList.add('theme-vt');
-    const vt = (reveal = document.startViewTransition(() =>
-      flushSync(() => setPreference(choice)),
-    ));
-    void vt.finished.finally(() => {
-      if (reveal === vt) root.classList.remove('theme-vt');
-    });
+  return (choice: ThemePreference, from: Element) => {
+    const apply = () => flushSync(() => setPreference(choice));
+    if (!document.startViewTransition || !motionOk()) return apply();
+    import('./theme-switch').then((m) => m.reveal(apply, from), apply);
   };
 }
 
 /** Drawn glyphs, one stroke weight with the other chrome icons (1.4). */
 export function ThemeGlyph({ choice, className }: { choice: ThemePreference; className?: string }) {
-  const cls = cn('size-[17px] shrink-0', className);
-  if (choice === 'light')
-    return (
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 18 18"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        className={cls}
-      >
-        <circle cx="9" cy="9" r="3.25" />
-        <path d="M9 1.75v1.5M9 14.75v1.5M1.75 9h1.5M14.75 9h1.5M3.87 3.87l1.06 1.06M13.07 13.07l1.06 1.06M3.87 14.13l1.06-1.06M13.07 4.93l1.06-1.06" />
-      </svg>
-    );
-  if (choice === 'dark')
-    return (
-      <svg
-        aria-hidden="true"
-        viewBox="0 0 18 18"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinejoin="round"
-        className={cls}
-      >
-        <path d="M15.25 10.6A6.5 6.5 0 0 1 7.4 2.75a6.5 6.5 0 1 0 7.85 7.85Z" />
-      </svg>
-    );
   return (
     <svg
       aria-hidden="true"
@@ -81,10 +33,23 @@ export function ThemeGlyph({ choice, className }: { choice: ThemePreference; cla
       fill="none"
       stroke="currentColor"
       strokeWidth="1.4"
-      className={cls}
+      strokeLinecap={choice === 'light' ? 'round' : undefined}
+      strokeLinejoin={choice === 'dark' ? 'round' : undefined}
+      className={cn('size-[17px] shrink-0', className)}
     >
-      <circle cx="9" cy="9" r="6.25" />
-      <path d="M9 2.75a6.25 6.25 0 0 1 0 12.5Z" fill="currentColor" stroke="none" />
+      {choice === 'light' ? (
+        <>
+          <circle cx="9" cy="9" r="3.25" />
+          <path d="M9 1.75v1.5M9 14.75v1.5M1.75 9h1.5M14.75 9h1.5M3.87 3.87l1.06 1.06M13.07 13.07l1.06 1.06M3.87 14.13l1.06-1.06M13.07 4.93l1.06-1.06" />
+        </>
+      ) : choice === 'dark' ? (
+        <path d="M15.25 10.6A6.5 6.5 0 0 1 7.4 2.75a6.5 6.5 0 1 0 7.85 7.85Z" />
+      ) : (
+        <>
+          <circle cx="9" cy="9" r="6.25" />
+          <path d="M9 2.75a6.25 6.25 0 0 1 0 12.5Z" fill="currentColor" stroke="none" />
+        </>
+      )}
     </svg>
   );
 }
@@ -182,7 +147,7 @@ export function ThemeMenu({ className }: { className?: string }) {
               aria-checked={preference === c}
               tabIndex={-1}
               onClick={() => {
-                choose(c, btn.current);
+                choose(c, btn.current!);
                 close();
               }}
               className={cn(
@@ -235,7 +200,7 @@ export function ThemeSegmented({ className }: { className?: string }) {
           : null;
     if (next === null) return;
     e.preventDefault();
-    choose(CHOICES[next]!, refs.current[next]);
+    choose(CHOICES[next]!, refs.current[next]!);
     refs.current[next]?.focus();
   };
   return (
