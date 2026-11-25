@@ -146,6 +146,18 @@ Vercel builds with `npm run build` and serves `dist/` (`vercel.json`). Set `VITE
 - `PRERENDER_MOCK=1` prerenders against the e2e fixture dataset (CI and `npm run build:e2e`).
 - New content before the next deploy: `/blog/:slug` and `/projects/:slug` URLs with no prerendered file are rewritten to the `api/detail-page` function (prerendered files are served first). It reads the published row from Supabase and returns the SPA shell with the same title/description/Open Graph tags as the prerendered page, so link previews work; unknown slugs still get `404.html` with status 404. The page body is not prerendered, so still set up the rebuild below.
 
+### Contact form spam check (optional, off by default)
+
+`/contact` can protect its form with [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/). Off until `VITE_TURNSTILE_SITE_KEY` is set: the form then inserts into `messages` with the anon key (RLS limits apply), exactly as before.
+
+| Variable                    | Where                         | Purpose                                                                                                                                                |
+| --------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `VITE_TURNSTILE_SITE_KEY`   | Vercel (build)                | Public site key. Set = the widget loads (only once the form is near the viewport, in the site theme and language) and the form posts to `api/contact`. |
+| `TURNSTILE_SECRET_KEY`      | Vercel (runtime, server-only) | `api/contact.ts` verifies the token at `challenges.cloudflare.com/turnstile/v0/siteverify`.                                                            |
+| `SUPABASE_SERVICE_ROLE_KEY` | Vercel (runtime, server-only) | `api/contact.ts` inserts the validated message (same zod schema and size limits as the form). Never prefix with `VITE_`.                               |
+
+Set the two server keys first, then the site key, then redeploy (the site key is inlined at build time). The CSP in `vercel.json` already allows `https://challenges.cloudflare.com`. Cloudflare's test keys (site `1x00000000000000000000AA` passes, `2x00000000000000000000AB` fails) work for previews.
+
 ### Rebuild on publish (optional, off by default)
 
 Prerendered pages change only on a new deploy. To redeploy automatically:

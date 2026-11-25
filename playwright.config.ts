@@ -90,6 +90,9 @@ export default defineConfig<{ theme?: Theme }>({
       VITE_SUPABASE_ANON_KEY: 'e2e-dummy-anon-key',
       // Registers the dev-only /__motion preview in the e2e build (e2e/motion.spec.ts).
       VITE_MOTION_PREVIEW: '1',
+      // Cloudflare's public always-pass Turnstile test site key: the contact form runs the verified path
+      // (e2e/contact.spec.ts mocks api.js and /api/contact; nothing reaches Cloudflare or Supabase).
+      VITE_TURNSTILE_SITE_KEY: '1x00000000000000000000AA',
     },
   },
 });

@@ -14,7 +14,7 @@ export function useNavItems(): NavItem[] {
     { id: 'certificates', label: t.certificates, href: '/certificates' },
     { id: 'projects', label: t.projects, href: '/projects' },
     { id: 'blog', label: t.blog, href: '/blog' },
-    { id: 'contact', label: t.contact, href: '/#contact' },
+    { id: 'contact', label: t.contact, href: '/contact' },
   ];
 }
 

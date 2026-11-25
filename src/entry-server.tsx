@@ -33,6 +33,7 @@ export const STATIC_ROUTES = [
   '/blog',
   '/privacy',
   '/terms',
+  '/contact',
 ];
 
 /** English-only: admin stays out of the locale routes; `login` is prerendered (noindex). */

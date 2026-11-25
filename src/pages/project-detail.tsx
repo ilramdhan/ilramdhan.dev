@@ -187,7 +187,7 @@ export default function ProjectDetailPage() {
           lead={t.project.ctaLead}
           links={
             <>
-              <PillButton href={lp('/#contact')} onDark>
+              <PillButton href={lp('/contact')} onDark>
                 {t.project.ctaContact}
               </PillButton>
               <LinkChevron href={lp('/projects')}>{t.project.ctaAll}</LinkChevron>

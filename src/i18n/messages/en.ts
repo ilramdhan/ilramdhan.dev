@@ -60,7 +60,6 @@ export const en = {
     backToHome: 'Back to Home',
     loading: 'Loading…',
     clear: 'Clear',
-    showLess: 'Show less',
     more: (n: number) => `+${n} more`,
     tags: 'Tags',
     minRead: (n: number) => `${n} min read`,
@@ -89,6 +88,7 @@ export const en = {
     privacyDescription: 'Privacy Policy for ilramdhan.dev.',
     terms: 'Terms of Service',
     termsDescription: 'Terms of Service for ilramdhan.dev.',
+    contactDescription: 'Send Ilham Ramadhan a message, or reach him by email and on his profiles.',
     notFound: 'Page not found',
   },
   home: {
@@ -141,6 +141,9 @@ export const en = {
     error: 'Something went wrong. Please try again.',
     sentToast: "Message sent! We'll get back to you soon.",
     sentState: 'Message sent successfully!',
+    formTitle: 'Send a message',
+    elsewhere: 'Email and profiles',
+    captcha: 'Please complete the security check, then send again.',
     missingFields: 'Missing Fields',
     validation: {
       name: 'Name must be at least 2 characters.',

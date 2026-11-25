@@ -57,7 +57,6 @@ export const id: Messages = {
     backToHome: 'Kembali ke Beranda',
     loading: 'Memuat…',
     clear: 'Hapus',
-    showLess: 'Tampilkan lebih sedikit',
     more: (n) => `+${n} lagi`,
     tags: 'Tag',
     minRead: (n) => `${n} menit baca`,
@@ -85,6 +84,7 @@ export const id: Messages = {
     privacyDescription: 'Kebijakan Privasi untuk ilramdhan.dev.',
     terms: 'Ketentuan Layanan',
     termsDescription: 'Ketentuan Layanan untuk ilramdhan.dev.',
+    contactDescription: 'Kirim pesan ke Ilham Ramadhan, atau hubungi lewat email dan profilnya.',
     notFound: 'Halaman tidak ditemukan',
   },
   home: {
@@ -138,6 +138,9 @@ export const id: Messages = {
     error: 'Terjadi kesalahan. Silakan coba lagi.',
     sentToast: 'Pesan terkirim! Saya akan segera membalas.',
     sentState: 'Pesan berhasil dikirim!',
+    formTitle: 'Kirim pesan',
+    elsewhere: 'Email dan profil',
+    captcha: 'Selesaikan pemeriksaan keamanan, lalu kirim lagi.',
     missingFields: 'Ada kolom yang belum diisi',
     validation: {
       name: 'Nama minimal 2 karakter.',

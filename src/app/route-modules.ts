@@ -15,6 +15,7 @@ export const pageLoaders = {
   blogDetail: () => import('@/pages/blog-detail'),
   privacy: () => import('@/pages/privacy'),
   terms: () => import('@/pages/terms'),
+  contact: () => import('@/pages/contact'),
   login: () => import('@/pages/login'),
   admin: () => import('@/pages/admin'),
   notFound: () => import('@/pages/not-found'),
@@ -40,6 +41,8 @@ export function pageForPath(path: string): PageKey {
       return 'privacy';
     case 'terms':
       return 'terms';
+    case 'contact':
+      return second ? 'notFound' : 'contact';
     case 'login':
       return 'login';
     case 'admin':

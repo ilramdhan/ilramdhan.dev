@@ -20,7 +20,7 @@ test('back/forward restores the previous scroll position', async ({ page }) => {
     .toBeGreaterThan(before - 40);
 });
 
-test('/#contact from another page lands with the heading below the navbar', async ({ page }) => {
+test('nav Contact opens the /contact page (D11), heading below the navbar', async ({ page }) => {
   await page.goto('/about');
   await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
   const menu = page.getByRole('button', { name: 'Open menu' });
@@ -30,46 +30,14 @@ test('/#contact from another page lands with the heading below the navbar', asyn
     .locator('visible=true')
     .first()
     .click();
-  const heading = page.getByRole('heading', { name: 'Get In Touch' });
+  await expect(page).toHaveURL(/\/contact$/);
+  const heading = page.getByRole('heading', { level: 1, name: 'Get In Touch' });
   await expect(heading).toBeVisible();
-  await expect
-    .poll(
-      async () => {
-        const [box, nav] = await Promise.all([
-          heading.boundingBox(),
-          page.locator('header[data-site-nav]').boundingBox(),
-        ]);
-        return box && nav ? box.y >= nav.y + nav.height : false;
-      },
-      { timeout: 5000 },
-    )
-    .toBe(true);
-  await expect(page).toHaveURL(/\/#contact$/);
-});
-
-test('in-page hash link on home scrolls the section below the navbar', async ({ page }) => {
-  await page.goto('/');
-  await expect(page.getByText('Project 1', { exact: true }).first()).toBeAttached();
-  const menu = page.getByRole('button', { name: 'Open menu' });
-  if (await menu.isVisible()) await menu.click();
-  await page
-    .getByRole('link', { name: 'Contact', exact: true })
-    .locator('visible=true')
-    .first()
-    .click();
-  await expect(page).toHaveURL(/\/#contact$/);
-  const section = page.locator('#contact');
-  // Lands right under the 44px bar (scroll-padding: nav + 8px): never under it, never far below.
-  await expect
-    .poll(() => section.evaluate((el) => Math.round(el.getBoundingClientRect().top)), {
-      timeout: 5000,
-    })
-    .toBeGreaterThanOrEqual(44);
-  await expect
-    .poll(() => section.evaluate((el) => Math.round(el.getBoundingClientRect().top)), {
-      timeout: 5000,
-    })
-    .toBeLessThanOrEqual(60);
+  const [box, nav] = await Promise.all([
+    heading.boundingBox(),
+    page.locator('header[data-site-nav]').boundingBox(),
+  ]);
+  expect(box!.y).toBeGreaterThanOrEqual(nav!.y + nav!.height);
 });
 
 test('footer: doormat with real links only, and the wordmark rises while the curtain lifts', async ({

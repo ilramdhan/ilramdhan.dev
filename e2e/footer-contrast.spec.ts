@@ -15,6 +15,7 @@ const PATHS = [
   '/certificates',
   '/privacy',
   '/terms',
+  '/contact',
   '/nope',
 ];
 

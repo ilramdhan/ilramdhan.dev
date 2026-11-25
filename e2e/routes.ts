@@ -26,5 +26,6 @@ export const PUBLIC_ROUTES: PublicRoute[] = [
   { name: 'certificates', path: '/certificates', h1: 'Certificates' },
   { name: 'privacy', path: '/privacy', h1: 'Privacy Policy' },
   { name: 'terms', path: '/terms', h1: 'Terms of Service' },
+  { name: 'contact', path: '/contact', h1: 'Get In Touch' },
   { name: 'login', path: '/login', h1: 'Admin login' },
 ];

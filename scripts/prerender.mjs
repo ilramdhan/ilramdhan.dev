@@ -50,7 +50,16 @@ try {
     const { buildSitemap } = await vite.ssrLoadModule('/src/i18n/sitemap.ts');
     write(
       'sitemap.xml',
-      buildSitemap(['/', '/about', '/certificates', '/projects', '/blog', '/privacy', '/terms']),
+      buildSitemap([
+        '/',
+        '/about',
+        '/certificates',
+        '/projects',
+        '/blog',
+        '/privacy',
+        '/terms',
+        '/contact',
+      ]),
     );
     console.warn(`[prerender] skipped (${envErrors.join('; ')}): the build is a plain SPA.`);
   } else {
