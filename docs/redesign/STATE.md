@@ -5,19 +5,21 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 
 ## Decisions (PLAN §2, answered by owner 2026-11-23)
 
-| ID  | Answer                                                                                                                   |
-| --- | ------------------------------------------------------------------------------------------------------------------------ |
-| D1  | Exact 1:1 match with mutugading (tokens, type, layout, UI/UX, motion, accent)                                            |
-| D2  | Lanyard 3D live on desktop only (≥1024, fine pointer, motion ok); mobile: not rendered, not downloaded                   |
-| D3  | Branch `redesign/apple-clean` from origin/main 7f7c54e (created locally, not pushed yet)                                 |
-| D4  | Tailwind latest (4.x) + all deps latest where reasonable (R1a); holds recorded below                                     |
-| D5  | EN + ID (T-40 #55, T-41 #56) via phases I1, I2                                                                           |
-| D6  | 2026-11-25: services as parchment/night tile-cards (radius, no border/shadow), 3 cols ≥1024, 1 col mobile (D1 deviation) |
-| D7  | 2026-11-25: 2–3 own abstract SVG/AVIF shapes, opacity ≤0.12, aria-hidden, parallax, off on reduced motion (D1 deviation) |
-| D8  | 2026-11-25: statement = one short tagline line, one type step down, more padding, higher unfilled contrast               |
-| D9  | 2026-11-25: home order per PLAN §8.2 D9 default; real data only, hide empty sections                                     |
-| D10 | 2026-11-25: Turnstile + `api/contact.ts` server verify, env flag off by default; owner adds Vercel env keys              |
-| D11 | 2026-11-25: `/contact` + `/id/contact`; nav + every Contact CTA point there                                              |
+| ID  | Answer                                                                                                                    |
+| --- | ------------------------------------------------------------------------------------------------------------------------- |
+| D1  | Exact 1:1 match with mutugading (tokens, type, layout, UI/UX, motion, accent)                                             |
+| D2  | Lanyard 3D live on desktop only (≥1024, fine pointer, motion ok); mobile: not rendered, not downloaded                    |
+| D3  | Branch `redesign/apple-clean` from origin/main 7f7c54e (created locally, not pushed yet)                                  |
+| D4  | Tailwind latest (4.x) + all deps latest where reasonable (R1a); holds recorded below                                      |
+| D5  | EN + ID (T-40 #55, T-41 #56) via phases I1, I2                                                                            |
+| D6  | 2026-11-25: services as parchment/night tile-cards (radius, no border/shadow), 3 cols ≥1024, 1 col mobile (D1 deviation)  |
+| D7  | 2026-11-25: 2–3 own abstract SVG/AVIF shapes, opacity ≤0.12, aria-hidden, parallax, off on reduced motion (D1 deviation)  |
+| D8  | 2026-11-25: statement = one short tagline line, one type step down, more padding, higher unfilled contrast                |
+| D9  | 2026-11-25: home order per PLAN §8.2 D9 default; real data only, hide empty sections                                      |
+| D10 | 2026-11-25: Turnstile + `api/contact.ts` server verify, env flag off by default; owner adds Vercel env keys               |
+| D11 | 2026-11-25: `/contact` + `/id/contact`; nav + every Contact CTA point there                                               |
+| D12 | 2026-11-25: replaces D7: licensed stock photos (Unsplash) on full-bleed CTA tiles, CSS view() drift, scrim, no SVG shapes |
+| D13 | 2026-11-25: one shared closing "Get in touch" tile → /contact on every public page except contact/legal/404/admin         |
 
 ## Holds (deps not upgraded, with reason)
 
@@ -56,6 +58,7 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 | F6  | ✅     | #192 | /contact + /id/contact, home CTA tile; Turnstile behind VITE_TURNSTILE_SITE_KEY, api/contact.ts checks action + hostnames                                                                          |
 | F7  | ✅     | #194 | F-8/D7: 3 SVG masks (currentColor, opacity 0.06, aria-hidden), CSS scroll-driven drift (no JS), hidden <1024 and under reduced-motion static; /blog 138.4                                          |
 | F9  | 🟡     |      | QA: e2e 861/0, axe 0, LH 100 exc. /projects 90 /certificates 91 (mock LCP host); fixes: listing LCP eager, home tech icons, X tap                                                                  |
+| F10 | 🟡     | #PR  | D12 photo CTA tiles (3 Unsplash photos, AVIF/WebP 1280+2560), D13 ContactCta on 7 routes, contact links short names + mailHref; F7 shapes removed                                                  |
 
 Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified by orchestrator.
 
@@ -126,3 +129,4 @@ Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified 
 - 2026-11-25 F7 ✅ #194 (verified by orchestrator after merging #193: gates exit 0, e2e motion+smoke desktop 26 passed, screens/F7 home 1440 dark/light + projects 375 + contact 1440 dark checked, md5 light≠dark on every pair). Orchestrator fix: home statement rings moved left → right (sat behind the heading, D7). Budgets: home 141.8, privacy 128.9, blog 138.4/138.5, projects 138.5, contact 130.2/130.5, JS total 1624.9/1625, CSS 17.6. Agent skipped: MG side-by-side and taste checker on 4 routes (left to F9). Next: F9.
 - 2026-11-25 F7 orchestrator follow-up on #194: first CI failed /blog 138.6/138.5 (per-route JS parallax effect in the entry chunk) → native `animation-timeline: view()` drift, no JS; shapes ran under centred hero/lead text at 375/768 → hidden under 1024px (ponytail). Gates exit 0, e2e motion+smoke+a11y+footer-contrast desktop+tablet+mobile 223 passed, CI green, merged. Budgets: JS total 1624.8, /blog 138.4, /contact 130.1, home 141.7, CSS 17.6. Worktree + local branch removed. Next: F9.
 - 2026-11-25 F9 on redesign/F9-qa: full e2e desktop+tablet+mobile 861 passed / 0 failed / 10 skipped (viewport-gated); axe wcag2a/aa/21/22aa 11 routes x EN/ID x light/dark = 0; Lighthouse mobile (mock build) 100/100/96/100 on 10 of 12 routes, /projects 90 and /certificates 91 (LCP = first card photo from the mock Supabase host; was lazy, now eager + fetchpriority high, 86 to 90); budgets unchanged (JS 1624.8, home 141.7, blog 138.4, projects 138.4, contact 130.1, privacy 128.8, CSS 17.6). Fixed: home tech marquee sent an empty src (no CDN fallback, empty squares since F2) and prerendered icons that failed before hydration kept a transparent monogram (e2e in tech-icons.spec); X share link 24px wide. screens/F (72, md5 light != dark on 36 pairs) + COMPARE.md. F-8 backdrops, contact link list and per-page CTA tiles handed to F10. Left: /code-review high and #181 body (orchestrator).
+- 2026-11-25 F10 on redesign/F10-photos-cta (merged F9 base): F7 SVG backdrops removed; ContactCta (dark tile, decorative photo at 0.3 over night, CSS view() drift, still under reduced motion) on home, about, projects, project detail, blog, blog detail, certificates; contact links show platform names, socialEntries extracts the address from URL/mailto mail values; listing icons drawn inline (no lucide runtime on /blog, /projects). Budgets base→F10: home 141.7→141.6, privacy 128.8→128.9, blog 138.4→137.1, projects 138.4→137.2, contact 130.1→130.1, JS total 1624.8→1624.7, CSS 17.6→17.7; e2e 13 specs desktop+tablet+mobile 419 passed / 0 failed / 8 skipped.
