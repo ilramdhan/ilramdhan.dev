@@ -41,7 +41,7 @@ describe('query key factories', () => {
     expect(certificateKeys.list({ page: 1, limit: 9 })).toEqual([
       'certificates',
       'list',
-      { locale: 'en', page: 1, limit: 9, issuer: null, query: '' },
+      { locale: 'en', page: 1, limit: 9, issuer: null, query: '', sort: 'newest' },
     ]);
     expect(resumeKeys.list('education')).toEqual(['resume', 'list', 'education', 'en']);
   });

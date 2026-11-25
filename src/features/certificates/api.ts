@@ -43,6 +43,7 @@ export interface CertificateListParams {
   limit: number;
   query?: string;
   issuer?: string | null;
+  sort?: 'newest' | 'oldest';
 }
 
 const localized = (rows: readonly object[], locale: Locale) =>
@@ -71,7 +72,7 @@ export async function getAdminCertificates(): Promise<Certificate[]> {
 
 // Search and the issuer filter match the English columns whatever the locale.
 export async function getCertificatesPaginated(
-  { page, limit, query: search, issuer }: CertificateListParams,
+  { page, limit, query: search, issuer, sort }: CertificateListParams,
   locale: Locale = 'en',
 ) {
   const supabase = await getSupabase();
@@ -80,7 +81,7 @@ export async function getCertificatesPaginated(
     let query = supabase
       .from('certificates')
       .select(cols as typeof CERTIFICATE_COLUMNS, { count: 'exact' })
-      .order('issued_date', { ascending: false });
+      .order('issued_date', { ascending: sort === 'oldest' });
     if (searchFilter) query = query.or(searchFilter);
     if (issuer) query = query.eq('issued_by', issuer);
     return query.range(...pageRange(page, limit));

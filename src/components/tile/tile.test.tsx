@@ -80,6 +80,19 @@ function Segmented({ onChange }: { onChange: (v: string) => void }) {
 }
 
 describe('SegmentedControl', () => {
+  it('moves focus with the arrow keys, wrapping, and Home/End', async () => {
+    render(<Segmented onChange={() => {}} />);
+    await userEvent.tab();
+    await userEvent.keyboard('{ArrowRight}');
+    expect(screen.getByRole('button', { name: 'Web' })).toHaveFocus();
+    await userEvent.keyboard('{End}');
+    expect(screen.getByRole('button', { name: 'Mobile' })).toHaveFocus();
+    await userEvent.keyboard('{ArrowRight}');
+    expect(screen.getByRole('button', { name: 'All' })).toHaveFocus();
+    await userEvent.keyboard('{ArrowLeft}');
+    expect(screen.getByRole('button', { name: 'Mobile' })).toHaveFocus();
+  });
+
   it('is a named group of pressed-state buttons reachable by keyboard', async () => {
     const onChange = vi.fn();
     render(<Segmented onChange={onChange} />);
