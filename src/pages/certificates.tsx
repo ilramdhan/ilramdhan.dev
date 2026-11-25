@@ -143,7 +143,7 @@ export default function CertificatesPage() {
             >
               {certificates.map((cert, i) => (
                 <li key={cert.id} data-flip-id={cert.id} style={colVar(i, 3)}>
-                  <CertificateCard cert={cert} />
+                  <CertificateCard cert={cert} priority={i === 0} />
                 </li>
               ))}
             </FlipGroup>
