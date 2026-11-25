@@ -451,8 +451,9 @@
 
 @layer components {
   /* D7 abstract backdrops (TileBackdrop): a corner shape masked over currentColor, so it follows light/dark. */
+  /* ponytail: hidden under 1024px, where corners run under centred text; add a smaller mobile shape if wanted. */
   [data-backdrop] {
-    @apply pointer-events-none absolute inset-0 -z-10 overflow-hidden opacity-[0.06];
+    @apply pointer-events-none absolute inset-0 -z-10 overflow-hidden opacity-[0.06] max-lg:hidden;
   }
   [data-backdrop] > div {
     @apply absolute -top-[8%] -bottom-[8%] w-[min(60vw,480px)] bg-current;
