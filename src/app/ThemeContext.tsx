@@ -20,17 +20,10 @@ interface ThemeContextType {
   /** What the visitor chose; `system` ("Auto") follows the OS, live. */
   preference: ThemePreference;
   setPreference: (preference: ThemePreference) => void;
-  /** Cycles dark -> light -> system. */
-  toggleTheme: () => void;
 }
 
 const STORAGE_KEY = 'theme';
 const QUERY = '(prefers-color-scheme: dark)';
-const CYCLE: Record<ThemePreference, ThemePreference> = {
-  dark: 'light',
-  light: 'system',
-  system: 'dark',
-};
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
@@ -87,14 +80,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const toggleTheme = useCallback(
-    () => setPreference(CYCLE[preference]),
-    [preference, setPreference],
-  );
-
   const value = useMemo(
-    () => ({ theme, preference, setPreference, toggleTheme }),
-    [theme, preference, setPreference, toggleTheme],
+    () => ({ theme, preference, setPreference }),
+    [theme, preference, setPreference],
   );
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }

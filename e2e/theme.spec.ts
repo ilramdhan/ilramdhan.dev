@@ -117,6 +117,71 @@ test.describe('theme (T-20)', () => {
     await expect(button).toBeFocused();
   });
 
+  test('F-13: the new theme grows as a circle from the control, scoped to the switch', async ({
+    page,
+  }) => {
+    await page.addInitScript(() => {
+      // Record the clip-path of every View Transition animation (the theme reveal and route fades).
+      const w = window as unknown as { clips: string[] };
+      w.clips = [];
+      const start = document.startViewTransition.bind(document);
+      document.startViewTransition = ((cb: () => void) => {
+        const vt = start(cb);
+        void vt.ready.then(() =>
+          setTimeout(() => {
+            for (const a of document.documentElement.getAnimations({ subtree: true })) {
+              const clip = (a.effect as KeyframeEffect).getKeyframes()[0]?.clipPath;
+              if (clip) w.clips.push(String(clip));
+            }
+          }),
+        );
+        return vt;
+      }) as typeof document.startViewTransition;
+    });
+    const clips = () => page.evaluate(() => (window as unknown as { clips: string[] }).clips);
+    await page.addInitScript(() => localStorage.setItem('theme', 'light'));
+    await page.goto('/privacy');
+    const toggle = page.locator('[data-theme-toggle]');
+    const desktop = await toggle.isVisible();
+    await pickTheme(page, 'Dark');
+    await expect.poll(() => dataTheme(page)).toBe('dark');
+    await expect.poll(clips).toHaveLength(1);
+    const [clip] = await clips();
+    // circle(0 at Xpx Ypx): starts from the toggle's centre (nav button; the picked radio in the sheet).
+    const m = /circle\(0(?:px)? at ([\d.]+)px ([\d.]+)px\)/.exec(clip!);
+    expect(m, clip).not.toBeNull();
+    if (desktop) {
+      const box = (await toggle.boundingBox())!;
+      expect(Math.abs(Number(m![1]) - (box.x + box.width / 2))).toBeLessThan(2);
+      expect(Math.abs(Number(m![2]) - (box.y + box.height / 2))).toBeLessThan(2);
+    }
+    // A route change afterwards gets only the page fade, no circle.
+    await page.getByRole('contentinfo').getByRole('link', { name: 'Terms' }).first().click();
+    await expect(page).toHaveURL(/\/terms$/);
+    await page.waitForTimeout(500);
+    expect(await clips()).toHaveLength(1);
+  });
+
+  test.describe('reduced motion', () => {
+    test.use({ contextOptions: { reducedMotion: 'reduce' } });
+    test('the switch is instant (no View Transition)', async ({ page }) => {
+      await page.addInitScript(() => {
+        const w = window as unknown as { vtCount: number };
+        w.vtCount = 0;
+        const start = document.startViewTransition.bind(document);
+        document.startViewTransition = ((cb: () => void) => {
+          w.vtCount++;
+          return start(cb);
+        }) as typeof document.startViewTransition;
+      });
+      await page.addInitScript(() => localStorage.setItem('theme', 'dark'));
+      await page.goto('/privacy');
+      await pickTheme(page, 'Light');
+      await expect.poll(() => dataTheme(page)).toBe('light');
+      expect(await page.evaluate(() => (window as unknown as { vtCount: number }).vtCount)).toBe(0);
+    });
+  });
+
   test('the 404 page respects the saved theme', async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('theme', 'light'));
     await page.goto('/nope');

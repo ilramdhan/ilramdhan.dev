@@ -990,21 +990,6 @@ html.has-lenis {
   color: color-mix(in oklab, var(--ink) 7%, var(--surface-parchment));
 }
 
-/* Smooth Light <-> Dark switch: the theme controls add .theme-switching for ~400ms; colours cross-fade, nothing moves.
-   Not on first paint or OS-driven changes. Reduced motion: instant. */
-@media (prefers-reduced-motion: no-preference) {
-  html.theme-switching,
-  html.theme-switching *,
-  html.theme-switching *::before,
-  html.theme-switching *::after {
-    transition-property:
-      background-color, color, border-color, outline-color, fill, stroke, text-decoration-color !important;
-    transition-duration: 350ms !important;
-    transition-timing-function: var(--ease-out-apple) !important;
-    transition-delay: 0s !important;
-  }
-}
-
 /* Nav brand collapse: the name keeps its full box (CLS 0, nothing else moves); only the track inside slides left under
    a clip whose left edge is the mark's right edge while each letter fades with a small stagger, so the name retracts
    into the mark. `data-brand-collapsed` is set on the header past 48px of scroll. Reduced motion: never collapses. */
