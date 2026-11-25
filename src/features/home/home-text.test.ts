@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { firstParagraph, plainText } from './home-text';
+import { firstParagraph, firstSentence, plainText } from './home-text';
 
 describe('home text helpers', () => {
   it('strips inline Markdown', () => {
@@ -16,5 +16,11 @@ describe('home text helpers', () => {
     );
     expect(firstParagraph('- a list only')).toBe('');
     expect(firstParagraph(undefined)).toBe('');
+  });
+
+  it('takes the first sentence', () => {
+    expect(firstSentence('Full-stack dev. Builds things.')).toBe('Full-stack dev.');
+    expect(firstSentence('No end here')).toBe('No end here');
+    expect(firstSentence('')).toBe('');
   });
 });
