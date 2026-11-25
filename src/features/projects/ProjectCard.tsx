@@ -16,9 +16,11 @@ const PHOTO = { width: 1600, height: 900 };
  */
 export function ProjectCard({
   project,
+  priority,
   className,
 }: {
   project: Partial<Project>;
+  priority?: boolean;
   className?: string;
 }) {
   const t = useT();
@@ -44,6 +46,7 @@ export function ProjectCard({
       item={item}
       moreLabel={t.projects.viewProject}
       aspect="landscape"
+      priority={priority}
       className={cn('sm:items-start sm:text-left', className)}
     />
   );

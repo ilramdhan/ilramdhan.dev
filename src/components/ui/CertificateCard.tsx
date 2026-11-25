@@ -10,7 +10,7 @@ import { useLocale, useT } from '@/i18n';
  * clamped line. With a credential URL the whole group is the link (the photo zooms 1.02 on hover, like every linked
  * group); without one it is plain text and the photo never reacts to the pointer.
  */
-export function CertificateCard({ cert }: { cert: Certificate }) {
+export function CertificateCard({ cert, priority }: { cert: Certificate; priority?: boolean }) {
   const t = useT();
   const locale = useLocale();
   const link = cert.credential_url;
@@ -27,6 +27,7 @@ export function CertificateCard({ cert }: { cert: Certificate }) {
         width={1600}
         height={1200}
         aspect="landscape"
+        priority={priority}
         interactive={!!link}
       />
       <h3 className="mt-4 text-title text-tile-ink">{cert.title}</h3>

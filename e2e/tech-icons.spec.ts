@@ -44,3 +44,23 @@ test('about: icons grouped under the category heading, each named and focusable'
   await first.focus();
   await expect(first).toBeFocused();
 });
+
+// F9: home must fall back to the Simple Icons CDN like /about (it sent an empty src), and an icon that fails before
+// hydration (prerendered markup, onError not attached yet) must still reveal the monogram.
+for (const path of ['/', '/about']) {
+  test(`${path}: icons come from the CDN fallback; a failed icon shows its monogram`, async ({
+    page,
+  }) => {
+    await page.goto(path);
+    const first = page.locator('.tech-icon-img').first();
+    await expect(first).toHaveAttribute('src', /^https:\/\/cdn\.simpleicons\.org\//);
+    await page.route('https://cdn.simpleicons.org/**', (r) => r.abort());
+    await page.reload();
+    const square = page.locator('.tech-icon').first();
+    await square.scrollIntoViewIfNeeded();
+    await expect(square.locator('img')).toBeHidden();
+    await expect
+      .poll(() => square.evaluate((el) => getComputedStyle(el).color))
+      .not.toBe('rgba(0, 0, 0, 0)');
+  });
+}
