@@ -250,7 +250,7 @@ export default function Page() {
           tone="parchment"
           align="split"
           size="roomy"
-          backdrop={{ shape: 'rings', side: 'left' }}
+          backdrop={{ shape: 'rings' }}
         >
           <div className="order-2 flex flex-col items-start text-left lg:order-1">
             <h2 id="home-statement-h" className="sr-only">
