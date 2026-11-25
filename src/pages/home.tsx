@@ -216,7 +216,10 @@ export default function Page() {
               className="pb-9"
               itemClassName="px-2 sm:px-3"
               renderItem={(n) => (
-                <TechIcon name={n} iconUrl={techStack?.find((s) => s.name === n)?.icon_url ?? ''} />
+                <TechIcon
+                  name={n}
+                  iconUrl={techStack?.find((s) => s.name === n)?.icon_url ?? null}
+                />
               )}
             />
           </div>
