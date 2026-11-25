@@ -86,10 +86,10 @@ test('/contact (EN): h1, form, profile links (real entries only), mailto', async
     'href',
     'https://github.com/dummy',
   );
-  await expect(main.getByRole('link', { name: /dummy@example\.com/ })).toHaveAttribute(
-    'href',
-    'mailto:dummy@example.com',
-  );
+  // Short platform name like the other entries; the address only in the href and the accessible name.
+  const mail = main.getByRole('link', { name: /^Email\s*:\s*dummy@example\.com$/ });
+  await expect(mail).toHaveAttribute('href', 'mailto:dummy@example.com');
+  expect(await mail.evaluate((a) => a.firstChild?.textContent)).toBe('Email');
   // Not in the profile: not rendered.
   await expect(main.getByRole('link', { name: 'YouTube' })).toHaveCount(0);
 });
