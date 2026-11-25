@@ -1,5 +1,6 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { ContactCta } from '@/components/tile/ContactCta';
 import { Pagination } from '@/components/ui/Pagination';
 import { ProjectCard, ProjectCardSkeleton } from '@/features/projects/ProjectCard';
 import { FlipGroup } from '@/components/motion/FlipGroup';
@@ -176,6 +177,8 @@ export default function ProjectsPage() {
           />
         </div>
       </ListingSection>
+
+      <ContactCta photo="code" />
     </div>
   );
 }

@@ -450,38 +450,39 @@
 }
 
 @layer components {
-  /* D7 abstract backdrops (TileBackdrop): a corner shape masked over currentColor, so it follows light/dark. */
-  /* ponytail: hidden under 1024px, where corners run under centred text; add a smaller mobile shape if wanted. */
-  [data-backdrop] {
-    @apply pointer-events-none absolute inset-0 -z-10 overflow-hidden opacity-[0.06] max-lg:hidden;
+  /*
+   * D12 photo tiles (ContactCta): a full-bleed decorative photograph under the copy of a dark tile. Opacity over the
+   * night ground is the scrim (no gradient): white type keeps >= 5:1 over a pure-white pixel in both themes (motion.spec checks it). The image
+   * box is 12% taller than the tile so the drift never shows an edge.
+   */
+  .cta {
+    @apply relative isolate w-full scroll-mt-0 overflow-hidden bg-night py-[clamp(6rem,14vw,11rem)] text-tile-ink;
   }
-  [data-backdrop] > div {
-    @apply absolute -top-[8%] -bottom-[8%] w-[min(60vw,480px)] bg-current;
-    mask: var(--backdrop) no-repeat var(--backdrop-x) top / contain;
-    -webkit-mask: var(--backdrop) no-repeat var(--backdrop-x) top / contain;
+  .cta-links {
+    @apply mt-3 flex flex-wrap items-center justify-center gap-x-8 gap-y-4;
   }
-  [data-backdrop='rings'] > div {
-    --backdrop: url(/backdrops/rings.svg);
+  /* = pillClass('md') */
+  .cta-pill {
+    @apply inline-flex min-h-11 items-center justify-center rounded-full bg-tile-pill px-[22px] py-[11px] text-body text-tile-pill-ink transition-[background-color,scale] duration-200 ease-apple hover:bg-tile-pill-hover active:scale-[0.98] motion-reduce:transition-none;
   }
-  [data-backdrop='dots'] > div {
-    --backdrop: url(/backdrops/dots.svg);
+  .cta-photo {
+    @apply pointer-events-none absolute inset-x-0 -top-[6%] -bottom-[6%] -z-10 opacity-30;
   }
-  [data-backdrop='waves'] > div {
-    --backdrop: url(/backdrops/waves.svg);
+  .cta-photo picture,
+  .cta-photo img {
+    @apply block size-full object-cover;
   }
-  [data-backdrop-side='right'] > div {
-    --backdrop-x: right;
-    right: 0;
+  [data-cta='desk'] img {
+    object-position: 50% 75%;
   }
-  [data-backdrop-side='left'] > div {
-    --backdrop-x: left;
-    left: 0;
+  [data-cta='code'] img {
+    object-position: 30% 50%;
   }
-  /* ponytail: parallax via native scroll-driven animation (no JS); browsers without it show the shape static. */
+  /* ponytail: parallax via native scroll-driven animation (no JS); browsers without it show the photo static. */
   @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
-      [data-backdrop] > div {
-        animation: backdrop-drift linear both;
+      .cta-photo {
+        animation: photo-drift linear both;
         animation-timeline: view();
       }
     }
@@ -1128,11 +1129,11 @@ html.has-lenis {
   }
 }
 
-@keyframes backdrop-drift {
+@keyframes photo-drift {
   from {
-    transform: translateY(-6%);
+    transform: translateY(-5%);
   }
   to {
-    transform: translateY(6%);
+    transform: translateY(5%);
   }
 }

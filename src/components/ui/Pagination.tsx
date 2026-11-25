@@ -1,6 +1,6 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useT } from '@/i18n';
 import { cn } from '@/lib/utils';
+import { StrokeIcon } from './StrokeIcon';
 
 interface PaginationProps {
   currentPage: number;
@@ -39,7 +39,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         disabled={currentPage === 1}
         className={NAV_BTN}
       >
-        <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+        <StrokeIcon name="left" className="h-5 w-5" />
       </button>
       {getPageItems(currentPage, totalPages).map((page, i) =>
         page === null ? (
@@ -76,7 +76,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         disabled={currentPage === totalPages}
         className={NAV_BTN}
       >
-        <ChevronRight className="h-5 w-5" aria-hidden="true" />
+        <StrokeIcon name="right" className="h-5 w-5" />
       </button>
     </nav>
   );
