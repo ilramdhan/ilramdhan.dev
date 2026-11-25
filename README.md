@@ -150,11 +150,12 @@ Vercel builds with `npm run build` and serves `dist/` (`vercel.json`). Set `VITE
 
 `/contact` can protect its form with [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/). Off until `VITE_TURNSTILE_SITE_KEY` is set: the form then inserts into `messages` with the anon key (RLS limits apply), exactly as before.
 
-| Variable                    | Where                         | Purpose                                                                                                                                                |
-| --------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `VITE_TURNSTILE_SITE_KEY`   | Vercel (build)                | Public site key. Set = the widget loads (only once the form is near the viewport, in the site theme and language) and the form posts to `api/contact`. |
-| `TURNSTILE_SECRET_KEY`      | Vercel (runtime, server-only) | `api/contact.ts` verifies the token at `challenges.cloudflare.com/turnstile/v0/siteverify`.                                                            |
-| `SUPABASE_SERVICE_ROLE_KEY` | Vercel (runtime, server-only) | `api/contact.ts` inserts the validated message (same zod schema and size limits as the form). Never prefix with `VITE_`.                               |
+| Variable                    | Where                         | Purpose                                                                                                                                                                   |
+| --------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_TURNSTILE_SITE_KEY`   | Vercel (build)                | Public site key. Set = the widget loads (only once the form is near the viewport, in the site theme and language) and the form posts to `api/contact`.                    |
+| `TURNSTILE_SECRET_KEY`      | Vercel (runtime, server-only) | `api/contact.ts` verifies the token at `challenges.cloudflare.com/turnstile/v0/siteverify`.                                                                               |
+| `SUPABASE_SERVICE_ROLE_KEY` | Vercel (runtime, server-only) | `api/contact.ts` inserts the validated message (same zod schema and size limits as the form). Never prefix with `VITE_`.                                                  |
+| `TURNSTILE_HOSTNAMES`       | Vercel (runtime, optional)    | Comma-separated production hostnames (e.g. `ilramdhan.dev,www.ilramdhan.dev`). Set = a token from any other hostname is rejected. The token's `action` must be `contact`. |
 
 Set the two server keys first, then the site key, then redeploy (the site key is inlined at build time). The CSP in `vercel.json` already allows `https://challenges.cloudflare.com`. Cloudflare's test keys (site `1x00000000000000000000AA` passes, `2x00000000000000000000AB` fails) work for previews.
 

@@ -20,11 +20,15 @@ const post = (fields: Record<string, string>) =>
     body: new URLSearchParams(fields).toString(),
   });
 /** siteverify answers `success`; the insert answers `insertStatus`. */
-const backend = (success: boolean, insertStatus = 201) =>
+const backend = (
+  success: boolean,
+  insertStatus = 201,
+  extra: object = { action: 'contact', hostname: 'x.test' },
+) =>
   vi.fn<typeof fetch>((input) =>
     Promise.resolve(
       (input as URL | string).toString().includes('challenges.cloudflare.com')
-        ? new Response(JSON.stringify({ success }))
+        ? new Response(JSON.stringify({ success, ...extra }))
         : new Response(null, { status: insertStatus }),
     ),
   );
@@ -96,5 +100,22 @@ describe('api/contact', () => {
   it('reports a failed insert as 502', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => {});
     expect((await handleContact(post(valid), env, backend(true, 500))).status).toBe(502);
+  });
+
+  it('rejects a token minted for another action', async () => {
+    const res = await handleContact(
+      post(valid),
+      env,
+      backend(true, 201, { action: 'login', hostname: 'x.test' }),
+    );
+    expect(res.status).toBe(403);
+  });
+
+  it('rejects a token from a hostname outside TURNSTILE_HOSTNAMES', async () => {
+    const hostEnv = { ...env, TURNSTILE_HOSTNAMES: 'ilramdhan.dev, www.ilramdhan.dev' };
+    const bad = backend(true, 201, { action: 'contact', hostname: 'evil.test' });
+    expect((await handleContact(post(valid), hostEnv, bad)).status).toBe(403);
+    const ok = backend(true, 201, { action: 'contact', hostname: 'www.ilramdhan.dev' });
+    expect((await handleContact(post(valid), hostEnv, ok)).status).toBe(200);
   });
 });

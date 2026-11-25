@@ -43,7 +43,9 @@ async function mockTurnstile(page: Page, secret: string) {
       if (String(input).includes('siteverify')) {
         // Cloudflare's test secrets: 1x… always passes, 2x… always fails.
         const sent = new URLSearchParams(init?.body as string);
-        return Promise.resolve(Response.json({ success: sent.get('secret') === PASS_SECRET }));
+        return Promise.resolve(
+          Response.json({ success: sent.get('secret') === PASS_SECRET, action: 'contact' }),
+        );
       }
       inserted.push(JSON.parse(init?.body as string) as Inserted);
       return Promise.resolve(new Response(null, { status: 201 }));

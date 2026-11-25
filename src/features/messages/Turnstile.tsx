@@ -58,7 +58,13 @@ export default function Turnstile({
         .then((t) => {
           if (!alive) return;
           api = t;
-          id = t.render(el, { sitekey: siteKey, theme, language: locale, size: 'flexible' });
+          id = t.render(el, {
+            sitekey: siteKey,
+            action: 'contact',
+            theme,
+            language: locale,
+            size: 'flexible',
+          });
           resetRef.current = () => id && t.reset(id);
         })
         // Blocked or offline: no token, so the submit says the check is missing.
