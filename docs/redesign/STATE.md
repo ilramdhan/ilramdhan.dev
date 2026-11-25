@@ -54,7 +54,7 @@ Integration branch: `redesign/apple-clean` (from origin/main 7f7c54e; push with 
 | F3  | ✅     | #189 | shared ListingHero/Toolbar (44px search/sort/filter), SegmentedControl scrolls, sized to content; certificates sort                                                                                |
 | F4  | ✅     | #190 | shared DetailHeader/ArticleBody/MoreSection; TOC rail left (owner OK), scrolls internally; detail carousel dropped                                                                                 |
 | F6  | 🟡     | #192 | F-10, F-11: /contact + /id/contact, home CTA tile, Turnstile flag (off by default), api/contact.ts                                                                                                 |
-| F7  | 🟡     | PR   | F-8 abstract backdrops                                                                                                                                                                             |
+| F7  | 🟡     | #194 | F-8 abstract backdrops                                                                                                                                                                             |
 | F9  | ⬜     |      | QA, code-review, update #181                                                                                                                                                                       |
 
 Legend: ⬜ todo · 🟡 partial (finish, don't restart) · ✅ done + verified by orchestrator.
