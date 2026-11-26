@@ -48,19 +48,8 @@ try {
   if (envErrors.length > 0) {
     write('404.html', template);
     const { buildSitemap } = await vite.ssrLoadModule('/src/i18n/sitemap.ts');
-    write(
-      'sitemap.xml',
-      buildSitemap([
-        '/',
-        '/about',
-        '/certificates',
-        '/projects',
-        '/blog',
-        '/privacy',
-        '/terms',
-        '/contact',
-      ]),
-    );
+    const { STATIC_ROUTES } = await vite.ssrLoadModule('/src/i18n/static-routes.ts');
+    write('sitemap.xml', buildSitemap(STATIC_ROUTES));
     console.warn(`[prerender] skipped (${envErrors.join('; ')}): the build is a plain SPA.`);
   } else {
     const entry = await vite.ssrLoadModule('/src/entry-server.tsx');

@@ -32,3 +32,14 @@ test('the About teaser shows one sentence of the bio and links to /about', async
     '/about',
   );
 });
+
+test('a direct load of /#certificates scrolls to the section', async ({ page }) => {
+  await page.goto('/#certificates');
+  // The page load is a POP navigation; it used to reset to the top.
+  await expect
+    .poll(() =>
+      page.evaluate(() => document.getElementById('certificates')!.getBoundingClientRect().top),
+    )
+    .toBeLessThan(100);
+  expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
+});

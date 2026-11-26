@@ -204,3 +204,14 @@ only after round 2 and the owner's OK.
 Order: F0 → (F8 + F5) → (F1 + F2) → (F3 + F4) → F6 → F7 → F9. File ownership per parallel pair: F8 = home hero/3D
 files only, F5 = chrome + theme + page wrappers' last tile only; F1 = home sections, F2 = tech components + about
 tech section; F3 = listing pages + toolbar, F4 = detail pages + TOC. Same §5 rules, gates and budgets apply.
+
+### 8.4 History: what changed after F7 (owner, 2026-11-25)
+
+- **D7 → D12.** F7 shipped D7 (3 own SVG masks, opacity 0.06, #194). On review the owner replaced it: F10 (#196)
+  removed the SVG backdrops and `TileBackdrop`; the decoration is now licensed Unsplash photos on the full-bleed
+  `ContactCta` tile (decorative, `aria-hidden`, scrim, CSS `view()` drift, static under reduced motion). F-8 is met by
+  D12, not D7. The F7 row above stays as the record of what was built and then replaced.
+- **D13.** One shared closing "Get in touch" `ContactCta` → `/contact` on every public page except contact, legal,
+  404 and admin (home, about, projects, project detail, blog, blog detail, certificates).
+- **F11** (follow-ups): STATIC_ROUTES single source (`src/i18n/static-routes.ts`), direct load of `/#section`
+  scrolls to it, Dependabot check.

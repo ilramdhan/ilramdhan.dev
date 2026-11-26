@@ -91,7 +91,8 @@ export function ScrollManager() {
       }
     };
 
-    if (navType === NavigationType.Pop) {
+    // The page load is a POP too; with a hash it goes to the hash branch below, not back to the top.
+    if (navType === NavigationType.Pop && !pageLoad) {
       const y = positions.get(location.key) ?? 0;
       if (y === 0) {
         to(0);
