@@ -6,15 +6,19 @@
 export function reveal(apply: () => void, from: Element) {
   const r = from.getBoundingClientRect();
   const at = `at ${r.left + r.width / 2}px ${r.top + r.height / 2}px`;
-  void document.startViewTransition(apply).ready.then(() =>
-    document.documentElement.animate(
-      // 150vmax reaches the farthest corner from any point on screen.
-      { clipPath: [`circle(0 ${at})`, `circle(150vmax ${at})`] },
-      {
-        duration: 560,
-        easing: 'cubic-bezier(.22,1,.36,1)',
-        pseudoElement: '::view-transition-new(root)',
-      },
-    ),
-  );
+  void document
+    .startViewTransition(apply)
+    .ready.then(() =>
+      document.documentElement.animate(
+        // 150vmax reaches the farthest corner from any point on screen.
+        { clipPath: [`circle(0 ${at})`, `circle(150vmax ${at})`] },
+        {
+          duration: 560,
+          easing: 'cubic-bezier(.22,1,.36,1)',
+          pseudoElement: '::view-transition-new(root)',
+        },
+      ),
+    )
+    // Skipped (a second click or a route transition took over): the theme is already applied, nothing to animate.
+    .catch(() => undefined);
 }

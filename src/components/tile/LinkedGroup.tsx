@@ -67,7 +67,10 @@ export function LinkedGroup({
         <span className="mt-2 line-clamp-3 flex-1 text-[0.9375rem] leading-[1.4] text-pretty text-tile-muted">
           {item.line}
         </span>
-      ) : null}
+      ) : (
+        // Holds the line's row, so the `.one-row` subgrid keeps every link on the same row.
+        <span aria-hidden="true" className="flex-1" />
+      )}
       <LinkChevron className="mt-2 group-hover:underline">{moreLabel}</LinkChevron>
     </Link>
   );

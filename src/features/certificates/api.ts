@@ -81,7 +81,9 @@ export async function getCertificatesPaginated(
     let query = supabase
       .from('certificates')
       .select(cols as typeof CERTIFICATE_COLUMNS, { count: 'exact' })
-      .order('issued_date', { ascending: sort === 'oldest' });
+      .order('issued_date', { ascending: sort === 'oldest' })
+      // Unique tie-break: equal dates must not repeat or vanish across pages.
+      .order('id', { ascending: sort === 'oldest' });
     if (searchFilter) query = query.or(searchFilter);
     if (issuer) query = query.eq('issued_by', issuer);
     return query.range(...pageRange(page, limit));

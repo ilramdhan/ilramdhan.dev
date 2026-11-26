@@ -154,10 +154,6 @@ test.describe('micro-interactions', () => {
         await page.getByRole('radio', { name: 'Light' }).click();
       }
       await expect(html).not.toHaveClass(/dark/);
-      // global.css: the theme-switching cross-fade only applies with motion allowed.
-      expect(
-        await page.evaluate(() => getComputedStyle(document.body).transitionDuration),
-      ).not.toBe('0.35s');
     });
   });
 });

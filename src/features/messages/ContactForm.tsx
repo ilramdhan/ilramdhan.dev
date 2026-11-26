@@ -60,9 +60,10 @@ export function ContactForm() {
     // Success toast/state: the call-level `onSuccess` in `handleSubmit`. No admin-inbox invalidation: the admin tab
     // refetches on mount/focus anyway, and the query keys would pull a shared chunk into this route.
     onError: (error) => {
-      // 403 = the Turnstile check failed or expired: a fresh one is needed before the next try.
+      // Any server answer may have spent the single-use token (siteverify runs before the insert): fetch a fresh one.
+      resetCaptcha.current?.();
+      // 403 = the Turnstile check failed or expired.
       if (error.message === '403') {
-        resetCaptcha.current?.();
         setState({ message: t.contact.captcha, success: false });
         toast.error(t.contact.captcha);
         return;
