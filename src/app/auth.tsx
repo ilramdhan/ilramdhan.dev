@@ -6,6 +6,8 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   isLoading: boolean;
+  /** True once this tab signed out on purpose (logout), so guards send the visitor home, not to /login. */
+  loggedOut: boolean;
   login: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -39,6 +41,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [loggedOut, setLoggedOut] = useState(false);
 
   useEffect(() => {
     // Visitors without a stored session (almost everyone) never need the Supabase client
@@ -85,6 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = async () => {
+    setLoggedOut(true);
     const supabase = await getSupabase();
     await supabase.auth.signOut();
   };
@@ -93,6 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     user,
     session,
     isLoading,
+    loggedOut,
     login,
     logout,
   };

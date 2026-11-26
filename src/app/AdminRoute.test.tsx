@@ -6,7 +6,7 @@ import type { IsAdminState } from '@/lib/useIsAdmin';
 
 const logout = vi.fn(() => Promise.resolve());
 const toastError = vi.fn<(msg: string) => void>();
-let auth: { user: object | null; isLoading: boolean };
+let auth: { user: object | null; isLoading: boolean; loggedOut?: boolean };
 let admin: IsAdminState;
 
 vi.mock('./auth', () => ({ useAuth: () => ({ ...auth, logout }) }));
@@ -61,6 +61,12 @@ describe('<AdminRoute />', () => {
     auth = { user: null, isLoading: false };
     renderAt();
     expect(screen.getByText('login')).toBeInTheDocument();
+  });
+
+  it('sends a deliberate logout home, not to /login (F12 B1)', () => {
+    auth = { user: null, isLoading: false, loggedOut: true };
+    renderAt();
+    expect(screen.getByText('home')).toBeInTheDocument();
   });
 
   it('renders the dashboard for an admin', () => {
