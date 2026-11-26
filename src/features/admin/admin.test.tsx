@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
+import { act, render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
@@ -22,7 +22,7 @@ const { changedFields } = await import('./diff');
 const { defineResource } = await import('./resource');
 const { useCrudResource } = await import('./useCrudResource');
 const { ResourceForm } = await import('./ResourceForm');
-const { ResourceManager, RowButtons } = await import('./ResourceManager');
+const { ResourceManager } = await import('./ResourceManager');
 const f = await import('./fields');
 const { resolveUploads } = await import('./uploads');
 
@@ -509,13 +509,7 @@ describe('ResourceManager', () => {
           resource={resource}
           heading="Things"
           addLabel="Add Thing"
-          listClassName="list"
-          renderRow={(row, actions) => (
-            <div key={row.id}>
-              {row.title}
-              <RowButtons actions={actions} label={row.title} />
-            </div>
-          )}
+          row={(row) => ({ title: row.title })}
         />
       </Wrapper>,
     );
@@ -534,7 +528,15 @@ describe('ResourceManager', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(screen.queryByLabelText('Title')).toBeNull();
 
+    // Delete asks first (F12 B4): cancelling sends nothing, confirming deletes.
     await userEvent.click(screen.getByRole('button', { name: 'Delete Second' }));
+    expect(screen.getByRole('dialog', { name: 'Delete “Second”?' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(api.remove).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: 'Delete Second' }));
+    await userEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }),
+    );
     await waitFor(() => expect(api.remove).toHaveBeenCalledWith(2));
   });
 });

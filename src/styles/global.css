@@ -573,33 +573,26 @@
     font-weight: 600;
   }
 
-  /* Admin forms and buttons (restyled tokens-only in R6d). */
+  /* Admin forms and buttons (F12): mutugading FIELD (parchment, no stroke, 11px corners, 48px, 17px text, 2px outline
+     on focus/error) and pills with a 44px minimum target. */
   .input {
-    @apply w-full rounded-md bg-parchment px-4 py-2 text-ink outline-hidden focus-visible:ring-2 focus-visible:ring-action;
+    @apply min-h-12 w-full rounded-md bg-parchment px-4 py-3 text-body text-ink outline-hidden placeholder:text-ink-muted/70 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-tile-action aria-invalid:outline-2 aria-invalid:outline-danger;
   }
   .input-file {
-    @apply w-full text-fine text-ink-muted file:mr-4 file:rounded-full file:border-0 file:bg-parchment file:px-4 file:py-2 file:text-fine file:font-semibold file:text-ink hover:file:bg-rule;
-  }
-  .form-container {
-    @apply space-y-4 rounded-xl bg-white p-6;
-  }
-  .item-card {
-    @apply flex items-center justify-between rounded-md bg-white p-4;
+    @apply w-full text-caption text-ink-muted file:mr-4 file:min-h-11 file:rounded-full file:border-0 file:bg-chip file:px-4 file:text-caption file:font-semibold file:text-ink hover:file:bg-chip-hover;
   }
   .btn-primary {
-    @apply flex items-center justify-center gap-2 rounded-full bg-tile-pill px-[22px] py-[11px] font-semibold text-tile-pill-ink transition-colors hover:bg-tile-pill-hover disabled:cursor-not-allowed disabled:opacity-50;
-  }
-  .btn-primary-sm {
-    @apply flex items-center gap-1 rounded-full bg-tile-pill px-3.5 py-1.5 text-fine text-tile-pill-ink transition-colors hover:bg-tile-pill-hover;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-pill px-[22px] text-body text-pill-ink transition-[background-color,scale] duration-200 ease-apple hover:bg-pill-hover active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none;
   }
   .btn-secondary {
-    @apply rounded-full bg-parchment px-[22px] py-[11px] font-medium text-ink hover:bg-rule;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-chip px-[22px] text-body text-ink transition-[background-color,scale] duration-200 ease-apple hover:bg-chip-hover active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none;
   }
-  .btn-icon-blue {
-    @apply rounded-full p-2 text-action hover:bg-parchment;
+  /* Row actions: always visible (touch), text in the action / danger colour, a 44px pill target. */
+  .btn-text {
+    @apply inline-flex min-h-11 items-center rounded-full px-3 text-caption text-action transition-colors hover:bg-parchment disabled:opacity-50;
   }
-  .btn-icon-red {
-    @apply rounded-full p-2 text-danger hover:bg-parchment;
+  .btn-text-danger {
+    @apply inline-flex min-h-11 items-center rounded-full px-3 text-caption text-danger transition-colors hover:bg-parchment disabled:opacity-50;
   }
 }
 

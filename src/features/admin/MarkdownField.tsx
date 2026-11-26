@@ -1,5 +1,4 @@
 import { useRef, useState, type ChangeEvent } from 'react';
-import { ImagePlus, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Field } from '@/components/ui/Field';
 import { acceptAttribute, IMAGE_MIME_TYPES, uploadFile, type UploadFolder } from '@/lib/upload';
@@ -74,18 +73,14 @@ export function MarkdownField({
       <Field label={label} error={error} description={description ?? DEFAULT_HINT}>
         <textarea {...text} ref={areaRef} placeholder={placeholder} rows={rows} />
       </Field>
-      <div className="mt-2 flex items-center gap-2">
+      <div className="mt-3 flex items-center gap-3">
         <button
           type="button"
           onClick={() => fileRef.current?.click()}
           disabled={uploading}
-          className="btn-secondary text-sm"
+          className="btn-secondary"
         >
-          {uploading ? (
-            <Loader2 className="h-4 w-4 motion-safe:animate-spin" />
-          ) : (
-            <ImagePlus className="h-4 w-4" />
-          )}
+          {uploading && <Spinner />}
           Insert image
         </button>
         <input
@@ -97,10 +92,20 @@ export function MarkdownField({
           onChange={(e) => void onPick(e)}
           aria-label="Insert image"
         />
-        <span role="status" aria-live="polite" className="text-xs text-slate-500">
+        <span role="status" aria-live="polite" className="text-caption text-ink-muted">
           {uploading ? 'Uploading images…' : ''}
         </span>
       </div>
     </div>
+  );
+}
+
+/** 16px ring spinner (the ContactForm one); still under reduced motion. */
+export function Spinner() {
+  return (
+    <span
+      aria-hidden="true"
+      className="size-4 rounded-full border-2 border-current border-t-transparent motion-safe:animate-spin"
+    />
   );
 }

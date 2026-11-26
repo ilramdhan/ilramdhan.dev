@@ -46,16 +46,21 @@ export function ProfileTab() {
     onError: (error) => toast.error(error.message),
   });
 
-  if (isLoading) return <div>Loading...</div>;
-
   return (
-    <div className="max-w-4xl space-y-8">
-      <h1 className="text-2xl font-bold">General Settings</h1>
+    <>
+      <h1 tabIndex={-1} className="text-section font-semibold text-ink outline-none">
+        General Settings
+      </h1>
+      {isLoading && (
+        <p role="status" className="mt-6 text-body text-ink-muted">
+          Loading...
+        </p>
+      )}
       {profile && (
         <ResourceForm<ProfileValues>
           // Re-mount with fresh values (and cleared file inputs) after each save.
           key={JSON.stringify(profile)}
-          className="form-container"
+          className="mt-8 space-y-8"
           sections={profileSections}
           schema={profileSchema}
           defaultValues={profileToValues(profile)}
@@ -66,6 +71,6 @@ export function ProfileTab() {
           onSubmit={(values, translation) => save.mutate({ values, translation })}
         />
       )}
-    </div>
+    </>
   );
 }

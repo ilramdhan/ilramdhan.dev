@@ -8,19 +8,20 @@ import {
   type SetStateAction,
 } from 'react';
 import type { ZodType } from 'zod';
-import { Loader2, Save, Trash } from 'lucide-react';
 import { Field } from '@/components/ui/Field';
 import { acceptAttribute, ALL_MIME_TYPES, IMAGE_MIME_TYPES } from '@/lib/upload';
 import { useT } from '@/i18n';
+import { cn } from '@/lib/utils';
 import { cleanTranslation, type Translation } from './translations';
-import { MarkdownField } from './MarkdownField';
+import { MarkdownField, Spinner } from './MarkdownField';
+import { useUnsavedGuard } from './unsaved';
 import type { FieldConfig, FormSection, MediaFile, MediaList } from './fields';
 import { useZodForm, type FormValues, type ZodForm } from './useZodForm';
 
 const GRID: Record<1 | 2 | 3, string> = {
-  1: 'space-y-4',
-  2: 'grid grid-cols-1 md:grid-cols-2 gap-4',
-  3: 'grid grid-cols-1 md:grid-cols-3 gap-4',
+  1: 'flex flex-col gap-6',
+  2: 'grid grid-cols-1 gap-6 md:grid-cols-2',
+  3: 'grid grid-cols-1 gap-6 md:grid-cols-3',
 };
 
 export interface ResourceFormProps<V extends FormValues> {
@@ -52,7 +53,7 @@ export function ResourceForm<V extends FormValues>({
   onCancel,
   isPending,
   submitLabel,
-  className = 'form-container mb-6',
+  className = 'space-y-6',
   extra,
   translatable,
   defaultTranslation,
@@ -65,6 +66,12 @@ export function ResourceForm<V extends FormValues>({
   const [uploads, setUploads] = useState(0);
   const onUploading = (active: boolean) => setUploads((n) => Math.max(0, n + (active ? 1 : -1)));
   const busy = isPending || uploads > 0;
+  // Unsaved edits (EN fields, files or ID texts) arm the leave guard.
+  useUnsavedGuard(
+    JSON.stringify(form.values) !== JSON.stringify(defaultValues) ||
+      JSON.stringify(cleanTranslation(translation)) !==
+        JSON.stringify(cleanTranslation(defaultTranslation ?? {})),
+  );
   const t = useT();
   const uid = useId();
   const ids = {
@@ -92,11 +99,16 @@ export function ResourceForm<V extends FormValues>({
       }
       className={className}
     >
-      {title && <h3 className="text-lg font-bold mb-4">{title}</h3>}
+      {title && <h2 className="text-title font-semibold text-ink">{title}</h2>}
       {translatable && translatable.length > 0 && <LangTabs tab={tab} onTab={setTab} ids={ids} />}
       {tab === 'id' && translatable && (
-        <div id={ids.panel.id} role="tabpanel" aria-labelledby={ids.tab.id} className="space-y-4">
-          <p className="text-sm text-slate-500 dark:text-slate-400">{t.admin.translationHint}</p>
+        <div
+          id={ids.panel.id}
+          role="tabpanel"
+          aria-labelledby={ids.tab.id}
+          className="flex flex-col gap-6"
+        >
+          <p className="text-caption text-ink-muted">{t.admin.translationHint}</p>
           {sections
             .flatMap((section) => section.fields)
             .filter((field) => translatable.includes(field.name as string))
@@ -115,11 +127,14 @@ export function ResourceForm<V extends FormValues>({
         id={ids.panel.en}
         role={translatable ? 'tabpanel' : undefined}
         aria-labelledby={translatable ? ids.tab.en : undefined}
+        className="space-y-8"
       >
         {sections.map((section, i) => (
-          <div key={i} className="space-y-4">
-            {section.divider && <hr className="border-slate-200 dark:border-on-dark/10" />}
-            {section.title && <h2 className="text-xl font-bold">{section.title}</h2>}
+          <div key={i} className="space-y-6">
+            {section.divider && <hr className="border-rule" />}
+            {section.title && (
+              <h3 className="text-title font-semibold text-ink">{section.title}</h3>
+            )}
             <div className={GRID[section.columns ?? 1]}>
               {section.fields.map((field) => (
                 <div key={field.name} className={field.wide ? 'md:col-span-full' : undefined}>
@@ -131,18 +146,14 @@ export function ResourceForm<V extends FormValues>({
         ))}
         {extra?.(form)}
       </div>
-      <div className="flex justify-end gap-2">
+      <div className="flex flex-wrap justify-end gap-3">
         {onCancel && (
           <button type="button" onClick={onCancel} disabled={busy} className="btn-secondary">
             Cancel
           </button>
         )}
         <button type="submit" disabled={busy} className="btn-primary">
-          {isPending ? (
-            <Loader2 className="h-4 w-4 motion-safe:animate-spin" />
-          ) : (
-            <Save className="h-4 w-4" />
-          )}
+          {isPending && <Spinner />}
           {submitLabel}
         </button>
         {/* Uploads are compressed in the browser first (T-27): say what's happening. */}
@@ -202,7 +213,12 @@ function LangTabs({
     refs.current[target]?.focus();
   };
   return (
-    <div role="tablist" aria-label={t.admin.tabsLabel} id={group} className="mb-4 flex gap-1">
+    <div
+      role="tablist"
+      aria-label={t.admin.tabsLabel}
+      id={group}
+      className="inline-grid grid-cols-2 rounded-full bg-parchment p-1"
+    >
       {order.map((lang, i) => (
         <button
           key={lang}
@@ -217,7 +233,10 @@ function LangTabs({
           tabIndex={tab === lang ? 0 : -1}
           onClick={() => onTab(lang)}
           onKeyDown={(e) => move(e, i)}
-          className={tab === lang ? 'btn-primary-sm' : 'btn-secondary'}
+          className={cn(
+            'inline-flex min-h-11 min-w-16 items-center justify-center rounded-full px-4 text-caption transition-colors duration-200',
+            tab === lang ? 'bg-thumb font-semibold text-ink' : 'text-ink-muted hover:text-ink',
+          )}
         >
           {lang === 'en' ? t.admin.tabEn : t.admin.tabId}
         </button>
@@ -306,13 +325,14 @@ function FormField<V extends FormValues>({
       );
     case 'boolean':
       return (
-        <label className="flex items-center gap-2">
+        <label className="inline-flex min-h-11 items-center gap-3 text-body text-ink">
           <input
             type="checkbox"
             name={name}
             checked={!!value}
             onChange={(e) => set(e.target.checked)}
-          />{' '}
+            className="size-5 accent-(--action)"
+          />
           {field.label}
         </label>
       );
@@ -321,21 +341,33 @@ function FormField<V extends FormValues>({
       return (
         <div>
           {media.urls.length > 0 && (
-            <ul className="flex flex-wrap gap-2 mb-2" aria-label={`Current ${field.label}`}>
+            <ul className="mb-3 flex flex-wrap gap-3" aria-label={`Current ${field.label}`}>
               {media.urls.map((url) => (
                 <li key={url} className="relative">
                   <img
                     src={url}
                     alt={`${field.label} ${media.urls.indexOf(url) + 1}`}
-                    className="h-16 w-16 object-cover rounded-sm"
+                    className="size-20 rounded-sm bg-tile-frame object-cover"
                   />
                   <button
                     type="button"
                     aria-label="Remove image"
                     onClick={() => set({ ...media, urls: media.urls.filter((u) => u !== url) })}
-                    className="absolute -top-1 -right-1 bg-red-500 text-on-dark rounded-full p-0.5"
+                    className="absolute -top-3 -right-3 grid size-11 place-items-center rounded-full"
                   >
-                    <Trash className="h-3 w-3" />
+                    <span className="grid size-6 place-items-center rounded-full bg-ink text-white">
+                      <svg
+                        aria-hidden="true"
+                        viewBox="0 0 18 18"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        className="size-3"
+                      >
+                        <path d="m4 4 10 10M14 4 4 14" />
+                      </svg>
+                    </span>
                   </button>
                 </li>
               ))}
@@ -386,11 +418,16 @@ function FilePreview<V extends FormValues>({
   field: Extract<FieldConfig<V>, { kind: 'file' }>;
 }) {
   if (field.preview === 'avatar')
-    return <img src={url} alt="" className="h-12 w-12 rounded-full object-cover mt-2" />;
+    return <img src={url} alt="" className="mt-3 size-12 rounded-full object-cover" />;
   if (field.preview === 'image')
-    return <img src={url} alt="" className="h-8 w-auto object-contain mt-2" />;
+    return <img src={url} alt="" className="mt-3 h-8 w-auto object-contain" />;
   return (
-    <a href={url} target="_blank" rel="noreferrer" className="text-xs text-action mt-1 block">
+    <a
+      href={url}
+      target="_blank"
+      rel="noreferrer"
+      className="mt-1 inline-flex min-h-11 items-center text-caption text-action underline-offset-4 hover:underline"
+    >
       {field.linkLabel ?? 'Current File'}
     </a>
   );
