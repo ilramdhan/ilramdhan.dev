@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 // Direct module imports, not the barrels (see STATE.md Gotchas).
+import { ContactCta } from '@/components/tile/ContactCta';
 import { ListingHero, ListingSection, ListingToolbar } from '@/components/listing/Listing';
 import type { SegmentedOption } from '@/components/tile/SegmentedControl';
 import { colVar } from '@/components/tile/stagger';
@@ -67,13 +68,7 @@ export default function CertificatesPage() {
     <div>
       <Seo title={t.seo.certificates} description={t.seo.certificatesDescription} />
 
-      <ListingHero
-        shape="dots"
-        side="left"
-        id="certs-h"
-        title={t.certificates.heading}
-        lead={t.certificates.lead}
-      />
+      <ListingHero id="certs-h" title={t.certificates.heading} lead={t.certificates.lead} />
 
       <ListingSection id="certs-list-h" title={t.certificates.heading}>
         <ListingToolbar
@@ -157,6 +152,8 @@ export default function CertificatesPage() {
           />
         </div>
       </ListingSection>
+
+      <ContactCta photo="desk" />
     </div>
   );
 }

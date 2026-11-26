@@ -5,9 +5,9 @@ import { morphName } from '@/components/motion/Morph';
 import { ActionLink } from '@/components/tile/ActionLink';
 import { LinkChevron } from '@/components/tile/LinkChevron';
 import { pillClass } from '@/components/tile/pill';
-import { PillButton } from '@/components/tile/PillButton';
 import { Tile } from '@/components/tile/Tile';
 import { TileHeading } from '@/components/tile/TileHeading';
+import { ContactCta } from '@/components/tile/ContactCta';
 import { Markdown } from '@/components/ui/Markdown';
 import NotFoundPage from '@/pages/not-found';
 import { projectQueries } from '@/features/projects/queries';
@@ -180,26 +180,14 @@ export default function ProjectDetailPage() {
         renderCard={(p) => <ProjectCard project={p} />}
       />
 
-      <Tile
-        labelledBy="project-cta-h"
-        tone="dark"
-        size="roomy"
-        backdrop={{ shape: 'waves', side: 'left' }}
-      >
-        <TileHeading
-          id="project-cta-h"
-          title={t.project.ctaTitle}
-          lead={t.project.ctaLead}
-          links={
-            <>
-              <PillButton href={lp('/contact')} onDark>
-                {t.project.ctaContact}
-              </PillButton>
-              <LinkChevron href={lp('/projects')}>{t.project.ctaAll}</LinkChevron>
-            </>
-          }
-        />
-      </Tile>
+      <ContactCta
+        id="project-cta"
+        photo="code"
+        title={t.project.ctaTitle}
+        lead={t.project.ctaLead}
+        action={t.project.ctaContact}
+        secondary={<LinkChevron href={lp('/projects')}>{t.project.ctaAll}</LinkChevron>}
+      />
     </article>
   );
 }

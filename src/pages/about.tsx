@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { ContactCta } from '@/components/tile/ContactCta';
 // Direct module imports, not the barrels (see STATE.md Gotchas).
 import { ActionLink } from '@/components/tile/ActionLink';
 import { FeatureColumns, type FeatureColumn } from '@/components/tile/FeatureColumns';
@@ -143,7 +144,7 @@ export default function AboutPage() {
     <div>
       <Seo title={t.seo.about} description={t.seo.aboutDescription} />
 
-      <Tile labelledBy="about-h" align="split" backdrop={{ shape: 'rings' }}>
+      <Tile labelledBy="about-h" align="split">
         <div className="flex flex-col items-start gap-6 text-left">
           <TileHeading
             id="about-h"
@@ -211,7 +212,7 @@ export default function AboutPage() {
       ) : null}
 
       {skills.length > 0 ? (
-        <Tile labelledBy="about-skills-h" backdrop={{ shape: 'dots', side: 'left' }}>
+        <Tile labelledBy="about-skills-h">
           <TileHeading id="about-skills-h" title={t.home.techHeading} />
           <div className="mt-stack w-full">
             <FeatureColumns items={skills} />
@@ -298,7 +299,7 @@ export default function AboutPage() {
       ) : null}
 
       {username ? (
-        // F-9: dark, not parchment: the last tile must differ from the parchment footer the curtain lifts off.
+        // Dark: the graph image is coloured for a night ground. The closing ContactCta (photo) follows it.
         <Tile labelledBy="about-github-h" tone="dark">
           <TileHeading id="about-github-h" title={t.footer.socialName.github} />
           <div className="mt-stack flex w-full flex-col items-center gap-stack">
@@ -325,6 +326,8 @@ export default function AboutPage() {
           </div>
         </Tile>
       ) : null}
+
+      <ContactCta photo="light" />
     </div>
   );
 }

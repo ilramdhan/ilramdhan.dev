@@ -1,37 +1,20 @@
 import type { ReactNode } from 'react';
-import { ChevronDown, X } from 'lucide-react';
-import type { BackdropShape } from '@/components/tile/TileBackdrop';
 import { SegmentedControl, type SegmentedOption } from '@/components/tile/SegmentedControl';
+import { StrokeIcon } from '@/components/ui/StrokeIcon';
 import { cn } from '@/lib/utils';
 
 // ponytail: the Tile/TileHeading markup written out (same classes) so the listing routes don't pull the split-text
 // and motion registry into their first paint. Swap back to <Tile>/<TileHeading> when those stop importing eagerly.
 
 /** Same hero on /projects, /blog, /certificates: white tile, centred h1 + lead, one rise entrance. */
-export function ListingHero({
-  id,
-  title,
-  lead,
-  shape = 'rings',
-  side = 'right',
-}: {
-  id: string;
-  title: string;
-  lead: string;
-  shape?: BackdropShape;
-  side?: 'left' | 'right';
-}) {
+export function ListingHero({ id, title, lead }: { id: string; title: string; lead: string }) {
   return (
     <section
       aria-labelledby={id}
       data-tone="white"
       data-enter=""
-      className="relative isolate w-full scroll-mt-(--nav-h) bg-white pb-0 pt-section text-ink"
+      className="w-full scroll-mt-(--nav-h) bg-white pb-0 pt-section text-ink"
     >
-      {/* ponytail: TileBackdrop's markup inline so /blog's first load has no extra chunk. */}
-      <div aria-hidden="true" data-backdrop={shape} data-backdrop-side={side}>
-        <div />
-      </div>
       <div className="wrap flex flex-col items-center text-center">
         <div className="animate-rise flex flex-col items-center text-center">
           <h1 id={id} className="text-hero max-w-[14ch] text-tile-ink">
@@ -138,7 +121,7 @@ export function ListingToolbar({
                 onClick={() => search.onChange('')}
                 className="absolute right-0 top-0 grid size-11 place-items-center rounded-full text-ink-muted hover:text-ink focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-tile-action"
               >
-                <X className="size-4" aria-hidden="true" />
+                <StrokeIcon name="x" className="size-4" />
               </button>
             )}
           </div>
@@ -202,8 +185,8 @@ function Select<V extends string>({
             </option>
           ))}
         </select>
-        <ChevronDown
-          aria-hidden="true"
+        <StrokeIcon
+          name="down"
           className="pointer-events-none absolute right-4 top-1/2 size-4 -translate-y-1/2 text-ink-muted"
         />
       </div>

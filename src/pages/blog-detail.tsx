@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router';
 import { Send } from 'lucide-react';
 import { toast } from 'sonner';
+import { ContactCta } from '@/components/tile/ContactCta';
 import { Link } from '@/i18n/Link';
 import { Markdown } from '@/components/ui/Markdown';
 import NotFoundPage from '@/pages/not-found';
@@ -338,6 +339,8 @@ export default function BlogDetailPage() {
           </div>
         </div>
       </Tile>
+
+      <ContactCta photo="light" />
     </article>
   );
 }

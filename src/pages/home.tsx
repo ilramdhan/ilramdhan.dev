@@ -3,10 +3,10 @@ import { useQuery } from '@tanstack/react-query';
 // would hoist every home-only partial into the entry that every route downloads.
 import type { LinkedItem } from '@/components/tile/LinkedGroup';
 import { LinkChevron } from '@/components/tile/LinkChevron';
-import { PillButton } from '@/components/tile/PillButton';
 import { SpecRow, type SpecItem } from '@/components/tile/SpecRow';
 import { Tile } from '@/components/tile/Tile';
 import { TileHeading } from '@/components/tile/TileHeading';
+import { ContactCta } from '@/components/tile/ContactCta';
 import { TechIcon } from '@/features/tech-stack/TechIcon';
 import { Marquee } from '@/components/motion/Marquee';
 import { ScrollFill } from '@/components/motion/ScrollFill';
@@ -157,7 +157,7 @@ export default function Page() {
       </Tile>
 
       {services.isPending || (services.data && services.data.length > 0) ? (
-        <Tile labelledBy="home-services-h" backdrop={{ shape: 'dots' }}>
+        <Tile labelledBy="home-services-h">
           <TileHeading id="home-services-h" title={t.home.whatIDo} lead={t.home.whatIDoLead} />
           <div className="mt-stack w-full">
             {services.data ? (
@@ -248,13 +248,7 @@ export default function Page() {
       </Tile>
 
       {statement ? (
-        <Tile
-          labelledBy="home-statement-h"
-          tone="parchment"
-          align="split"
-          size="roomy"
-          backdrop={{ shape: 'rings' }}
-        >
+        <Tile labelledBy="home-statement-h" tone="parchment" align="split" size="roomy">
           <div className="order-2 flex flex-col items-start text-left lg:order-1">
             <h2 id="home-statement-h" className="sr-only">
               {t.home.statementHeading}
@@ -303,21 +297,7 @@ export default function Page() {
         </Tile>
       ) : null}
 
-      <Tile
-        id="contact"
-        labelledBy="home-contact-h"
-        tone="dark"
-        size="roomy"
-        className={ANCHOR}
-        backdrop={{ shape: 'waves' }}
-      >
-        <TileHeading
-          id="home-contact-h"
-          title={t.home.contactTitle}
-          lead={t.home.contactLead}
-          links={<PillButton href={lp('/contact')}>{t.contact.formTitle}</PillButton>}
-        />
-      </Tile>
+      <ContactCta id="contact" photo="desk" />
     </div>
   );
 }

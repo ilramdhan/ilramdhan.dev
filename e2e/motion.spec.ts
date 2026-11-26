@@ -324,28 +324,73 @@ test.describe('motion layer', () => {
   });
 });
 
-test.describe('abstract backdrops (F-8, D7)', () => {
+/**
+ * D12 + D13: every public page but /contact, legal and 404 closes on the shared photo CTA. The photo is decorative
+ * (aria-hidden, empty alt, lazy), never transformed under reduced motion, and the white heading keeps >= 4.5:1 over
+ * the brightest pixel the scrim lets through (photo opacity x white + (1 - opacity) x night ground).
+ */
+const luminance = (rgb: number[]) =>
+  rgb
+    .map((v) => {
+      const c = v / 255;
+      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    })
+    .reduce((sum, c, i) => sum + c * [0.2126, 0.7152, 0.0722][i]!, 0);
+const contrast = (a: number[], b: number[]) => {
+  const [la, lb] = [luminance(a), luminance(b)];
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+};
+
+test.describe('photo CTA tiles (D12, D13)', () => {
   test.use({ contextOptions: { reducedMotion: 'reduce' } });
 
-  for (const path of ['/', '/about', '/projects', '/blog', '/certificates', '/contact']) {
-    test(`${path}: backdrops aria-hidden, opacity <= 0.12, not transformed`, async ({ page }) => {
+  for (const theme of ['light', 'dark'] as const) {
+    for (const path of [
+      '/',
+      '/about',
+      '/projects',
+      '/projects/project-1',
+      '/blog',
+      '/blog/blog-post-1',
+      '/certificates',
+    ]) {
+      test(`${path} (${theme}): decorative photo, still, heading AA over it`, async ({ page }) => {
+        await page.addInitScript((t) => localStorage.setItem('theme', t), theme);
+        await page.goto(path);
+        const cta = page.locator('main section[data-cta]');
+        await expect(cta).toHaveCount(1);
+        await cta.scrollIntoViewIfNeeded();
+        await expect(cta.getByRole('link').first()).toHaveAttribute('href', '/contact');
+        const r = await cta.evaluate((el) => {
+          const pic = el.querySelector<HTMLElement>('.cta-photo')!;
+          const img = pic.querySelector('img')!;
+          const rgb = (c: string) => (c.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+          return {
+            hidden: pic.getAttribute('aria-hidden') === 'true',
+            alt: img.getAttribute('alt'),
+            lazy: img.getAttribute('loading'),
+            transform: getComputedStyle(pic).transform,
+            opacity: Number(getComputedStyle(pic).opacity),
+            ground: rgb(getComputedStyle(el).backgroundColor),
+            ink: rgb(getComputedStyle(el.querySelector('h2')!).color),
+          };
+        });
+        expect(r.hidden).toBe(true);
+        expect(r.alt).toBe('');
+        expect(r.lazy).toBe('lazy');
+        expect(r.transform).toBe('none');
+        // Worst case: a pure white pixel in the photo, seen through the scrim.
+        const worst = r.ground.map((g) => r.opacity * 255 + (1 - r.opacity) * g);
+        expect(contrast(r.ink, worst)).toBeGreaterThanOrEqual(4.5);
+      });
+    }
+  }
+
+  for (const path of ['/contact', '/privacy', '/terms', '/nope']) {
+    test(`${path}: no CTA tile`, async ({ page }) => {
       await page.goto(path);
-      await page.waitForLoadState('networkidle');
-      const found = await page.evaluate(() =>
-        Array.from(document.querySelectorAll<HTMLElement>('[data-backdrop]')).map((el) => ({
-          hidden: el.getAttribute('aria-hidden') === 'true',
-          opacity: Number(getComputedStyle(el).opacity),
-          transformed: Array.from(el.querySelectorAll<HTMLElement>('*')).some(
-            (c) => c.style.transform && c.style.transform !== 'none',
-          ),
-        })),
-      );
-      expect(found.length).toBeGreaterThan(0);
-      for (const b of found) {
-        expect(b.hidden).toBe(true);
-        expect(b.opacity).toBeLessThanOrEqual(0.12);
-        expect(b.transformed).toBe(false);
-      }
+      await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+      await expect(page.locator('section[data-cta]')).toHaveCount(0);
     });
   }
 });

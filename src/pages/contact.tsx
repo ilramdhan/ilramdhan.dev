@@ -10,7 +10,7 @@ import { socialEntries } from '@/lib/social';
 // and grows /blog's first load. ponytail: swap back to <LinkChevron> for external hrefs once it takes them.
 const tile = 'w-full scroll-mt-(--nav-h) bg-white text-ink';
 const link =
-  'group/link inline-flex min-h-11 items-center gap-1.5 text-body text-tile-action decoration-1 underline-offset-4 transition-[color,scale] duration-200 ease-apple hover:text-tile-action-hover hover:underline active:scale-[0.98] motion-reduce:transition-none break-all';
+  'group/link inline-flex min-h-11 items-center gap-1.5 text-body text-tile-action decoration-1 underline-offset-4 transition-[color,scale] duration-200 ease-apple hover:text-tile-action-hover hover:underline active:scale-[0.98] motion-reduce:transition-none';
 const chevron = (
   <svg
     viewBox="0 0 8 14"
@@ -56,11 +56,8 @@ export default function ContactPage() {
         aria-labelledby="contact-h"
         data-tone="white"
         data-enter=""
-        className={`${tile} relative isolate pb-0 pt-[clamp(3.5rem,8vw,6rem)]`}
+        className={`${tile} pb-0 pt-[clamp(3.5rem,8vw,6rem)]`}
       >
-        <div aria-hidden="true" data-backdrop="rings" data-backdrop-side="right">
-          <div />
-        </div>
         <div className="wrap flex animate-rise flex-col items-center text-center">
           <h1 id="contact-h" className="text-hero max-w-[14ch] text-tile-ink">
             {t.home.contactTitle}
@@ -92,14 +89,10 @@ export default function ContactPage() {
                         {...(mail ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
                         className={link}
                       >
+                        {t.footer.socialName[key]}
                         {mail ? (
-                          <>
-                            <span className="sr-only">{t.footer.socialName.mail}: </span>
-                            {href.slice('mailto:'.length)}
-                          </>
-                        ) : (
-                          t.footer.socialName[key]
-                        )}
+                          <span className="sr-only">: {href.slice('mailto:'.length)}</span>
+                        ) : null}
                         {chevron}
                       </a>
                     </li>
