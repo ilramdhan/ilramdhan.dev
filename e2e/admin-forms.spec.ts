@@ -3,6 +3,9 @@ import type { SupabaseMock } from './fixtures/supabase-mock';
 import { signIn } from './fixtures/session';
 import { expect, test } from './fixtures/test';
 
+/** A dashboard tab link's name: its label, plus "N unread" on Messages. */
+const tabName = (label: string) => new RegExp(`^${label}( \\d+ unread)?$`);
+
 // F12 step 1: form behaviours not covered by admin-crud (featured toggle, removing a stored
 // image, file uploads, cancel, failed save), proven before the redesign.
 
@@ -27,10 +30,15 @@ async function acceptUploads(page: Page) {
   return keys;
 }
 
+/** Opens a dashboard tab through its nav link (sidebar, or the menu sheet on narrow screens). */
 async function openTab(page: Page, label: string) {
   const open = page.getByRole('button', { name: 'Open menu' });
   if (await open.isVisible()) await open.click();
-  await page.locator('aside:visible').getByRole('button', { name: label, exact: true }).click();
+  await page
+    .getByRole('navigation', { name: 'Dashboard' })
+    .filter({ visible: true })
+    .getByRole('link', { name: tabName(label) })
+    .click();
 }
 
 test.beforeEach(async ({ page }) => {

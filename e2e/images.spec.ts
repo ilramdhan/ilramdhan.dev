@@ -102,12 +102,8 @@ test('admin: a 4 MB JPEG is stored as a <= 400 KB WebP named with its size', asy
   const buffer = Buffer.from(jpeg, 'base64');
   expect(buffer.length).toBeGreaterThan(3 * 1024 * 1024);
 
-  const sidebar = page.locator('aside').first();
-  if (!(await sidebar.isVisible())) await page.getByRole('button', { name: 'Open menu' }).click();
-  await page
-    .locator('aside:visible')
-    .getByRole('button', { name: 'Projects', exact: true })
-    .click();
+  await page.goto('/admin/projects');
+  await expect(page.getByRole('heading', { level: 1, name: 'Manage Projects' })).toBeVisible();
   await page.getByRole('button', { name: 'Add Project' }).click();
   await page.getByLabel('Title').fill('Compressed upload');
   await page

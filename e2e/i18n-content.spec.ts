@@ -80,12 +80,8 @@ test('before the migration (no translations column) /id still renders English wi
 });
 
 async function openProjectEditor(page: Page, name: string) {
-  const sidebar = page.locator('aside').first();
-  if (!(await sidebar.isVisible())) await page.getByRole('button', { name: 'Open menu' }).click();
-  await page
-    .locator('aside:visible')
-    .getByRole('button', { name: 'Projects', exact: true })
-    .click();
+  await page.goto('/admin/projects');
+  await expect(page.getByRole('heading', { level: 1, name: 'Manage Projects' })).toBeVisible();
   await page.getByRole('button', { name: `Edit ${name}`, exact: true }).click();
 }
 
