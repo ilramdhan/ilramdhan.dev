@@ -25,7 +25,8 @@ export function TechIcon({ name, iconUrl }: { name: string; iconUrl: string | nu
         onError={(e) => (e.currentTarget.hidden = true)}
         // A prerendered icon can fail before hydration, when onError is not attached yet: it is complete with no pixels.
         ref={(el: HTMLImageElement | null) => {
-          if (el?.complete && !el.naturalWidth) el.hidden = true;
+          // naturalWidth alone misreads a good SVG without intrinsic size (0 in Firefox); decode() rejects only when broken.
+          if (el?.complete && !el.naturalWidth) el.decode().catch(() => (el.hidden = true));
         }}
         className="tech-icon-img"
       />

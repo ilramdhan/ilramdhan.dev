@@ -127,17 +127,19 @@ export default function ProjectDetailPage() {
         extra={project.tech_stack?.length ? project.tech_stack.slice(0, 4).join(', ') : undefined}
         tags={tags}
         actions={
-          <>
-            {demo && (
-              <ActionLink
-                variant="primary"
-                link={{ kind: 'external', href: demo, label: t.project.liveDemo }}
-              />
-            )}
-            {repo && (
-              <ActionLink link={{ kind: 'external', href: repo, label: t.project.viewSource }} />
-            )}
-          </>
+          demo || repo ? (
+            <>
+              {demo && (
+                <ActionLink
+                  variant="primary"
+                  link={{ kind: 'external', href: demo, label: t.project.liveDemo }}
+                />
+              )}
+              {repo && (
+                <ActionLink link={{ kind: 'external', href: repo, label: t.project.viewSource }} />
+              )}
+            </>
+          ) : undefined
         }
       >
         {images[0] ? (

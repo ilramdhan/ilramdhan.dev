@@ -141,7 +141,7 @@ describe('SocialLinks', () => {
   });
 });
 
-describe('ErrorState / TechBadge', () => {
+describe('ErrorState', () => {
   it('calls retry', async () => {
     const onRetry = vi.fn();
     render(<ErrorState onRetry={onRetry}>Boom</ErrorState>);

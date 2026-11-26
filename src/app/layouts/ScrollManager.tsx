@@ -98,6 +98,7 @@ export function ScrollManager() {
         return;
       }
       const max = () => document.documentElement.scrollHeight - window.innerHeight;
+      const startY = window.scrollY;
       return retryFor(
         3000,
         () => {
@@ -108,7 +109,8 @@ export function ScrollManager() {
           return false;
         },
         // The page came back shorter than when it was left (e.g. saved at the very bottom): go as far as it goes.
-        () => to(Math.max(0, max())),
+        // Not when the visitor already scrolled while waiting: never yank them away.
+        () => window.scrollY === startY && to(Math.max(0, max())),
       );
     }
     if (location.hash) {
