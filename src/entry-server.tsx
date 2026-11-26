@@ -21,20 +21,9 @@ import type { PrerenderedQuery } from '@/lib/prerendered-data';
 import { loadLocale } from '@/i18n';
 import { localePath, splitLocale } from '@/i18n/locale';
 import { buildSitemap } from '@/i18n/sitemap';
+import { STATIC_ROUTES } from '@/i18n/static-routes';
 
 export { applyHeadToHtml } from '@/components/seo/head-html';
-
-/** Public routes without parameters, locale-free (each is prerendered for `en` and `id`). */
-export const STATIC_ROUTES = [
-  '/',
-  '/about',
-  '/certificates',
-  '/projects',
-  '/blog',
-  '/privacy',
-  '/terms',
-  '/contact',
-];
 
 /** English-only: admin stays out of the locale routes; `login` is prerendered (noindex). */
 const EN_ONLY_ROUTES = ['/login'];
