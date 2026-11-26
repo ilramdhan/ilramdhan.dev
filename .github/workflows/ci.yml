@@ -50,6 +50,9 @@ jobs:
           # Prerender (T-35) against the e2e fixture dataset instead of the network.
           PRERENDER_MOCK: '1'
 
+      - name: Vercel functions load (CommonJS)
+        run: npm run check:api
+
       # Baseline for the PR diff: build the base branch in a second checkout. Best effort:
       # if it fails, or the base lacks the --json flag, the comparison is skipped.
       - name: Checkout base for bundle comparison
