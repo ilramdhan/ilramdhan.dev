@@ -3,12 +3,20 @@ import type { SupabaseMock } from './fixtures/supabase-mock';
 import { signIn } from './fixtures/session';
 import { expect, test } from './fixtures/test';
 
+/** A dashboard tab link's name: its label, plus "N unread" on Messages. */
+const tabName = (label: string) => new RegExp(`^${label}( \\d+ unread)?$`);
+
 // T-17 (#32): every admin resource goes through the generic CRUD (create, edit, delete).
 
+/** Opens a dashboard tab through its nav link (sidebar, or the menu sheet on narrow screens). */
 async function openTab(page: Page, label: string) {
-  const sidebar = page.locator('aside').first();
-  if (!(await sidebar.isVisible())) await page.getByRole('button', { name: 'Open menu' }).click();
-  await page.locator('aside:visible').getByRole('button', { name: label, exact: true }).click();
+  const open = page.getByRole('button', { name: 'Open menu' });
+  if (await open.isVisible()) await open.click();
+  await page
+    .getByRole('navigation', { name: 'Dashboard' })
+    .filter({ visible: true })
+    .getByRole('link', { name: tabName(label) })
+    .click();
 }
 
 const writes = (mock: SupabaseMock, method: string, table: string) =>
@@ -52,7 +60,13 @@ test('projects: create, edit (only changed fields) and delete', async ({ page, s
   });
   expect(writes(supabase, 'PATCH', 'projects').at(-1)?.path).toContain('id=eq.1');
 
+  // Delete asks first (F12 B4): Cancel keeps the row and sends nothing.
   await page.getByRole('button', { name: 'Delete Project 2', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Cancel' }).click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  expect(writes(supabase, 'DELETE', 'projects')).toHaveLength(0);
+  await page.getByRole('button', { name: 'Delete Project 2', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
   await expect(page.getByText('Project removed.')).toBeVisible();
   expect(writes(supabase, 'DELETE', 'projects').at(-1)?.path).toContain('id=eq.2');
 });
@@ -88,6 +102,7 @@ test('blog: create, edit and delete', async ({ page, supabase }) => {
   expect(lastBody(supabase, 'PATCH', 'blogs')).toEqual({ excerpt: 'New excerpt' });
 
   await page.getByRole('button', { name: 'Delete Blog Post 3', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
   await expect(page.getByText('Article removed.')).toBeVisible();
   expect(writes(supabase, 'DELETE', 'blogs').at(-1)?.path).toContain('id=eq.3');
 });
@@ -116,6 +131,7 @@ test('certificates: create, edit and delete', async ({ page, supabase }) => {
   });
 
   await page.getByRole('button', { name: 'Delete Cert 2', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
   await expect(page.getByText('Certificate removed.')).toBeVisible();
 });
 
@@ -140,6 +156,7 @@ test('services: create, edit and delete', async ({ page, supabase }) => {
   expect(lastBody(supabase, 'PATCH', 'services')).toEqual({ icon_name: 'terminal' });
 
   await page.getByRole('button', { name: 'Delete Service 3', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
   await expect(page.getByText('Service removed.')).toBeVisible();
 });
 
@@ -166,6 +183,7 @@ test('tech stack: icon follows the name; create, edit and delete', async ({ page
   });
 
   await page.getByRole('button', { name: 'Delete Docker', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
   await expect(page.getByText('Tech removed.')).toBeVisible();
 });
 
@@ -191,6 +209,7 @@ test('resume: experience and education CRUD', async ({ page, supabase }) => {
   expect(lastBody(supabase, 'PATCH', 'resume')).toEqual({ gpa: '3.9' });
 
   await page.getByRole('button', { name: 'Delete Engineer', exact: true }).click();
+  await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
   await expect(page.getByText('Experience removed.')).toBeVisible();
   expect(writes(supabase, 'DELETE', 'resume').at(-1)?.path).toContain('id=eq.1');
 });

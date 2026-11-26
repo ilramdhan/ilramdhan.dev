@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router';
-import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Link } from '@/i18n/Link';
 import { Github } from '@/components/ui/brand-icons';
 import { useAuth } from '@/app/auth';
 import { Seo } from '@/components/seo/Seo';
+import { pillClass } from '@/components/tile/pill';
+import { cn } from '@/lib/utils';
 
 export default function LoginPage() {
   const { login, user, isLoading } = useAuth();
@@ -28,39 +29,43 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center px-4 transition-colors">
+    <section
+      aria-labelledby="login-title"
+      className="flex min-h-svh flex-col justify-center bg-white py-section text-ink"
+    >
       <Seo title="Admin login" noindex />
-      <div className="w-full max-w-sm bg-on-dark border border-slate-200 dark:bg-slate-900 dark:border-on-dark/10 rounded-2xl p-8 shadow-lg dark:shadow-none">
-        <h1 className="text-3xl font-bold text-center text-slate-900 dark:text-on-dark mb-4">
+      <div className="wrap flex flex-col items-center text-center">
+        <h1 id="login-title" className="text-hero max-w-[14ch] text-ink">
           Admin login
         </h1>
-        <p className="text-center text-slate-600 dark:text-slate-400 mb-8 text-sm">
+        <p className="mt-4 max-w-[34ch] text-lead text-ink-muted">
           Sign in to manage your portfolio content.
         </p>
-
         <button
+          type="button"
           onClick={() => void handleLogin()}
           disabled={isLoading}
-          className="w-full py-3 bg-tile-pill hover:bg-tile-pill-hover text-tile-pill-ink rounded-full font-semibold flex justify-center items-center gap-2 transition-colors"
+          aria-busy={isLoading || undefined}
+          className={cn(pillClass(), 'mt-10 min-w-64 gap-2 disabled:opacity-60')}
         >
           {isLoading ? (
-            <Loader2 className="motion-safe:animate-spin h-5 w-5" />
+            <span
+              aria-hidden="true"
+              className="size-5 rounded-full border-2 border-current border-t-transparent motion-safe:animate-spin"
+            />
           ) : (
             <>
-              <Github className="h-5 w-5" /> Sign In with GitHub
+              <Github className="size-5" aria-hidden /> Sign In with GitHub
             </>
           )}
         </button>
-
-        <div className="mt-8 text-center">
-          <Link
-            to="/"
-            className="text-sm text-slate-500 hover:text-slate-900 dark:hover:text-on-dark"
-          >
-            Back to Home
-          </Link>
-        </div>
+        <Link
+          to="/"
+          className="mt-4 inline-flex min-h-11 items-center text-body text-action underline-offset-4 hover:underline"
+        >
+          Back to Home
+        </Link>
       </div>
-    </div>
+    </section>
   );
 }

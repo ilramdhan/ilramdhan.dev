@@ -70,20 +70,8 @@ function publicChildren(locale: Locale): RouteObject[] {
     { path: 'terms', element: <TermsPage /> },
     { path: 'contact', element: <ContactPage /> },
   ];
-  // Admin stays English-only: no /id/login, no /id/admin.
-  if (locale === 'en') {
-    children.push(
-      { path: 'login', element: <LoginPage /> },
-      {
-        path: 'admin',
-        element: (
-          <AdminRoute>
-            <AdminPage />
-          </AdminRoute>
-        ),
-      },
-    );
-  }
+  // Login stays English-only: no /id/login (admin: see ADMIN_ROUTE).
+  if (locale === 'en') children.push({ path: 'login', element: <LoginPage /> });
   children.push({ path: '*', element: <NotFoundPage /> });
   return children;
 }
@@ -98,11 +86,24 @@ const MotionPreview =
  * One route object per locale: `/...` for `en`, `/id/...` for `id`. Pages sit inside MotionOutlet (the route
  * cross-fade: BrowserRouter runs navigations in startTransition, which React turns into view transitions).
  */
+/**
+ * The dashboard: English-only (no /id/admin), one route per tab (`/admin` = overview, `/admin/:tab`), outside the
+ * route cross-fade so switching tabs keeps the sidebar still. The optional segment keeps AdminPage mounted across tabs.
+ */
+const ADMIN_ROUTE: RouteObject = {
+  path: 'admin/:tab?',
+  element: (
+    <AdminRoute>
+      <AdminPage />
+    </AdminRoute>
+  ),
+};
+
 const ROUTES: RouteObject[] = [
   {
     path: '/',
     element: <PublicLayout />,
-    children: [{ element: <MotionOutlet />, children: publicChildren('en') }],
+    children: [{ element: <MotionOutlet />, children: publicChildren('en') }, ADMIN_ROUTE],
   },
   {
     path: '/id',
