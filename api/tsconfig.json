@@ -1,0 +1,16 @@
+{
+  "//": "Vercel's @vercel/node compiles api/*.ts with the nearest tsconfig. The root one says module ESNext (Vite), which emitted `import` into files Node loads as CommonJS (no \"type\": \"module\") → FUNCTION_INVOCATION_FAILED. nodenext follows package.json and emits require().",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "isolatedModules": true,
+    "noEmit": true
+  }
+}
