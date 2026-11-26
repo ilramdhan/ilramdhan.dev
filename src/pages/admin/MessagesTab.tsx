@@ -1,160 +1,243 @@
-import React, { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { Trash2, ChevronLeft, ChevronRight, CheckCircle, MailOpen } from 'lucide-react';
 import * as api from '@/features/messages/api';
 import { messageKeys, messageQueries } from '@/features/messages/queries';
+import { ConfirmDialog } from '@/features/admin/ConfirmDialog';
+import { cn } from '@/lib/utils';
 
 const ADMIN_ITEMS_PER_PAGE = 10;
+const errorText = (e: unknown) => (e instanceof Error ? e.message : 'Something went wrong.');
 
 export function MessagesTab() {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
-  const [selectedMessages, setSelectedMessages] = useState<number[]>([]);
+  const [selected, setSelected] = useState<number[]>([]);
+  // What the confirm dialog will delete: one message or the selection.
+  const [deleting, setDeleting] = useState<{ ids: number[]; title: string; bulk?: boolean } | null>(
+    null,
+  );
+  const refresh = () => queryClient.invalidateQueries({ queryKey: messageKeys.all });
 
-  const { data: messages, isLoading } = useQuery(messageQueries.list());
+  const { data: messages, isLoading, isError, refetch } = useQuery(messageQueries.list());
 
   const deleteMutation = useMutation({
     mutationFn: (id: number) => api.deleteMessage(id),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: messageKeys.all });
+      void refresh();
       toast.info('Message deleted.');
     },
+    onError: (e) => toast.error(`Couldn't delete the message: ${errorText(e)}`),
   });
 
   const markReadMutation = useMutation({
     mutationFn: (id: number) => api.markMessageAsRead(id),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: messageKeys.all });
-    },
+    onSuccess: () => void refresh(),
+    onError: (e) => toast.error(`Couldn't mark the message as read: ${errorText(e)}`),
   });
 
   const markAllReadMutation = useMutation({
     mutationFn: api.markAllMessagesAsRead,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: messageKeys.all });
+      void refresh();
       toast.success('All messages marked as read.');
     },
+    onError: (e) => toast.error(`Couldn't mark messages as read: ${errorText(e)}`),
   });
 
-  const paginatedMessages =
-    messages?.slice((page - 1) * ADMIN_ITEMS_PER_PAGE, page * ADMIN_ITEMS_PER_PAGE) || [];
-  const totalPages = Math.ceil((messages?.length || 0) / ADMIN_ITEMS_PER_PAGE);
+  const list = messages ?? [];
+  const totalPages = Math.ceil(list.length / ADMIN_ITEMS_PER_PAGE);
+  const paginated = list.slice((page - 1) * ADMIN_ITEMS_PER_PAGE, page * ADMIN_ITEMS_PER_PAGE);
 
-  const handleSelect = (id: number) => {
-    setSelectedMessages((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
-    );
-  };
+  const toggle = (id: number) =>
+    setSelected((prev) => (prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]));
 
-  const handleBulkDelete = async () => {
-    if (!confirm(`Delete ${selectedMessages.length} messages?`)) return;
-    for (const id of selectedMessages) {
-      await api.deleteMessage(id);
+  // One by one, in selection order; a failure keeps the messages that are left selected (F12 B5).
+  const bulkDelete = async (ids: number[]) => {
+    const failed: number[] = [];
+    for (const id of ids) {
+      try {
+        await api.deleteMessage(id);
+      } catch {
+        failed.push(id);
+      }
     }
-    void queryClient.invalidateQueries({ queryKey: messageKeys.all });
-    setSelectedMessages([]);
-    toast.success('Messages deleted.');
+    void refresh();
+    setSelected(failed);
+    if (failed.length === 0) toast.success('Messages deleted.');
+    else toast.error(`${failed.length} of ${ids.length} messages couldn't be deleted. Try again.`);
   };
-
-  if (isLoading) return <div>Loading messages...</div>;
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
-          Inbox ({messages?.length || 0})
+    <>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 tabIndex={-1} className="text-section font-semibold text-ink outline-none">
+          Inbox ({list.length})
         </h1>
-        <div className="flex gap-2">
-          {selectedMessages.length > 0 && (
+        <div className="flex flex-wrap gap-3">
+          {selected.length > 0 && (
             <button
-              onClick={() => void handleBulkDelete()}
-              className="btn-secondary text-red-500 border-red-200 hover:bg-red-50"
+              type="button"
+              onClick={() =>
+                setDeleting({
+                  ids: selected,
+                  title: `Delete ${selected.length} messages?`,
+                  bulk: true,
+                })
+              }
+              className="btn-secondary text-danger"
             >
-              Delete Selected ({selectedMessages.length})
+              Delete Selected ({selected.length})
             </button>
           )}
-          <button onClick={() => markAllReadMutation.mutate()} className="btn-secondary">
-            <CheckCircle className="h-4 w-4 mr-2" /> Mark All Read
+          <button
+            type="button"
+            onClick={() => markAllReadMutation.mutate()}
+            disabled={markAllReadMutation.isPending}
+            className="btn-secondary"
+          >
+            Mark All Read
           </button>
         </div>
       </div>
 
-      {(messages?.length || 0) === 0 ? (
-        <div className="text-slate-500 text-center py-12">No messages received yet.</div>
+      {isLoading ? (
+        <p role="status" className="mt-6 text-body text-ink-muted">
+          Loading messages...
+        </p>
+      ) : isError ? (
+        <p role="alert" className="mt-6 text-body text-danger">
+          Couldn&apos;t load messages.{' '}
+          <button
+            type="button"
+            onClick={() => void refetch()}
+            className="min-h-11 text-action underline"
+          >
+            Try again
+          </button>
+        </p>
+      ) : list.length === 0 ? (
+        <p className="mt-6 text-body text-ink-muted">No messages received yet.</p>
       ) : (
-        <div className="space-y-4 mb-8">
-          {paginatedMessages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`p-4 rounded-lg border ${msg.is_read ? 'bg-white dark:bg-slate-900 border-slate-200 dark:border-white/5' : 'bg-indigo-50 dark:bg-indigo-900/10 border-indigo-200 dark:border-indigo-500/30'}`}
-            >
-              <div className="flex justify-between items-start mb-2">
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    checked={selectedMessages.includes(msg.id)}
-                    onChange={() => handleSelect(msg.id)}
-                  />
-                  <div>
-                    <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      {msg.name}
-                      {!msg.is_read && <span className="w-2 h-2 rounded-full bg-indigo-500"></span>}
-                    </h4>
-                    <p className="text-xs text-indigo-600 dark:text-indigo-400">{msg.email}</p>
+        <ul className="mt-6 divide-y divide-rule border-y border-rule">
+          {paginated.map((msg) => (
+            <li key={msg.id} className="flex gap-3 py-4">
+              <label className="-ml-3 grid size-11 shrink-0 cursor-pointer place-items-center">
+                <input
+                  type="checkbox"
+                  checked={selected.includes(msg.id)}
+                  onChange={() => toggle(msg.id)}
+                  aria-label={`Select message from ${msg.name}`}
+                  className="size-5 accent-(--action)"
+                />
+              </label>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-x-4">
+                  <div className="min-w-0 max-sm:basis-full sm:flex-1">
+                    <p className="flex items-center gap-2 text-body text-ink">
+                      {!msg.is_read && (
+                        <span className="size-2 shrink-0 rounded-full bg-action">
+                          <span className="sr-only">Unread:</span>
+                        </span>
+                      )}
+                      <span className={cn('truncate', !msg.is_read && 'font-semibold')}>
+                        {msg.name}
+                      </span>
+                    </p>
+                    <a
+                      href={`mailto:${msg.email}`}
+                      className="text-caption break-all text-action underline-offset-4 hover:underline"
+                    >
+                      {msg.email}
+                    </a>
+                  </div>
+                  <time dateTime={msg.created_at} className="text-caption text-ink-muted tabular">
+                    {new Date(msg.created_at).toLocaleDateString()}
+                  </time>
+                  <div className="flex">
+                    {!msg.is_read && (
+                      <button
+                        type="button"
+                        onClick={() => markReadMutation.mutate(msg.id)}
+                        className="btn-text"
+                      >
+                        Mark as Read
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setDeleting({
+                          ids: [msg.id],
+                          title: `Delete the message from ${msg.name}?`,
+                        })
+                      }
+                      className="btn-text-danger"
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-500">
-                    {new Date(msg.created_at).toLocaleDateString()}
-                  </span>
-                  {!msg.is_read && (
-                    <button
-                      onClick={() => markReadMutation.mutate(msg.id)}
-                      title="Mark as Read"
-                      className="p-1 text-indigo-500 hover:bg-indigo-100 dark:hover:bg-indigo-500/10 rounded"
-                    >
-                      <MailOpen className="h-4 w-4" />
-                    </button>
-                  )}
-                  <button
-                    onClick={() => deleteMutation.mutate(msg.id)}
-                    title="Delete"
-                    className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 rounded"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
+                <p className="mt-2 text-body whitespace-pre-wrap text-ink-muted">{msg.message}</p>
               </div>
-              <p className="text-slate-700 dark:text-slate-300 text-sm mt-2 whitespace-pre-wrap">
-                {msg.message}
-              </p>
-            </div>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
 
       {totalPages > 1 && (
-        <div className="flex justify-center gap-2">
+        <nav aria-label="Pagination" className="mt-6 flex items-center justify-center gap-2">
           <button
+            type="button"
+            aria-label="Previous page"
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page === 1}
-            className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded disabled:opacity-50"
+            className="grid size-11 place-items-center rounded-full text-action hover:bg-parchment disabled:text-ink-muted disabled:hover:bg-transparent"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <Arrow d="m15 18-6-6 6-6" />
           </button>
-          <span className="text-slate-500 dark:text-slate-400 text-sm py-2">
+          <span className="text-caption text-ink-muted tabular">
             Page {page} of {totalPages}
           </span>
           <button
+            type="button"
+            aria-label="Next page"
             onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
             disabled={page === totalPages}
-            className="p-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded disabled:opacity-50"
+            className="grid size-11 place-items-center rounded-full text-action hover:bg-parchment disabled:text-ink-muted disabled:hover:bg-transparent"
           >
-            <ChevronRight className="h-4 w-4" />
+            <Arrow d="m9 18 6-6-6-6" />
           </button>
-        </div>
+        </nav>
       )}
-    </div>
+
+      <ConfirmDialog
+        title={deleting?.title ?? null}
+        onClose={() => setDeleting(null)}
+        onConfirm={() => {
+          if (!deleting) return;
+          if (deleting.bulk) void bulkDelete(deleting.ids);
+          else deleteMutation.mutate(deleting.ids[0]!);
+        }}
+      />
+    </>
+  );
+}
+
+// Drawn here, not via StrokeIcon: sharing it with admin splits it out of the listing routes' chunk (+0.2 KiB there).
+function Arrow({ d }: { d: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+      className="size-5"
+    >
+      <path d={d} />
+    </svg>
   );
 }

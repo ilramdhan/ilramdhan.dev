@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import { TechIcon } from '@/features/tech-stack/TechIcon';
 import { Pagination } from './Pagination';
 import { Dialog } from './Dialog';
 import { Field } from './Field';
 import { SocialLinks } from './SocialLinks';
 import { ErrorState } from './PageState';
-import { TechBadge } from './TechBadge';
 
 describe('Pagination', () => {
   it('renders nothing for a single page', () => {
@@ -141,7 +141,7 @@ describe('SocialLinks', () => {
   });
 });
 
-describe('ErrorState / TechBadge', () => {
+describe('ErrorState', () => {
   it('calls retry', async () => {
     const onRetry = vi.fn();
     render(<ErrorState onRetry={onRetry}>Boom</ErrorState>);
@@ -149,13 +149,16 @@ describe('ErrorState / TechBadge', () => {
     expect(onRetry).toHaveBeenCalledOnce();
   });
 
-  it('uses the provided icon or falls back to Simple Icons', () => {
-    const { rerender } = render(<TechBadge name="Node JS" iconUrl="/n.svg" />);
-    expect(screen.getByRole('img', { name: 'Node JS' })).toHaveAttribute('src', '/n.svg');
-    rerender(<TechBadge name="Node JS" iconUrl={null} />);
-    expect(screen.getByRole('img', { name: 'Node JS' })).toHaveAttribute(
-      'src',
-      expect.stringContaining('/nodejs/'),
-    );
+  it('TechIcon: named icon, monogram when missing or broken', () => {
+    const { rerender } = render(<TechIcon name="Node JS" iconUrl="/n.svg" />);
+    const img = () => screen.getByRole('img', { name: 'Node JS' }).querySelector('img');
+    expect(img()).toHaveAttribute('src', '/n.svg');
+    fireEvent.error(img()!);
+    expect(img()).not.toBeVisible();
+    expect(screen.getByRole('img', { name: 'Node JS' })).toHaveTextContent('NO');
+    rerender(<TechIcon name="Go" iconUrl={null} />);
+    expect(screen.getByRole('img', { name: 'Go' })).toHaveTextContent('GO');
+    rerender(<TechIcon name="PostgreSQL" iconUrl={null} />);
+    expect(screen.getByRole('img', { name: 'PostgreSQL' })).toHaveTextContent('PO');
   });
 });

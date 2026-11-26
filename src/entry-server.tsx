@@ -7,9 +7,8 @@
  * are skipped stay pending, so the page shows its normal loading state and the browser
  * fetches them after hydration.
  */
-import { Writable } from 'node:stream';
 import { StrictMode, type ReactElement } from 'react';
-import { renderToPipeableStream } from 'react-dom/server';
+import { prerenderToNodeStream } from 'react-dom/static';
 import { StaticRouter } from 'react-router';
 import type { Query, QueryClient } from '@tanstack/react-query';
 import { Providers } from '@/app/providers';
@@ -19,20 +18,17 @@ import { HeadCollectorContext } from '@/components/seo/head-collector';
 import type { HeadDescriptor } from '@/components/seo/seo-head';
 import { supabase } from '@/lib/supabase/client';
 import type { PrerenderedQuery } from '@/lib/prerendered-data';
+import { loadLocale } from '@/i18n';
+import { localePath, splitLocale } from '@/i18n/locale';
+import { buildSitemap } from '@/i18n/sitemap';
+import { STATIC_ROUTES } from '@/i18n/static-routes';
 
 export { applyHeadToHtml } from '@/components/seo/head-html';
 
-/** Public routes without parameters; `login` is prerendered too (noindex). */
-export const STATIC_ROUTES = [
-  '/',
-  '/about',
-  '/certificates',
-  '/projects',
-  '/blog',
-  '/privacy',
-  '/terms',
-  '/login',
-];
+/** English-only: admin stays out of the locale routes; `login` is prerendered (noindex). */
+const EN_ONLY_ROUTES = ['/login'];
+
+export { buildSitemap };
 
 /** Query keys never fetched at build time (third-party, per-visitor). */
 const CLIENT_ONLY_KEYS = new Set(['wakatime', 'is-admin']);
@@ -45,8 +41,8 @@ async function slugs(table: 'projects' | 'blogs'): Promise<string[]> {
   return (data ?? []).flatMap((row) => (row.slug ? [row.slug] : []));
 }
 
-/** Every route to prerender: static pages plus each published project and post. */
-export async function prerenderRoutes(withContent: boolean): Promise<string[]> {
+/** Locale-free paths of every indexable page: static pages plus each published project and post. */
+export async function contentPaths(withContent: boolean): Promise<string[]> {
   if (!withContent) return STATIC_ROUTES;
   const [projects, blogs] = await Promise.all([slugs('projects'), slugs('blogs')]);
   return [
@@ -56,27 +52,29 @@ export async function prerenderRoutes(withContent: boolean): Promise<string[]> {
   ];
 }
 
-function toHtml(element: ReactElement): Promise<string> {
-  return new Promise((resolve, reject) => {
-    let html = '';
-    const sink = new Writable({
-      write(chunk: Buffer, _encoding, callback) {
-        html += chunk.toString();
-        callback();
-      },
-      final(callback) {
-        resolve(html);
-        callback();
-      },
-    });
-    // Piped only once everything (lazy pages included) is ready: complete markup, no
-    // streaming placeholders or inline scripts (CSP).
-    const stream = renderToPipeableStream(element, {
-      onAllReady: () => stream.pipe(sink),
-      onShellError: reject,
-      onError: reject,
-    });
+/** Every URL to prerender, both locales (`/about`, `/id/about`, ...). */
+export async function prerenderRoutes(withContent: boolean): Promise<string[]> {
+  const paths = await contentPaths(withContent);
+  return [...paths, ...EN_ONLY_ROUTES, ...paths.map((p) => localePath(p, 'id'))];
+}
+
+// Resolves once everything (lazy pages and Suspense boundaries included) is ready:
+// complete markup, no streaming placeholders or inline scripts (CSP).
+async function toHtml(element: ReactElement): Promise<string> {
+  // Throwing inside onError would unwind React's work loop: record it, throw after the await.
+  let failure: unknown;
+  const { prelude } = await prerenderToNodeStream(element, {
+    // React 19 outlines large completed boundaries (inline `$RC` reveal scripts); never do.
+    progressiveChunkSize: Infinity,
+    onError: (error) => {
+      failure ??= error;
+    },
   });
+  if (failure)
+    throw failure instanceof Error ? failure : new Error('prerender failed', { cause: failure });
+  let html = '';
+  for await (const chunk of prelude) html += String(chunk);
+  return html;
 }
 
 const isEnabled = (query: Query) => {
@@ -107,12 +105,16 @@ export interface RenderResult {
 }
 
 export async function render(url: string, withContent: boolean): Promise<RenderResult> {
+  await loadLocale(splitLocale(url).locale);
   const client = createQueryClient();
   client.setDefaultOptions({ queries: { ...QUERY_DEFAULTS, retry: false } });
   const collector: { current: HeadDescriptor | null } = { current: null };
+  const collect = (head: HeadDescriptor) => {
+    collector.current = head;
+  };
   const app = () => (
     <StrictMode>
-      <HeadCollectorContext.Provider value={collector}>
+      <HeadCollectorContext.Provider value={collect}>
         <Providers client={client}>
           <StaticRouter location={url}>
             <GuardedRoutes />

@@ -1,24 +1,25 @@
 import type { ReactNode } from 'react';
 
-/** Grid-spanning "nothing here" message. */
-export function EmptyState({
+/** Grid-spanning error message with an optional retry action. */
+export function ErrorState({
   children,
-  className = 'py-20',
+  onRetry,
+  retryLabel = 'Retry',
 }: {
   children: ReactNode;
-  className?: string;
+  onRetry?: () => void;
+  retryLabel?: string;
 }) {
-  return <div className={`col-span-full ${className} text-center text-slate-500`}>{children}</div>;
-}
-
-/** Grid-spanning error message with an optional retry action. */
-export function ErrorState({ children, onRetry }: { children: ReactNode; onRetry?: () => void }) {
   return (
-    <div className="col-span-full py-20 text-center text-red-500">
+    <div className="col-span-full py-20 text-center text-danger">
       {children}
       {onRetry && (
-        <button type="button" onClick={onRetry} className="ml-3 underline">
-          Retry
+        <button
+          type="button"
+          onClick={onRetry}
+          className="ml-3 min-h-11 px-2 text-action underline"
+        >
+          {retryLabel}
         </button>
       )}
     </div>

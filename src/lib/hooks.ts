@@ -35,16 +35,6 @@ export function endPrerenderedView(): void {
 }
 
 /**
- * Whether this component is part of the prerendered HTML (rendered on the server or
- * while hydrating it). Entrance animations skip such content: it is already on screen,
- * hiding it to fade it back in would only delay it.
- */
-export function useIsPrerendered(): boolean {
-  const [prerendered] = useState(() => prerenderedView);
-  return prerendered;
-}
-
-/**
  * `false` while React hydrates prerendered HTML (and during the prerender itself), `true`
  * afterwards and in plain client renders. Values that only the browser knows (stored
  * theme, media queries) must render their server value until this flips, or hydration
@@ -80,13 +70,13 @@ export function useMediaQuery(query: string): boolean {
   return matches;
 }
 
-/** `prefers-reduced-motion: reduce`, hydration-safe (framer's hook reads it during render). */
+/** `prefers-reduced-motion: reduce`, hydration-safe. */
 export function useReducedMotion(): boolean {
   return useMediaQuery('(prefers-reduced-motion: reduce)');
 }
 
 /** Whether the element is (partly) in the viewport; `true` where IntersectionObserver is missing. */
-export function useInView(ref: RefObject<Element>, rootMargin = '0px'): boolean {
+export function useInView(ref: RefObject<Element | null>, rootMargin = '0px'): boolean {
   const [inView, setInView] = useState(true);
   useEffect(() => {
     const el = ref.current;

@@ -11,22 +11,23 @@
     <meta name="author" content="%SITE_NAME%" />
     <meta name="robots" content="index, follow" />
 
-    <!-- Theme: applied before first paint to avoid a flash of the wrong theme -->
+    <!-- Theme: data-theme (Light/Dark; none = Auto) + `dark` class applied before first paint, no flash -->
     <script>
       !(function () {
         try {
           var t = localStorage.getItem('theme'),
-            d =
-              t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches),
             e = document.documentElement;
-          e.classList.toggle('dark', d);
-          e.style.colorScheme = d ? 'dark' : 'light';
+          if (t === 'light' || t === 'dark') e.setAttribute('data-theme', t);
+          e.classList.toggle(
+            'dark',
+            t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches),
+          );
         } catch (a) {}
       })();
     </script>
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#020617" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />

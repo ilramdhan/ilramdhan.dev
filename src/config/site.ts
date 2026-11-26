@@ -20,10 +20,8 @@ export const siteConfig = {
     "Ilham Ramadhan's personal portfolio website showcasing projects, skills, and blog posts.",
   ogDescription:
     'Showcasing projects, skills, certifications, and blog posts on web development, design, and technology.',
-  jsonLdDescription:
-    'Web developer specializing in modern web technologies. Portfolio showcasing projects, skills, and blog posts.',
-  /** Path of the default Open Graph image (relative to the site root). */
-  ogDefaultImage: '/logo.png',
+  /** Default Open Graph image, relative to the site root: 1200x630 (scripts/generate-og.mjs). */
+  ogDefaultImage: '/og.png',
   githubUsername: 'ilramdhan',
   /** Source repository; the footer version links to its GitHub Releases. */
   repoUrl: 'https://github.com/ilramdhan/ilramdhan.dev',

@@ -1,10 +1,11 @@
 // @ts-check
 import js from '@eslint/js';
 import prettier from 'eslint-config-prettier';
-import importPlugin from 'eslint-plugin-import';
+import importPlugin from 'eslint-plugin-import-x';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
 import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
+import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript';
 import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
@@ -41,12 +42,9 @@ export default tseslint.config(
       },
     },
     settings: {
-      'import/ignore': ['node_modules'],
-      'import/external-module-folders': ['node_modules'],
-      'import/resolver': {
-        typescript: { project: './tsconfig.json' },
-        node: true,
-      },
+      'import-x/ignore': ['node_modules'],
+      'import-x/external-module-folders': ['node_modules'],
+      'import-x/resolver-next': [createTypeScriptImportResolver({ project: './tsconfig.json' })],
     },
     plugins: {
       'react-hooks': reactHooks,
@@ -55,7 +53,7 @@ export default tseslint.config(
     rules: {
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
-      'import/order': [
+      'import-x/order': [
         'warn',
         {
           groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
@@ -63,10 +61,10 @@ export default tseslint.config(
           'newlines-between': 'never',
         },
       ],
-      'import/no-cycle': ['error', { ignoreExternal: true }],
+      'import-x/no-cycle': ['error', { ignoreExternal: true }],
       // Resolved by TypeScript itself; the import resolver is slow and noisy here.
-      'import/no-unresolved': 'off',
-      'import/named': 'off',
+      'import-x/no-unresolved': 'off',
+      'import-x/named': 'off',
       // Allow `declare global { namespace JSX { ... } }` augmentations (react-three-fiber).
       '@typescript-eslint/no-namespace': ['error', { allowDeclarations: true }],
     },

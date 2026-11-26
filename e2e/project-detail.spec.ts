@@ -42,6 +42,16 @@ test('thumbnails open a lightbox: right image, ←/→, Esc closes and focus ret
   await dialog.getByRole('button', { name: 'Next image' }).click();
   await expect(dialog.getByText('1 / 2')).toBeVisible();
 
+  // Tab cycles inside the dialog (never reaches the page behind it), both directions.
+  for (let i = 0; i < 8; i++) {
+    await page.keyboard.press('Tab');
+    expect(await dialog.evaluate((d) => d.contains(document.activeElement))).toBe(true);
+  }
+  for (let i = 0; i < 8; i++) {
+    await page.keyboard.press('Shift+Tab');
+    expect(await dialog.evaluate((d) => d.contains(document.activeElement))).toBe(true);
+  }
+
   await page.keyboard.press('Escape');
   await expect(dialog).toHaveCount(0);
   await expect(second).toBeFocused();
@@ -84,23 +94,12 @@ test('the lightbox code is loaded on demand, not with the page', async ({ page }
   expect(scripts.some((u) => /\/Lightbox-[\w-]+\.js$/.test(u))).toBe(true);
 });
 
-test('carousel: arrow keys and prev/next buttons change the slide', async ({ page }) => {
-  await page.goto(PROJECT);
-  const carousel = page.getByRole('group', { name: ALT });
-  const img = carousel.locator('img');
-  await expect(img).toHaveAttribute('alt', `${ALT}: image 1 of 2`);
-  await carousel.focus();
-  await page.keyboard.press('ArrowRight');
-  await expect(img).toHaveAttribute('alt', `${ALT}: image 2 of 2`);
-  await carousel.getByRole('button', { name: 'Previous image' }).click();
-  await expect(img).toHaveAttribute('alt', `${ALT}: image 1 of 2`);
-});
-
 test('related projects and thumbnails are in the prerendered HTML', async ({ request }) => {
   const html = await (await request.get(PROJECT)).text();
   expect(html).toContain('Related projects');
   // Every fixture project is tagged "oss": the three newest others (same date → id desc).
-  const section = html.slice(html.indexOf('Related projects'));
+  // The related list only: the footer's language links point at this page too.
+  const section = html.slice(html.indexOf('Related projects'), html.indexOf('<footer'));
   for (const slug of ['long-content', 'project-8', 'project-7']) {
     expect(section).toContain(`href="/projects/${slug}"`);
   }
@@ -111,10 +110,10 @@ test('related projects and thumbnails are in the prerendered HTML', async ({ req
 
 test('related projects exclude the current one and link to their pages', async ({ page }) => {
   await page.goto(PROJECT);
-  const related = page.getByRole('region', { name: 'Related projects' });
-  await expect(related.getByRole('heading', { level: 3 })).toHaveCount(3);
-  await expect(related.getByRole('link', { name: 'Project 1', exact: true })).toHaveCount(0);
-  await related.getByRole('link', { name: 'Project 8', exact: true }).click();
+  const related = page.getByRole('list', { name: 'Related projects' });
+  await expect(related.getByRole('link')).toHaveCount(3);
+  await expect(related.getByRole('link').filter({ hasText: /Project 1$/m })).toHaveCount(0);
+  await related.getByRole('link').filter({ hasText: 'Project 8' }).click();
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Project 8');
 });
 
@@ -134,7 +133,9 @@ test.describe('layout', () => {
     await check();
   });
 
-  test('sections share the left and right edges at 1280 px', async ({ page }, testInfo) => {
+  test('gallery and related projects share the body column edges at 1280 px', async ({
+    page,
+  }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop', 'desktop layout');
     await page.goto(PROJECT);
     await page.waitForLoadState('networkidle');
@@ -143,15 +144,10 @@ test.describe('layout', () => {
       expect(b, name).not.toBeNull();
       return { name, left: b!.x, right: b!.x + b!.width };
     };
-    const carousel = await box('carousel', page.getByRole('group', { name: ALT }));
-    for (const b of [
-      await box('gallery', page.getByRole('list', { name: 'Gallery' })),
-      await box('related', page.getByRole('region', { name: 'Related projects' })),
-    ]) {
+    const carousel = await box('body', page.locator('.prose').first());
+    for (const b of [await box('gallery', page.getByRole('list', { name: 'Gallery' }))]) {
       expect(Math.abs(b.left - carousel.left), `${b.name} left`).toBeLessThanOrEqual(1);
       expect(Math.abs(b.right - carousel.right), `${b.name} right`).toBeLessThanOrEqual(1);
     }
-    const h1 = await box('h1', page.getByRole('heading', { level: 1 }));
-    expect(Math.abs(h1.left - carousel.left), 'h1 left').toBeLessThanOrEqual(1);
   });
 });

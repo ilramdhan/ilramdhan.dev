@@ -1,7 +1,8 @@
-import { Link } from 'react-router';
+import { Link } from '@/i18n/Link';
 import { cn } from '@/lib/utils';
+import { useT } from '@/i18n';
 
-/** Tag chips linking to the list at `basePath`, filtered by that tag. */
+/** Tag links to the list at `basePath`, filtered by that tag: plain action-coloured text, no chips. */
 export function TagLinks({
   tags,
   basePath,
@@ -12,14 +13,15 @@ export function TagLinks({
   basePath: string;
   className?: string;
 }) {
+  const t = useT();
   if (!tags.length) return null;
   return (
-    <ul className={cn('flex flex-wrap gap-2', className)} aria-label="Tags">
+    <ul className={cn('flex flex-wrap gap-x-4', className)} aria-label={t.common.tags}>
       {tags.map((tag) => (
         <li key={tag}>
           <Link
             to={`${basePath}?tag=${encodeURIComponent(tag)}`}
-            className="inline-block rounded-full bg-indigo-50 px-3 py-1 text-sm font-medium text-indigo-700 transition-colors hover:bg-indigo-100 outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-900/50"
+            className="inline-flex min-h-11 items-center text-caption text-tile-action underline-offset-4 hover:text-tile-action-hover hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-tile-action"
           >
             #{tag}
           </Link>
@@ -66,16 +68,16 @@ function AdjacentLink({
       to={`${basePath}/${item.slug}`}
       rel={newer ? 'next' : 'prev'}
       className={cn(
-        'group flex h-full flex-col gap-1 rounded-xl border border-slate-200 bg-white p-5 transition-colors hover:border-indigo-500/50 outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 dark:border-white/10 dark:bg-slate-900',
+        'group flex h-full flex-col gap-1 border-t border-rule py-5 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-tile-action',
         newer && 'items-end text-right',
       )}
     >
-      <span className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-400">
-        {!newer && <span aria-hidden="true">&larr;</span>}
+      <span className="text-caption text-tile-muted">
+        {!newer && <span aria-hidden="true">&larr; </span>}
         {text}
-        {newer && <span aria-hidden="true">&rarr;</span>}
+        {newer && <span aria-hidden="true"> &rarr;</span>}
       </span>
-      <span className="font-semibold text-slate-900 transition-colors group-hover:text-indigo-600 dark:text-white dark:group-hover:text-indigo-400 line-clamp-2">
+      <span className="line-clamp-2 text-title text-balance text-tile-ink group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">
         {item.title}
       </span>
     </Link>
@@ -93,7 +95,7 @@ export function PostNavigation({
   const { older, newer } = adjacent ?? { older: null, newer: null };
   if (!older?.slug && !newer?.slug) return null;
   return (
-    <nav aria-label={label} className="grid gap-4 md:grid-cols-2">
+    <nav aria-label={label} className="grid gap-x-8 md:grid-cols-2">
       <div>
         {older?.slug && (
           <AdjacentLink item={older} basePath={basePath} text={olderText} newer={false} />

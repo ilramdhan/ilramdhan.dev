@@ -17,5 +17,6 @@
     "noImplicitOverride": true,
     "noFallthroughCasesInSwitch": true,
     "noEmit": true
-  }
+  },
+  "include": ["**/*"]
 }

@@ -25,4 +25,9 @@ describe('cn', () => {
     expect(cn('px-2', isHidden && 'hidden', 'px-4')).toBe('px-4');
     expect(cn('text-sm', ['font-bold'])).toBe('text-sm font-bold');
   });
+
+  it('treats the type ladder as font-size, not colour', () => {
+    expect(cn('text-hero', 'text-ink')).toBe('text-hero text-ink');
+    expect(cn('text-sm', 'text-caption')).toBe('text-caption');
+  });
 });

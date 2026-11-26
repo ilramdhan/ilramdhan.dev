@@ -17,7 +17,7 @@ test('certificate search with special characters shows matches or the empty stat
 
   await page.goto('/certificates');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Certificates');
-  const search = page.getByPlaceholder('Search certificates...');
+  const search = page.getByPlaceholder('Search certificates…');
   const cards = page.getByRole('heading', { level: 3 });
 
   const cases: [string, string[]][] = [
@@ -54,7 +54,7 @@ test('blog search treats % and _ literally', async ({ page, supabase, consoleErr
 
   await page.goto('/blog');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Writings');
-  const search = page.getByPlaceholder('Search articles...');
+  const search = page.getByPlaceholder('Search articles…');
 
   await search.fill('100%');
   await expect(page.getByText('100% Rust', { exact: true })).toBeVisible();

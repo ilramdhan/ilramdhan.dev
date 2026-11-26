@@ -13,7 +13,7 @@ import type { Theme } from './e2e/fixtures/test';
  *
  * Run one project: `npm run test:e2e -- --project=w320`.
  */
-const PORT = 4173;
+const PORT = Number(process.env.E2E_PORT ?? 4173);
 const BASE_URL = `http://127.0.0.1:${PORT}`;
 const MATRIX = [320, 360, 390, 414, 768, 1024, 1280, 1440, 1920, 2560] as const;
 
@@ -88,6 +88,11 @@ export default defineConfig<{ theme?: Theme }>({
       // Must match MOCK_SUPABASE_URL in e2e/fixtures/supabase-mock.ts.
       VITE_SUPABASE_URL: 'https://mock.supabase.co',
       VITE_SUPABASE_ANON_KEY: 'e2e-dummy-anon-key',
+      // Registers the dev-only /__motion preview in the e2e build (e2e/motion.spec.ts).
+      VITE_MOTION_PREVIEW: '1',
+      // Cloudflare's public always-pass Turnstile test site key: the contact form runs the verified path
+      // (e2e/contact.spec.ts mocks api.js and /api/contact; nothing reaches Cloudflare or Supabase).
+      VITE_TURNSTILE_SITE_KEY: '1x00000000000000000000AA',
     },
   },
 });

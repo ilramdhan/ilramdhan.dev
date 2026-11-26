@@ -17,20 +17,13 @@ export type ResolvedTheme = 'light' | 'dark';
 interface ThemeContextType {
   /** The theme currently applied (`system` resolved through the OS preference). */
   theme: ResolvedTheme;
-  /** What the visitor chose; `system` follows the OS. */
+  /** What the visitor chose; `system` ("Auto") follows the OS, live. */
   preference: ThemePreference;
   setPreference: (preference: ThemePreference) => void;
-  /** Cycles dark -> light -> system. */
-  toggleTheme: () => void;
 }
 
 const STORAGE_KEY = 'theme';
 const QUERY = '(prefers-color-scheme: dark)';
-const CYCLE: Record<ThemePreference, ThemePreference> = {
-  dark: 'light',
-  light: 'system',
-  system: 'dark',
-};
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
@@ -45,13 +38,16 @@ function readPreference(): ThemePreference {
 }
 
 /**
- * Applies the theme to <html>. index.html runs the same logic before first paint
- * (no flash); this keeps it in sync afterwards.
+ * Applies the theme to <html> (same mechanism as mutugading): `data-theme` forces Light or Dark,
+ * no attribute = Auto (the CSS follows `prefers-color-scheme` on its own). The `dark` class
+ * mirrors the resolved theme for code and tests that read it. index.html runs the same logic
+ * before first paint (no flash); this keeps it in sync afterwards.
  */
-function applyTheme(theme: ResolvedTheme) {
+function applyTheme(preference: ThemePreference, theme: ResolvedTheme) {
   const root = document.documentElement;
+  if (preference === 'system') root.removeAttribute('data-theme');
+  else root.setAttribute('data-theme', preference);
   root.classList.toggle('dark', theme === 'dark');
-  root.style.colorScheme = theme;
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
@@ -72,8 +68,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // Layout effect: the DOM is updated synchronously inside a View Transition callback.
   // Not while hydrating: the server value is a guess, the inline script already set the class.
   useLayoutEffect(() => {
-    if (hydrated) applyTheme(theme);
-  }, [theme, hydrated]);
+    if (hydrated) applyTheme(preference, theme);
+  }, [preference, theme, hydrated]);
 
   const setPreference = useCallback((next: ThemePreference) => {
     setPreferenceState(next);
@@ -84,14 +80,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const toggleTheme = useCallback(
-    () => setPreference(CYCLE[preference]),
-    [preference, setPreference],
-  );
-
   const value = useMemo(
-    () => ({ theme, preference, setPreference, toggleTheme }),
-    [theme, preference, setPreference, toggleTheme],
+    () => ({ theme, preference, setPreference }),
+    [theme, preference, setPreference],
   );
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }

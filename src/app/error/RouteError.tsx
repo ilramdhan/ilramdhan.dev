@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { ErrorState } from '@/components/ui/PageState';
+import { dictionaryFor, LocaleContext } from '@/i18n';
 
 interface Props {
   children: ReactNode;
@@ -29,19 +30,29 @@ export class RouteErrorBoundary extends Component<Props, State> {
   override render() {
     if (!this.state.error) return this.props.children;
     return (
-      <main
-        role="alert"
-        className="min-h-screen flex flex-col items-center justify-center px-4 bg-slate-50 dark:bg-slate-950"
-      >
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-white">Something went wrong</h1>
-        <ErrorState onRetry={() => this.setState({ error: null })}>
-          An unexpected error occurred.{' '}
-          <a href="/" className="underline">
-            Go home
-          </a>
-          .
-        </ErrorState>
-      </main>
+      <LocaleContext.Consumer>
+        {(locale) => {
+          const t = dictionaryFor(locale);
+          return (
+            <main
+              role="alert"
+              className="flex min-h-screen flex-col items-center justify-center bg-white px-4 text-center text-ink"
+            >
+              <h1 className="text-tile font-semibold">{t.error.title}</h1>
+              <ErrorState
+                onRetry={() => this.setState({ error: null })}
+                retryLabel={t.common.retry}
+              >
+                {t.error.body}{' '}
+                <a href={locale === 'id' ? '/id' : '/'} className="text-action underline">
+                  {t.error.goHome}
+                </a>
+                .
+              </ErrorState>
+            </main>
+          );
+        }}
+      </LocaleContext.Consumer>
     );
   }
 }

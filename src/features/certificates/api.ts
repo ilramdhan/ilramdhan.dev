@@ -2,6 +2,9 @@ import type { Tables, TablesInsert, TablesUpdate } from '@/types';
 import { getSupabase } from '@/lib/supabase/lazy';
 import { columns } from '@/lib/supabase/columns';
 import { distinctSorted, fetchDistinct } from '@/lib/supabase/distinct';
+import { selectWithTranslations } from '@/lib/supabase/translations';
+import { localizeAll, type Localized } from '@/i18n/localize';
+import type { Locale } from '@/i18n/locale';
 import { assertOk, pageRange, unwrap, withoutId, unwrapPage } from '@/lib/supabase/result';
 import { orIlikeFilter } from '@/lib/search';
 
@@ -18,17 +21,21 @@ export const CERTIFICATE_COLUMNS = columns(
   'file_url',
 );
 
-export type Certificate = Pick<
-  Tables<'certificates'>,
-  | 'id'
-  | 'title'
-  | 'issued_by'
-  | 'issued_date'
-  | 'expiry_date'
-  | 'description'
-  | 'credential_url'
-  | 'file_url'
->;
+export const CERTIFICATE_TRANSLATED_FIELDS = ['title', 'description'] as const;
+
+export type Certificate = Localized<
+  Pick<
+    Tables<'certificates'>,
+    | 'id'
+    | 'title'
+    | 'issued_by'
+    | 'issued_date'
+    | 'expiry_date'
+    | 'description'
+    | 'credential_url'
+    | 'file_url'
+  >
+> & { translations?: Tables<'certificates'>['translations'] };
 export type CertificateInsert = TablesInsert<'certificates'>;
 
 export interface CertificateListParams {
@@ -36,33 +43,53 @@ export interface CertificateListParams {
   limit: number;
   query?: string;
   issuer?: string | null;
+  sort?: 'newest' | 'oldest';
 }
 
-export async function getCertificates(): Promise<Certificate[]> {
+const localized = (rows: readonly object[], locale: Locale) =>
+  localizeAll(rows, locale, CERTIFICATE_TRANSLATED_FIELDS) as Certificate[];
+
+async function fetchCertificates(withTranslations: boolean) {
   const supabase = await getSupabase();
   return unwrap(
-    await supabase
-      .from('certificates')
-      .select(CERTIFICATE_COLUMNS)
-      .order('issued_date', { ascending: false }),
+    await selectWithTranslations(withTranslations, CERTIFICATE_COLUMNS, (cols) =>
+      supabase
+        .from('certificates')
+        .select(cols as typeof CERTIFICATE_COLUMNS)
+        .order('issued_date', { ascending: false }),
+    ),
   );
 }
 
-export async function getCertificatesPaginated({
-  page,
-  limit,
-  query: search,
-  issuer,
-}: CertificateListParams) {
+export async function getCertificates(locale: Locale = 'en'): Promise<Certificate[]> {
+  return localized(await fetchCertificates(locale !== 'en'), locale);
+}
+
+/** Admin list: English rows with their raw `translations` (when the column exists). */
+export async function getAdminCertificates(): Promise<Certificate[]> {
+  return await fetchCertificates(true);
+}
+
+// Search and the issuer filter match the English columns whatever the locale.
+export async function getCertificatesPaginated(
+  { page, limit, query: search, issuer, sort }: CertificateListParams,
+  locale: Locale = 'en',
+) {
   const supabase = await getSupabase();
-  let query = supabase
-    .from('certificates')
-    .select(CERTIFICATE_COLUMNS, { count: 'exact' })
-    .order('issued_date', { ascending: false });
   const searchFilter = orIlikeFilter(['title', 'issued_by'], search);
-  if (searchFilter) query = query.or(searchFilter);
-  if (issuer) query = query.eq('issued_by', issuer);
-  return unwrapPage<Certificate>(await query.range(...pageRange(page, limit)));
+  const result = await selectWithTranslations(locale !== 'en', CERTIFICATE_COLUMNS, (cols) => {
+    let query = supabase
+      .from('certificates')
+      .select(cols as typeof CERTIFICATE_COLUMNS, { count: 'exact' })
+      .order('issued_date', { ascending: sort === 'oldest' })
+      // Unique tie-break: equal dates must not repeat or vanish across pages.
+      .order('id', { ascending: sort === 'oldest' });
+    if (searchFilter) query = query.or(searchFilter);
+    if (issuer) query = query.eq('issued_by', issuer);
+    return query.range(...pageRange(page, limit));
+  });
+  const { data, count } = unwrapPage<object>(result);
+  return { data: localized(data, locale), count };
 }
 
 export function getCertificateIssuers(): Promise<string[]> {

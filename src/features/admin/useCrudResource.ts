@@ -4,11 +4,14 @@ import type { FormValues } from './useZodForm';
 import { changedFields } from './diff';
 import type { ResourceConfig, ResourceRow } from './resource';
 import { resolveUploads } from './uploads';
+import { mergeTranslations, type Translation } from './translations';
 
 export interface SaveInput<Row, V> {
   values: V;
   /** The row being edited, or null to create a new one. */
   editing: Row | null;
+  /** The ID texts typed in the form (`translatable` resources only). */
+  translation?: Translation;
 }
 
 /**
@@ -31,9 +34,18 @@ export function useCrudResource<Row extends ResourceRow, V extends FormValues, P
 
   /** Resolves to false when an edit changed nothing (then no request is sent). */
   const save = useMutation({
-    mutationFn: async ({ values, editing }: SaveInput<Row, V>): Promise<boolean> => {
+    mutationFn: async ({ values, editing, translation }: SaveInput<Row, V>): Promise<boolean> => {
       const uploaded = await resolveUploads(resource.sections, values);
       const payload = resource.toPayload(uploaded, editing);
+      // `translation` undefined (create/update helpers): leave the stored ID texts alone.
+      if (resource.translatable && translation) {
+        const merged = mergeTranslations(
+          (editing as { translations?: unknown } | null)?.translations,
+          translation,
+          editing !== null && 'translations' in editing,
+        );
+        if (merged) (payload as Record<string, unknown>).translations = merged;
+      }
       if (!editing) {
         await resource.api.create(payload);
         return true;

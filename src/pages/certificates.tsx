@@ -1,138 +1,159 @@
-import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Search } from 'lucide-react';
+// Direct module imports, not the barrels (see STATE.md Gotchas).
+import { ContactCta } from '@/components/tile/ContactCta';
+import { ListingHero, ListingSection, ListingToolbar } from '@/components/listing/Listing';
+import type { SegmentedOption } from '@/components/tile/SegmentedControl';
+import { colVar } from '@/components/tile/stagger';
+import { FlipGroup } from '@/components/motion/FlipGroup';
 import { CertificateCard } from '@/components/ui/CertificateCard';
 import { Pagination } from '@/components/ui/Pagination';
-import { Navbar } from '@/app/layouts/Navbar';
-import { CollapsibleTagFilter } from '@/components/ui/CollapsibleTagFilter';
 import { certificateQueries } from '@/features/certificates/queries';
 import { useListParams } from '@/lib/useListParams';
 import { Seo } from '@/components/seo/Seo';
-import { MotionScope } from '@/components/motion';
-import motionFeatures from '@/components/motion/features';
+import { useLocale, useT } from '@/i18n';
 
 const ITEMS_PER_PAGE = 9;
+const GRID = 'grid w-full gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3';
 
-function CertificatesContent() {
+export default function CertificatesPage() {
+  const t = useT();
+  const locale = useLocale();
   const {
     input: searchInput,
     setInput: setSearchInput,
     query: searchQuery,
     filter: selectedIssuer,
     page: currentPage,
+    sort,
+    setSort,
+    filtersActive,
+    clearFilters,
     setFilter: handleIssuerFilter,
     setPage,
   } = useListParams('issuer');
 
-  const { data: allIssuers, isLoading: isLoadingIssuers } = useQuery(certificateQueries.issuers());
+  const { data: allIssuers } = useQuery(certificateQueries.issuers());
 
   const {
     data: certData,
     isLoading: isLoadingCerts,
     isError,
   } = useQuery(
-    certificateQueries.list({
-      page: currentPage,
-      limit: ITEMS_PER_PAGE,
-      query: searchQuery,
-      issuer: selectedIssuer,
-    }),
+    certificateQueries.list(
+      {
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+        query: searchQuery,
+        issuer: selectedIssuer,
+        sort,
+      },
+      locale,
+    ),
   );
 
   const certificates = certData?.data ?? [];
-  const totalCerts = certData?.count ?? 0;
-  const totalPages = Math.ceil(totalCerts / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil((certData?.count ?? 0) / ITEMS_PER_PAGE);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const issuerOptions: SegmentedOption<string>[] = [
+    { value: '', label: t.certificates.allIssuers },
+    ...(allIssuers ?? []).map((i) => ({ value: i, label: i })),
+  ];
+
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
-      <Seo
-        title="Certificates"
-        description="Browse all professional certifications and achievements."
-      />
-      <Navbar />
-      <div className="pt-32 pb-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Certificates</h1>
-          <p className="text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-            Professional certifications, achievements, and credentials.
-          </p>
-        </div>
+    <div>
+      <Seo title={t.seo.certificates} description={t.seo.certificatesDescription} />
 
-        {/* Search & Filters */}
-        <div className="max-w-4xl mx-auto mb-12 space-y-6">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
-            <input
-              type="text"
-              placeholder="Search certificates..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-white/10 rounded-full py-3 pl-12 pr-6 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none backdrop-blur-sm shadow-sm"
-            />
-          </div>
+      <ListingHero id="certs-h" title={t.certificates.heading} lead={t.certificates.lead} />
 
-          <div className="flex justify-center">
-            <CollapsibleTagFilter
-              tags={allIssuers ?? []}
-              selectedTag={selectedIssuer}
-              onTagClick={handleIssuerFilter}
-              maxVisible={6}
-              isLoading={isLoadingIssuers}
-            />
-          </div>
-        </div>
-
-        {/* Certificate Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-          {isLoadingCerts &&
-            Array.from({ length: ITEMS_PER_PAGE }).map((_, i) => (
-              <div
-                key={i}
-                className="rounded-xl bg-slate-200 dark:bg-slate-800/50 aspect-[4/3] motion-safe:animate-pulse"
-              />
-            ))}
-          {isError && !certData && (
-            <div className="col-span-full py-20 text-center text-red-500">
-              Error loading certificates.
-            </div>
-          )}
-          {certificates.map((cert, idx) => (
-            <CertificateCard key={cert.id} cert={cert} index={idx} />
-          ))}
-          {certificates.length === 0 && !isLoadingCerts && (
-            <div className="col-span-full py-20 text-center text-slate-500">
-              No certificates found matching your criteria.
-            </div>
-          )}
-        </div>
-
-        {/* Pagination */}
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
+      <ListingSection id="certs-list-h" title={t.certificates.heading}>
+        <ListingToolbar
+          id="cert"
+          search={{
+            label: t.certificates.searchLabel,
+            placeholder: t.certificates.searchPlaceholder,
+            value: searchInput,
+            onChange: setSearchInput,
+            clearLabel: t.list.clearSearch,
+          }}
+          sort={{
+            label: t.certificates.sortLabel,
+            value: sort,
+            onChange: setSort,
+            options: [
+              { value: 'newest', label: t.list.sortNewest },
+              { value: 'oldest', label: t.list.sortOldest },
+            ],
+          }}
+          filter={
+            issuerOptions.length > 2
+              ? {
+                  label: t.certificates.filterLabel,
+                  options: issuerOptions,
+                  value: selectedIssuer ?? '',
+                  onChange: (v) => handleIssuerFilter(v || null),
+                }
+              : null
+          }
+          resultLine={
+            !isLoadingCerts && (
+              <>
+                {t.certificates.count(certData?.count ?? 0)}
+                {searchQuery && t.list.forQuery(searchQuery)}
+                {selectedIssuer && t.list.tagged(selectedIssuer)}
+              </>
+            )
+          }
+          clear={filtersActive ? { label: t.list.clearFilters, onClick: clearFilters } : null}
         />
-      </div>
-    </div>
-  );
-}
+        <div className="mt-6 min-h-[40svh]">
+          {isLoadingCerts ? (
+            <>
+              <span className="sr-only" role="status">
+                {t.about.loading}
+              </span>
+              <ul aria-hidden="true" className={GRID}>
+                {Array.from({ length: ITEMS_PER_PAGE }, (_, i) => (
+                  <li key={i} className="flex flex-col items-start">
+                    <div className="aspect-[4/3] w-full rounded-lg bg-tile-frame motion-safe:animate-pulse" />
+                    <div className="mt-4 h-[1.2em] w-2/3 rounded-sm bg-tile-frame text-title" />
+                    <div className="mt-1 h-[1.4em] w-1/3 rounded-sm bg-tile-frame text-body" />
+                    <div className="mt-1 h-[1.3em] w-1/4 rounded-sm bg-tile-frame text-caption" />
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : isError && !certData ? (
+            <p className="text-body text-danger">{t.certificates.error}</p>
+          ) : certificates.length === 0 ? (
+            <p className="text-body text-tile-muted">{t.certificates.none}</p>
+          ) : (
+            <FlipGroup
+              flipKey={`${selectedIssuer ?? ''}|${searchQuery}|${sort}|${currentPage}`}
+              className={`${GRID} stagger-row`}
+            >
+              {certificates.map((cert, i) => (
+                <li key={cert.id} data-flip-id={cert.id} style={colVar(i, 3)}>
+                  <CertificateCard cert={cert} priority={i === 0} />
+                </li>
+              ))}
+            </FlipGroup>
+          )}
+        </div>
+        <div className="mt-stack">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+          />
+        </div>
+      </ListingSection>
 
-/**
- * The cards use `Reveal` (`m.*`), which needs a `LazyMotion` ancestor. This wrapper has no
- * state, so it never re-renders: LazyMotion hands out a new context value on every render,
- * and React would push that change into Markdown boundaries that are still hydrating
- * (React #421). The features load synchronously for the same reason.
- */
-export default function CertificatesPage() {
-  return (
-    <MotionScope features={motionFeatures}>
-      <CertificatesContent />
-    </MotionScope>
+      <ContactCta photo="desk" />
+    </div>
   );
 }

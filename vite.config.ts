@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from 'fs';
 import path from 'path';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 import { absoluteUrl, siteConfig } from './src/config/site';
 
 /**
@@ -69,7 +70,7 @@ const escapeHtml = (value: string) =>
 
 /**
  * Injects values from `src/config/site.ts` into `index.html`:
- * replaces `%SITE_*%` placeholders and adds the JSON-LD `Person` block.
+ * replaces `%SITE_*%` placeholders and (JSON-LD is per page: `<Seo jsonLd>`).
  */
 function siteConfigHtml(): Plugin {
   const replacements: Record<string, string> = {
@@ -80,37 +81,15 @@ function siteConfigHtml(): Plugin {
     SITE_URL: absoluteUrl('/'),
     SITE_OG_IMAGE: absoluteUrl(siteConfig.ogDefaultImage),
   };
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: siteConfig.name,
-    url: siteConfig.url,
-    jobTitle: siteConfig.jobTitle,
-    sameAs: [siteConfig.social.github, siteConfig.social.linkedin],
-    image: absoluteUrl(siteConfig.ogDefaultImage),
-    description: siteConfig.jsonLdDescription,
-  };
-
   return {
     name: 'site-config-html',
     transformIndexHtml: {
       order: 'pre',
-      handler(html) {
-        return {
-          html: html.replace(/%(SITE_[A-Z_]+)%/g, (match, key: string) => {
-            const value = replacements[key];
-            return value === undefined ? match : escapeHtml(value);
-          }),
-          tags: [
-            {
-              tag: 'script',
-              attrs: { type: 'application/ld+json' },
-              children: JSON.stringify(jsonLd, null, 2).replace(/</g, '\\u003c'),
-              injectTo: 'head',
-            },
-          ],
-        };
-      },
+      handler: (html) =>
+        html.replace(/%(SITE_[A-Z_]+)%/g, (match, key: string) => {
+          const value = replacements[key];
+          return value === undefined ? match : escapeHtml(value);
+        }),
     },
   };
 }
@@ -142,13 +121,25 @@ const VENDOR_CHUNKS: [name: string, pattern: RegExp][] = [
     'markdown',
     /[\\/]node_modules[\\/](react-markdown|remark-[^/\\]+|rehype-[^/\\]+|unified|micromark[^/\\]*|mdast-[^/\\]+|hast-[^/\\]+|unist-[^/\\]+|vfile[^/\\]*|property-information|space-separated-tokens|comma-separated-tokens|decode-named-character-reference|character-entities[^/\\]*|devlop|bail|trough|is-plain-obj|zwitch|longest-streak|ccount|trim-lines|html-url-attributes|estree-util-[^/\\]+|style-to-[^/\\]+|inline-style-parser)[\\/]/,
   ],
-  // framer-motion is deliberately not pinned to a chunk: LazyMotion (components/motion/features)
-  // loads its animation features through a dynamic import, which a manual chunk would defeat.
   ['supabase', /[\\/]node_modules[\\/](@supabase|tslib|ws|iceberg-js)[\\/]/],
   ['router-query', /[\\/]node_modules[\\/](react-router|@tanstack)[\\/]/],
-  ['react', /[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/],
+  // use-sync-external-store: shared by recharts and zustand (R3F); without the pin it lands in
+  // `charts` and the 3D card loads the whole charts chunk for it.
+  ['react', /[\\/]node_modules[\\/](react|react-dom|scheduler|use-sync-external-store)[\\/]/],
   // `cn()` is used by most components; keep it out of heavy chunks Rollup might hoist it into.
   ['classnames', /[\\/]node_modules[\\/](tailwind-merge|clsx)[\\/]/],
+];
+
+const CHUNK_ORDER = [
+  'react',
+  'classnames',
+  'router-query',
+  'supabase',
+  'markdown',
+  'markdown-gfm',
+  'highlight',
+  'charts',
+  'three',
 ];
 
 export function vendorChunk(id: string): string | undefined {
@@ -191,11 +182,22 @@ export default defineConfig(async () => {
     preview: {
       headers: vercelSiteHeaders(),
     },
-    plugins: [react(), siteConfigHtml(), previewRouting(), ...analyze],
+    plugins: [react(), tailwindcss(), siteConfigHtml(), previewRouting(), ...analyze],
     define: appVersionDefine(),
     build: {
-      rollupOptions: {
-        output: { manualChunks: vendorChunk },
+      rolldownOptions: {
+        output: {
+          // One group per chunk name, earlier = higher priority. Rolldown pulls a group's
+          // dependencies into it; listing the always-loaded chunks (react, …) first keeps
+          // e.g. React out of `charts`, so heavy chunks never get dragged into the entry.
+          codeSplitting: {
+            groups: CHUNK_ORDER.map((name, i) => ({
+              name,
+              priority: CHUNK_ORDER.length - i,
+              test: (id: string) => vendorChunk(id) === name,
+            })),
+          },
+        },
       },
     },
     resolve: {

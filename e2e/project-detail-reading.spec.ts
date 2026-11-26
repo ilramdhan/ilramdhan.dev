@@ -25,7 +25,7 @@ test('header: breadcrumb, tag links, title, lead and reading time above the gall
     '/projects?tag=web',
   );
 
-  const gallery = page.getByRole('group', { name: 'Screenshot of Project 2' });
+  const gallery = page.getByRole('img', { name: 'Screenshot of Project 2' }).first();
   expect((await h1.boundingBox())!.y).toBeLessThan((await gallery.boundingBox())!.y);
   await page.waitForLoadState('networkidle');
   expect(consoleErrors).toEqual([]);
@@ -48,8 +48,10 @@ test('table of contents links jump to the headings', async ({ page }, testInfo) 
   const desktop = testInfo.project.name === 'desktop';
   const toc = desktop
     ? page.getByRole('complementary').getByRole('navigation', { name: 'On this page' })
-    : page.locator('details').getByRole('navigation', { name: 'On this page' });
-  if (!desktop) await page.locator('details > summary', { hasText: 'On this page' }).click();
+    : page
+        .getByRole('region', { name: 'On this page' })
+        .getByRole('navigation', { name: 'On this page' });
+  if (!desktop) await page.getByRole('button', { name: 'On this page' }).click();
   await expect(toc.getByRole('link')).toHaveText([
     'Overview',
     'Architecture',

@@ -23,7 +23,11 @@ test.describe('reduced motion', () => {
       const transformed = await page.evaluate(
         () =>
           Array.from(document.querySelectorAll<HTMLElement>('main *, section *')).filter(
-            (el) => el.style.transform && el.style.transform !== 'none',
+            // The segmented control's thumb is a selection position (static), not a reveal.
+            (el) =>
+              !el.hasAttribute('data-segmented-thumb') &&
+              el.style.transform &&
+              el.style.transform !== 'none',
           ).length,
       );
       expect(transformed).toBe(0);
@@ -35,7 +39,8 @@ test('reveal animates once: scrolling away and back does not re-hide items', asy
   await page.goto('/certificates');
   const card = page.getByText('Cert 1', { exact: true }).first();
   await card.scrollIntoViewIfNeeded();
-  const wrapper = card.locator('xpath=ancestor::div[contains(@class,"rounded-xl")][1]');
+  // R6c: the group is a stagger-row item (translate only, never a fade): it stays fully opaque and ends at rest.
+  const wrapper = card.locator('xpath=ancestor::li[1]');
   await expect(wrapper).toHaveCSS('opacity', '1');
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
@@ -44,80 +49,77 @@ test('reveal animates once: scrolling away and back does not re-hide items', asy
   await expect(wrapper).toHaveCSS('opacity', '1');
 });
 
-// T-31 (#46): static H1 with the owner's name + accessible rotating role line.
+// T-31 (#46): static H1 with the owner's name. R5 (PLAN §3): one lead line replaces the rotating roles; the hero
+// enters once (h1 rises without fading so the LCP text paints at once, the rest rises 120ms later).
 test.describe('hero', () => {
-  test('H1 is the static owner name; roles are announced once and rotate visually', async ({
+  test('H1 is the static owner name; one lead line; the entrance plays once and settles', async ({
     page,
   }) => {
     await page.goto('/');
     const h1 = page.getByRole('heading', { level: 1 });
     await expect(h1).toHaveText('Dummy Dev');
-    const roles = page.getByTestId('hero-roles');
-    await expect(roles).toContainText('Web Developer, Backend Engineer, Open Source');
-    // Visual rotation is hidden from assistive tech; the H1 text never changes.
-    await expect(page.getByTestId('hero-role-current')).toHaveAttribute('aria-hidden', 'true');
-    const first = await page.getByTestId('hero-role-current').textContent();
+    const hero = page.locator('section[data-enter]');
+    await expect(hero.getByText('I build fast web apps.')).toBeVisible();
+    expect(await h1.evaluate((el) => getComputedStyle(el).animationName)).toBe('rise-still');
+    // Ends at rest, fully visible, and stays there.
     await expect
-      .poll(() => page.getByTestId('hero-role-current').textContent(), { timeout: 8000 })
-      .not.toBe(first);
-    await expect(h1).toHaveText('Dummy Dev');
+      .poll(
+        () =>
+          h1.evaluate((el) => el.getAnimations().filter((a) => a.playState === 'running').length),
+        { timeout: 4000 },
+      )
+      .toBe(0);
+    const before = await h1.boundingBox();
+    await page.waitForTimeout(1500);
+    expect(await h1.boundingBox()).toEqual(before);
+    await expect(hero.getByText('I build fast web apps.')).toHaveCSS('opacity', '1');
   });
 
-  test('rotating line causes no layout shift', async ({ page }) => {
+  test('the contact pill and the projects chevron link lead where they say', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Dummy Dev');
-    await page.waitForTimeout(800); // let the hero entrance finish
-    const before = await page.getByTestId('hero-roles').boundingBox();
-    await page.waitForTimeout(3200);
-    const after = await page.getByTestId('hero-roles').boundingBox();
-    expect(after).toEqual(before);
+    const hero = page.locator('section[data-enter]');
+    await expect(hero.getByRole('link', { name: 'Contact Me' })).toHaveAttribute(
+      'href',
+      '/contact',
+    );
+    await expect(hero.getByRole('link', { name: 'View Projects' })).toHaveAttribute(
+      'href',
+      '/projects',
+    );
   });
 
-  test.describe('reduced motion', () => {
-    test.use({ contextOptions: { reducedMotion: 'reduce' } });
-    test('role line is static (first role only)', async ({ page }) => {
-      await page.goto('/');
-      const current = page.getByTestId('hero-role-current');
-      await expect(current).toHaveText('Web Developer');
-      await page.waitForTimeout(3200);
-      await expect(current).toHaveText('Web Developer');
-    });
+  test('statement fills on scroll; services and tools render as plain text', async ({ page }) => {
+    await page.goto('/');
+    const fill = page.locator('[data-scroll-fill]');
+    await expect(fill).toHaveText('This is dummy bio.');
+    await expect(page.getByRole('heading', { level: 3, name: 'Service 1' })).toBeAttached();
+    const tools = page.getByRole('region', { name: 'Technology names' });
+    await tools.scrollIntoViewIfNeeded();
+    // The loop runs once near the viewport, with the visitor's pause control (WCAG 2.2.2).
+    await expect(tools).toHaveAttribute('data-animated', 'true');
+    await page.getByRole('button', { name: 'Pause the moving list' }).click();
+    await expect(tools).toHaveAttribute('data-held', 'true');
   });
 });
 
 // T-32 (#47): micro-interactions.
 test.describe('micro-interactions', () => {
-  test('navbar compacts after scrolling 16px', async ({ page }) => {
+  // R4: the compacting bar became the brand-name collapse (past 48px), the sliding pill became aria-current text.
+  test('nav brand name collapses after scrolling past 48px', async ({ page }) => {
     await page.goto('/');
-    const nav = page.locator('nav').first();
-    await expect(nav).toHaveAttribute('data-scrolled', 'false');
+    const nav = page.locator('header[data-site-nav]');
+    await expect(nav).not.toHaveAttribute('data-brand-collapsed');
     await page.evaluate(() => window.scrollTo({ top: 200, behavior: 'instant' }));
-    await expect(nav).toHaveAttribute('data-scrolled', 'true');
+    await expect(nav).toHaveAttribute('data-brand-collapsed', '');
   });
 
-  test('active nav pill follows the current route', async ({ page }) => {
+  test('the current section is marked in the nav', async ({ page }) => {
     await page.goto('/about');
-    await expect(page.locator('nav a[href="/about"]').first()).toHaveAttribute(
-      'aria-current',
-      'page',
-    );
-    // The sliding pill only exists in the desktop (lg+) navbar.
-    if ((page.viewportSize()?.width ?? 0) >= 1024) {
-      await expect(page.getByTestId('nav-pill')).toBeAttached();
-    }
-  });
-
-  test('carousel: keyboard and dot buttons change the slide', async ({ page }) => {
-    await page.goto('/');
-    const carousel = page.getByRole('group', { name: /Screenshot of/ }).first();
-    await expect(carousel).toBeVisible();
-    const img = carousel.locator('img').first();
-    const before = await img.getAttribute('alt');
-    await carousel.focus();
-    await page.keyboard.press('ArrowRight');
-    await expect(carousel.locator('img').first()).not.toHaveAttribute('alt', before ?? '');
-    await carousel.getByRole('button', { name: /Show image 1 of/ }).click({ force: true });
-    await expect(carousel.locator('img').first()).toHaveAttribute('alt', before ?? '');
+    const menu = page.getByRole('button', { name: 'Open menu' });
+    if (await menu.isVisible()) await menu.click();
+    await expect(
+      page.getByRole('link', { name: 'About', exact: true }).locator('visible=true').first(),
+    ).toHaveAttribute('aria-current', 'page');
   });
 
   test.describe('reduced motion', () => {
@@ -137,15 +139,254 @@ test.describe('micro-interactions', () => {
         expect(Math.round(scale * 100)).toBe(now);
       }
     });
-    test('theme toggle switches instantly without a view transition', async ({ page }) => {
+    test('theme switch is instant: no cross-fade transition under reduced motion', async ({
+      page,
+    }) => {
       await page.goto('/');
       const html = page.locator('html');
       await expect(html).toHaveClass(/dark/);
-      await page
-        .getByRole('button', { name: /Switch to light theme/ })
-        .first()
-        .click();
+      const menu = page.locator('[data-theme-toggle]');
+      if (await menu.isVisible()) {
+        await menu.click();
+        await page.getByRole('menuitemradio', { name: 'Light' }).click();
+      } else {
+        await page.getByRole('button', { name: 'Open menu' }).click();
+        await page.getByRole('radio', { name: 'Light' }).click();
+      }
       await expect(html).not.toHaveClass(/dark/);
     });
   });
+});
+
+// R3: the GSAP / Lenis motion layer on the dev-only /__motion preview (VITE_MOTION_PREVIEW=1 in the e2e build).
+test.describe('motion layer', () => {
+  const engineRequests = (page: import('@playwright/test').Page) => {
+    const urls: string[] = [];
+    page.on('request', (r) => {
+      if (
+        /\/assets\/(gsap|ScrollTrigger|lenis|SplitText|Flip(?!Group)|[\w-]*-engine)[\w-]*\.js$/.test(
+          r.url(),
+        )
+      )
+        urls.push(r.url());
+    });
+    return urls;
+  };
+
+  test('GSAP and Lenis are never in the served HTML (initial module graph)', async ({
+    request,
+  }) => {
+    for (const path of ['/', '/about', '/id/']) {
+      const html = await (await request.get(path)).text();
+      expect(html).toMatch(/<script type="module"/);
+      expect(html).not.toMatch(
+        /assets\/(gsap|lenis|ScrollTrigger|SplitText|Flip(?!Group)|[\w-]*-engine)[\w-]*\.js/,
+      );
+    }
+  });
+
+  test('h2 splits into masked words and ends fully shown; count-up lands on the final value', async ({
+    page,
+  }) => {
+    await page.goto('/__motion');
+    const h2 = page.locator('#mp-specs-h');
+    await h2.scrollIntoViewIfNeeded();
+    await expect(h2).toHaveAttribute('data-revealed', '', { timeout: 8000 });
+    await expect(h2).toHaveAttribute('aria-label', 'Words rise into place as you arrive');
+    expect(await h2.locator('.str-word').count()).toBeGreaterThan(3);
+    await expect(h2).toHaveText('Words rise into place as you arrive');
+    const value = page.locator('#mp-specs dd').first();
+    await expect(value.locator('[aria-hidden="true"]')).toHaveText('42', { timeout: 5000 });
+    await expect(value.locator('.sr-only')).toHaveText('42');
+  });
+
+  test('parallax scrubs the standalone photo; clickable photos get the soft light', async ({
+    page,
+  }) => {
+    await page.goto('/__motion');
+    const layer = page.locator('[data-parallax]');
+    await layer.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() => layer.evaluate((el) => getComputedStyle(el).transform), { timeout: 8000 })
+      .not.toBe('none');
+    // Never zoom and parallax on one photo.
+    await expect(page.locator('[data-parallax]').locator('xpath=..')).not.toHaveAttribute(
+      'data-media-interactive',
+      '',
+    );
+    await expect(page.locator('[data-media-interactive] [data-soft-light="photo"]')).toHaveCount(2);
+  });
+
+  test('marquee loops, has a working Pause/Play control, and copies are hidden from AT', async ({
+    page,
+  }) => {
+    await page.goto('/__motion');
+    const region = page.getByRole('region', { name: 'Tools' });
+    await region.scrollIntoViewIfNeeded();
+    await expect(region).toHaveAttribute('data-animated', 'true', { timeout: 8000 });
+    await expect(region.locator('[data-marquee-copy]').first()).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    );
+    const pause = page.getByRole('button', { name: 'Pause the moving list' });
+    await pause.click();
+    await expect(region).toHaveAttribute('data-held', 'true');
+    await expect(page.getByRole('button', { name: 'Play the moving list' })).toBeVisible();
+  });
+
+  test('FlipGroup glides kept items when the filter changes', async ({ page }) => {
+    await page.goto('/__motion');
+    const group = page.getByTestId('mp-flip');
+    await group.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(300); // let the Flip engine load near the viewport
+    await page.getByRole('button', { name: 'Even' }).click();
+    await expect(group.locator('li')).toHaveCount(4);
+    await expect(group).toHaveAttribute('data-flip-runs', '1');
+  });
+
+  test('rows stagger by translate only (never opacity)', async ({ page }) => {
+    await page.goto('/__motion');
+    await page.locator('#mp-rows').scrollIntoViewIfNeeded();
+    await expect
+      .poll(() =>
+        page.evaluate(() => document.getAnimations().map((a) => (a as CSSAnimation).animationName)),
+      )
+      .toContain('mo-row-in');
+    const opacity = await page
+      .locator('.stagger-row > *')
+      .evaluateAll((els) => els.map((el) => getComputedStyle(el).opacity));
+    expect(opacity.every((o) => o === '1')).toBe(true);
+  });
+
+  test('a link between routes runs a view transition and morphs the shared photo', async ({
+    page,
+  }) => {
+    await page.goto('/__motion');
+    await page.evaluate(() => {
+      const w = window as unknown as { __vt: number };
+      w.__vt = 0;
+      const orig = document.startViewTransition.bind(document);
+      document.startViewTransition = ((arg: never) => {
+        w.__vt++;
+        return orig(arg);
+      }) as typeof document.startViewTransition;
+    });
+    await page.getByRole('link', { name: /Item alpha/ }).click();
+    await expect(page.getByRole('heading', { level: 1, name: 'Item alpha' })).toBeVisible();
+    expect(await page.evaluate(() => (window as unknown as { __vt: number }).__vt)).toBeGreaterThan(
+      0,
+    );
+  });
+
+  test('with Lenis on, Tab scrolls the focused control into view', async ({ page }) => {
+    await page.goto('/__motion');
+    await expect(page.locator('html')).toHaveClass(/has-lenis/, { timeout: 8000 });
+    // Tab through from the top (no programmatic scroll), as a keyboard visitor would.
+    await page.locator('body').focus();
+    for (let i = 0; i < 9; i++) {
+      await page.keyboard.press('Tab');
+      await page.waitForTimeout(350); // a Lenis tick must not drag the page back
+      await expect(page.locator(':focus')).toBeInViewport();
+    }
+  });
+
+  test.describe('reduced motion', () => {
+    test.use({ contextOptions: { reducedMotion: 'reduce' } });
+    test('nothing splits, counts, loops or loads an engine; marquee is one wrapped line', async ({
+      page,
+    }) => {
+      const urls = engineRequests(page);
+      await page.goto('/__motion');
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      await page.waitForTimeout(600);
+      await expect(page.locator('.str-word')).toHaveCount(0);
+      await expect(page.locator('[data-counting]')).toHaveCount(0);
+      await expect(page.getByRole('region', { name: 'Tools' })).not.toHaveAttribute(
+        'data-animated',
+        'true',
+      );
+      await expect(page.locator('[data-marquee-copy]').first()).toBeHidden();
+      await expect(page.getByRole('button', { name: /moving list/ })).toBeHidden();
+      await expect(page.locator('[data-inset="armed"]')).toHaveCount(0);
+      expect(await page.evaluate(() => document.documentElement.classList.contains('lenis'))).toBe(
+        false,
+      );
+      const running = await page.evaluate(
+        () => document.getAnimations().filter((a) => a.playState === 'running').length,
+      );
+      expect(running).toBe(0);
+      expect(urls).toEqual([]);
+    });
+  });
+});
+
+/**
+ * D12 + D13: every public page but /contact, legal and 404 closes on the shared photo CTA. The photo is decorative
+ * (aria-hidden, empty alt, lazy), never transformed under reduced motion, and the white heading keeps >= 4.5:1 over
+ * the brightest pixel the scrim lets through (photo opacity x white + (1 - opacity) x night ground).
+ */
+const luminance = (rgb: number[]) =>
+  rgb
+    .map((v) => {
+      const c = v / 255;
+      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+    })
+    .reduce((sum, c, i) => sum + c * [0.2126, 0.7152, 0.0722][i]!, 0);
+const contrast = (a: number[], b: number[]) => {
+  const [la, lb] = [luminance(a), luminance(b)];
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+};
+
+test.describe('photo CTA tiles (D12, D13)', () => {
+  test.use({ contextOptions: { reducedMotion: 'reduce' } });
+
+  for (const theme of ['light', 'dark'] as const) {
+    for (const path of [
+      '/',
+      '/about',
+      '/projects',
+      '/projects/project-1',
+      '/blog',
+      '/blog/blog-post-1',
+      '/certificates',
+    ]) {
+      test(`${path} (${theme}): decorative photo, still, heading AA over it`, async ({ page }) => {
+        await page.addInitScript((t) => localStorage.setItem('theme', t), theme);
+        await page.goto(path);
+        const cta = page.locator('main section[data-cta]');
+        await expect(cta).toHaveCount(1);
+        await cta.scrollIntoViewIfNeeded();
+        await expect(cta.getByRole('link').first()).toHaveAttribute('href', '/contact');
+        const r = await cta.evaluate((el) => {
+          const pic = el.querySelector<HTMLElement>('.cta-photo')!;
+          const img = pic.querySelector('img')!;
+          const rgb = (c: string) => (c.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+          return {
+            hidden: pic.getAttribute('aria-hidden') === 'true',
+            alt: img.getAttribute('alt'),
+            lazy: img.getAttribute('loading'),
+            transform: getComputedStyle(pic).transform,
+            opacity: Number(getComputedStyle(pic).opacity),
+            ground: rgb(getComputedStyle(el).backgroundColor),
+            ink: rgb(getComputedStyle(el.querySelector('h2')!).color),
+          };
+        });
+        expect(r.hidden).toBe(true);
+        expect(r.alt).toBe('');
+        expect(r.lazy).toBe('lazy');
+        expect(r.transform).toBe('none');
+        // Worst case: a pure white pixel in the photo, seen through the scrim.
+        const worst = r.ground.map((g) => r.opacity * 255 + (1 - r.opacity) * g);
+        expect(contrast(r.ink, worst)).toBeGreaterThanOrEqual(4.5);
+      });
+    }
+  }
+
+  for (const path of ['/contact', '/privacy', '/terms', '/nope']) {
+    test(`${path}: no CTA tile`, async ({ page }) => {
+      await page.goto(path);
+      await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
+      await expect(page.locator('section[data-cta]')).toHaveCount(0);
+    });
+  }
 });

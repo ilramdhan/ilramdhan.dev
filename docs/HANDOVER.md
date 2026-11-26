@@ -68,7 +68,7 @@ Dependabot: majors closed (handled in T-56), majors ignored in `.github/dependab
   - The DB also has tables NOT managed by this repo (`faq`, `tasks`, `bug_reports`, `chatbot_feedback`, `meeting_requests`, `message_logs`, `schedules`). Never touch them or their policies.
   - Read-only `execute_sql` inspection is OK. **Do not call `apply_migration`**: DDL confirmation can't be shown, so it gets cancelled. Write migrations in `supabase/migrations/`, make the frontend backward-compatible (works before and after), and give the owner the SQL to run in the Supabase SQL Editor.
   - After the owner runs it, verify and record the version: `insert into supabase_migrations.schema_migrations (version, name) values (...) on conflict do nothing`.
-  - Applied on prod so far: `20260101000000` (baseline, recorded only) and `20261010000000` (constraints/indexes/updated_at).
+  - Applied on prod so far: `20260101000000` (baseline, recorded only) `20261010000000` (constraints/indexes/updated_at) and `20261124000000` (I2 translations jsonb, run by owner 2026-11-24).
 - **External services** (Turnstile, Vercel deploy hook, Supabase webhooks, Resend/Telegram, Actions secrets, analytics, Sentry, uptime): implement behind env flags, disabled by default, and document the env vars/secrets in the PR + README/.env.example.
 - **Token economy:** read only the needed lines (`grep -n`, `sed -n`); pipe noisy output through `| tail`; use `--reporter=dot`; run targeted e2e locally (the full matrix runs in CI); poll CI at most every ~3 min; unsubscribe from PR webhook activity if your tool adds it; keep reports short.
 

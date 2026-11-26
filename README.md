@@ -4,7 +4,7 @@ Personal portfolio of **Ilham Ramadhan**: projects, blog, certificates, résumé
 
 **Live:** <https://ilramdhan.dev>
 
-> 🚧 **An improvement program is in progress.** See the [audit](docs/audit/AUDIT.md) for what's being fixed and the [plan](docs/PLAN.md) for the roadmap (security hardening, performance, SEO/prerendering, Indonesian + English, accessibility, motion polish).
+Design: an "Apple-clean" system of full-bleed tiles, one accent and a lazy GSAP + Lenis motion layer, documented in [`DESIGN.md`](DESIGN.md). Redesign history: [`docs/redesign/`](docs/redesign/STATE.md).
 
 ## Features
 
@@ -12,20 +12,23 @@ Personal portfolio of **Ilham Ramadhan**: projects, blog, certificates, résumé
 - **Admin dashboard** (`/admin`) — GitHub OAuth login, CRUD for all content, image/PDF uploads to Supabase Storage, contact-message inbox.
 - **Blog** — Markdown posts with tags, search and comments.
 - **Projects & certificates** — galleries, tag/issuer filters, pagination.
-- **Dark / light theme.**
+- **English + Indonesian** — EN at `/`, ID at `/id/*`, prerendered with hreflang and a per-locale sitemap; content translations edited in the dashboard.
+- **Light / Dark / Auto theme** (follows the OS by default, no flash).
 - **Interactive hero** — physics-based 3D lanyard card (React Three Fiber + Rapier).
 - **Coding activity** — Wakatime public stats and GitHub activity graph.
 
 ## Tech stack
 
-| Layer          | Tools                                                                                    |
-| -------------- | ---------------------------------------------------------------------------------------- |
-| UI             | React 18, TypeScript, Vite 5, Tailwind CSS 3 (+ typography), Framer Motion, Lucide icons |
-| Routing & data | React Router 6, TanStack Query 5, Supabase JS 2, Zod                                     |
-| 3D             | three.js, @react-three/fiber, drei, rapier, meshline                                     |
-| Content        | react-markdown, Recharts                                                                 |
-| Backend        | Supabase (Postgres + Row Level Security, Auth with GitHub OAuth, Storage)                |
-| Hosting        | Vercel (static SPA, no serverless functions)                                             |
+| Layer          | Tools                                                                                           |
+| -------------- | ----------------------------------------------------------------------------------------------- |
+| UI             | React 19, TypeScript 6, Vite 8, Tailwind CSS 4 (`@tailwindcss/vite` + typography), Lucide icons |
+| Motion         | GSAP 3 (ScrollTrigger, Flip) + Lenis, lazily loaded; CSS keyframes and View Transitions         |
+| Routing & data | React Router 8, TanStack Query 5, Supabase JS 2, Zod                                            |
+| i18n           | Typed EN/ID message dictionaries (`src/i18n`), `/id/*` routes                                   |
+| 3D             | three.js, @react-three/fiber 9, drei, rapier, meshline (hero card, desktop only)                |
+| Content        | react-markdown, Recharts                                                                        |
+| Backend        | Supabase (Postgres + Row Level Security, Auth with GitHub OAuth, Storage)                       |
+| Hosting        | Vercel (prerendered static pages + one function, `api/detail-page`)                             |
 
 Architecture notes: [`docs/architecture.md`](docs/architecture.md).
 
@@ -33,7 +36,7 @@ Architecture notes: [`docs/architecture.md`](docs/architecture.md).
 
 ### Prerequisites
 
-- Node.js 20 LTS or newer, npm
+- Node.js 22 LTS (as CI and Vercel), npm
 - Docker (for the local Supabase stack), or a hosted Supabase project (free tier is enough)
 
 ### Setup
@@ -95,6 +98,9 @@ After changing the schema, add a migration (`npx supabase@2.120.0 migration new 
 | `npm run lint:fix`     | ESLint with autofix                                               |
 | `npm run format`       | Format the repo with Prettier                                     |
 | `npm run format:check` | Check formatting (CI)                                             |
+| `npm test`             | Unit and component tests (Vitest)                                 |
+| `npm run size`         | Bundle budgets per route (after `npm run build`)                  |
+| `npm run test:e2e`     | Playwright end-to-end tests (mocked Supabase)                     |
 | `npm run db:start`     | Start local Supabase (Docker)                                     |
 | `npm run db:stop`      | Stop local Supabase                                               |
 | `npm run db:reset`     | Rebuild local DB from migrations + seed                           |
@@ -111,7 +117,11 @@ After changing the schema, add a migration (`npx supabase@2.120.0 migration new 
 │   ├── app/               # routes.tsx, providers.tsx, layouts/, error/, auth & theme contexts
 │   ├── pages/             # route components (+ admin/ tabs)
 │   ├── features/          # per domain: api.ts + queries.ts (profile, projects, blog, ...), hero-3d
+│   ├── components/tile/   # design-system partials (Tile, MediaFrame, SpecRow, PillButton, ...; see DESIGN.md)
+│   ├── components/motion/ # GSAP/Lenis motion engines (lazy) and their React wrappers
+│   ├── components/seo/    # <Seo>, head builder, JSON-LD builders, detail-page fallback
 │   ├── components/ui/     # shared UI primitives
+│   ├── i18n/              # locale routing helpers, typed en/id messages, translations
 │   ├── lib/               # Supabase client + helpers, typed errors, env validation, hooks, utils
 │   ├── config/site.ts     # site name, URL, usernames, WakaTime share URLs (single source)
 │   ├── styles/            # global.css
@@ -119,7 +129,8 @@ After changing the schema, add a migration (`npx supabase@2.120.0 migration new 
 │   └── test/              # test setup and helpers
 ├── supabase/              # CLI config, migrations, seed.sql (legacy/ = old SQL, do not run)
 ├── public/                # static assets (logos, 3D model, robots, sitemap)
-└── docs/                  # architecture, audit, plan
+├── api/                   # Vercel function: detail-page fallback for content newer than the deploy
+└── docs/                  # architecture, audit, plan, redesign ledger
 ```
 
 ## Deployment
@@ -134,6 +145,19 @@ Vercel builds with `npm run build` and serves `dist/` (`vercel.json`). Set `VITE
 - Without the Supabase env vars the build still succeeds as a plain SPA (no prerendering). With them set but the API unreachable, the build fails, so Vercel keeps the previous deployment.
 - `PRERENDER_MOCK=1` prerenders against the e2e fixture dataset (CI and `npm run build:e2e`).
 - New content before the next deploy: `/blog/:slug` and `/projects/:slug` URLs with no prerendered file are rewritten to the `api/detail-page` function (prerendered files are served first). It reads the published row from Supabase and returns the SPA shell with the same title/description/Open Graph tags as the prerendered page, so link previews work; unknown slugs still get `404.html` with status 404. The page body is not prerendered, so still set up the rebuild below.
+
+### Contact form spam check (optional, off by default)
+
+`/contact` can protect its form with [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/). Off until `VITE_TURNSTILE_SITE_KEY` is set: the form then inserts into `messages` with the anon key (RLS limits apply), exactly as before.
+
+| Variable                    | Where                         | Purpose                                                                                                                                                                   |
+| --------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `VITE_TURNSTILE_SITE_KEY`   | Vercel (build)                | Public site key. Set = the widget loads (only once the form is near the viewport, in the site theme and language) and the form posts to `api/contact`.                    |
+| `TURNSTILE_SECRET_KEY`      | Vercel (runtime, server-only) | `api/contact.ts` verifies the token at `challenges.cloudflare.com/turnstile/v0/siteverify`.                                                                               |
+| `SUPABASE_SERVICE_ROLE_KEY` | Vercel (runtime, server-only) | `api/contact.ts` inserts the validated message (same zod schema and size limits as the form). Never prefix with `VITE_`.                                                  |
+| `TURNSTILE_HOSTNAMES`       | Vercel (runtime, optional)    | Comma-separated production hostnames (e.g. `ilramdhan.dev,www.ilramdhan.dev`). Set = a token from any other hostname is rejected. The token's `action` must be `contact`. |
+
+Set the two server keys first, then the site key, then redeploy (the site key is inlined at build time). The CSP in `vercel.json` already allows `https://challenges.cloudflare.com`. Cloudflare's test keys (site `1x00000000000000000000AA` passes, `2x00000000000000000000AB` fails) work for previews.
 
 ### Rebuild on publish (optional, off by default)
 

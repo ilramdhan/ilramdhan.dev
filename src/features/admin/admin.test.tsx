@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { act, render, renderHook, screen, waitFor } from '@testing-library/react';
+import { act, render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { z } from 'zod';
+import type { FormSection } from './fields';
 
 const toast = vi.hoisted(() => ({ success: vi.fn(), error: vi.fn(), info: vi.fn() }));
 vi.mock('sonner', () => ({ toast }));
@@ -21,7 +22,7 @@ const { changedFields } = await import('./diff');
 const { defineResource } = await import('./resource');
 const { useCrudResource } = await import('./useCrudResource');
 const { ResourceForm } = await import('./ResourceForm');
-const { ResourceManager, RowButtons } = await import('./ResourceManager');
+const { ResourceManager } = await import('./ResourceManager');
 const f = await import('./fields');
 const { resolveUploads } = await import('./uploads');
 
@@ -266,6 +267,17 @@ describe('useCrudResource', () => {
     expect(client.getQueryData<Row[]>(['things', 'admin'])).toHaveLength(2);
   });
 
+  it('keeps stored translations when update is called without a translation', async () => {
+    const { resource, api } = makeResource();
+    const { Wrapper } = wrapper();
+    const { result } = renderHook(() => useCrudResource({ ...resource, translatable: ['title'] }), {
+      wrapper: Wrapper,
+    });
+    const row = { ...ROWS[0]!, translations: { id: { title: 'Halo' } } };
+    await act(() => result.current.update(row, { ...resource.toValues(row), title: 'Renamed' }));
+    expect(api.update).toHaveBeenCalledWith({ id: 1, title: 'Renamed' });
+  });
+
   it('surfaces create errors as a toast', async () => {
     const { resource, api } = makeResource();
     api.create.mockRejectedValue(new Error('duplicate key'));
@@ -281,6 +293,84 @@ describe('useCrudResource', () => {
 });
 
 describe('ResourceForm', () => {
+  const twoSchema = z.object({ title: f.requiredText(20), body: f.markdownText() });
+  const twoFields: FormSection<z.infer<typeof twoSchema>>[] = [
+    {
+      fields: [
+        { name: 'title', label: 'Title', kind: 'text' as const },
+        { name: 'body', label: 'Body', kind: 'markdown' as const, folder: 'blogs' },
+      ],
+    },
+  ];
+
+  it('switches to the EN tab and focuses the first invalid field on a failed save from ID', async () => {
+    const onSubmit = vi.fn();
+    render(
+      <ResourceForm
+        sections={twoFields}
+        schema={twoSchema}
+        defaultValues={{ title: '', body: '' }}
+        translatable={['title']}
+        onSubmit={onSubmit}
+        isPending={false}
+        submitLabel="Save"
+      />,
+    );
+    await userEvent.click(screen.getByRole('tab', { name: 'ID' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(screen.getByRole('tab', { selected: true })).toHaveAttribute(
+      'id',
+      expect.stringMatching(/-tab-en$/),
+    );
+    await waitFor(() => expect(screen.getByLabelText('Title')).toHaveFocus());
+    expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('gives each form its own tab ids', () => {
+    const props = {
+      sections: twoFields,
+      schema: twoSchema,
+      defaultValues: { title: '', body: '' },
+      translatable: ['title'],
+      onSubmit: vi.fn(),
+      isPending: false,
+      submitLabel: 'Save',
+    };
+    render(
+      <>
+        <ResourceForm {...props} />
+        <ResourceForm {...props} />
+      </>,
+    );
+    const ids = screen.getAllByRole('tab').map((t) => t.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it('keeps edits made while an image upload is pending', async () => {
+    let finish!: (v: { path: string; publicUrl: string }) => void;
+    uploadFile.mockReturnValue(new Promise((resolve) => (finish = resolve)));
+    render(
+      <ResourceForm
+        sections={twoFields}
+        schema={twoSchema}
+        defaultValues={{ title: '', body: '' }}
+        onSubmit={vi.fn()}
+        isPending={false}
+        submitLabel="Save"
+      />,
+    );
+    await userEvent.upload(
+      screen.getByLabelText('Insert image'),
+      new File(['x'], 'a.png', { type: 'image/png' }),
+    );
+    await userEvent.type(screen.getByLabelText('Title'), 'Typed');
+    finish({ path: 'blogs/a.webp', publicUrl: 'https://cdn/blogs/a.webp' });
+    await waitFor(() =>
+      expect(screen.getByLabelText<HTMLTextAreaElement>('Body').value).toContain('cdn'),
+    );
+    expect(screen.getByLabelText('Title')).toHaveValue('Typed');
+  });
+
   it('inserts an uploaded image into a markdown field at the cursor', async () => {
     uploadFile.mockResolvedValue({ path: 'blogs/a.webp', publicUrl: 'https://cdn/blogs/a.webp' });
     const mdSchema = z.object({ body: f.markdownText() });
@@ -397,12 +487,15 @@ describe('ResourceForm', () => {
     );
     await userEvent.click(screen.getByRole('button', { name: 'Remove image' }));
     await userEvent.click(screen.getByRole('button', { name: 'Update' }));
-    expect(onSubmit).toHaveBeenCalledWith({
-      title: 'First',
-      site_url: 'https://a.example',
-      tags: 'x',
-      images: { urls: [], files: [] },
-    });
+    expect(onSubmit).toHaveBeenCalledWith(
+      {
+        title: 'First',
+        site_url: 'https://a.example',
+        tags: 'x',
+        images: { urls: [], files: [] },
+      },
+      {},
+    );
   });
 });
 
@@ -416,13 +509,7 @@ describe('ResourceManager', () => {
           resource={resource}
           heading="Things"
           addLabel="Add Thing"
-          listClassName="list"
-          renderRow={(row, actions) => (
-            <div key={row.id}>
-              {row.title}
-              <RowButtons actions={actions} label={row.title} />
-            </div>
-          )}
+          row={(row) => ({ title: row.title })}
         />
       </Wrapper>,
     );
@@ -441,7 +528,15 @@ describe('ResourceManager', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(screen.queryByLabelText('Title')).toBeNull();
 
+    // Delete asks first (F12 B4): cancelling sends nothing, confirming deletes.
     await userEvent.click(screen.getByRole('button', { name: 'Delete Second' }));
+    expect(screen.getByRole('dialog', { name: 'Delete “Second”?' })).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(api.remove).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: 'Delete Second' }));
+    await userEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Delete' }),
+    );
     await waitFor(() => expect(api.remove).toHaveBeenCalledWith(2));
   });
 });

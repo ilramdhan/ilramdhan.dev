@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Dialog } from '@/components/ui/Dialog';
 import { Img } from '@/components/ui/Img';
+import { useT } from '@/i18n';
 import { useSwipe } from './use-swipe';
 
 export interface LightboxProps {
@@ -26,7 +27,7 @@ function useScrollLock() {
 }
 
 const NAV_BUTTON =
-  'rounded-full bg-white/10 p-2 text-white hover:bg-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white';
+  'grid size-11 place-items-center rounded-full bg-on-dark/10 text-on-dark transition-[background-color,scale] duration-200 ease-apple hover:bg-on-dark/20 active:scale-[0.96] motion-reduce:transition-none focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-on-dark';
 
 /**
  * Full-screen image viewer (T-52), loaded lazily by `ProjectGallery` on first open: the
@@ -34,6 +35,7 @@ const NAV_BUTTON =
  * image's alt text. Esc, focus trap and focus return come from `Dialog`.
  */
 export default function Lightbox({ images, alt, index, onIndexChange, onClose }: LightboxProps) {
+  const t = useT();
   const count = images.length;
   const go = (delta: number) => onIndexChange((index + delta + count) % count);
   const swipe = useSwipe((direction) => {
@@ -52,24 +54,28 @@ export default function Lightbox({ images, alt, index, onIndexChange, onClose }:
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [count, index, onIndexChange]);
 
-  const label = count > 1 ? `${alt}: image ${index + 1} of ${count}` : alt;
+  const label = count > 1 ? t.gallery.imageOf(alt, index + 1, count) : alt;
 
   return (
     <Dialog
       open
       onClose={onClose}
-      title="Image viewer"
-      overlayClassName="fixed inset-0 z-[60] bg-slate-950/95 motion-safe:animate-page-in"
-      className="flex h-full w-full flex-col text-white outline-none"
+      title={t.gallery.viewer}
+      overlayClassName="fixed inset-0 z-60 bg-night/95 motion-safe:animate-page-in"
+      className="flex h-full w-full flex-col text-on-dark outline-hidden"
     >
       <div className="flex items-center justify-between gap-4 p-3 sm:p-4">
-        <p className="text-sm tabular-nums text-white/80" aria-live="polite" aria-atomic="true">
+        <p
+          className="text-sm tabular-nums text-on-dark-muted"
+          aria-live="polite"
+          aria-atomic="true"
+        >
           {index + 1} / {count}
         </p>
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close image viewer"
+          aria-label={t.gallery.closeViewer}
           className={NAV_BUTTON}
         >
           <X className="h-5 w-5" aria-hidden="true" />
@@ -98,7 +104,7 @@ export default function Lightbox({ images, alt, index, onIndexChange, onClose }:
               <button
                 type="button"
                 onClick={() => go(-1)}
-                aria-label="Previous image"
+                aria-label={t.gallery.prev}
                 className={`${NAV_BUTTON} absolute left-2 top-1/2 -translate-y-1/2 sm:left-4`}
               >
                 <ChevronLeft className="h-6 w-6" aria-hidden="true" />
@@ -106,7 +112,7 @@ export default function Lightbox({ images, alt, index, onIndexChange, onClose }:
               <button
                 type="button"
                 onClick={() => go(1)}
-                aria-label="Next image"
+                aria-label={t.gallery.next}
                 className={`${NAV_BUTTON} absolute right-2 top-1/2 -translate-y-1/2 sm:right-4`}
               >
                 <ChevronRight className="h-6 w-6" aria-hidden="true" />
@@ -114,7 +120,7 @@ export default function Lightbox({ images, alt, index, onIndexChange, onClose }:
             </>
           )}
         </div>
-        <figcaption className="break-words p-3 text-center text-sm text-white/80 sm:p-4">
+        <figcaption className="wrap-break-word p-3 text-center text-sm text-on-dark-muted sm:p-4">
           {label}
         </figcaption>
       </figure>

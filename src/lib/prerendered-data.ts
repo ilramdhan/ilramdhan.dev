@@ -25,12 +25,22 @@ export function seedPrerenderedData(client: QueryClient, doc: Document = documen
   const text = doc.getElementById(PRERENDERED_DATA_ID)?.textContent;
   if (!text) return;
   try {
-    for (const { key, data, updatedAt } of JSON.parse(text) as PrerenderedQuery[]) {
+    const seeded = JSON.parse(text) as PrerenderedQuery[];
+    for (const { key, data, updatedAt } of seeded) {
       client.setQueryData(key, data, { updatedAt });
     }
     // Refreshed once the page has loaded and the browser is idle, so the refresh never
-    // competes with hydration for the main thread.
-    const refresh = () => void client.invalidateQueries();
+    // competes with hydration for the main thread. Only queries still holding the build's
+    // data: a seed older than staleTime was already refetched on mount (or is in flight,
+    // hence `cancelRefetch: false`), and fetching it again would double the requests.
+    const refresh = () => {
+      for (const { key, updatedAt } of seeded) {
+        const state = client.getQueryState(key);
+        if (state && state.dataUpdatedAt === updatedAt) {
+          void client.invalidateQueries({ queryKey: key, exact: true }, { cancelRefetch: false });
+        }
+      }
+    };
     const whenIdle = () =>
       typeof requestIdleCallback === 'function'
         ? requestIdleCallback(refresh, { timeout: 3000 })

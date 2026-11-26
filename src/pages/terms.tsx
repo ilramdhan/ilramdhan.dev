@@ -1,43 +1,55 @@
 import React from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router';
-import { ArrowLeft } from 'lucide-react';
 import { Markdown } from '@/components/ui/Markdown';
 import { profileQueries } from '@/features/profile/queries';
-import { Navbar } from '@/app/layouts/Navbar';
 import { formatDate } from '@/lib/date';
 import { Seo } from '@/components/seo/Seo';
+import { Link } from '@/i18n/Link';
+import { useLocale, useT } from '@/i18n';
+
+// Same classes as privacy.tsx (inlined to keep tile partials out of the entry chunk).
+const section = 'w-full scroll-mt-(--nav-h) bg-white text-ink min-h-svh py-section';
+const wrap = 'wrap flex flex-col items-center text-center';
 
 export default function TermsPage() {
-  const { data: profile, isLoading } = useQuery(profileQueries.detail());
+  const t = useT();
+  const locale = useLocale();
+  const { data: profile, isLoading } = useQuery(profileQueries.detail(locale));
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center">
-        <p>Loading terms...</p>
-      </div>
+      <section className={section}>
+        <div className={wrap}>
+          <p>{t.legal.loadingTerms}</p>
+        </div>
+      </section>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white transition-colors duration-300">
-      <Seo title="Terms of Service" description="Terms of Service for ilramdhan.dev." />
-      <Navbar />
-      <div className="pt-32 pb-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Link
-          to="/"
-          className="flex items-center gap-2 text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-white mb-8 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" /> Back to Home
-        </Link>
-        <h1 className="text-4xl font-bold mb-8">Terms of Service</h1>
-        <div className="prose prose-slate dark:prose-invert max-w-none">
-          <p className="text-sm text-slate-500 mb-8">Last updated: {formatDate(new Date())}</p>
-          <Markdown components={{ h1: 'h2' }}>
-            {profile?.terms_content || 'No terms content available.'}
-          </Markdown>
+    <>
+      <Seo title={t.seo.terms} description={t.seo.termsDescription} />
+      <section aria-labelledby="legal-h" className={section}>
+        <div className={wrap}>
+          <h1 id="legal-h" className="text-tile max-w-[20ch] text-tile-ink">
+            {t.seo.terms}
+          </h1>
+          <Link
+            to="/"
+            className="mt-6 inline-flex min-h-11 items-center gap-1.5 text-body text-action underline-offset-4 hover:underline"
+          >
+            {t.common.backToHome}
+          </Link>
+          <article className="mx-auto mt-10 w-full max-w-[680px] text-left">
+            <p className="mb-8 text-caption text-ink-muted">
+              {t.legal.lastUpdated(formatDate(new Date(), locale))}
+            </p>
+            <Markdown components={{ h1: 'h2' }}>
+              {profile?.terms_content || t.legal.noTerms}
+            </Markdown>
+          </article>
         </div>
-      </div>
-    </div>
+      </section>
+    </>
   );
 }

@@ -38,10 +38,10 @@ test('client-side navigation updates canonical, description and og:url (no stale
   await page.goto('/');
   const homeDesc = await page.locator('meta[name="description"]').getAttribute('content');
   await expect(page.locator('h1')).toHaveCount(1);
-  const menu = page.locator('nav button:has(svg.lucide-menu)');
+  const menu = page.getByRole('button', { name: 'Open menu' });
   if (await menu.isVisible()) await menu.click();
   await page
-    .locator('nav')
+    .getByRole('navigation', { name: 'Main' })
     .getByRole('link', { name: 'Projects', exact: true })
     .locator('visible=true')
     .first()
@@ -77,7 +77,7 @@ test('nav items, logo and footer links are anchors with href', async ({ page }) 
     '/projects',
     '/blog',
     '/certificates',
-    '/#contact',
+    '/contact',
     '/privacy',
     '/terms',
   ]) {
@@ -116,10 +116,9 @@ test('middle-click on a card opens a new tab; whole card is clickable', async ({
   await popup.waitForURL(/\/blog\/blog-post-1$/);
   await popup.close();
 
-  // Clicking the card body (not the title text) navigates via the stretched link.
-  const article = page.locator('article', { has: link }).first();
-  const box = (await article.boundingBox())!;
-  await article.click({ position: { x: box.width - 12, y: box.height - 12 } });
+  // Clicking the card body (not the title text) navigates: the whole card is the link.
+  const box = (await link.boundingBox())!;
+  await link.click({ position: { x: box.width - 12, y: box.height - 12 } });
   await expect(page).toHaveURL(/\/blog\/blog-post-1$/);
 });
 
@@ -183,4 +182,105 @@ test('favicon links and apple-touch-icon resolve', async ({ page, request }) => 
     expect((await request.get(href)).ok(), href).toBe(true);
   }
   await expect(page.locator('meta[name="theme-color"]')).toHaveCount(2);
+});
+
+// R8: both locales, heading order, hreflang reciprocity, JSON-LD, sitemap.
+const SITE = 'https://ilramdhan.dev';
+interface LD {
+  '@context': string;
+  '@type': string;
+  inLanguage?: string;
+  url?: string;
+}
+const LOCALIZED = PUBLIC_ROUTES.filter((r) => r.path !== '/login');
+const idPath = (p: string) => (p === '/' ? '/id' : `/id${p}`);
+
+for (const route of LOCALIZED) {
+  for (const [locale, path] of [
+    ['en', route.path],
+    ['id', idPath(route.path)],
+  ] as const) {
+    test(`${locale} ${route.path}: one h1, no skipped heading level, hreflang reciprocal, json-ld inLanguage`, async ({
+      page,
+      request,
+    }) => {
+      await page.goto(path);
+      await expect(page.locator('h1')).toHaveCount(1);
+      const levels = await page
+        .locator('h1,h2,h3,h4,h5,h6')
+        .evaluateAll((els) => els.map((e) => Number(e.tagName[1])));
+      levels.forEach((l, i) => i > 0 && expect(l - levels[i - 1]!).toBeLessThanOrEqual(1));
+      await expect(page.locator('html')).toHaveAttribute('lang', locale);
+
+      const alts = await page
+        .locator('link[rel="alternate"][hreflang]')
+        .evaluateAll((els) => els.map((e) => [e.getAttribute('hreflang'), e.getAttribute('href')]));
+      const map: Record<string, string> = Object.fromEntries(alts as [string, string][]);
+      expect(map).toEqual({
+        en: `${SITE}${route.path}`,
+        id: `${SITE}${idPath(route.path)}`,
+        'x-default': `${SITE}${route.path}`,
+      });
+      expect(await canonical(page)).toBe(`${SITE}${path}`);
+      // Reciprocal: the twin lists the same set.
+      const twin = locale === 'en' ? map.id : map.en;
+      const html = await (await request.get(new URL(twin as string).pathname)).text();
+      for (const [hl, href] of alts) {
+        expect(html).toContain(`hreflang="${hl}" href="${href}"`);
+      }
+
+      const lds = await page
+        .locator('script[type="application/ld+json"]')
+        .evaluateAll((els) => els.map((e) => JSON.parse(e.textContent ?? '{}') as LD));
+      for (const ld of lds) {
+        expect(ld['@context']).toBe('https://schema.org');
+        if (ld.inLanguage) expect(ld.inLanguage).toBe(locale);
+        if (ld.url) expect(ld.url).toMatch(/^https:\/\//);
+      }
+      const types = lds.map((l) => l['@type']);
+      if (route.path === '/') expect(types).toEqual(['Person', 'WebSite']);
+      if (route.path.startsWith('/blog/')) expect(types).toEqual(['BlogPosting', 'BreadcrumbList']);
+      if (route.path.startsWith('/projects/'))
+        expect(types[0]).toMatch(/^(CreativeWork|SoftwareSourceCode)$/);
+      if (route.path === '/contact') expect(types).toEqual(['ContactPage']);
+    });
+  }
+}
+
+test('sitemap lists both locales with alternates, no admin/login/dev routes; robots points to it', async ({
+  request,
+}) => {
+  const xml = await (await request.get('/sitemap.xml')).text();
+  const locs = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
+  for (const r of LOCALIZED) {
+    expect(locs).toContain(`${SITE}${r.path === '/' ? '/' : r.path}`);
+    expect(locs).toContain(`${SITE}${idPath(r.path)}`);
+  }
+  expect(locs.some((l) => /\/(admin|login|__motion)/.test(l!))).toBe(false);
+  expect(xml).toContain('hreflang="x-default"');
+  expect(await (await request.get('/robots.txt')).text()).toContain(`Sitemap: ${SITE}/sitemap.xml`);
+});
+
+test('og image is 1200x630 with alt, og:locale + alternate match the page locale', async ({
+  page,
+  request,
+}) => {
+  for (const [path, locale, alt] of [
+    ['/about', 'en_US', 'id_ID'],
+    ['/id/about', 'id_ID', 'en_US'],
+  ] as const) {
+    await page.goto(path);
+    const content = (sel: string) => page.locator(sel).getAttribute('content');
+    expect(await content('meta[property="og:image"]')).toBe(`${SITE}/og.png`);
+    expect(await content('meta[property="og:image:width"]')).toBe('1200');
+    expect(await content('meta[property="og:image:height"]')).toBe('630');
+    expect(await content('meta[property="og:image:alt"]')).toBeTruthy();
+    expect(await content('meta[name="twitter:image:alt"]')).toBe(
+      await content('meta[property="og:image:alt"]'),
+    );
+    expect(await content('meta[property="og:locale"]')).toBe(locale);
+    expect(await content('meta[property="og:locale:alternate"]')).toBe(alt);
+    expect(await content('meta[name="twitter:card"]')).toBe('summary_large_image');
+  }
+  expect((await request.get('/og.png')).status()).toBe(200);
 });

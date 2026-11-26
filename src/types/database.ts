@@ -54,6 +54,7 @@ export type Database = {
       };
       blogs: {
         Row: {
+          translations: Json;
           content: string | null;
           created_at: string;
           excerpt: string | null;
@@ -69,6 +70,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          translations?: Json;
           content?: string | null;
           created_at?: string;
           excerpt?: string | null;
@@ -83,6 +85,7 @@ export type Database = {
           user_id?: string | null;
         };
         Update: {
+          translations?: Json;
           content?: string | null;
           created_at?: string;
           excerpt?: string | null;
@@ -100,6 +103,7 @@ export type Database = {
       };
       certificates: {
         Row: {
+          translations: Json;
           created_at: string;
           credential_url: string | null;
           description: string | null;
@@ -114,6 +118,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          translations?: Json;
           created_at?: string;
           credential_url?: string | null;
           description?: string | null;
@@ -127,6 +132,7 @@ export type Database = {
           user_id?: string | null;
         };
         Update: {
+          translations?: Json;
           created_at?: string;
           credential_url?: string | null;
           description?: string | null;
@@ -171,6 +177,7 @@ export type Database = {
       };
       profile: {
         Row: {
+          translations: Json;
           address: string | null;
           avatar_url: string | null;
           badge_text: string | null;
@@ -190,6 +197,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          translations?: Json;
           address?: string | null;
           avatar_url?: string | null;
           badge_text?: string | null;
@@ -208,6 +216,7 @@ export type Database = {
           updated_at?: string | null;
         };
         Update: {
+          translations?: Json;
           address?: string | null;
           avatar_url?: string | null;
           badge_text?: string | null;
@@ -229,6 +238,7 @@ export type Database = {
       };
       projects: {
         Row: {
+          translations: Json;
           content: string | null;
           created_at: string;
           demo_url: string | null;
@@ -246,6 +256,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          translations?: Json;
           content?: string | null;
           created_at?: string;
           demo_url?: string | null;
@@ -262,6 +273,7 @@ export type Database = {
           user_id?: string | null;
         };
         Update: {
+          translations?: Json;
           content?: string | null;
           created_at?: string;
           demo_url?: string | null;
@@ -281,6 +293,7 @@ export type Database = {
       };
       resume: {
         Row: {
+          translations: Json;
           description: string | null;
           gpa: string | null;
           id: number;
@@ -294,6 +307,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          translations?: Json;
           description?: string | null;
           gpa?: string | null;
           id?: number;
@@ -306,6 +320,7 @@ export type Database = {
           user_id?: string | null;
         };
         Update: {
+          translations?: Json;
           description?: string | null;
           gpa?: string | null;
           id?: number;
@@ -321,6 +336,7 @@ export type Database = {
       };
       services: {
         Row: {
+          translations: Json;
           description: string | null;
           icon_name: string | null;
           id: number;
@@ -330,6 +346,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          translations?: Json;
           description?: string | null;
           icon_name?: string | null;
           id?: number;
@@ -338,6 +355,7 @@ export type Database = {
           user_id?: string | null;
         };
         Update: {
+          translations?: Json;
           description?: string | null;
           icon_name?: string | null;
           id?: number;

@@ -81,7 +81,7 @@ for (const path of ['/this-page-does-not-exist', '/blog/unknown-slug', '/project
   test(`unknown URL ${path} shows the 404 page with navbar and footer`, async ({ page }) => {
     await page.goto(path);
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(/page not found/i);
-    await expect(page.getByRole('navigation')).toBeVisible();
+    await expect(page.locator('header[data-site-nav]')).toBeVisible();
     await expect(page.getByTestId('app-version')).toBeVisible();
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
   });
@@ -101,13 +101,12 @@ test('hero: copy and CTA never overlap the 3D card, which only renders from lg',
     return;
   }
   if (testInfo.project.name === 'reduced-motion') {
-    // T-25: no WebGL under reduced motion; a static poster fills the card's box instead.
-    await expect(page.getByTestId('hero-card-poster')).toBeVisible();
+    // D2: no WebGL and no poster under reduced motion; the hero is the centred copy alone.
     await expect(canvas).toHaveCount(0);
-  } else {
-    await expect(canvas.first()).toBeAttached();
+    return;
   }
-  const cta = page.getByRole('link', { name: /view projects/i });
+  await expect(canvas.first()).toBeAttached();
+  const cta = page.locator('section[data-enter]').getByRole('link', { name: /view projects/i });
   const box = async (l: import('@playwright/test').Locator) => (await l.boundingBox())!;
   const [h, c] = [await box(h1), await box(cta)];
   // The card is parked in the right half (x offset 2.5 of a >= 10 wide canvas).

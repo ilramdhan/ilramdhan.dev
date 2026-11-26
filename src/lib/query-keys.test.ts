@@ -23,26 +23,27 @@ describe('query key factories', () => {
     expect(projectKeys.list({ page: 2, limit: 6 })).toEqual([
       'projects',
       'list',
-      { page: 2, limit: 6, tag: null, query: '', sort: 'newest' },
+      { locale: 'en', page: 2, limit: 6, tag: null, query: '', sort: 'newest' },
     ]);
     expect(projectKeys.list({ page: 1, limit: 6, query: 'x', sort: 'oldest' })).toEqual([
       'projects',
       'list',
-      { page: 1, limit: 6, tag: null, query: 'x', sort: 'oldest' },
+      { locale: 'en', page: 1, limit: 6, tag: null, query: 'x', sort: 'oldest' },
     ]);
-    expect(projectKeys.detail('my-slug')).toEqual(['projects', 'detail', 'my-slug']);
+    expect(projectKeys.detail('my-slug')).toEqual(['projects', 'detail', 'my-slug', 'en']);
+    expect(projectKeys.detail('my-slug', 'id')).toEqual(['projects', 'detail', 'my-slug', 'id']);
     expect(blogKeys.list({ page: 1, limit: 6, tag: 'react', query: 'x' })).toEqual([
       'blogs',
       'list',
-      { page: 1, limit: 6, tag: 'react', query: 'x', sort: 'newest' },
+      { locale: 'en', page: 1, limit: 6, tag: 'react', query: 'x', sort: 'newest' },
     ]);
     expect(blogKeys.comments(7)).toEqual(['blogs', 'comments', 7]);
     expect(certificateKeys.list({ page: 1, limit: 9 })).toEqual([
       'certificates',
       'list',
-      { page: 1, limit: 9, issuer: null, query: '' },
+      { locale: 'en', page: 1, limit: 9, issuer: null, query: '', sort: 'newest' },
     ]);
-    expect(resumeKeys.list('education')).toEqual(['resume', 'list', 'education']);
+    expect(resumeKeys.list('education')).toEqual(['resume', 'list', 'education', 'en']);
   });
 
   it('nest every key under its feature root so `invalidateQueries(all)` reaches it', () => {

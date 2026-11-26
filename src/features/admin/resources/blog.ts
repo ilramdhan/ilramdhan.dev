@@ -23,6 +23,7 @@ export const blogResource = defineResource({
   invalidate: blogKeys.all,
   api: { create: api.addBlog, update: api.updateBlog, remove: api.deleteBlog },
   schema,
+  translatable: ['title', 'excerpt', 'content'],
   sections: [
     {
       fields: [

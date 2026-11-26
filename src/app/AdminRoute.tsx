@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Navigate } from 'react-router';
 import { toast } from 'sonner';
 import { useIsAdmin } from '@/lib/useIsAdmin';
@@ -12,10 +12,14 @@ export const NOT_ADMIN_MESSAGE = 'This account is not allowed to access the dash
  * The database enforces the same rule through RLS; this is the UI half.
  */
 export function AdminRoute({ children }: { children: ReactNode }) {
-  const { user, isLoading: authLoading, logout } = useAuth();
+  const { user, isLoading: authLoading, logout, loggedOut } = useAuth();
   const { isAdmin, isDenied, isLoading, isError, retry } = useIsAdmin();
 
   const signedOut = useRef(false);
+  // Denied stays denied: signing out clears `user` while the redirect home may still be a pending (view)
+  // transition, and that re-render must not fall through to the anonymous branch (/login). Latched during render.
+  const [denied, setDenied] = useState(false);
+  if (isDenied && !denied) setDenied(true);
 
   useEffect(() => {
     if (!isDenied || signedOut.current) return;
@@ -24,22 +28,30 @@ export function AdminRoute({ children }: { children: ReactNode }) {
     void logout();
   }, [isDenied, logout]);
 
+  if (isDenied || denied) return <Navigate to="/" replace />;
   if (authLoading || isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return (
+      <div
+        role="status"
+        className="flex min-h-svh items-center justify-center text-body text-ink-muted"
+      >
+        Loading...
+      </div>
+    );
   }
-  if (!user) return <Navigate to="/login" replace />;
-  if (isDenied) return <Navigate to="/" replace />;
+  // A deliberate logout lands on the home page (F12 B1); any other missing session goes to the login.
+  if (!user) return <Navigate to={loggedOut ? '/' : '/login'} replace />;
   if (isError || !isAdmin) {
     return (
       <div
         role="alert"
-        className="min-h-screen flex flex-col items-center justify-center gap-4 text-slate-700 dark:text-slate-300"
+        className="flex min-h-svh flex-col items-center justify-center gap-4 text-body text-ink"
       >
         <p>Couldn&apos;t verify admin access.</p>
         <button
           type="button"
           onClick={retry}
-          className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium"
+          className="inline-flex min-h-11 items-center rounded-full bg-tile-pill px-[22px] text-body text-tile-pill-ink transition-colors hover:bg-tile-pill-hover"
         >
           Try again
         </button>
