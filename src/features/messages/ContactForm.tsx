@@ -10,8 +10,8 @@ import type { ContactState } from './contact-validation';
 
 const COOLDOWN_SECONDS = 60;
 
-// D10: Cloudflare Turnstile + server verify (api/contact.ts), only when the build has a site key. Unset (default):
-// no widget, no script, the form inserts with the anon key exactly as before (the widget code is tree-shaken out).
+// D10: Cloudflare Turnstile + server verify (api/contact.ts) when the build has a site key. Without one: no widget,
+// the anon-key insert (keeps a deploy without the env working until 20261127000000 removes anon inserts).
 // This form only lives on the lazy /contact route; Cloudflare's api.js loads once the form nears the viewport.
 const SITE_KEY = (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined) || '';
 const TOKEN_FIELD = 'cf-turnstile-response';
@@ -56,7 +56,7 @@ export function ContactForm() {
 
   const addMessageMutation = useMutation({
     mutationFn: async ({ m, form }: { m: MessageInsert; form: FormData }) =>
-      SITE_KEY ? sendVerified(form) : (await import('./api')).addMessage(m),
+      SITE_KEY ? sendVerified('/api/contact', form) : (await import('./api')).addMessage(m),
     // Success toast/state: the call-level `onSuccess` in `handleSubmit`. No admin-inbox invalidation: the admin tab
     // refetches on mount/focus anyway, and the query keys would pull a shared chunk into this route.
     onError: (error) => {
@@ -182,7 +182,9 @@ export function ContactForm() {
         />
       ))}
 
-      {SITE_KEY ? <Turnstile siteKey={SITE_KEY} locale={locale} resetRef={resetCaptcha} /> : null}
+      {SITE_KEY ? (
+        <Turnstile siteKey={SITE_KEY} action="contact" locale={locale} resetRef={resetCaptcha} />
+      ) : null}
 
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
         <button

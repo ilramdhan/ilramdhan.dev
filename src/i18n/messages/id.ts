@@ -257,7 +257,7 @@ export const id: Messages = {
     posting: 'Mengirim…',
     wait: (n) => `Tunggu ${n} dtk`,
     waitToast: (n) => `Mohon tunggu ${n} detik sebelum berkomentar lagi.`,
-    added: 'Komentar ditambahkan!',
+    added: 'Terima kasih! Komentar Anda akan tampil setelah disetujui.',
     addFailed: (reason) => `Gagal menambahkan komentar: ${reason}`,
     loadingComments: 'Memuat komentar…',
     noComments: 'Belum ada komentar. Jadilah yang pertama berbagi pendapat!',

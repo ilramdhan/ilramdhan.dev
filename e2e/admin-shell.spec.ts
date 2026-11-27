@@ -54,6 +54,7 @@ test.describe('dashboard shell', () => {
     ['Projects', 'Manage Projects'],
     ['Blog', 'Manage Articles'],
     ['Messages', 'Inbox (1)'],
+    ['Comments', 'Comments (1 pending)'],
     ['Certificates', 'Certificates'],
     ['Tech Stack', 'Tech Stack'],
     ['Overview', 'General Settings'],

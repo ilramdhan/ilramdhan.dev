@@ -37,10 +37,13 @@ function loadTurnstile(): Promise<TurnstileApi> {
  */
 export default function Turnstile({
   siteKey,
+  action,
   locale,
   resetRef,
 }: {
   siteKey: string;
+  /** Checked by the server (api/contact.ts, api/comment.ts): a token is only good for its own form. */
+  action: 'contact' | 'comment';
   locale: Locale;
   resetRef: { current: (() => void) | null };
 }) {
@@ -60,7 +63,7 @@ export default function Turnstile({
           api = t;
           id = t.render(el, {
             sitekey: siteKey,
-            action: 'contact',
+            action,
             theme,
             language: locale,
             size: 'flexible',
@@ -76,15 +79,15 @@ export default function Turnstile({
       if (api && id) api.remove(id);
       resetRef.current = null;
     };
-  }, [siteKey, theme, locale, resetRef]);
+  }, [siteKey, action, theme, locale, resetRef]);
 
   return <div ref={ref} className="min-h-[65px] w-full" data-turnstile="" />;
 }
 
-/** Turnstile mode (D10): posts the form (fields, honeypot, token) to the verifying function; throws the HTTP status on failure. */
-// eslint-disable-next-line react-refresh/only-export-components -- one module, tree-shaken out when the flag is off
-export async function sendVerified(form: FormData): Promise<{ success: true }> {
-  const res = await fetch('/api/contact', {
+/** Posts a form (fields, honeypot, token) to its verifying function; throws the HTTP status on failure. */
+// eslint-disable-next-line react-refresh/only-export-components -- one module with the widget it pairs with
+export async function sendVerified(url: string, form: FormData): Promise<{ success: true }> {
+  const res = await fetch(url, {
     method: 'POST',
     body: new URLSearchParams(form as unknown as Record<string, string>),
   });

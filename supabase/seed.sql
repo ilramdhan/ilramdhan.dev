@@ -149,7 +149,7 @@ from generate_series(1, 5) as i;
 insert into public.messages (name, email, message, is_read) values
   ('Visitor', 'v@example.com', 'Hello there', false);
 
-insert into public.blog_comments (blog_id, name, content)
-select id, 'Reader', 'Nice post'
+insert into public.blog_comments (blog_id, name, content, approved)
+select id, 'Reader', 'Nice post', true
 from public.blogs
 where slug = 'blog-post-1';

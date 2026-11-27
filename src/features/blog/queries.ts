@@ -27,6 +27,7 @@ export const blogKeys = {
   detail: (slug: string, locale: Locale = 'en') => [...blogKeys.details(), slug, locale] as const,
   admin: () => [...blogKeys.all, 'admin'] as const,
   comments: (blogId: number | undefined) => [...blogKeys.all, 'comments', blogId] as const,
+  adminComments: () => [...blogKeys.all, 'comments', 'admin'] as const,
   adjacent: (
     id: number | undefined,
     publishedAt: string | null | undefined,
@@ -60,6 +61,11 @@ export const blogQueries = {
     queryOptions({
       queryKey: blogKeys.admin(),
       queryFn: async () => (await api()).getAdminBlogs(),
+    }),
+  adminComments: () =>
+    queryOptions({
+      queryKey: blogKeys.adminComments(),
+      queryFn: async () => (await api()).getAdminComments(),
     }),
   comments: (blogId: number | undefined) =>
     queryOptions({

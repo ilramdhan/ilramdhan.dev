@@ -261,7 +261,7 @@ export const en = {
     posting: 'Posting…',
     wait: (n: number) => `Wait ${n}s`,
     waitToast: (n: number) => `Please wait ${n}s before posting again.`,
-    added: 'Comment added!',
+    added: 'Thanks! Your comment will appear once it’s approved.',
     addFailed: (reason: string) => `Failed to add comment: ${reason}`,
     loadingComments: 'Loading comments…',
     noComments: 'No comments yet. Be the first to share your thoughts!',

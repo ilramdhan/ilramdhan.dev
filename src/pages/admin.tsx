@@ -5,6 +5,7 @@ import { ServicesTab } from '@/pages/admin/ServicesTab';
 import { ProjectsTab } from '@/pages/admin/ProjectsTab';
 import { BlogTab } from '@/pages/admin/BlogTab';
 import { MessagesTab } from '@/pages/admin/MessagesTab';
+import { CommentsTab } from '@/pages/admin/CommentsTab';
 import { CertificatesTab } from '@/pages/admin/CertificatesTab';
 import { TechStackTab } from '@/pages/admin/TechStackTab';
 import { AdminLayout, type AdminNavItem } from '@/pages/admin/AdminLayout';
@@ -44,6 +45,11 @@ const ADMIN_NAV: AdminNavItem[] = [
     id: 'messages',
     label: 'Messages',
     Tab: MessagesTab,
+  },
+  {
+    id: 'comments',
+    label: 'Comments',
+    Tab: CommentsTab,
   },
   {
     id: 'certificates',
