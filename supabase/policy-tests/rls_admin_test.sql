@@ -23,7 +23,8 @@ insert into public.services (user_id, title) values ('00000000-0000-4000-8000-00
 insert into public.certificates (user_id, title) values ('00000000-0000-4000-8000-00000000000a', 'C1');
 insert into public.tech_stack (user_id, name) values ('00000000-0000-4000-8000-00000000000a', 'T1');
 insert into public.messages (name, email, message) values ('Visitor', 'v@example.test', 'Hello');
-insert into public.blog_comments (blog_id, name, content) select id, 'Reader', 'Nice' from public.blogs where slug = 'published';
+insert into public.blog_comments (blog_id, name, content, approved) select id, 'Reader', 'Nice', true from public.blogs where slug = 'published';
+insert into public.blog_comments (blog_id, name, content) select id, 'Pending', 'Wait' from public.blogs where slug = 'published';
 
 -- ---------------------------------------------------------------------------
 -- Production drift is gone, unrelated objects untouched
@@ -50,13 +51,13 @@ select tests.ok((select count(*) from public.resume) = 1, 'anon: resume is publi
 select tests.ok((select count(*) from public.services) = 1, 'anon: services are public');
 select tests.ok((select count(*) from public.certificates) = 1, 'anon: certificates are public');
 select tests.ok((select count(*) from public.tech_stack) = 1, 'anon: tech_stack is public');
-select tests.ok((select count(*) from public.blog_comments) = 1, 'anon: comments are public');
+select tests.ok((select array_agg(name) from public.blog_comments) = array['Reader'], 'anon: only approved comments are public');
 select tests.ok((select array_agg(slug) from public.blogs) = array['published'], 'anon: only published blogs are visible');
 select tests.ok((select count(*) from public.messages) = 0, 'anon: cannot read messages');
 select tests.denied($$select * from public.admin_users$$, 'anon: cannot read admin_users');
 
-select tests.ok(tests.affected($$insert into public.messages (name, email, message) values ('A', 'a@example.test', 'hi')$$) = 1, 'anon: can send a message');
-select tests.ok(tests.affected($$insert into public.blog_comments (blog_id, name, content) select 1, 'A', 'hi'$$) = 1, 'anon: can comment');
+select tests.denied($$insert into public.messages (name, email, message) values ('A', 'a@example.test', 'hi')$$, 'anon: cannot insert messages (only api/contact via service role)');
+select tests.denied($$insert into public.blog_comments (blog_id, name, content) select 1, 'A', 'hi'$$, 'anon: cannot insert comments (only api/comment via service role)');
 
 select tests.denied($$insert into public.projects (title) values ('x')$$, 'anon: cannot insert projects');
 select tests.denied($$insert into public.blogs (title, published_at) values ('x', now())$$, 'anon: cannot insert blogs');
@@ -77,6 +78,8 @@ select tests.ok(public.is_admin() = false, 'non-admin: is_admin() is false');
 select tests.ok((select count(*) from public.admin_users) = 0, 'non-admin: sees no admin_users rows');
 select tests.ok((select count(*) from public.messages) = 0, 'non-admin: cannot read messages');
 select tests.ok((select array_agg(slug) from public.blogs) = array['published'], 'non-admin: drafts are hidden');
+select tests.ok((select count(*) from public.blog_comments) = 1, 'non-admin: pending comments are hidden');
+select tests.denied($$insert into public.blog_comments (blog_id, name, content) select 1, 'A', 'hi'$$, 'non-admin: cannot insert comments');
 select tests.ok(tests.affected($$update public.messages set is_read = true$$) = 0, 'non-admin: cannot update messages');
 select tests.ok(tests.affected($$delete from public.messages$$) = 0, 'non-admin: cannot delete messages');
 select tests.ok(tests.affected($$update public.blog_comments set content = 'x'$$) = 0, 'non-admin: cannot update comments');
@@ -103,9 +106,11 @@ select tests.claims('00000000-0000-4000-8000-00000000000a');
 
 select tests.ok(public.is_admin() = true, 'admin: is_admin() is true');
 select tests.ok((select count(*) from public.admin_users) = 1, 'admin: sees its own allowlist row');
-select tests.ok((select count(*) from public.messages) = 2, 'admin: reads messages');
+select tests.ok((select count(*) from public.messages) = 1, 'admin: reads messages');
+select tests.ok((select count(*) from public.blog_comments) = 2, 'admin: sees pending comments');
+select tests.ok(tests.affected($$update public.blog_comments set approved = true where name = 'Pending'$$) = 1, 'admin: approves comments');
 select tests.ok((select count(*) from public.blogs) = 3, 'admin: sees drafts and scheduled posts');
-select tests.ok(tests.affected($$update public.messages set is_read = true$$) = 2, 'admin: updates messages');
+select tests.ok(tests.affected($$update public.messages set is_read = true$$) = 1, 'admin: updates messages');
 select tests.ok(tests.affected($$update public.profile set display_name = 'Owner 2'$$) = 1, 'admin: updates profile');
 select tests.ok(tests.affected($$update public.blog_comments set content = 'edited'$$) = 2, 'admin: moderates comments');
 
@@ -129,8 +134,8 @@ select tests.ok(tests.affected($$delete from public.resume where title = 'R2!'$$
 select tests.ok(tests.affected($$delete from public.services where title = 'S2!'$$) = 1, 'admin: deletes services');
 select tests.ok(tests.affected($$delete from public.certificates where title = 'C2!'$$) = 1, 'admin: deletes certificates');
 select tests.ok(tests.affected($$delete from public.tech_stack where name = 'T2!'$$) = 1, 'admin: deletes tech_stack');
-select tests.ok(tests.affected($$delete from public.blog_comments where name = 'A'$$) = 1, 'admin: deletes comments');
-select tests.ok(tests.affected($$delete from public.messages where name = 'A'$$) = 1, 'admin: deletes messages');
+select tests.ok(tests.affected($$delete from public.blog_comments where name = 'Pending'$$) = 1, 'admin: deletes comments');
+select tests.ok(tests.affected($$delete from public.messages where name = 'Visitor'$$) = 1, 'admin: deletes messages');
 
 -- ---------------------------------------------------------------------------
 -- Removing the owner from the allowlist revokes everything immediately

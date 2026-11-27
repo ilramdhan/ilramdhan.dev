@@ -1,4 +1,5 @@
 import type { Page } from '@playwright/test';
+import { handleComment } from '../api/comment';
 import { handleContact } from '../api/contact';
 import { expect, test } from './fixtures/test';
 
@@ -28,13 +29,13 @@ const FAKE_API_JS = `
 
 type Inserted = Record<string, string>;
 
-async function mockTurnstile(page: Page, secret: string) {
+async function mockTurnstile(page: Page, secret: string, fn: 'contact' | 'comment' = 'contact') {
   const inserted: Inserted[] = [];
   await page.route('https://challenges.cloudflare.com/turnstile/v0/api.js*', (route) =>
     route.fulfill({ contentType: 'text/javascript', body: FAKE_API_JS }),
   );
-  await page.route('**/api/contact', async (route, request) => {
-    const req = new Request('http://local/api/contact', {
+  await page.route(`**/api/${fn}`, async (route, request) => {
+    const req = new Request(`http://local/api/${fn}`, {
       method: request.method(),
       headers: request.headers(),
       body: request.postData() ?? '',
@@ -44,13 +45,13 @@ async function mockTurnstile(page: Page, secret: string) {
         // Cloudflare's test secrets: 1x… always passes, 2x… always fails.
         const sent = new URLSearchParams(init?.body as string);
         return Promise.resolve(
-          Response.json({ success: sent.get('secret') === PASS_SECRET, action: 'contact' }),
+          Response.json({ success: sent.get('secret') === PASS_SECRET, action: fn }),
         );
       }
       inserted.push(JSON.parse(init?.body as string) as Inserted);
       return Promise.resolve(new Response(null, { status: 201 }));
     }) as typeof fetch;
-    const res = await handleContact(
+    const res = await (fn === 'contact' ? handleContact : handleComment)(
       req,
       {
         TURNSTILE_SECRET_KEY: secret,
@@ -217,4 +218,30 @@ test('every Contact link points to /contact (nav, hero pill, project CTA), local
   await expect(
     page.locator('section[data-enter]').getByRole('link', { name: 'Hubungi Saya' }),
   ).toHaveAttribute('href', '/id/contact');
+});
+
+test('blog comment: widget with the comment action, posts to /api/comment, held for moderation', async ({
+  page,
+  supabase,
+}) => {
+  const inserted = await mockTurnstile(page, PASS_SECRET, 'comment');
+  await page.goto('/blog/blog-post-1');
+  const form = page.locator('form', { has: page.getByRole('textbox', { name: 'Comment' }) });
+  // The widget loads once the form nears the viewport (far down on mobile).
+  await form.scrollIntoViewIfNeeded();
+  await form.getByLabel('Name').fill('E2E Reader');
+  await form.getByRole('textbox', { name: 'Comment' }).fill('Great read!');
+  await expect(form.locator('[data-turnstile] input')).toBeAttached();
+  const sent = page.waitForResponse((r) => r.url().endsWith('/api/comment'));
+  await form.getByRole('button', { name: 'Post Comment' }).click();
+  expect((await sent).status()).toBe(200);
+  await expect(page.getByText('Your comment will appear once it’s approved.')).toBeVisible();
+  expect(inserted).toEqual([{ blog_id: 1, name: 'E2E Reader', content: 'Great read!' }]);
+  // No anon-key insert, and the new comment isn't shown before approval.
+  expect(
+    supabase.requests.some(
+      (r) => r.method === 'POST' && r.path.startsWith('/rest/v1/blog_comments'),
+    ),
+  ).toBe(false);
+  await expect(page.getByText('Great read!', { exact: true })).toHaveCount(0);
 });

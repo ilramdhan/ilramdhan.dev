@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback, useId, useMemo } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useParams } from 'react-router';
 import { Send } from 'lucide-react';
 import { toast } from 'sonner';
@@ -7,8 +7,8 @@ import { ContactCta } from '@/components/tile/ContactCta';
 import { Link } from '@/i18n/Link';
 import { Markdown } from '@/components/ui/Markdown';
 import NotFoundPage from '@/pages/not-found';
-import { addComment as addCommentAPI } from '@/features/blog/api';
-import { blogKeys, blogQueries } from '@/features/blog/queries';
+import Turnstile, { sendVerified } from '@/features/messages/Turnstile';
+import { blogQueries } from '@/features/blog/queries';
 import { isNotFoundError } from '@/lib/errors';
 import { Seo } from '@/components/seo/Seo';
 import { MediaFrame } from '@/components/tile/MediaFrame';
@@ -30,13 +30,15 @@ import { DetailHeader } from '@/features/article/DetailHeader';
 import { MoreSection } from '@/features/article/MoreSection';
 
 const COMMENT_COOLDOWN = 30;
+// With a site key, comments post to api/comment.ts (Turnstile verify + insert, held for moderation); without one,
+// the anon-key insert (until 20261127000000 removes anon inserts).
+const SITE_KEY = (import.meta.env.VITE_TURNSTILE_SITE_KEY as string | undefined) || '';
 
 export default function BlogDetailPage() {
   const { slug } = useParams<{ slug: string }>();
   const t = useT();
   const locale = useLocale();
   const lp = useLocalePath();
-  const queryClient = useQueryClient();
 
   const {
     data: blog,
@@ -58,17 +60,24 @@ export default function BlogDetailPage() {
   const nameId = useId();
   const commentId = useId();
 
+  const resetCaptcha = useRef<(() => void) | null>(null);
   const { mutate: addComment, isPending: isAddingComment } = useMutation({
-    mutationFn: addCommentAPI,
+    mutationFn: async (form: FormData) =>
+      SITE_KEY
+        ? sendVerified('/api/comment', form)
+        : (await import('@/features/blog/api')).addComment(form),
     onSuccess: () => {
+      resetCaptcha.current?.();
+      // Held for moderation: nothing new to show yet, so no refetch.
       toast.success(t.post.added);
-      void queryClient.invalidateQueries({ queryKey: blogKeys.comments(blog?.id) });
       setCommentName('');
       setCommentText('');
       startCooldown();
     },
     onError: (error) => {
-      toast.error(t.post.addFailed(error.message));
+      // Any server answer may have spent the single-use token: fetch a fresh one.
+      resetCaptcha.current?.();
+      toast.error(error.message === '403' ? t.contact.captcha : t.post.addFailed(error.message));
     },
   });
 
@@ -127,8 +136,9 @@ export default function BlogDetailPage() {
   const cover = blog.images?.[0];
   const gallery = blog.images?.slice(1) ?? [];
 
-  const handleCommentSubmit = (e: React.FormEvent) => {
+  const handleCommentSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const form = new FormData(e.currentTarget);
     // Honeypot
     if (commentHoneypot) return;
     if (cooldown > 0) {
@@ -137,7 +147,11 @@ export default function BlogDetailPage() {
     }
     if (!commentName.trim() || !commentText.trim() || !blog.id) return;
 
-    addComment({ postId: blog.id, name: commentName, text: commentText });
+    if (SITE_KEY && !form.get('cf-turnstile-response')) {
+      toast.error(t.contact.captcha);
+      return;
+    }
+    addComment(form);
   };
 
   const input =
@@ -248,6 +262,7 @@ export default function BlogDetailPage() {
             onSubmit={handleCommentSubmit}
             className="relative space-y-4 rounded-lg bg-parchment p-6"
           >
+            <input type="hidden" name="blog_id" value={blog.id} />
             {/* Honeypot */}
             <div
               className="pointer-events-none absolute opacity-0"
@@ -256,6 +271,7 @@ export default function BlogDetailPage() {
             >
               <input
                 type="text"
+                name="website"
                 value={commentHoneypot}
                 onChange={(e) => setCommentHoneypot(e.target.value)}
                 tabIndex={-1}
@@ -268,6 +284,7 @@ export default function BlogDetailPage() {
               </label>
               <input
                 id={nameId}
+                name="name"
                 type="text"
                 value={commentName}
                 onChange={(e) => setCommentName(e.target.value)}
@@ -284,6 +301,7 @@ export default function BlogDetailPage() {
               </label>
               <textarea
                 id={commentId}
+                name="content"
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
                 className={`${input} py-3`}
@@ -293,6 +311,14 @@ export default function BlogDetailPage() {
                 required
               />
             </div>
+            {SITE_KEY ? (
+              <Turnstile
+                siteKey={SITE_KEY}
+                action="comment"
+                locale={locale}
+                resetRef={resetCaptcha}
+              />
+            ) : null}
             <button
               type="submit"
               disabled={isAddingComment || cooldown > 0}

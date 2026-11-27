@@ -269,21 +269,50 @@ export async function getComments(blogId: number): Promise<Comment[]> {
     await supabase
       .from('blog_comments')
       .select(COMMENT_COLUMNS)
+      // RLS hides pending comments from visitors. ponytail: no `approved` filter so this works before the
+      // migration; a signed-in admin also sees pending ones here. Add `.eq('approved', true)` once it's applied.
       .eq('blog_id', blogId)
       .order('created_at', { ascending: true }),
   );
 }
 
-export async function addComment({
-  postId,
-  name,
-  text,
-}: {
-  postId: number;
-  name: string;
-  text: string;
-}): Promise<{ success: true }> {
+/** Moderation queue: every comment (pending first), with its post's title (RLS: admins see unapproved rows). */
+export const ADMIN_COMMENT_COLUMNS = 'id,name,content,created_at,approved,blogs(title,slug)';
+export type AdminComment = Comment & {
+  approved: boolean;
+  blogs: { title: string; slug: string | null } | null;
+};
+
+export async function getAdminComments(): Promise<AdminComment[]> {
   const supabase = await getSupabase();
-  assertOk(await supabase.from('blog_comments').insert({ blog_id: postId, name, content: text }));
+  return unwrap(
+    await supabase
+      .from('blog_comments')
+      .select(ADMIN_COMMENT_COLUMNS)
+      .order('approved', { ascending: true })
+      .order('created_at', { ascending: false }),
+  );
+}
+
+/** Builds without a Turnstile site key only: works until the migration that removes anon inserts is applied. */
+export async function addComment(form: FormData): Promise<{ success: true }> {
+  const supabase = await getSupabase();
+  assertOk(
+    await supabase.from('blog_comments').insert({
+      blog_id: Number(form.get('blog_id')),
+      name: form.get('name') as string,
+      content: form.get('content') as string,
+    }),
+  );
   return { success: true };
+}
+
+export async function approveComment(id: number): Promise<void> {
+  const supabase = await getSupabase();
+  assertOk(await supabase.from('blog_comments').update({ approved: true }).eq('id', id));
+}
+
+export async function deleteComment(id: number): Promise<void> {
+  const supabase = await getSupabase();
+  assertOk(await supabase.from('blog_comments').delete().eq('id', id));
 }

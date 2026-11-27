@@ -197,6 +197,17 @@ export function createDataset(): Record<string, Row[]> {
         is_read: false,
       },
     ],
-    blog_comments: [{ id: 1, blog_id: 1, name: 'Reader', content: 'Nice post', created_at: now }],
+    blog_comments: [
+      { id: 1, blog_id: 1, name: 'Reader', content: 'Nice post', created_at: now, approved: true },
+      {
+        id: 2,
+        // The mock has no RLS: kept off post 1 so its public count stays 1.
+        blog_id: 2,
+        name: 'Spammer',
+        content: 'Pending one',
+        created_at: now,
+        approved: false,
+      },
+    ],
   };
 }

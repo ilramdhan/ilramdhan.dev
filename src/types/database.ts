@@ -21,6 +21,7 @@ export type Database = {
       };
       blog_comments: {
         Row: {
+          approved: boolean;
           blog_id: number | null;
           content: string;
           created_at: string;
@@ -29,6 +30,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          approved?: boolean;
           blog_id?: number | null;
           content: string;
           created_at?: string;
@@ -36,6 +38,7 @@ export type Database = {
           name: string;
         };
         Update: {
+          approved?: boolean;
           blog_id?: number | null;
           content?: string;
           created_at?: string;

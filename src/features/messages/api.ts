@@ -27,7 +27,7 @@ export async function getMessages(): Promise<Message[]> {
   );
 }
 
-/** Public contact form. No `select()`: anon may insert but not read messages. */
+/** Builds without a Turnstile site key only: works until the migration that removes anon inserts is applied. */
 export async function addMessage(message: MessageInsert): Promise<{ success: true }> {
   const supabase = await getSupabase();
   assertOk(await supabase.from('messages').insert(message));

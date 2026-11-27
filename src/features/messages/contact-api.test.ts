@@ -1,5 +1,6 @@
 // Tests for the Vercel Function api/contact.ts (kept out of api/: every file there becomes a function).
 import { describe, expect, it, vi } from 'vitest';
+import { handleComment } from '../../../api/comment';
 import { handleContact } from '../../../api/contact';
 
 const env = {
@@ -117,5 +118,27 @@ describe('api/contact', () => {
     expect((await handleContact(post(valid), hostEnv, bad)).status).toBe(403);
     const ok = backend(true, 201, { action: 'contact', hostname: 'www.ilramdhan.dev' });
     expect((await handleContact(post(valid), hostEnv, ok)).status).toBe(200);
+  });
+
+  it('api/comment: checks the comment action, then inserts into blog_comments (pending by DB default)', async () => {
+    const comment = {
+      blog_id: '7',
+      name: 'Reader',
+      content: 'Nice',
+      'cf-turnstile-response': 'token',
+    };
+    const f = backend(true, 201, { action: 'comment' });
+    expect((await handleComment(post(comment), env, f)).status).toBe(200);
+    const [insertUrl, insertInit] = f.mock.calls[1]!;
+    expect(str(insertUrl)).toBe('https://ref.supabase.co/rest/v1/blog_comments');
+    // Only the validated fields: a client can't send `approved: true`.
+    expect(JSON.parse(str(insertInit?.body))).toEqual({
+      blog_id: 7,
+      name: 'Reader',
+      content: 'Nice',
+    });
+    // A contact token can't post a comment.
+    expect((await handleComment(post(comment), env, backend(true))).status).toBe(403);
+    expect((await handleComment(post({ ...comment, content: ' ' }), env, f)).status).toBe(400);
   });
 });
